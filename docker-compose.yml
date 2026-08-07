@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: signbridge-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - backend/.env
+    volumes:
+      - sqlite_data:/app/backend/database
+    networks:
+      - signbridge-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: signbridge-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - signbridge-net
+
+volumes:
+  sqlite_data:
+    driver: local
+
+networks:
+  signbridge-net:
+    driver: bridge

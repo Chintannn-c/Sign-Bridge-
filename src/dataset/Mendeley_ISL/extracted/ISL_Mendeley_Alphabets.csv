@@ -1,0 +1,27 @@
+letter,hand_system,left_hand_posture,right_hand_posture,islrtc_category,landmark_points
+A,2-Hand,Left Thumb Up,Right Touch Index,Alphabet,42
+B,2-Hand,Left Open Loop,Right Open Loop,Alphabet,42
+C,2-Hand,Left C-Arc,Right Wrist Base,Alphabet,42
+D,2-Hand,Left Index Up,Right Semicircle,Alphabet,42
+E,2-Hand,Left Index Finger,Right Touch Index,Alphabet,42
+F,2-Hand,Left Cross Finger,Right Cross Finger,Alphabet,42
+G,2-Hand,Left Fist Out,Right Fist Out,Alphabet,42
+H,2-Hand,Left Flat Palm,Right Sweep Palm,Alphabet,42
+I,2-Hand,Left Middle Finger,Right Touch Index,Alphabet,42
+J,2-Hand,Left Flat Palm,Right Trace J Hook,Alphabet,42
+K,2-Hand,Left Index Up,Right Hook Index,Alphabet,42
+L,2-Hand,Left L-Shape,Right Base Palm,Alphabet,42
+M,2-Hand,Left Flat Palm,Right 3-Fingers,Alphabet,42
+N,2-Hand,Left Flat Palm,Right 2-Fingers,Alphabet,42
+O,2-Hand,Left Ring Finger,Right Touch Index,Alphabet,42
+P,2-Hand,Left Index Up,Right Circle Loop,Alphabet,42
+Q,2-Hand,Left Loop Half,Right Loop Half,Alphabet,42
+R,2-Hand,Left Flat Palm,Right Curled Index,Alphabet,42
+S,2-Hand,Left Pinky Interlock,Right Pinky Interlock,Alphabet,42
+T,2-Hand,Left Vertical Palm,Right Edge Touch,Alphabet,42
+U,2-Hand,Left Pinky Finger,Right Touch Index,Alphabet,42
+V,2-Hand,Left Flat Palm,Right V-Shape Taps,Alphabet,42
+W,2-Hand,Left W-Peaks,Right W-Peaks,Alphabet,42
+X,2-Hand,Left Cross Index,Right Cross Index,Alphabet,42
+Y,2-Hand,Left Flat Palm,Right Y-Shape Taps,Alphabet,42
+Z,2-Hand,Left Flat Palm,Right Draw Z Air,Alphabet,42
