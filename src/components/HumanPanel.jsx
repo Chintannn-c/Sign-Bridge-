@@ -14,7 +14,6 @@ export const HumanPanel = React.memo(({
   streamingText,
   isActive,
   isStreaming,
-  onClick,
   onSendMessage
 }) => {
   const [recognitionState, setRecognitionState] = useState(null);

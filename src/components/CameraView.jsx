@@ -56,14 +56,8 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
       });
     }
   }, [
-    recognition.sentenceBuffer, 
-    recognition.status, 
-    recognition.confidence, 
-    recognition.guidance, 
-    recognition.handInfo, 
-    recognition.detectedLetter,
-    recognition.detectedWord,
-    recognition.recognitionMode,
+    onRecognitionUpdate,
+    recognition,
     isCameraOn
   ]);
 

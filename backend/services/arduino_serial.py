@@ -17,6 +17,8 @@ import serial.tools.list_ports
 import time
 import json
 import logging
+import threading
+import queue
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +73,27 @@ class ArduinoSerial:
         self.timeout = timeout
         self.connection = None
         self.is_connected = False
+        self.is_signing = False
+        self._lock = threading.Lock()
+        self._sign_queue = queue.Queue()
+        self._worker_thread = threading.Thread(target=self._process_sign_queue, daemon=True)
+        self._worker_thread.start()
+
+    def _process_sign_queue(self):
+        """Worker thread to process signing tasks asynchronously."""
+        while True:
+            try:
+                task = self._sign_queue.get()
+                if task is None:
+                    break
+                text, letter_hold, gap = task
+                self.is_signing = True
+                self._sign_text_sync(text, letter_hold, gap)
+                self.is_signing = False
+                self._sign_queue.task_done()
+            except Exception as e:
+                logger.error(f"Error in async signing queue worker: {e}")
+                self.is_signing = False
 
     def auto_detect_port(self):
         """Scan COM ports for an Arduino device."""
@@ -86,38 +109,40 @@ class ArduinoSerial:
 
     def connect(self):
         """Open serial connection to Arduino."""
-        if self.is_connected and self.connection:
-            return True
+        with self._lock:
+            if self.is_connected and self.connection:
+                return True
 
-        target_port = self.port or self.auto_detect_port()
-        if not target_port:
-            logger.error("Cannot connect: no Arduino port found or specified.")
-            self.is_connected = False
-            return False
+            target_port = self.port or self.auto_detect_port()
+            if not target_port:
+                logger.error("Cannot connect: no Arduino port found or specified.")
+                self.is_connected = False
+                return False
 
-        try:
-            self.connection = serial.Serial(
-                port=target_port,
-                baudrate=self.baud_rate,
-                timeout=self.timeout
-            )
-            # Wait for Arduino to reset after serial open
-            time.sleep(2)
-            self.is_connected = True
-            self.port = target_port
-            logger.info(f"Connected to Arduino on {target_port} at {self.baud_rate} baud.")
-            return True
-        except serial.SerialException as e:
-            logger.error(f"Serial connection failed: {e}")
-            self.is_connected = False
-            return False
+            try:
+                self.connection = serial.Serial(
+                    port=target_port,
+                    baudrate=self.baud_rate,
+                    timeout=self.timeout
+                )
+                # Wait for Arduino to reset after serial open
+                time.sleep(2)
+                self.is_connected = True
+                self.port = target_port
+                logger.info(f"Connected to Arduino on {target_port} at {self.baud_rate} baud.")
+                return True
+            except serial.SerialException as e:
+                logger.error(f"Serial connection failed: {e}")
+                self.is_connected = False
+                return False
 
     def disconnect(self):
         """Close the serial connection."""
-        if self.connection and self.connection.is_open:
-            self.connection.close()
-        self.is_connected = False
-        logger.info("Arduino disconnected.")
+        with self._lock:
+            if self.connection and self.connection.is_open:
+                self.connection.close()
+            self.is_connected = False
+            logger.info("Arduino disconnected.")
 
     def send_angles(self, angles):
         """
@@ -128,16 +153,17 @@ class ArduinoSerial:
             logger.warning("Cannot send: Arduino not connected.")
             return False
 
-        try:
-            payload = json.dumps(angles) + '\n'
-            self.connection.write(payload.encode('utf-8'))
-            self.connection.flush()
-            logger.debug(f"Sent angles: {angles}")
-            return True
-        except serial.SerialException as e:
-            logger.error(f"Failed to send angles: {e}")
-            self.is_connected = False
-            return False
+        with self._lock:
+            try:
+                payload = json.dumps(angles) + '\n'
+                self.connection.write(payload.encode('utf-8'))
+                self.connection.flush()
+                logger.debug(f"Sent angles: {angles}")
+                return True
+            except serial.SerialException as e:
+                logger.error(f"Failed to send angles: {e}")
+                self.is_connected = False
+                return False
 
     def sign_letter(self, letter, hold_time=1.5):
         """
@@ -151,12 +177,8 @@ class ArduinoSerial:
             time.sleep(hold_time)
         return success
 
-    def sign_text(self, text, letter_hold=1.5, gap=0.5):
-        """
-        Fingerspell an entire text string letter-by-letter.
-        Skips spaces with a short pause.
-        Returns list of letters successfully signed.
-        """
+    def _sign_text_sync(self, text, letter_hold=1.5, gap=0.5):
+        """Internal synchronous text signing implementation."""
         signed = []
         for char in text.upper():
             if char == ' ':
@@ -172,10 +194,23 @@ class ArduinoSerial:
                 time.sleep(gap)
         return signed
 
+    def sign_text(self, text, letter_hold=1.5, gap=0.5, async_mode=True):
+        """
+        Fingerspell an entire text string letter-by-letter.
+        If async_mode is True, enqueues work so HTTP requests return immediately.
+        """
+        valid_letters = [c for c in text.upper() if c in ISL_SERVO_MAP]
+        if async_mode:
+            self._sign_queue.put((text, letter_hold, gap))
+            return valid_letters
+        return self._sign_text_sync(text, letter_hold, gap)
+
     def get_status(self):
-        """Return current connection status."""
+        """Return current connection and active signing status."""
         return {
             'connected': self.is_connected,
             'port': self.port,
-            'baud_rate': self.baud_rate
+            'baud_rate': self.baud_rate,
+            'is_signing': self.is_signing,
+            'queue_size': self._sign_queue.qsize()
         }

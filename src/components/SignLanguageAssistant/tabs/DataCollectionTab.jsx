@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { CameraOff, AlertCircle, Play, Square, Save, Trash2 } from 'lucide-react';
+import { CameraOff, Play, Square, Save, Trash2 } from 'lucide-react';
 import { useHandDetection } from '../../../hooks/useHandDetection';
 import { HandTrackingOverlay } from '../HandTrackingOverlay';
 

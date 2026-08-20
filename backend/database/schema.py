@@ -71,5 +71,68 @@ def init_db():
     print(f"SQLite Database successfully initialized at {DB_PATH}")
 
 
+def log_conversation(speaker, raw_text=None, refined_sentence=None, confidence=None, llm_provider=None):
+    """Inserts a new conversation record into SQLite."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO conversation_history (speaker, raw_text, refined_sentence, confidence, llm_provider)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (speaker, raw_text, refined_sentence, confidence, llm_provider)
+        )
+        conn.commit()
+        last_id = cursor.lastrowid
+        conn.close()
+        return last_id
+    except Exception as e:
+        print(f"Failed to log conversation to SQLite: {e}")
+        return None
+
+
+def get_recent_history(limit=50):
+    """Fetches the most recent conversation records."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, timestamp, speaker, raw_text, refined_sentence, confidence, llm_provider
+            FROM conversation_history
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (limit,)
+        )
+        rows = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return rows
+    except Exception as e:
+        print(f"Failed to fetch conversation history: {e}")
+        return []
+
+
+def log_dataset_session(letter, session_id, signer_id=None, frame_count=0, file_path=None):
+    """Inserts or updates a dataset session record into SQLite."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT OR REPLACE INTO dataset_sessions (letter, session_id, signer_id, frame_count, file_path)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (letter, session_id, signer_id, frame_count, file_path)
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Failed to log dataset session to SQLite: {e}")
+        return False
+
+
 if __name__ == "__main__":
     init_db()

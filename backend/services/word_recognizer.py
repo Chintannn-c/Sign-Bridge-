@@ -255,20 +255,21 @@ class WordRecognizer:
                 }
 
             norm_arr = np.asarray(normalized, dtype=np.float32)
+            model = self.model
 
             if self.mode == 'sklearn':
                 flat_in = norm_arr.flatten().reshape(1, -1)
-                probs = self.model.predict_proba(flat_in)[0]
+                probs = model.predict_proba(flat_in)[0]
             elif self.mode in ('pytorch', 'cnn_lstm'):
                 import torch
                 input_data = norm_arr.reshape(1, SEQUENCE_LENGTH, NUM_FEATURES)
                 tensor_in = torch.tensor(input_data, dtype=torch.float32)
                 with torch.no_grad():
-                    logits = self.model(tensor_in)
+                    logits = model(tensor_in)
                     probs = torch.softmax(logits, dim=1).numpy()[0]
             else:
                 input_data = norm_arr.reshape(1, SEQUENCE_LENGTH, NUM_FEATURES)
-                probs = self.model.predict(input_data, verbose=0)[0]
+                probs = model.predict(input_data, verbose=0)[0]
 
             top_idx = int(np.argmax(probs))
             confidence = float(probs[top_idx])

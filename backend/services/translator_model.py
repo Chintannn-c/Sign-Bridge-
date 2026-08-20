@@ -218,6 +218,11 @@ class TranslatorModel:
 
     def _predict_xgb(self, landmarks):
         """Run inference through the trained XGBoost model."""
+        if self.model is None:
+            return self._predict_heuristic(landmarks)
+
+        model = self.model
+
         try:
             arr = validate_landmark_array(landmarks)
 
@@ -239,16 +244,16 @@ class TranslatorModel:
             right_active = np.any(arr[:, 63:] != 0)
             is_single_hand = (left_active and not right_active) or (right_active and not left_active)
 
-            # Predict probabilities for primary placement using 158-D geometric features
+            # Predict probabilities for primary placement using 176-D geometric features
             feat_primary = extract_features(arr)
-            probs = self.model.predict_proba(feat_primary)[0]
+            probs = model.predict_proba(feat_primary)[0]
 
             # Evaluate alternate hand slot arrangement to ensure 100% hand-invariance
             swapped = np.zeros_like(arr)
             swapped[:, :63] = arr[:, 63:]
             swapped[:, 63:] = arr[:, :63]
             feat_swapped = extract_features(swapped)
-            probs_swapped = self.model.predict_proba(feat_swapped)[0]
+            probs_swapped = model.predict_proba(feat_swapped)[0]
             
             # Pick whichever slot orientation yields higher model confidence
             if np.max(probs_swapped) > np.max(probs):
@@ -260,14 +265,14 @@ class TranslatorModel:
                 h_left_single = np.zeros_like(arr)
                 h_left_single[:, :63] = arr[:, :63]
                 f_l = extract_features(h_left_single)
-                p_l = self.model.predict_proba(f_l)[0]
+                p_l = model.predict_proba(f_l)[0]
                 if np.max(p_l) > np.max(probs):
                     probs = p_l
 
                 h_right_single = np.zeros_like(arr)
                 h_right_single[:, 63:] = arr[:, 63:]
                 f_r = extract_features(h_right_single)
-                p_r = self.model.predict_proba(f_r)[0]
+                p_r = model.predict_proba(f_r)[0]
                 if np.max(p_r) > np.max(probs):
                     probs = p_r
 
@@ -307,6 +312,11 @@ class TranslatorModel:
 
     def _predict_dl(self, landmarks):
         """Run inference through the trained Keras model."""
+        if self.model is None:
+            return self._predict_heuristic(landmarks)
+
+        model = self.model
+
         try:
             arr = validate_landmark_array(landmarks)
 
@@ -319,8 +329,10 @@ class TranslatorModel:
                     return self._invalid_input_result('deep_learning')
                 arr = np.asarray(normalized, dtype=np.float32)
 
+            labels = self.metadata.get('labels', ISL_LABELS)
+
             # Predict
-            predictions = self.model.predict(arr, verbose=0)
+            predictions = model.predict(arr, verbose=0)
             probs = predictions[0]
             temperature = float(self.metadata.get('confidence_temperature', 1.0))
             if temperature != 1.0:
@@ -331,13 +343,13 @@ class TranslatorModel:
 
             top_idx = np.argmax(probs)
             confidence = float(probs[top_idx])
-            letter = ISL_LABELS[top_idx] if top_idx < len(ISL_LABELS) else '?'
+            letter = labels[top_idx] if top_idx < len(labels) else '?'
 
             # Top 5 scores
             sorted_indices = np.argsort(probs)[::-1][:5]
             top_scores = {
-                ISL_LABELS[i]: round(float(probs[i]), 4)
-                for i in sorted_indices if i < len(ISL_LABELS)
+                labels[i]: round(float(probs[i]), 4)
+                for i in sorted_indices if i < len(labels)
             }
 
             return {
@@ -383,7 +395,7 @@ class TranslatorModel:
                 scores[letter] = self._score_letter(letter, features)
 
             # Find best match
-            best_letter = max(scores, key=scores.get)
+            best_letter = max(scores, key=lambda k: scores[k])
             best_score = scores[best_letter]
 
             # Normalize confidence

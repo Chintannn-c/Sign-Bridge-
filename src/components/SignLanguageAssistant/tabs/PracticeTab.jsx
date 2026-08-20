@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Target, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { Target, CheckCircle2, ArrowRight } from 'lucide-react';
 import { ALPHABET_GESTURES } from '../../../data/gestureData';
 
 export const PracticeTab = ({ activeLetter, confidence, isActive }) => {

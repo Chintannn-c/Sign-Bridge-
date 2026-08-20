@@ -328,13 +328,16 @@ export function useISLTranslation() {
       const fetchedAnswer = await fetchAIAnswer(cleanText);
       const aiAnswer = fetchedAnswer || `I received your message: "${cleanText}". How can I help you further with Indian Sign Language?`;
       
-      streamText('robot', aiAnswer, () => {
-        if (isLiveMode && apiStatus === 'connected') {
-          sendToRobot(aiAnswer);
+      streamText('robot', aiAnswer, async () => {
+        if (apiStatus === 'connected') {
+          // Extract keywords via LLM simplify before robotic fingerspelling
+          const simplified = await simplifyWithLLM(aiAnswer);
+          const textToSign = simplified?.robot_keywords || aiAnswer;
+          sendToRobot(textToSign);
         }
       });
     })();
-  }, [addMessage, fetchAIAnswer, streamText, isLiveMode, apiStatus, sendToRobot]);
+  }, [addMessage, fetchAIAnswer, streamText, apiStatus, simplifyWithLLM, sendToRobot]);
 
 
   const clearAll = useCallback(() => {

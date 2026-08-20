@@ -20,7 +20,7 @@
 
 ## Important Assumptions
 - **MediaPipe Landmark Indexing**: Standard 42 landmark array consists of Left Hand 21 points + Right Hand 21 points $(x, y, z)$.
-- **Serial Communication Protocol**: Arduino expects ASCII servo angle frames enclosed in angle brackets `<L1,L2,L3,L4,L5|R1,R2,R3,R4,R5>`.
+- **Serial Communication Protocol**: Arduino serial communication sends a 10-element servo angle JSON array string e.g. `[0,180,180,180,180,180,0,180,180,180]\n`.
 - **Operating System**: Windows OS host running Python 3 and Node.js with Arduino attached via USB (e.g., `COM3` or auto-detected COM port).
 
 ---

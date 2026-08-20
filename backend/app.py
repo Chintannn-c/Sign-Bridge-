@@ -20,8 +20,10 @@ The server starts on http://localhost:5000
 import os
 import sys
 import json
+import re
 import logging
 import numpy as np
+from typing import TypedDict
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -35,6 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from services.translator_model import TranslatorModel
 from services.arduino_serial import ArduinoSerial
 from services.word_recognizer import WordRecognizer
+from database.schema import init_db, log_conversation, get_recent_history, log_dataset_session
 
 # ─── Configuration ──────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -43,8 +46,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger('sign-bridge-api')
 
+# Initialize SQLite database
+try:
+    init_db()
+except Exception as e:
+    logger.warning(f"Database initialization warning: {e}")
+
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'])
+CORS(app, origins=['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'])  # type: ignore
 
 # ─── Initialize Services ───────────────────────────────────────────────────
 logger.info("Initializing Sign-Bridge API services...")
@@ -55,30 +64,53 @@ arduino = ArduinoSerial()
 # Initialize Groq Real-Time LLM Client from .env
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 groq_client = None
+GROQ_MODELS = [
+    "groq/compound",
+    "groq/compound-mini",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+    "qwen/qwen3.6-27b",
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
+]
+
 if GROQ_API_KEY:
     try:
         from groq import Groq
         groq_client = Groq(api_key=GROQ_API_KEY)
-        logger.info("Groq Real-Time LLM service initialized successfully from .env!")
+        # Auto-detect available models for this specific account
+        try:
+            available = [m.id for m in groq_client.models.list().data if 'whisper' not in m.id and 'guard' not in m.id]
+            if available:
+                # Prioritize compound models first
+                preferred = ["groq/compound", "groq/compound-mini", "openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.6-27b"]
+                GROQ_MODELS = [m for m in preferred if m in available] + [m for m in available if m not in preferred]
+        except Exception:
+            pass
+        logger.info(f"Groq Real-Time LLM service initialized successfully with models: {GROQ_MODELS[:3]}")
     except Exception as e:
         logger.warning(f"Groq LLM initialization warning: {e}")
 
 # Initialize Google Gemini LLM Client from .env
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 gemini_client = None
+gemini_sdk_mode = None  # 'genai' | 'legacy'
+
 if GOOGLE_API_KEY:
     try:
         # Try modern google-genai SDK first
         from google import genai
         gemini_client = genai.Client(api_key=GOOGLE_API_KEY)
+        gemini_sdk_mode = 'genai'
         logger.info("Google GenAI (Gemini 2.0/2.5) service initialized successfully from .env!")
     except Exception as genai_err:
         try:
             # Fallback to legacy google.generativeai SDK
             import google.generativeai as legacy_genai
             legacy_genai.configure(api_key=GOOGLE_API_KEY)
-            gemini_client = legacy_genai.GenerativeModel('gemini-1.5-flash')
-            logger.info("Google Gemini (1.5-Flash) service initialized successfully from .env!")
+            gemini_client = legacy_genai
+            gemini_sdk_mode = 'legacy'
+            logger.info("Google Gemini (legacy SDK) service initialized successfully from .env!")
         except Exception as e:
             logger.warning(f"Google Gemini LLM initialization warning: {e}")
 
@@ -90,152 +122,13 @@ logger.info("Services ready.")
 # LLM AUTOMATIC FALLBACK ENGINE (Groq -> Google Gemini -> Local)
 # ═══════════════════════════════════════════════════════════════════════════
 
-GROQ_MODELS = [
-    "groq/compound",
-    "groq/compound-mini",
-    "openai/gpt-oss-120b",
-    "openai/gpt-oss-20b",
-    "llama-3.3-70b-versatile",
-]
-
 GEMINI_MODELS = [
     "gemini-2.0-flash",
     "gemini-2.5-flash",
     "gemini-1.5-flash",
 ]
 
-def generate_llm_response(prompt, system_instruction="You are SignBridge AI assistant."):
-    """
-    Primary: Groq (groq/compound / openai/gpt-oss-120b) for sub-100ms speed.
-    Fallback 1: Google Gemini (2.0/2.5 Flash) via google-genai.
-    Fallback 2: Smart Local Semantic Engine.
-    """
-    errors = []
-
-    # 1. Primary Attempt: Groq LPU (iterates through available active models)
-    if groq_client:
-        for model_id in GROQ_MODELS:
-            try:
-                response = groq_client.chat.completions.create(
-                    model=model_id,
-                    messages=[
-                        {"role": "system", "content": system_instruction},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.3,
-                    max_tokens=300
-                )
-                result = response.choices[0].message.content.strip()
-                if result:
-                    return {
-                        "text": result,
-                        "provider": f"Groq ({model_id})",
-                        "fallback_used": False
-                    }
-            except Exception as groq_err:
-                errors.append(f"Groq [{model_id}] error: {groq_err}")
-                continue
-
-    # 2. Fallback Attempt: Google Gemini (2.0 / 2.5 Flash)
-    if gemini_client:
-        for gem_model in GEMINI_MODELS:
-            try:
-                # If using modern google-genai Client
-                if hasattr(gemini_client, 'models') and hasattr(gemini_client.models, 'generate_content'):
-                    response = gemini_client.models.generate_content(
-                        model=gem_model,
-                        contents=f"{system_instruction}\n\nUser Input: {prompt}"
-                    )
-                    text_out = response.text.strip()
-                    if text_out:
-                        return {
-                            "text": text_out,
-                            "provider": f"Google Gemini ({gem_model})",
-                            "fallback_used": True
-                        }
-                # If using legacy GenerativeModel
-                elif hasattr(gemini_client, 'generate_content'):
-                    res = gemini_client.generate_content(f"{system_instruction}\n\nUser Input: {prompt}")
-                    text_out = res.text.strip()
-                    if text_out:
-                        return {
-                            "text": text_out,
-                            "provider": "Google Gemini (1.5-Flash)",
-                            "fallback_used": True
-                        }
-            except Exception as gem_err:
-                errors.append(f"Gemini [{gem_model}] error: {gem_err}")
-                continue
-
-    # 3. Fallback Attempt: Smart Local Keyword Matcher
-    logger.warning(f"All external LLMs failed. Errors: {'; '.join(errors)}")
-    fallback_text = get_smart_fallback_response(prompt)
-    return {
-        "text": fallback_text,
-        "provider": "Local Semantic Engine",
-        "fallback_used": True
-    }
-
-
-@app.route('/api/llm/refine', methods=['POST'])
-def llm_refine():
-    """
-    Refine raw ISL letter buffer into a fluent conversational sentence.
-    Uses automatic fallback (Groq -> Gemini).
-    """
-    data = request.get_json() or {}
-    text = data.get('text', '').strip()
-    if not text:
-        return jsonify({'error': 'Missing "text" parameter.'}), 400
-
-    system_instruction = (
-        "You are SignBridge AI. Convert raw ISL fingerspelled letter fragments or keywords "
-        "into a single fluent, natural conversational sentence. Keep response short, helpful, and concise."
-    )
-
-    try:
-        res = generate_llm_response(text, system_instruction=system_instruction)
-        return jsonify({
-            'raw_text': text,
-            'refined_sentence': res['text'],
-            'llm_provider': res['provider'],
-            'fallback_used': res['fallback_used']
-        })
-    except Exception as e:
-        logger.error(f"LLM refine failed: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/llm/simplify', methods=['POST'])
-def llm_simplify():
-    """
-    Simplify complex spoken text into essential keywords for robotic hands.
-    Uses automatic fallback (Groq -> Gemini).
-    """
-    data = request.get_json() or {}
-    text = data.get('text', '').strip()
-    if not text:
-        return jsonify({'error': 'Missing "text" parameter.'}), 400
-
-    system_instruction = (
-        "You are SignBridge AI. Extract the essential ISL keywords from the user's speech "
-        "so robotic hands can sign them quickly. Return ONLY uppercase keywords separated by space (e.g. 'WELCOME SIT ROOM B')."
-    )
-
-    try:
-        res = generate_llm_response(text, system_instruction=system_instruction)
-        return jsonify({
-            'original_speech': text,
-            'robot_keywords': res['text'],
-            'llm_provider': res['provider'],
-            'fallback_used': res['fallback_used']
-        })
-    except Exception as e:
-        logger.error(f"LLM simplify failed: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-def get_smart_fallback_response(query_text):
+def get_smart_fallback_response(query_text: str) -> str:
     """
     Intelligent keyword-based fallback response when LLM APIs are offline/unreachable.
     Responds directly to the specific question asked instead of returning random generic strings.
@@ -269,6 +162,197 @@ def get_smart_fallback_response(query_text):
         return f"Got it! Let me know how else I can assist you with '{query_text}'."
 
 
+class LLMResponse(TypedDict):
+    text: str
+    provider: str
+    fallback_used: bool
+
+
+def generate_llm_response(prompt: str, system_instruction: str = "You are SignBridge AI assistant.") -> LLMResponse:
+    """
+    Primary: Groq (llama-3.3-70b-versatile / llama-3.1-8b-instant) for sub-100ms speed.
+    Fallback 1: Google Gemini (2.0/2.5/1.5 Flash).
+    Fallback 2: Smart Local Semantic Engine.
+    """
+    errors = []
+
+    # 1. Primary Attempt: Groq LPU
+    client_groq = groq_client
+    if client_groq is not None:
+        for model_id in GROQ_MODELS:
+            try:
+                response = client_groq.chat.completions.create(
+                    model=model_id,
+                    messages=[
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.3,
+                    max_tokens=300
+                )
+                if response.choices and len(response.choices) > 0:
+                    msg = response.choices[0].message
+                    content = getattr(msg, 'content', None)
+                    if content:
+                        result = str(content).strip()
+                        if result:
+                            return {
+                                "text": result,
+                                "provider": f"Groq ({model_id})",
+                                "fallback_used": False
+                            }
+            except Exception as groq_err:
+                errors.append(f"Groq [{model_id}] error: {groq_err}")
+                continue
+
+    # 2. Fallback Attempt: Google Gemini
+    client_gemini = gemini_client
+    if client_gemini is not None:
+        for gem_model in GEMINI_MODELS:
+            try:
+                if gemini_sdk_mode == 'genai' and hasattr(client_gemini, 'models'):
+                    response = client_gemini.models.generate_content(
+                        model=gem_model,
+                        contents=f"{system_instruction}\n\nUser Input: {prompt}"
+                    )
+                    text_raw = getattr(response, 'text', None)
+                    if text_raw:
+                        text_out = str(text_raw).strip()
+                        if text_out:
+                            return {
+                                "text": text_out,
+                                "provider": f"Google Gemini ({gem_model})",
+                                "fallback_used": True
+                            }
+                elif gemini_sdk_mode == 'legacy' and hasattr(client_gemini, 'GenerativeModel'):
+                    model_obj = client_gemini.GenerativeModel(gem_model)
+                    res = model_obj.generate_content(f"{system_instruction}\n\nUser Input: {prompt}")
+                    text_raw = getattr(res, 'text', None)
+                    if text_raw:
+                        text_out = str(text_raw).strip()
+                        if text_out:
+                            return {
+                                "text": text_out,
+                                "provider": f"Google Gemini ({gem_model})",
+                                "fallback_used": True
+                            }
+            except Exception as gem_err:
+                errors.append(f"Gemini [{gem_model}] error: {gem_err}")
+                continue
+
+    # 3. Fallback Attempt: Smart Local Keyword Matcher
+    logger.warning(f"All external LLMs failed. Errors: {'; '.join(errors)}")
+    fallback_text = get_smart_fallback_response(prompt)
+    return {
+        "text": fallback_text,
+        "provider": "Local Semantic Engine",
+        "fallback_used": True
+    }
+
+
+def safe_float(val: object, default: float = 0.0) -> float:
+    """Safely convert any raw value (float, int, str, or unknown) to float without type errors."""
+    if isinstance(val, (int, float)):
+        return float(val)
+    if isinstance(val, (str, bytes)):
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return default
+    return default
+
+
+def clean_llm_text(text: str) -> str:
+    """Removes thinking blocks, reasoning fences, and markdown formatting from LLM outputs."""
+    if not text:
+        return ""
+    # Strip <think>...</think> if present
+    cleaned = re.sub(r'<think>[\s\S]*?</think>', '', text, flags=re.IGNORECASE).strip()
+    # If code fence present, extract fence content
+    fences = re.findall(r'```(?:[a-zA-Z]*\n)?([\s\S]*?)```', cleaned)
+    if fences:
+        cleaned = fences[-1].strip()
+    # Strip reasoning headers if any
+    if '**Final' in cleaned:
+        cleaned = cleaned.split('**Final')[-1].strip(':').strip()
+    # Remove markdown bold/italic asterisks
+    cleaned = re.sub(r'\*{1,3}', '', cleaned).strip()
+    return cleaned if cleaned else text.strip()
+
+
+@app.route('/api/llm/refine', methods=['POST'])
+def llm_refine():
+    """
+    Refine raw ISL letter buffer into a fluent conversational sentence.
+    Uses automatic fallback (Groq -> Gemini).
+    """
+    data = request.get_json() or {}
+    text = data.get('text', '').strip()
+    if not text:
+        return jsonify({'error': 'Missing "text" parameter.'}), 400
+
+    system_instruction = (
+        "You are SignBridge AI. Convert raw ISL fingerspelled letter fragments or keywords "
+        "into a single fluent, natural conversational sentence. Keep response short, helpful, and concise. "
+        "Return ONLY the refined sentence."
+    )
+
+    try:
+        res = generate_llm_response(text, system_instruction=system_instruction)
+        cleaned_text = clean_llm_text(res['text'])
+        # Log to SQLite database
+        log_conversation(
+            speaker='human',
+            raw_text=text,
+            refined_sentence=cleaned_text,
+            confidence=1.0,
+            llm_provider=res['provider']
+        )
+        return jsonify({
+            'raw_text': text,
+            'refined_sentence': cleaned_text,
+            'llm_provider': res['provider'],
+            'fallback_used': res['fallback_used']
+        })
+    except Exception as e:
+        logger.error(f"LLM refine failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/llm/simplify', methods=['POST'])
+def llm_simplify():
+    """
+    Simplify complex spoken text into essential keywords for robotic hands.
+    Uses automatic fallback (Groq -> Gemini).
+    """
+    data = request.get_json() or {}
+    text = data.get('text', '').strip()
+    if not text:
+        return jsonify({'error': 'Missing "text" parameter.'}), 400
+
+    system_instruction = (
+        "You are SignBridge AI. Extract the essential ISL keywords from the user's speech "
+        "so robotic hands can sign them quickly. Return ONLY uppercase keywords separated by space (e.g. 'WELCOME SIT ROOM B'). "
+        "Do NOT include explanations, reasoning, or markdown fences."
+    )
+
+    try:
+        res = generate_llm_response(text, system_instruction=system_instruction)
+        cleaned_keywords = clean_llm_text(res['text']).upper()
+        # Keep only letters and spaces
+        cleaned_keywords = re.sub(r'[^A-Z\s]', '', cleaned_keywords)
+        cleaned_keywords = re.sub(r'\s+', ' ', cleaned_keywords).strip()
+        return jsonify({
+            'original_speech': text,
+            'robot_keywords': cleaned_keywords,
+            'llm_provider': res['provider'],
+            'fallback_used': res['fallback_used']
+        })
+    except Exception as e:
+        logger.error(f"LLM simplify failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/llm/answer', methods=['POST'])
 def llm_answer():
     """
@@ -286,30 +370,45 @@ def llm_answer():
         "Strict rules:\n"
         "1. Directly address the user's input, question, or statement without going off-topic.\n"
         "2. If asked for your name or identity, identify yourself as 'SignBridge AI'.\n"
-        "3. NEVER complain or make meta-comments about lack of prior context or instructions (e.g. never say 'You didn't provide instructions' or 'I don't have context').\n"
+        "3. NEVER complain or make meta-comments about lack of prior context or instructions.\n"
         "4. If asked to repeat or clarify, politely ask what they would like you to repeat or sign.\n"
-        "5. If the user makes a statement (e.g. 'I want ice cream'), respond pleasantly and engagingly (e.g. 'Ice cream sounds great! What flavor would you like?').\n"
-        "6. Keep your response concise (1-2 short sentences max), direct, and friendly."
+        "5. If the user makes a statement, respond pleasantly and engagingly.\n"
+        "6. Keep your response concise (1-2 short sentences max), direct, and friendly. Return ONLY the answer without reasoning."
     )
 
     try:
         res = generate_llm_response(text, system_instruction=system_instruction)
+        cleaned_answer = clean_llm_text(res['text'])
+        # Log to SQLite database
+        log_conversation(
+            speaker='robot',
+            raw_text=text,
+            refined_sentence=cleaned_answer,
+            confidence=1.0,
+            llm_provider=res['provider']
+        )
         return jsonify({
             'user_text': text,
-            'answer': res['text'],
+            'answer': cleaned_answer,
             'llm_provider': res['provider'],
             'fallback_used': res['fallback_used']
         })
     except Exception as e:
         logger.warning(f"LLM answer API error (using smart local fallback): {e}")
         fallback_ans = get_smart_fallback_response(text)
+        log_conversation(
+            speaker='robot',
+            raw_text=text,
+            refined_sentence=fallback_ans,
+            confidence=1.0,
+            llm_provider='local_smart_fallback'
+        )
         return jsonify({
             'user_text': text,
             'answer': fallback_ans,
             'llm_provider': 'local_smart_fallback',
             'fallback_used': True
         })
-
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -397,8 +496,10 @@ def translate():
     try:
         result = translator.predict(landmarks)
 
-        # Confidence rejection: preserve calibrated rejection decision from translator
-        is_rej = result.get('rejected', False) or result.get('confidence', 0) < 0.50 or result.get('letter') == '?'
+        conf_raw = result.get('confidence', 0.0)
+        confidence = safe_float(conf_raw, 0.0)
+
+        is_rej = bool(result.get('rejected', False)) or (confidence < 0.50) or (str(result.get('letter', '')) == '?')
         if is_rej:
             result['rejected'] = True
             result['rejection_reason'] = result.get('rejection_reason') or 'low_confidence'
@@ -429,8 +530,11 @@ def translate_batch():
         try:
             result = translator.predict(frame_landmarks)
             results.append(result)
-            if result.get('confidence', 0) > 0.5:
-                sentence_letters.append(result.get('letter', '?'))
+            conf_raw = result.get('confidence', 0.0)
+            conf_val = safe_float(conf_raw, 0.0)
+
+            if conf_val > 0.5:
+                sentence_letters.append(str(result.get('letter', '?')))
         except Exception as e:
             results.append({'letter': '?', 'confidence': 0.0, 'error': str(e)})
 
@@ -479,8 +583,10 @@ def translate_word():
             return jsonify({'error': 'Word prediction failed or input invalid.'}), 400
 
         # Confidence rejection for words
-        confidence = result.get('confidence', 0)
-        if confidence < 0.60 or result.get('word') == '?':
+        conf_raw = result.get('confidence', 0.0)
+        confidence = safe_float(conf_raw, 0.0)
+
+        if confidence < 0.60 or str(result.get('word', '')) == '?':
             result['rejected'] = True
             result['rejection_reason'] = 'low_confidence'
             result['original_word'] = result.get('word', '?')
@@ -492,6 +598,18 @@ def translate_word():
     except Exception as e:
         logger.error(f"Word translation error: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/history', methods=['GET'])
+def get_history():
+    """Returns recent conversation history from SQLite database."""
+    limit = request.args.get('limit', default=50, type=int)
+    history = get_recent_history(limit=limit)
+    return jsonify({
+        'status': 'ok',
+        'history': history,
+        'count': len(history)
+    })
 
 
 # -----------------------------------------------------------------------------
@@ -519,6 +637,7 @@ def collect_data():
         
     letter = data['letter'].upper()
     session_id = data.get('session_id', 'unknown_session')
+    signer_id = data.get('signer_id', 'unknown_signer')
     frames = data['frames']
     
     # Save directory
@@ -529,7 +648,17 @@ def collect_data():
     
     try:
         with open(file_path, 'w') as f:
-            json.dump({'letter': letter, 'session_id': session_id, 'frames': frames}, f)
+            json.dump({'letter': letter, 'session_id': session_id, 'signer_id': signer_id, 'frames': frames}, f)
+        
+        # Log to SQLite dataset_sessions table
+        log_dataset_session(
+            letter=letter,
+            session_id=session_id,
+            signer_id=signer_id,
+            frame_count=len(frames),
+            file_path=file_path
+        )
+        
         logger.info(f"Saved {len(frames)} frames for letter {letter} to {file_path}")
         return jsonify({'status': 'ok', 'message': f'Saved {len(frames)} frames.'})
     except Exception as e:
@@ -626,12 +755,14 @@ def robot_sign():
             'message': 'Arduino not connected. Showing planned servo commands.'
         })
 
-    signed = arduino.sign_text(text, letter_hold=letter_hold, gap=gap)
+    # Asynchronous non-blocking background signing
+    signed = arduino.sign_text(text, letter_hold=letter_hold, gap=gap, async_mode=True)
     return jsonify({
         'text': text,
         'signed_letters': signed,
         'arduino_connected': True,
-        'message': f'Successfully signed {len(signed)} letters on robotic hands.'
+        'is_signing': True,
+        'message': f'Queued {len(signed)} letters for background signing on robotic hands.'
     })
 
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, Play, BookOpen, Star, Sparkles } from 'lucide-react';
+import { Play, BookOpen } from 'lucide-react';
 import { ALPHABET_GESTURES, WORD_GESTURES } from '../../../data/gestureData';
 
 export const LearnTab = () => {
