@@ -255,6 +255,23 @@ class WordRecognizer:
                 }
 
             norm_arr = np.asarray(normalized, dtype=np.float32)
+
+            # Motion velocity pre-gate: measure average frame-to-frame displacement
+            diffs = np.diff(norm_arr, axis=0)
+            motion_velocity = float(np.mean(np.linalg.norm(diffs.reshape(SEQUENCE_LENGTH - 1, 2, 21, 3), axis=-1)))
+
+            # If hand is static / motionless (< 0.015 units/frame), reject to prevent false word hallucinations
+            if motion_velocity < 0.015:
+                return {
+                    'word': '?',
+                    'confidence': 0.0,
+                    'mode': self.mode,
+                    'rejected': True,
+                    'rejection_reason': 'static_hand_detected',
+                    'motion_velocity': round(motion_velocity, 5),
+                    'all_scores': {},
+                }
+
             model = self.model
 
             if self.mode == 'sklearn':
@@ -275,6 +292,10 @@ class WordRecognizer:
             confidence = float(probs[top_idx])
             word = self.labels[top_idx] if top_idx < len(self.labels) else '?'
 
+            sorted_probs = np.sort(probs)[::-1]
+            margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
+            is_rejected = bool(confidence < 0.45 or margin < 0.05 or word == '?')
+
             sorted_indices = np.argsort(probs)[::-1][:5]
             top_scores = {
                 self.labels[i]: round(float(probs[i]), 4)
@@ -282,9 +303,13 @@ class WordRecognizer:
             }
 
             return {
-                'word': word,
+                'word': '?' if is_rejected else word,
                 'confidence': round(confidence, 4),
+                'margin': round(margin, 4),
                 'mode': self.mode,
+                'rejected': is_rejected,
+                'rejection_reason': 'low_confidence_or_margin' if is_rejected else None,
+                'motion_velocity': round(motion_velocity, 5),
                 'all_scores': top_scores,
             }
 

@@ -48,4 +48,5 @@ dataset/Words and Phrases/
 *.zip
 !dataset/Mendeley_ISL/ISL_Dataset.zip
 backend/models/*_backup.pkl
+scratch/
 

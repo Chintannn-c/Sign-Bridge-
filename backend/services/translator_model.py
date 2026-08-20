@@ -45,12 +45,12 @@ META_PATH = os.path.join(MODEL_DIR, 'training_meta.json')
 
 # Path to the Mendeley reference CSV
 MENDELEY_CSV = os.path.join(
-    os.path.dirname(__file__), '..', '..', 'src', 'dataset',
+    os.path.dirname(__file__), '..', '..', 'dataset',
     'Mendeley_ISL', 'extracted', 'ISL_Mendeley_Alphabets.csv'
 )
 
 # ISL alphabet + digit labels (36 classes: A-Z then 0-9)
-ISL_LABELS = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ') + list('0123456789')
+ISL_LABELS: list[str] = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ') + list('0123456789')
 
 # Below this, a same-hand thumb-to-index distance counts as "touching"
 # (in the same normalized units used by normalize_landmarks()).
