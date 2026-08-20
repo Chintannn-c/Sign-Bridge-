@@ -25,6 +25,11 @@ import logging
 import pickle
 import numpy as np
 
+try:
+    from .feature_extractor import extract_features, NUM_EXTRACTED_FEATURES
+except ImportError:
+    from services.feature_extractor import extract_features, NUM_EXTRACTED_FEATURES
+
 logger = logging.getLogger(__name__)
 
 # Path to the trained model weights files
@@ -44,8 +49,8 @@ MENDELEY_CSV = os.path.join(
     'Mendeley_ISL', 'extracted', 'ISL_Mendeley_Alphabets.csv'
 )
 
-# ISL alphabet labels
-ISL_LABELS = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+# ISL alphabet + digit labels (36 classes: A-Z then 0-9)
+ISL_LABELS = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ') + list('0123456789')
 
 # Below this, a same-hand thumb-to-index distance counts as "touching"
 # (in the same normalized units used by normalize_landmarks()).
@@ -84,6 +89,12 @@ def validate_landmark_array(landmarks):
     Centralizes the shape/type checks that _predict_xgb / _predict_dl
     previously relied on numpy to raise deep inside reshape() for.
     """
+    if isinstance(landmarks, list) and len(landmarks) == 42 and len(landmarks) > 0 and isinstance(landmarks[0], dict):
+        flat = []
+        for pt in landmarks:
+            flat.extend([float(pt.get('x', 0.0)), float(pt.get('y', 0.0)), float(pt.get('z', 0.0))])
+        landmarks = flat
+
     try:
         arr = np.asarray(landmarks, dtype=np.float32)
     except (TypeError, ValueError) as exc:
@@ -210,30 +221,81 @@ class TranslatorModel:
         try:
             arr = validate_landmark_array(landmarks)
 
-            # Apply same normalization as Keras path
+            # Fast check: if all zeros
+            if not np.any(arr != 0):
+                return self._invalid_input_result('xgboost')
+
+            # Apply same normalization as training pipeline
             if self.metadata.get('preprocessing') == 'wrist_center_scale_v1':
                 normalized = [normalize_landmarks(row) for row in arr]
                 if any(row is None for row in normalized):
-                    raise LandmarkValidationError('Invalid hand landmarks.')
+                    return self._invalid_input_result('xgboost')
                 arr = np.asarray(normalized, dtype=np.float32)
 
-            # Predict probabilities
-            probs = self.model.predict_proba(arr)[0]
+            labels = self.metadata.get('labels', ISL_LABELS)
+
+            # Check if this is a single-hand gesture (only one hand slot is non-zero)
+            left_active = np.any(arr[:, :63] != 0)
+            right_active = np.any(arr[:, 63:] != 0)
+            is_single_hand = (left_active and not right_active) or (right_active and not left_active)
+
+            # Predict probabilities for primary placement using 158-D geometric features
+            feat_primary = extract_features(arr)
+            probs = self.model.predict_proba(feat_primary)[0]
+
+            # Evaluate alternate hand slot arrangement to ensure 100% hand-invariance
+            swapped = np.zeros_like(arr)
+            swapped[:, :63] = arr[:, 63:]
+            swapped[:, 63:] = arr[:, :63]
+            feat_swapped = extract_features(swapped)
+            probs_swapped = self.model.predict_proba(feat_swapped)[0]
+            
+            # Pick whichever slot orientation yields higher model confidence
+            if np.max(probs_swapped) > np.max(probs):
+                probs = probs_swapped
+
+            # For contact gestures where hands overlap (e.g. K, M, T, P, R, S), if dual-hand confidence is moderate,
+            # also evaluate dominant individual hand sub-representations
+            if left_active and right_active and np.max(probs) < 0.80:
+                h_left_single = np.zeros_like(arr)
+                h_left_single[:, :63] = arr[:, :63]
+                f_l = extract_features(h_left_single)
+                p_l = self.model.predict_proba(f_l)[0]
+                if np.max(p_l) > np.max(probs):
+                    probs = p_l
+
+                h_right_single = np.zeros_like(arr)
+                h_right_single[:, 63:] = arr[:, 63:]
+                f_r = extract_features(h_right_single)
+                p_r = self.model.predict_proba(f_r)[0]
+                if np.max(p_r) > np.max(probs):
+                    probs = p_r
+
             top_idx = int(np.argmax(probs))
             confidence = float(probs[top_idx])
-            letter = ISL_LABELS[top_idx] if top_idx < len(ISL_LABELS) else '?'
+            letter = labels[top_idx] if top_idx < len(labels) else '?'
+
+            # Calculate confidence margin between top-1 and top-2
+            sorted_probs = np.sort(probs)[::-1]
+            margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
 
             # Top 5 scores
             sorted_indices = np.argsort(probs)[::-1][:5]
             top_scores = {
-                ISL_LABELS[i]: round(float(probs[i]), 4)
-                for i in sorted_indices if i < len(ISL_LABELS)
+                labels[i]: round(float(probs[i]), 4)
+                for i in sorted_indices if i < len(labels)
             }
 
+            # Reject if confidence is too low or margin is ambiguous (noise/non-gesture)
+            is_rejected = bool(confidence < 0.50 or margin < 0.05 or letter == '?')
+
             return {
-                'letter': letter,
+                'letter': '?' if is_rejected else letter,
                 'confidence': round(confidence, 4),
+                'margin': round(margin, 4),
                 'mode': 'xgboost',
+                'rejected': is_rejected,
+                'rejection_reason': 'low_confidence_or_margin' if is_rejected else None,
                 'all_scores': top_scores
             }
         except LandmarkValidationError as e:
@@ -247,10 +309,14 @@ class TranslatorModel:
         """Run inference through the trained Keras model."""
         try:
             arr = validate_landmark_array(landmarks)
+
+            if not np.any(arr != 0):
+                return self._invalid_input_result('deep_learning')
+
             if self.metadata.get('preprocessing') == 'wrist_center_scale_v1':
                 normalized = [normalize_landmarks(row) for row in arr]
                 if any(row is None for row in normalized):
-                    raise LandmarkValidationError('Invalid hand landmarks.')
+                    return self._invalid_input_result('deep_learning')
                 arr = np.asarray(normalized, dtype=np.float32)
 
             # Predict
@@ -289,28 +355,22 @@ class TranslatorModel:
 
     @staticmethod
     def _invalid_input_result(mode):
-        return {'letter': '?', 'confidence': 0.0, 'mode': mode, 'all_scores': {}}
+        return {'letter': '?', 'confidence': 0.0, 'mode': mode, 'rejected': True, 'all_scores': {}}
 
     def _predict_heuristic(self, landmarks):
         """
         Rule-based heuristic prediction using geometric features
         extracted from 42 hand landmarks (21 per hand).
-
-        This is a simplified classifier that analyzes:
-        - Finger extension ratios
-        - Relative hand positions
-        - Finger crossing / thumb-index touch patterns
-
-        For production, this should be replaced by the trained DL model.
         """
         try:
             # Convert input to structured format
             points = self._parse_landmarks(landmarks)
-            if points is None or len(points) < 42:
+            if points is None or len(points) < 42 or all(p.get('x', 0) == 0 and p.get('y', 0) == 0 and p.get('z', 0) == 0 for p in points):
                 return {
                     'letter': '?',
                     'confidence': 0.0,
                     'mode': 'heuristic',
+                    'rejected': True,
                     'all_scores': {}
                 }
 
@@ -460,6 +520,11 @@ class TranslatorModel:
         Higher score = better match.
         """
         score = 0.0
+
+        # Digits have no Mendeley heuristic reference — return zero score
+        if letter.isdigit():
+            return 0.0
+
         ref = self.mendeley_ref.get(letter, {})
         lh_posture = ref.get('left_hand_posture', '').lower()
         rh_posture = ref.get('right_hand_posture', '').lower()
@@ -504,20 +569,22 @@ class TranslatorModel:
         return score
 
     def get_info(self):
-        """Return model metadata."""
-        model_path = None
-        if self.mode == 'xgboost':
-            model_path = XGB_MODEL_PATH
-        elif self.mode == 'deep_learning':
-            model_path = MODEL_PATH
+        """Return truthful model metadata."""
+        model_path = str(XGB_MODEL_PATH) if self.mode == 'xgboost' else str(MODEL_PATH)
+        labels = [c for c in ISL_LABELS if c.isalpha()] if self.mode == 'xgboost' else ISL_LABELS
+        metrics = self.metadata.get('metrics', {})
 
         return {
             'mode': self.mode,
             'model_path': model_path,
-            'labels': ISL_LABELS,
-            'num_classes': len(ISL_LABELS),
+            'labels': labels,
+            'num_classes': len(labels),
             'input_features': 126,
-            'validation_accuracy': self.metadata.get('val_accuracy'),
+            'estimator_features': 176 if self.mode == 'xgboost' else 126,
+            'feature_name': 'geometric_invariants_176d' if self.mode == 'xgboost' else 'wrist_center_scale_v1',
+            'validation_accuracy': metrics.get('val_accuracy', self.metadata.get('val_accuracy')),
+            'test_accuracy': metrics.get('test_accuracy'),
+            'test_macro_f1': metrics.get('test_macro_f1'),
             'model_type': self.metadata.get('model_type', self.mode),
             'mendeley_letters': list(self.mendeley_ref.keys()),
         }

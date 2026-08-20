@@ -314,17 +314,27 @@ export function useISLTranslation() {
     if (!customText || !customText.trim()) return;
     const cleanText = customText.trim();
     setIsAutoDemo(false);
+    if (timerRef.current) clearInterval(timerRef.current);
 
-    // Stream user question on human side, then fetch and stream specific AI answer
-    streamText('human', cleanText, async () => {
-      const aiAnswer = await fetchAIAnswer(cleanText);
+    // 1. Instantly show sent message in the chat thread
+    addMessage('human', cleanText);
+    setHumanText(cleanText);
+    setHumanStreamText('');
+    setIsStreamingHuman(false);
+    setIsStreamingRobot(false);
+
+    // 2. Fetch AI response and stream it to the robot panel
+    (async () => {
+      const fetchedAnswer = await fetchAIAnswer(cleanText);
+      const aiAnswer = fetchedAnswer || `I received your message: "${cleanText}". How can I help you further with Indian Sign Language?`;
+      
       streamText('robot', aiAnswer, () => {
         if (isLiveMode && apiStatus === 'connected') {
           sendToRobot(aiAnswer);
         }
       });
-    });
-  }, [streamText, fetchAIAnswer, isLiveMode, apiStatus, sendToRobot]);
+    })();
+  }, [addMessage, fetchAIAnswer, streamText, isLiveMode, apiStatus, sendToRobot]);
 
 
   const clearAll = useCallback(() => {

@@ -1,13 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
 /**
- * Gesture Recognition State Machine with Temporal Smoothing.
+ * Gesture Recognition State Machine with Temporal Smoothing & Dual Mode (Letter & Word).
+ *
+ * Modes:
+ *   1. 'letter' — Frame-by-frame static alphabet recognition (A-Z) via /api/translate
+ *   2. 'word'   — Sliding 30-frame temporal sequence recognition (ISL words) via /api/translate/word
  *
  * States: idle → searching → detected → tracking → recognising → stable
- *
- * Temporal smoothing requires N consecutive identical predictions above
- * a confidence threshold before committing a letter to the sentence buffer.
- * This prevents flickering from unstable single-frame predictions.
  */
 
 const API_BASE = '/api';
@@ -23,78 +23,239 @@ const STATES = {
 
 const STATUS_LABELS = {
   idle: 'Ready',
-  searching: 'Searching...',
-  detected: 'Hand Detected',
-  tracking: 'Tracking...',
-  recognising: 'Recognising...',
-  stable: 'Gesture Stable',
+  searching: 'Searching for hands...',
+  detected: 'Hands Detected',
+  tracking: 'Tracking Keypoints...',
+  recognising: 'Recognising Sign...',
+  stable: 'Sign Locked',
 };
 
 // Minimum consecutive identical predictions needed to commit a letter
 const STABILITY_THRESHOLD = 3;
 // Minimum confidence to consider a prediction valid
-const CONFIDENCE_THRESHOLD = 0.65;
+const CONFIDENCE_THRESHOLD_LETTER = 0.52;
+const CONFIDENCE_THRESHOLD_WORD = 0.65;
+const WORD_SEQUENCE_LENGTH = 30;
 
-export function useGestureRecognition({ enabled = false } = {}) {
+function isValidHandGeometry(landmarks) {
+  if (!landmarks || landmarks.length < 126) return false;
+  let activePoints = 0;
+  let xMin = 1, xMax = 0, yMin = 1, yMax = 0;
+  for (let i = 0; i < 42; i++) {
+    const x = landmarks[i * 3];
+    const y = landmarks[i * 3 + 1];
+    if (x !== 0 || y !== 0) {
+      activePoints++;
+      xMin = Math.min(xMin, x);
+      xMax = Math.max(xMax, x);
+      yMin = Math.min(yMin, y);
+      yMax = Math.max(yMax, y);
+    }
+  }
+  if (activePoints < 21) return false;
+  if ((xMax - xMin) < 0.03 || (yMax - yMin) < 0.03) return false;
+  return true;
+}
+
+export function useGestureRecognition({ enabled = false, initialMode = 'letter' } = {}) {
+  const [recognitionMode, setRecognitionMode] = useState(initialMode); // 'letter' | 'word'
   const [status, setStatus] = useState(STATES.IDLE);
   const [detectedLetter, setDetectedLetter] = useState(null);
+  const [detectedWord, setDetectedWord] = useState(null);
   const [confidence, setConfidence] = useState(0);
   const [sentenceBuffer, setSentenceBuffer] = useState('');
   const [allScores, setAllScores] = useState({});
-  const [handInfo, setHandInfo] = useState(null); // { label, confidence }
+  const [handInfo, setHandInfo] = useState(null); // { count, label }
   const [guidance, setGuidance] = useState(null);
+  const [wordBufferCount, setWordBufferCount] = useState(0);
+  const [availableWords, setAvailableWords] = useState([
+    'AGAIN', 'BYE_BYE', 'DEAF', 'HEARING', 'HELLO', 'INDIA', 'LANGUAGE', 'MAN', 'ME', 'NAMASTE'
+  ]);
 
-  // Temporal smoothing refs
-  const consecutiveRef = useRef({ letter: null, count: 0 });
+  // Temporal smoothing & buffering refs
+  const consecutiveLetterRef = useRef({ letter: null, count: 0 });
+  const consecutiveWordRef = useRef({ word: null, count: 0 });
   const lastCommitRef = useRef(0);
-  const lastCommittedLetterRef = useRef(null);
+  const lastCommittedItemRef = useRef(null);
+  const frameBufferRef = useRef([]);
+  const wordInferenceCooldownRef = useRef(0);
+  const isRequestPendingRef = useRef(false);
 
-  // Reset when disabled
+  // Fetch model information & available word classes
+  useEffect(() => {
+    async function fetchModelInfo() {
+      try {
+        const res = await fetch(`${API_BASE}/health`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.word_recognizer_available) {
+            const infoRes = await fetch(`${API_BASE}/words/info`);
+            if (infoRes.ok) {
+              const infoData = await infoRes.json();
+              if (infoData.labels && infoData.labels.length > 0) {
+                setAvailableWords(infoData.labels);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Could not fetch backend model info:', e);
+      }
+    }
+    fetchModelInfo();
+  }, []);
+
+  // Reset state when disabled or when mode switches
   useEffect(() => {
     if (!enabled) {
       setStatus(STATES.IDLE);
       setDetectedLetter(null);
+      setDetectedWord(null);
       setConfidence(0);
-      consecutiveRef.current = { letter: null, count: 0 };
-      lastCommittedLetterRef.current = null;
+      consecutiveLetterRef.current = { letter: null, count: 0 };
+      consecutiveWordRef.current = { word: null, count: 0 };
+      lastCommittedItemRef.current = null;
+      frameBufferRef.current = [];
+      setWordBufferCount(0);
     } else {
       setStatus(STATES.SEARCHING);
+      frameBufferRef.current = [];
+      setWordBufferCount(0);
     }
-  }, [enabled]);
+  }, [enabled, recognitionMode]);
 
   /**
-   * Process a frame of 42 hand landmarks from MediaPipe.
-   * Called by the HandTrackingOverlay or LiveDetectionTab on each detection cycle.
+   * Process a frame of 126 landmark floats from MediaPipe.
    */
   const processLandmarks = useCallback(async (landmarks, handCount = 0, handedness = null) => {
     if (!enabled) return null;
 
-    // Update hand info
-    if (handCount > 0) {
+    const hasActiveLandmarks = Boolean(handCount > 0 && isValidHandGeometry(landmarks));
+
+    // Update hand status
+    if (handCount > 0 && hasActiveLandmarks) {
       setHandInfo({
         count: handCount,
-        label: handedness || (handCount >= 2 ? 'Both Hands' : 'Single Hand'),
+        label: handedness || (handCount >= 2 ? 'Both Hands (ISL)' : 'Single Hand'),
       });
       setStatus(STATES.DETECTED);
     } else {
       setHandInfo(null);
       setStatus(STATES.SEARCHING);
-      setGuidance('Show your hand inside the detection area.');
-      consecutiveRef.current = { letter: null, count: 0 };
-      lastCommittedLetterRef.current = null;
+      setDetectedLetter(null);
+      setDetectedWord(null);
+      setConfidence(0);
+      setAllScores({});
+      setGuidance('Show your hands inside the camera frame.');
+      consecutiveLetterRef.current = { letter: null, count: 0 };
+      consecutiveWordRef.current = { word: null, count: 0 };
+      lastCommittedItemRef.current = null;
+      frameBufferRef.current = [];
+      setWordBufferCount(0);
       return null;
     }
 
-    // Check landmark quality and generate guidance
-    if (handCount < 2) {
-      setGuidance('ISL is a 2-Handed sign system. Please raise both hands into frame.');
-    } else if (landmarks && landmarks.length >= 126) {
-      const guidanceMsg = analyzeQuality(landmarks);
-      setGuidance(guidanceMsg);
+    // Adaptive Guidance for Single-Hand vs Dual-Hand Gestures
+    if (handCount === 1) {
+      setGuidance('Single hand detected (e.g. C, L, O, V, numbers 0–9)');
+    } else if (handCount >= 2) {
+      const guidanceMsg = landmarks && landmarks.length >= 126 ? analyzeQuality(landmarks) : null;
+      setGuidance(guidanceMsg || 'Dual-hand ISL tracking active');
     }
 
-    // Send to Flask API
     setStatus(STATES.TRACKING);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // MODE 1: WORD SEQUENCE RECOGNITION (Sliding 30-Frame Window)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (recognitionMode === 'word') {
+      // Append current frame to rolling sequence buffer
+      frameBufferRef.current.push(landmarks);
+      if (frameBufferRef.current.length > WORD_SEQUENCE_LENGTH) {
+        frameBufferRef.current.shift();
+      }
+      setWordBufferCount(frameBufferRef.current.length);
+
+      // Only perform word inference when buffer is full and throttled (every ~100ms)
+      const now = Date.now();
+      if (frameBufferRef.current.length >= WORD_SEQUENCE_LENGTH && (now - wordInferenceCooldownRef.current >= 100)) {
+        wordInferenceCooldownRef.current = now;
+
+        try {
+          const res = await fetch(`${API_BASE}/translate/word`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ frames: frameBufferRef.current }),
+          });
+
+          if (!res.ok) return null;
+
+          const prediction = await res.json();
+
+          // Handle confidence rejection from backend
+          if (prediction.rejected) {
+            setStatus(STATES.TRACKING);
+            setDetectedWord(null);
+            setDetectedLetter(null);
+            setConfidence(prediction.confidence || 0);
+            setGuidance('Low confidence — adjust your hand position.');
+            consecutiveWordRef.current = { word: null, count: 0 };
+            return prediction;
+          }
+
+          if (!prediction || !prediction.word || prediction.word === '?') return null;
+
+          setStatus(STATES.RECOGNISING);
+          setDetectedWord(prediction.word);
+          setDetectedLetter(null);
+          setConfidence(prediction.confidence);
+          setAllScores(prediction.all_scores || {});
+
+          // Temporal smoothing for whole words
+          if (prediction.confidence >= CONFIDENCE_THRESHOLD_WORD) {
+            const prev = consecutiveWordRef.current;
+            if (prev.word === prediction.word) {
+              prev.count += 1;
+            } else {
+              consecutiveWordRef.current = { word: prediction.word, count: 1 };
+            }
+
+            // Commit word after 2 consecutive frames or high confidence (>0.85)
+            if (consecutiveWordRef.current.count >= 2 || prediction.confidence >= 0.85) {
+              if (now - lastCommitRef.current > 1200) { // 1.2s cooldown between words
+                if (lastCommittedItemRef.current !== prediction.word) {
+                  setStatus(STATES.STABLE);
+                  setSentenceBuffer(prev => {
+                    const clean = prev.trim();
+                    return clean.length > 0 ? `${clean} ${prediction.word}` : prediction.word;
+                  });
+                  lastCommitRef.current = now;
+                  lastCommittedItemRef.current = prediction.word;
+                  consecutiveWordRef.current = { word: null, count: 0 };
+                  frameBufferRef.current = []; // Clear buffer after successful word lock
+                  setWordBufferCount(0);
+                }
+              }
+            }
+          } else {
+            consecutiveWordRef.current = { word: null, count: 0 };
+          }
+
+          return prediction;
+        } catch (e) {
+          console.warn('Word recognition error:', e);
+          return null;
+        }
+      }
+      return null;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // MODE 2: STATIC LETTER RECOGNITION (A-Z)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (isRequestPendingRef.current) return null;
+    isRequestPendingRef.current = true;
+
     try {
       const res = await fetch(`${API_BASE}/translate`, {
         method: 'POST',
@@ -105,47 +266,70 @@ export function useGestureRecognition({ enabled = false } = {}) {
       if (!res.ok) return null;
 
       const prediction = await res.json();
-      setStatus(STATES.RECOGNISING);
-      setDetectedLetter(prediction.letter);
-      setConfidence(prediction.confidence);
-      setAllScores(prediction.all_scores || {});
 
-      // Temporal smoothing — require N consecutive identical predictions
-      if (prediction.confidence >= CONFIDENCE_THRESHOLD) {
-        const prev = consecutiveRef.current;
-        if (prev.letter === prediction.letter) {
-          prev.count += 1;
-        } else {
-          consecutiveRef.current = { letter: prediction.letter, count: 1 };
-        }
+      // Handle confidence rejection or low confidence from backend
+      if (prediction.rejected || !prediction.letter || prediction.letter === '?' || prediction.confidence < CONFIDENCE_THRESHOLD_LETTER) {
+        setStatus(STATES.TRACKING);
+        setDetectedLetter(null);
+        setDetectedWord(null);
+        setConfidence(prediction.confidence || 0);
+        setAllScores(prediction.all_scores || {});
+        setGuidance(prediction.confidence > 0 ? 'Hold sign steady...' : 'Show hands clearly');
+        consecutiveLetterRef.current = { letter: null, count: 0 };
+        return prediction;
+      }
 
-        // Commit letter after reaching stability threshold (only if different from last committed letter)
-        if (consecutiveRef.current.count >= STABILITY_THRESHOLD) {
-          const now = Date.now();
-          if (now - lastCommitRef.current > 400) {
-            if (lastCommittedLetterRef.current !== prediction.letter) {
-              setStatus(STATES.STABLE);
-              setSentenceBuffer(prev => prev + prediction.letter);
-              lastCommitRef.current = now;
-              lastCommittedLetterRef.current = prediction.letter;
-              consecutiveRef.current = { letter: null, count: 0 };
-            }
+      // Temporal smoothing & stability check
+      const prev = consecutiveLetterRef.current;
+      if (prev.letter === prediction.letter) {
+        prev.count += 1;
+      } else {
+        // Sign changed — immediately reset streak for new letter
+        consecutiveLetterRef.current = { letter: prediction.letter, count: 1 };
+      }
+
+      // Display detected letter with high responsiveness
+      if (consecutiveLetterRef.current.count >= 1) {
+        setStatus(consecutiveLetterRef.current.count >= 2 ? STATES.RECOGNISING : STATES.TRACKING);
+        setDetectedLetter(prediction.letter);
+        setDetectedWord(null);
+        setConfidence(prediction.confidence);
+        setAllScores(prediction.all_scores || {});
+      }
+
+      // Commit letter after reaching stability threshold
+      if (consecutiveLetterRef.current.count >= STABILITY_THRESHOLD) {
+        const now = Date.now();
+        if (now - lastCommitRef.current > 450) {
+          if (lastCommittedItemRef.current !== prediction.letter) {
+            setStatus(STATES.STABLE);
+            setSentenceBuffer(prevBuf => prevBuf + prediction.letter);
+            lastCommitRef.current = now;
+            lastCommittedItemRef.current = prediction.letter;
+            consecutiveLetterRef.current = { letter: null, count: 0 };
           }
         }
-      } else {
-        consecutiveRef.current = { letter: null, count: 0 };
       }
 
       return prediction;
     } catch (e) {
-      console.warn('Gesture recognition API error:', e);
+      console.warn('Letter recognition API error:', e);
       return null;
+    } finally {
+      isRequestPendingRef.current = false;
     }
-  }, [enabled]);
+  }, [enabled, recognitionMode]);
 
   // Sentence buffer actions
   const undoLetter = useCallback(() => {
-    setSentenceBuffer(prev => prev.slice(0, -1));
+    setSentenceBuffer(prev => {
+      const trimmed = prev.trimEnd();
+      const lastSpaceIdx = trimmed.lastIndexOf(' ');
+      if (lastSpaceIdx !== -1) {
+        return trimmed.substring(0, lastSpaceIdx + 1);
+      }
+      return prev.slice(0, -1);
+    });
   }, []);
 
   const deleteLetter = useCallback(() => {
@@ -154,12 +338,15 @@ export function useGestureRecognition({ enabled = false } = {}) {
 
   const clearBuffer = useCallback(() => {
     setSentenceBuffer('');
-    consecutiveRef.current = { letter: null, count: 0 };
-    lastCommittedLetterRef.current = null;
+    consecutiveLetterRef.current = { letter: null, count: 0 };
+    consecutiveWordRef.current = { word: null, count: 0 };
+    lastCommittedItemRef.current = null;
+    frameBufferRef.current = [];
+    setWordBufferCount(0);
   }, []);
 
   const addSpace = useCallback(() => {
-    setSentenceBuffer(prev => prev + ' ');
+    setSentenceBuffer(prev => (prev.endsWith(' ') ? prev : prev + ' '));
   }, []);
 
   const updateSentence = useCallback((newText) => {
@@ -194,15 +381,24 @@ export function useGestureRecognition({ enabled = false } = {}) {
   }, [sentenceBuffer]);
 
   return {
+    // Mode
+    recognitionMode,
+    setRecognitionMode,
+
     // State
     status,
     statusLabel: STATUS_LABELS[status] || status,
     detectedLetter,
+    detectedWord,
+    detectedSign: detectedWord || detectedLetter,
     confidence,
     allScores,
     handInfo,
     guidance,
     sentenceBuffer,
+    wordBufferCount,
+    wordBufferMax: WORD_SEQUENCE_LENGTH,
+    availableWords,
 
     // Actions
     processLandmarks,
@@ -224,8 +420,6 @@ function analyzeQuality(landmarks) {
     return 'Hand not fully visible. Move closer to camera.';
   }
 
-  // Check if landmarks are too clustered (hand too far away)
-  let xRange = 0, yRange = 0;
   let xMin = 1, xMax = 0, yMin = 1, yMax = 0;
 
   for (let i = 0; i < 42; i++) {
@@ -239,22 +433,20 @@ function analyzeQuality(landmarks) {
     }
   }
 
-  xRange = xMax - xMin;
-  yRange = yMax - yMin;
+  const xRange = xMax - xMin;
+  const yRange = yMax - yMin;
 
   if (xRange < 0.05 && yRange < 0.05) {
-    return 'Move hand closer to camera.';
+    return 'Move hands closer to camera.';
   }
 
-  // Check if hand is near edges (partially out of frame)
   if (xMin < 0.02 || xMax > 0.98 || yMin < 0.02 || yMax > 0.98) {
-    return 'Hand partially outside frame. Center your hand.';
+    return 'Hands partially outside frame. Center both hands.';
   }
 
-  // Check if fingers are spread enough for recognition
   if (xRange < 0.1 && yRange < 0.1) {
-    return 'Spread fingers slightly for better recognition.';
+    return 'Spread fingers clearly for better recognition.';
   }
 
-  return null; // No issues
+  return null;
 }

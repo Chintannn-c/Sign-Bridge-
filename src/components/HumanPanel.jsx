@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Keyboard, Send, X } from 'lucide-react';
+import { Keyboard, Send, X, Trash2 } from 'lucide-react';
 import { CameraView } from './CameraView';
 import { SentenceBuilder } from './SignLanguageAssistant/SentenceBuilder';
 
@@ -26,25 +26,34 @@ export const HumanPanel = React.memo(({
   const rawBuffer = recognitionState?.sentenceBuffer || '';
   const sentenceBuffer = isCameraOn ? rawBuffer : (fullText || '');
   const hasLiveSentence = Boolean(sentenceBuffer && sentenceBuffer.trim().length > 0);
-  const displayText = isCameraOn
-    ? (hasLiveSentence ? sentenceBuffer : 'Start signing or type below...')
-    : (isStreaming ? streamingText : fullText);
+  const displayText = isStreaming
+    ? streamingText
+    : (hasLiveSentence
+        ? sentenceBuffer
+        : (isCameraOn ? 'Start signing or type below...' : (fullText || 'Start signing or type below...')));
 
   const handleSubmit = (e) => {
-    if (e) e.preventDefault();
-    if (tempInput.trim() && onSendMessage) {
-      onSendMessage(tempInput.trim());
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const msg = tempInput.trim();
+    if (msg) {
+      if (onSendMessage) {
+        onSendMessage(msg);
+      }
+      if (recognitionState?.clearBuffer) {
+        recognitionState.clearBuffer();
+      }
       setTempInput('');
+      setShowTextbox(false);
     }
   };
 
   return (
     <div
       className={`panel-card left-card ${isActive ? 'active-panel' : ''}`}
-      onClick={!isCameraOn ? onClick : undefined} // Only allow demo click if camera is off
     >
-      {!isCameraOn && <div className="click-layer" title="Click to trigger live input simulation" />}
-
       {/* Card Header Strip */}
       <div className="card-header">
         <div className="card-label">
@@ -52,6 +61,16 @@ export const HumanPanel = React.memo(({
           {isActive && <span className="listening-dot" />}
         </div>
         <div className="chat-header-actions" onClick={e => e.stopPropagation()}>
+          {isCameraOn && hasLiveSentence && (
+            <button
+              className="chat-action-btn"
+              onClick={recognitionState?.clearBuffer}
+              title="Clear Live Sentence"
+              style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.35)', background: 'rgba(239, 68, 68, 0.08)' }}
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
           <button
             className={`chat-action-btn ${showTextbox ? 'is-active-toggle' : ''}`}
             onClick={() => setShowTextbox(prev => !prev)}
@@ -73,11 +92,49 @@ export const HumanPanel = React.memo(({
         {/* Text Feed below the Horizontal Webcam */}
         <div className="card-text-wrapper human-text-wrapper" style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
           {!showTextbox && (
-            <h2 className={`card-text ${isCameraOn && !hasLiveSentence ? 'text-slate-400 italic' : ''}`}>
-              {displayText}
-              {isStreaming && !isCameraOn && <span className="streaming-cursor-teal" />}
-              {isCameraOn && recognitionState?.status === 'detecting' && <span className="streaming-cursor-teal" />}
-            </h2>
+            <div style={{ width: '100%', position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}>
+              <h2 className={`card-text ${isCameraOn && !hasLiveSentence ? 'text-slate-400 italic' : ''}`} style={{ flex: 1, margin: 0 }}>
+                {displayText}
+                {isStreaming && !isCameraOn && <span className="streaming-cursor-teal" />}
+                {isCameraOn && recognitionState?.status === 'detecting' && <span className="streaming-cursor-teal" />}
+              </h2>
+              {isCameraOn && hasLiveSentence && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    recognitionState?.clearBuffer();
+                  }}
+                  title="Clear sentence"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    color: '#ef4444',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: '8px',
+                    padding: '0.35rem 0.65rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    flexShrink: 0,
+                    transition: 'all 0.2s',
+                    marginTop: '0.2rem'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = '#ef4444';
+                    e.currentTarget.style.color = '#fff';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.color = '#ef4444';
+                  }}
+                >
+                  <Trash2 size={13} />
+                  <span>Clear</span>
+                </button>
+              )}
+            </div>
           )}
 
           {/* Temporary Custom Textbox Input */}

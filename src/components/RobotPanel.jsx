@@ -58,13 +58,13 @@ export const RobotPanel = React.memo(({
     if (inputVal.trim() && onSendMessage) {
       onSendMessage(inputVal.trim());
       setInputVal('');
+      setShowKeyboard(false);
     }
   };
 
   return (
     <div
       className={`panel-card right-card ${isActive ? 'active-panel' : ''} ${isSheetOpen ? 'has-split-sheet' : ''}`}
-      onClick={onClick}
     >
       {/* Card Header Strip */}
       <div className="card-header">

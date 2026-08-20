@@ -1,0 +1,128 @@
+{
+  "model_type": "random_forest_sequence",
+  "train_samples": 304,
+  "val_samples": 11,
+  "validation_accuracy_evaluable": 0.9090909090909091,
+  "num_classes": 17,
+  "labels": [
+    "AGAIN",
+    "BYE_BYE",
+    "DEAF",
+    "HEARING",
+    "HELLO",
+    "INDIA",
+    "LANGUAGE",
+    "MAN",
+    "ME",
+    "NAMASTE",
+    "PLEASE",
+    "SIGN",
+    "SORRY",
+    "THANK_YOU",
+    "WELCOME",
+    "WOMAN",
+    "YOU"
+  ],
+  "insufficient_classes": [
+    "BYE_BYE",
+    "HELLO",
+    "INDIA",
+    "LANGUAGE",
+    "ME",
+    "SIGN",
+    "YOU"
+  ],
+  "sequence_length": 30,
+  "input_features": 3780,
+  "per_class": {
+    "AGAIN": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "source_videos": 2
+    },
+    "BYE_BYE": {
+      "status": "insufficient_data",
+      "source_videos": 1
+    },
+    "DEAF": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "source_videos": 2
+    },
+    "HEARING": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "source_videos": 2
+    },
+    "HELLO": {
+      "status": "insufficient_data",
+      "source_videos": 1
+    },
+    "INDIA": {
+      "status": "insufficient_data",
+      "source_videos": 1
+    },
+    "LANGUAGE": {
+      "status": "insufficient_data",
+      "source_videos": 1
+    },
+    "MAN": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "source_videos": 2
+    },
+    "ME": {
+      "status": "insufficient_data",
+      "source_videos": 1
+    },
+    "NAMASTE": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "source_videos": 2
+    },
+    "PLEASE": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "source_videos": 2
+    },
+    "SIGN": {
+      "status": "insufficient_data",
+      "source_videos": 1
+    },
+    "SORRY": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "source_videos": 2
+    },
+    "THANK_YOU": {
+      "precision": 0.6667,
+      "recall": 1.0,
+      "f1-score": 0.8,
+      "source_videos": 4
+    },
+    "WELCOME": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "source_videos": 3
+    },
+    "WOMAN": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "source_videos": 2
+    },
+    "YOU": {
+      "status": "insufficient_data",
+      "source_videos": 1
+    }
+  },
+  "notes": "Single-video classes flagged as insufficient_data; evaluated without augmentation leakage."
+}

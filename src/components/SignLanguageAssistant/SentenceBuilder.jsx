@@ -44,7 +44,13 @@ export const SentenceBuilder = ({
       <button className="sla-action-btn" onClick={onDelete} disabled={!sentence} title="Delete last letter">
         <Delete size={12} /> Delete
       </button>
-      <button className="sla-action-btn" onClick={onClear} disabled={!sentence} title="Clear all">
+      <button 
+        className="sla-action-btn danger" 
+        onClick={onClear} 
+        disabled={!sentence} 
+        title="Clear entire sentence"
+        style={sentence ? { color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.35)', background: 'rgba(239, 68, 68, 0.06)' } : {}}
+      >
         <Trash2 size={12} /> Clear
       </button>
       <button className="sla-action-btn" onClick={handleCopy} disabled={!sentence} title="Copy to clipboard">

@@ -29,7 +29,6 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
   const [handCount, setHandCount] = useState(0);
 
   const handsRef = useRef(null);
-  const cameraRef = useRef(null);
   const lastCallRef = useRef(0);
   const scriptLoadedRef = useRef(false);
   const smootherRef = useRef(new LandmarkSmoother(42, 1.2, 0.005));
@@ -86,8 +85,8 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
         hands.setOptions({
           maxNumHands: 2,           // ISL requires both hands
           modelComplexity: 1,       // 1=Full model (higher accuracy for dual hands & overlapping fingers)
-          minDetectionConfidence: 0.4,
-          minTrackingConfidence: 0.4,
+          minDetectionConfidence: 0.50, // Optimal threshold for robust hand detection without phantom noise
+          minTrackingConfidence: 0.50,  // Optimal threshold for stable inter-frame finger tracking
         });
 
         hands.onResults((results) => {
@@ -117,11 +116,11 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
               // If MediaPipe provides distinct handedness labels
               if (label0 && label1 && label0 !== label1) {
                 if (label0 === 'Left') {
-                  rightHand = h0;
-                  leftHand = h1;
-                } else {
                   leftHand = h0;
                   rightHand = h1;
+                } else {
+                  rightHand = h0;
+                  leftHand = h1;
                 }
               } else {
                 // Spatial sorting fallback: sort by wrist X position if labels conflict/overlap
@@ -137,60 +136,32 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
               const h0 = results.multiHandLandmarks[0];
               const label0 = results.multiHandedness?.[0]?.label;
               if (label0 === 'Left') {
-                rightHand = h0;
-              } else {
                 leftHand = h0;
+              } else {
+                rightHand = h0;
               }
             }
 
-            // 1. Raw landmarks smoothed via One-Euro filter for canvas overlay visualization
-            const displayFlat = [];
+            // Extract 126-feature landmarks (21x3 Left + 21x3 Right)
+            const rawFlat = [];
             for (let i = 0; i < 21; i++) {
               if (leftHand && leftHand[i]) {
-                displayFlat.push(leftHand[i].x, leftHand[i].y, leftHand[i].z);
+                rawFlat.push(leftHand[i].x, leftHand[i].y, leftHand[i].z);
               } else {
-                displayFlat.push(0, 0, 0);
+                rawFlat.push(0, 0, 0);
               }
             }
             for (let i = 0; i < 21; i++) {
               if (rightHand && rightHand[i]) {
-                displayFlat.push(rightHand[i].x, rightHand[i].y, rightHand[i].z);
+                rawFlat.push(rightHand[i].x, rightHand[i].y, rightHand[i].z);
               } else {
-                displayFlat.push(0, 0, 0);
+                rawFlat.push(0, 0, 0);
               }
             }
 
-            const smoothedDisplay = smootherRef.current.smooth(displayFlat);
-            setLandmarkData(smoothedDisplay);
-
-            // 2. Normalized landmarks for Flask API model inference (shifted to canonical wrist 0.5, 0.8)
-            const apiFlat = [];
-            const normalizeHand = (hand) => {
-              if (!hand || !hand[0]) {
-                return Array(21 * 3).fill(0);
-              }
-              const result = [];
-              const wristX = 1 - hand[0].x; // Flip X for selfie mode
-              const wristY = hand[0].y;
-              
-              // Shift to canonical wrist position (0.5, 0.8)
-              const shiftX = 0.5 - wristX;
-              const shiftY = 0.8 - wristY;
-              
-              for (let i = 0; i < 21; i++) {
-                const flippedX = 1 - hand[i].x;
-                result.push(
-                  flippedX + shiftX,
-                  hand[i].y + shiftY,
-                  hand[i].z
-                );
-              }
-              return result;
-            };
-
-            const normalizedLeft = normalizeHand(leftHand);
-            const normalizedRight = normalizeHand(rightHand);
-            apiFlat.push(...normalizedLeft, ...normalizedRight);
+            // One-Euro adaptive filter smoothing to eliminate coordinate jitter
+            const smoothedLandmarks = smootherRef.current.smooth(rawFlat);
+            setLandmarkData(smoothedLandmarks);
 
             // Throttled callback to avoid flooding the API
             const now = Date.now();
@@ -205,12 +176,15 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
                 handednessStr = 'Both Hands';
               }
 
-              props.onLandmarks(apiFlat, numHands, handednessStr);
+              props.onLandmarks(smoothedLandmarks, numHands, handednessStr);
             }
           } else {
             setIsDetecting(false);
             setLandmarkData(null);
             smootherRef.current.reset();
+            if (props.onLandmarks) {
+              props.onLandmarks(null, 0, null);
+            }
           }
         });
 

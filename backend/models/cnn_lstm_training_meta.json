@@ -1,0 +1,117 @@
+{
+  "model_type": "cnn_bilstm",
+  "train_samples": 384,
+  "val_samples": 6,
+  "val_accuracy": 0.8333333333333334,
+  "num_classes": 17,
+  "labels": [
+    "AGAIN",
+    "BYE_BYE",
+    "DEAF",
+    "HEARING",
+    "HELLO",
+    "INDIA",
+    "LANGUAGE",
+    "MAN",
+    "ME",
+    "NAMASTE",
+    "PLEASE",
+    "SIGN",
+    "SORRY",
+    "THANK_YOU",
+    "WELCOME",
+    "WOMAN",
+    "YOU"
+  ],
+  "sequence_length": 30,
+  "input_features": 126,
+  "epochs_trained": 14,
+  "architecture": "1D-CNN(126\u219264\u2192128) + BiLSTM(128, 2-layers) + FC(256\u219264\u2192N)",
+  "per_class": {
+    "AGAIN": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "BYE_BYE": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "DEAF": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "HEARING": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0
+    },
+    "HELLO": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "INDIA": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "LANGUAGE": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "MAN": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "ME": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "NAMASTE": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0
+    },
+    "PLEASE": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "SIGN": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "SORRY": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "THANK_YOU": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0
+    },
+    "WELCOME": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0
+    },
+    "WOMAN": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "YOU": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    }
+  }
+}

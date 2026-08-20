@@ -20,10 +20,20 @@ export const SignBridgeKiosk = () => {
     clearAll
   } = useISLTranslation();
 
-  // Keyboard shortcut listener
+  // Keyboard shortcut listener (bypassed when typing in inputs)
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.code === 'Space') {
+      const target = e.target;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+       if (e.code === 'Space') {
         e.preventDefault();
         setIsAutoDemo(prev => !prev);
       } else if (e.code === 'Digit1' || e.code === 'KeyH') {

@@ -1,0 +1,29 @@
+{
+  "model_type": "bi_lstm_pytorch",
+  "train_samples": 384,
+  "val_samples": 96,
+  "val_accuracy": 1.0,
+  "num_classes": 17,
+  "labels": [
+    "AGAIN",
+    "BYE_BYE",
+    "DEAF",
+    "HEARING",
+    "HELLO",
+    "INDIA",
+    "LANGUAGE",
+    "MAN",
+    "ME",
+    "NAMASTE",
+    "PLEASE",
+    "SIGN",
+    "SORRY",
+    "THANK_YOU",
+    "WELCOME",
+    "WOMAN",
+    "YOU"
+  ],
+  "sequence_length": 30,
+  "input_features": 126,
+  "epochs_trained": 40
+}

@@ -21,6 +21,7 @@ import os
 import sys
 import json
 import logging
+import numpy as np
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -64,73 +65,116 @@ if GROQ_API_KEY:
 
 # Initialize Google Gemini LLM Client from .env
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
-gemini_model = None
+gemini_client = None
 if GOOGLE_API_KEY:
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=GOOGLE_API_KEY)
-        gemini_model = genai.GenerativeModel('gemini-1.5-flash')
-        logger.info("Google Gemini LLM service initialized successfully from .env!")
-    except Exception as e:
-        logger.warning(f"Google Gemini LLM initialization warning: {e}")
+        # Try modern google-genai SDK first
+        from google import genai
+        gemini_client = genai.Client(api_key=GOOGLE_API_KEY)
+        logger.info("Google GenAI (Gemini 2.0/2.5) service initialized successfully from .env!")
+    except Exception as genai_err:
+        try:
+            # Fallback to legacy google.generativeai SDK
+            import google.generativeai as legacy_genai
+            legacy_genai.configure(api_key=GOOGLE_API_KEY)
+            gemini_client = legacy_genai.GenerativeModel('gemini-1.5-flash')
+            logger.info("Google Gemini (1.5-Flash) service initialized successfully from .env!")
+        except Exception as e:
+            logger.warning(f"Google Gemini LLM initialization warning: {e}")
 
 logger.info(f"Translator mode: {translator.mode}")
 logger.info("Services ready.")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# LLM AUTOMATIC FALLBACK ENGINE (Groq -> Google Gemini)
+# LLM AUTOMATIC FALLBACK ENGINE (Groq -> Google Gemini -> Local)
 # ═══════════════════════════════════════════════════════════════════════════
+
+GROQ_MODELS = [
+    "groq/compound",
+    "groq/compound-mini",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+    "llama-3.3-70b-versatile",
+]
+
+GEMINI_MODELS = [
+    "gemini-2.0-flash",
+    "gemini-2.5-flash",
+    "gemini-1.5-flash",
+]
 
 def generate_llm_response(prompt, system_instruction="You are SignBridge AI assistant."):
     """
-    Primary: Groq (Llama-3.3-70b-versatile) for sub-100ms speed.
-    Fallback: Google Gemini (1.5-Flash) if Groq exhausts quota or hits rate-limits.
+    Primary: Groq (groq/compound / openai/gpt-oss-120b) for sub-100ms speed.
+    Fallback 1: Google Gemini (2.0/2.5 Flash) via google-genai.
+    Fallback 2: Smart Local Semantic Engine.
     """
     errors = []
 
-    # 1. Primary Attempt: Groq LPU
+    # 1. Primary Attempt: Groq LPU (iterates through available active models)
     if groq_client:
-        try:
-            logger.info("Attempting Groq API (Primary LLM)...")
-            response = groq_client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[
-                    {"role": "system", "content": system_instruction},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=300
-            )
-            result = response.choices[0].message.content.strip()
-            return {
-                "text": result,
-                "provider": "Groq (Llama-3.3-70b)",
-                "fallback_used": False
-            }
-        except Exception as groq_err:
-            msg = f"Groq primary API error/quota exhausted: {groq_err}"
-            logger.warning(msg)
-            errors.append(msg)
+        for model_id in GROQ_MODELS:
+            try:
+                response = groq_client.chat.completions.create(
+                    model=model_id,
+                    messages=[
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.3,
+                    max_tokens=300
+                )
+                result = response.choices[0].message.content.strip()
+                if result:
+                    return {
+                        "text": result,
+                        "provider": f"Groq ({model_id})",
+                        "fallback_used": False
+                    }
+            except Exception as groq_err:
+                errors.append(f"Groq [{model_id}] error: {groq_err}")
+                continue
 
-    # 2. Fallback Attempt: Google Gemini 1.5 Flash
-    if gemini_model:
-        try:
-            logger.info("Falling back to Google Gemini API (Secondary LLM)...")
-            full_prompt = f"{system_instruction}\n\nUser Input: {prompt}"
-            res = gemini_model.generate_content(full_prompt)
-            result = res.text.strip()
-            return {
-                "text": result,
-                "provider": "Google Gemini (1.5-Flash)",
-                "fallback_used": True
-            }
-        except Exception as gemini_err:
-            msg = f"Google Gemini fallback API error: {gemini_err}"
-            logger.error(msg)
-            errors.append(msg)
+    # 2. Fallback Attempt: Google Gemini (2.0 / 2.5 Flash)
+    if gemini_client:
+        for gem_model in GEMINI_MODELS:
+            try:
+                # If using modern google-genai Client
+                if hasattr(gemini_client, 'models') and hasattr(gemini_client.models, 'generate_content'):
+                    response = gemini_client.models.generate_content(
+                        model=gem_model,
+                        contents=f"{system_instruction}\n\nUser Input: {prompt}"
+                    )
+                    text_out = response.text.strip()
+                    if text_out:
+                        return {
+                            "text": text_out,
+                            "provider": f"Google Gemini ({gem_model})",
+                            "fallback_used": True
+                        }
+                # If using legacy GenerativeModel
+                elif hasattr(gemini_client, 'generate_content'):
+                    res = gemini_client.generate_content(f"{system_instruction}\n\nUser Input: {prompt}")
+                    text_out = res.text.strip()
+                    if text_out:
+                        return {
+                            "text": text_out,
+                            "provider": "Google Gemini (1.5-Flash)",
+                            "fallback_used": True
+                        }
+            except Exception as gem_err:
+                errors.append(f"Gemini [{gem_model}] error: {gem_err}")
+                continue
 
-    raise RuntimeError(f"All LLM APIs failed: {'; '.join(errors)}")
+    # 3. Fallback Attempt: Smart Local Keyword Matcher
+    logger.warning(f"All external LLMs failed. Errors: {'; '.join(errors)}")
+    fallback_text = get_smart_fallback_response(prompt)
+    return {
+        "text": fallback_text,
+        "provider": "Local Semantic Engine",
+        "fallback_used": True
+    }
 
 
 @app.route('/api/llm/refine', methods=['POST'])
@@ -199,6 +243,10 @@ def get_smart_fallback_response(query_text):
     q = query_text.lower().strip()
     if any(k in q for k in ['washroom', 'toilet', 'restroom', 'bathroom']):
         return "The washroom is straight ahead to your left."
+    elif any(k in q for k in ['repeat', 'say again', 'once more', 'pardon']):
+        return "Sure! Please let me know what you would like me to sign or repeat."
+    elif any(k in q for k in ['ice cream', 'food', 'hungry', 'eat', 'drink', 'coffee', 'tea', 'water']):
+        return "That sounds wonderful! How can I assist you with your request?"
     elif any(k in q for k in ['hello', 'hi', 'namaste', 'hey', 'greetings']):
         return "Hello! Namaste. How can I assist you today?"
     elif any(k in q for k in ['how are you', 'how do you do', 'how r u']):
@@ -208,15 +256,17 @@ def get_smart_fallback_response(query_text):
     elif any(k in q for k in ['thank', 'thanks']):
         return "You are very welcome! Happy to help."
     elif any(k in q for k in ['help', 'assist', 'support']):
-        return "I am here to assist you! You can sign or type your message."
+        return "I am here to assist you! You can sign with your camera or type below."
     elif any(k in q for k in ['bye', 'goodbye', 'see you']):
         return "Goodbye! Have a wonderful day ahead."
     elif any(k in q for k in ['morning', 'afternoon', 'evening']):
         return "Good day! How can I help you today?"
     elif any(k in q for k in ['nice to meet you']):
         return "Nice to meet you too! Welcome to SignBridge."
+    elif any(k in q for k in ['where', 'location', 'direction']):
+        return "Please tell me which place you are looking for, and I will be happy to guide you."
     else:
-        return f"I received your question: '{query_text}'. I am here to assist you!"
+        return f"Got it! Let me know how else I can assist you with '{query_text}'."
 
 
 @app.route('/api/llm/answer', methods=['POST'])
@@ -231,9 +281,15 @@ def llm_answer():
         return jsonify({'error': 'Missing "text" parameter.'}), 400
 
     system_instruction = (
-        "You are SignBridge AI, a polite and helpful assistant for an Indian Sign Language (ISL) communication system. "
-        "Directly answer the user's specific question or respond naturally to their input. "
-        "Keep your response concise (1-2 short sentences max), clear, and direct."
+        "You are SignBridge AI, a helpful, polite, and direct dual-communication Indian Sign Language assistant. "
+        "Your task is to provide a direct, relevant, and natural response to what the user said or asked.\n"
+        "Strict rules:\n"
+        "1. Directly address the user's input, question, or statement without going off-topic.\n"
+        "2. If asked for your name or identity, identify yourself as 'SignBridge AI'.\n"
+        "3. NEVER complain or make meta-comments about lack of prior context or instructions (e.g. never say 'You didn't provide instructions' or 'I don't have context').\n"
+        "4. If asked to repeat or clarify, politely ask what they would like you to repeat or sign.\n"
+        "5. If the user makes a statement (e.g. 'I want ice cream'), respond pleasantly and engagingly (e.g. 'Ice cream sounds great! What flavor would you like?').\n"
+        "6. Keep your response concise (1-2 short sentences max), direct, and friendly."
     )
 
     try:
@@ -269,15 +325,33 @@ def health():
         'translator_mode': translator.mode,
         'arduino_connected': arduino.is_connected,
         'groq_available': groq_client is not None,
-        'gemini_available': gemini_model is not None,
+        'gemini_available': gemini_client is not None,
         'word_recognizer_available': word_recognizer.is_available
     })
 
 
 @app.route('/api/model/info', methods=['GET'])
 def model_info():
-    """Return model metadata."""
+    """Return alphabet model metadata."""
     return jsonify(translator.get_info())
+
+
+@app.route('/api/words/info', methods=['GET'])
+def words_info():
+    """Return word recognizer metadata."""
+    return jsonify(word_recognizer.get_info())
+
+
+@app.route('/api/model/reload', methods=['POST', 'GET'])
+def model_reload():
+    """Reload model weights and metadata from disk."""
+    translator._load()
+    word_recognizer._load()
+    return jsonify({
+        'status': 'reloaded',
+        'alphabet_model': translator.get_info(),
+        'word_model': word_recognizer.get_info()
+    })
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -288,21 +362,6 @@ def model_info():
 def translate():
     """
     Translate hand landmarks to an ISL letter/word.
-
-    Request JSON body:
-    {
-        "landmarks": [
-            // 42 landmarks as [{x, y, z}, ...] or flat [x1,y1,z1, x2,y2,z2, ...]
-        ]
-    }
-
-    Response:
-    {
-        "letter": "A",
-        "confidence": 0.95,
-        "mode": "deep_learning" | "heuristic",
-        "all_scores": {"A": 0.95, "B": 0.02, ...}
-    }
     """
     data = request.get_json()
     if not data or 'landmarks' not in data:
@@ -313,8 +372,41 @@ def translate():
 
     landmarks = data['landmarks']
 
+    # Fast guard: if no hands are visible (all zeros or empty), do not predict
+    try:
+        arr_check = np.asarray(landmarks, dtype=np.float32)
+        if arr_check.size == 0 or not np.any(arr_check != 0) or np.all(np.abs(arr_check) < 1e-4):
+            return jsonify({
+                'letter': '?',
+                'confidence': 0.0,
+                'mode': translator.mode,
+                'rejected': True,
+                'rejection_reason': 'no_hands_detected',
+                'all_scores': {}
+            })
+    except Exception:
+        return jsonify({
+            'letter': '?',
+            'confidence': 0.0,
+            'mode': translator.mode,
+            'rejected': True,
+            'rejection_reason': 'invalid_landmarks_payload',
+            'all_scores': {}
+        })
+
     try:
         result = translator.predict(landmarks)
+
+        # Confidence rejection: preserve calibrated rejection decision from translator
+        is_rej = result.get('rejected', False) or result.get('confidence', 0) < 0.50 or result.get('letter') == '?'
+        if is_rej:
+            result['rejected'] = True
+            result['rejection_reason'] = result.get('rejection_reason') or 'low_confidence'
+            result['original_letter'] = result.get('letter', '?')
+            result['letter'] = '?'
+        else:
+            result['rejected'] = False
+
         return jsonify(result)
     except Exception as e:
         logger.error(f"Translation error: {e}")
@@ -325,25 +417,6 @@ def translate():
 def translate_batch():
     """
     Translate a batch of landmark frames (for sentence-level recognition).
-
-    Request JSON body:
-    {
-        "frames": [
-            [landmarks_frame_1],
-            [landmarks_frame_2],
-            ...
-        ]
-    }
-
-    Response:
-    {
-        "results": [
-            {"letter": "H", "confidence": 0.92},
-            {"letter": "E", "confidence": 0.88},
-            ...
-        ],
-        "sentence": "HE..."
-    }
     """
     data = request.get_json()
     if not data or 'frames' not in data:
@@ -371,28 +444,12 @@ def translate_batch():
 def translate_word():
     """
     Translate a sequence of landmark frames to an ISL word.
-    Uses the Bi-LSTM temporal word recognizer.
-
-    Request JSON body:
-    {
-        "frames": [
-            [x1,y1,z1, ...],  // Frame 1: 126 landmark floats
-            [x1,y1,z1, ...],  // Frame 2: 126 landmark floats
-            ...                // Up to 30 frames
-        ]
-    }
-
-    Response:
-    {
-        "word": "HELLO",
-        "confidence": 0.93,
-        "all_scores": {"HELLO": 0.93, "NAMASTE": 0.04, ...}
-    }
+    Uses the CNN-BiLSTM temporal word recognizer.
     """
     if not word_recognizer.is_available:
         return jsonify({
-            'error': 'Word recognizer is not available. Train the Bi-LSTM model first.',
-            'hint': 'Run: cd backend && python train_model_lstm.py'
+            'error': 'Word recognizer is not available. Train the CNN-BiLSTM model first.',
+            'hint': 'Run: cd backend && python train_model_cnn_lstm.py'
         }), 503
 
     data = request.get_json()
@@ -400,10 +457,37 @@ def translate_word():
         return jsonify({'error': 'Missing "frames" field.'}), 400
 
     frames = data['frames']
+
+    # Fast guard: if no hands are visible across frames (all zeros), do not predict
+    try:
+        arr_check = np.asarray(frames, dtype=np.float32)
+        if not np.any(arr_check != 0):
+            return jsonify({
+                'word': '?',
+                'confidence': 0.0,
+                'mode': word_recognizer.mode,
+                'rejected': True,
+                'rejection_reason': 'no_hands_detected',
+                'all_scores': {}
+            })
+    except Exception:
+        pass
+
     try:
         result = word_recognizer.predict(frames)
         if result is None:
             return jsonify({'error': 'Word prediction failed or input invalid.'}), 400
+
+        # Confidence rejection for words
+        confidence = result.get('confidence', 0)
+        if confidence < 0.60 or result.get('word') == '?':
+            result['rejected'] = True
+            result['rejection_reason'] = 'low_confidence'
+            result['original_word'] = result.get('word', '?')
+            result['word'] = '?'
+        else:
+            result['rejected'] = False
+
         return jsonify(result)
     except Exception as e:
         logger.error(f"Word translation error: {e}")

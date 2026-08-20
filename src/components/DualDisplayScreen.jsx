@@ -112,10 +112,20 @@ export const DualDisplayScreen = () => {
   }, [isPlayingAutoDemo, streamTextToPanel]);
 
   /**
-   * Keyboard shortcuts for live testing
+   * Keyboard shortcuts for live testing (bypassed when typing in inputs)
    */
   useEffect(() => {
     const handleKeyDown = (e) => {
+      const target = e.target;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
       if (e.code === 'Space') {
         e.preventDefault();
         setIsPlayingAutoDemo(prev => !prev);

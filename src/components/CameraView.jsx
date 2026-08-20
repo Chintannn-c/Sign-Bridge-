@@ -3,12 +3,13 @@ import { useWebcam } from '../hooks/useWebcam';
 import { useHandDetection } from '../hooks/useHandDetection';
 import { useGestureRecognition } from '../hooks/useGestureRecognition';
 import { HandTrackingOverlay } from './SignLanguageAssistant/HandTrackingOverlay';
-import { Video, VideoOff, Activity, CameraOff, Camera, FlipHorizontal, AlertCircle } from 'lucide-react';
+import { Video, VideoOff, Activity, CameraOff, Camera, FlipHorizontal, AlertCircle, Layers } from 'lucide-react';
 import './SignLanguageAssistant/assistant.css';
 
 /**
  * Pure React Camera View Component
  * Positioned on the left side of the Human panel card.
+ * Supports dual-mode recognition: Static Letters (A-Z) & Whole-Word Sequence Gestures.
  */
 export const CameraView = ({ isActive, onRecognitionUpdate }) => {
   const {
@@ -35,15 +36,15 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
     }
   }, [webcamVideoRef, videoElement]);
 
-  // Recognition state machine with temporal smoothing
+  // Recognition state machine with dual letter & word modes
   const recognition = useGestureRecognition({ enabled: isLive && isCameraOn });
 
-  // MediaPipe hands integration
+  // MediaPipe hands integration (2-hand detection, 0.25 confidence)
   const detection = useHandDetection({
     videoElement: videoElement,
     enabled: isLive && isCameraOn && !!videoElement,
     onLandmarks: recognition.processLandmarks,
-    throttleMs: 16 // 60 FPS ultra-fast tracking & API response
+    throttleMs: 80 // 12.5 FPS smooth real-time response without HTTP queue backlog
   });
 
   // Notify parent of recognition updates
@@ -61,6 +62,8 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
     recognition.guidance, 
     recognition.handInfo, 
     recognition.detectedLetter,
+    recognition.detectedWord,
+    recognition.recognitionMode,
     isCameraOn
   ]);
 
@@ -92,7 +95,7 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
 
       ctx.clearRect(0, 0, width, height);
 
-      // Pure pitch black background
+      // Pitch black background
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, width, height);
 
@@ -119,6 +122,9 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
     };
   }, [isLive, isActive, isCameraOn]);
 
+  const isWordMode = recognition.recognitionMode === 'word';
+  const activeSign = (recognition.handInfo && recognition.confidence >= 0.60) ? (recognition.detectedWord || recognition.detectedLetter) : null;
+
   return (
     <div className="camera-feed-box" ref={containerRef}>
       {/* Top-Left Camera Source Selector Dropdown */}
@@ -142,7 +148,20 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
       )}
 
       {/* Top-Right Action Controls Group */}
-      <div className="camera-top-actions">
+      <div className="camera-top-actions" onClick={e => e.stopPropagation()}>
+        {/* Mode Switcher: Letters (A-Z) vs Words (ISL) */}
+        {isCameraOn && (
+          <button
+            className={`camera-toggle-btn ${isWordMode ? 'is-mirrored-active' : ''}`}
+            onClick={() => recognition.setRecognitionMode(prev => (prev === 'letter' ? 'word' : 'letter'))}
+            title={isWordMode ? 'Click to switch to Letters (A-Z) Mode' : 'Click to switch to ISL Words (HELLO, NAMASTE, etc.) Mode'}
+            style={{ fontWeight: 700 }}
+          >
+            <Layers size={14} />
+            <span>{isWordMode ? 'Words Mode' : 'Letters Mode'}</span>
+          </button>
+        )}
+
         {/* Mirror Video Flip Toggle Button */}
         {isCameraOn && (
           <button
@@ -185,8 +204,48 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
                 isMirrored={isMirrored}
               />
             )}
+
+            {/* Word Mode Sequence Buffer Progress Bar */}
+            {isWordMode && (
+              <div style={{
+                position: 'absolute',
+                top: '3.3rem',
+                left: '0.875rem',
+                zIndex: 32,
+                background: 'rgba(28, 25, 23, 0.85)',
+                color: '#fff',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                fontSize: '0.72rem',
+                backdropFilter: 'blur(6px)',
+                border: '1px solid rgba(200, 173, 147, 0.4)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              }}>
+                <span style={{ fontWeight: 600, color: 'var(--accent-camel)' }}>Sequence:</span>
+                <div style={{
+                  width: '64px',
+                  height: '6px',
+                  background: 'rgba(255,255,255,0.2)',
+                  borderRadius: '3px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    width: `${Math.min(100, (recognition.wordBufferCount / recognition.wordBufferMax) * 100)}%`,
+                    height: '100%',
+                    background: recognition.wordBufferCount >= recognition.wordBufferMax ? '#10b981' : 'var(--accent-sage)',
+                    transition: 'width 0.1s ease'
+                  }} />
+                </div>
+                <span style={{ fontFamily: 'monospace', opacity: 0.9 }}>
+                  {recognition.wordBufferCount}/{recognition.wordBufferMax}
+                </span>
+              </div>
+            )}
             
-            {/* Live Guidance Feedback (stacked cleanly above LIVE FEED badge) */}
+            {/* Live Guidance Feedback */}
             {recognition.guidance && (
               <div style={{ position: 'absolute', bottom: '3.2rem', left: '0.875rem', zIndex: 30, background: 'rgba(0,0,0,0.75)', color: '#fff', padding: '0.45rem 0.85rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', backdropFilter: 'blur(8px)', pointerEvents: 'none', maxWidth: 'calc(100% - 2rem)', boxSizing: 'border-box' }}>
                 <AlertCircle size={14} className="text-amber-400" style={{ flexShrink: 0 }} />
@@ -194,34 +253,68 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
               </div>
             )}
             
-            {/* Detected Gesture Popup */}
-            {recognition.detectedLetter && (
+            {/* Detected Sign/Word Popup — or Low Confidence Indicator */}
+            {activeSign ? (
               <div style={{
                 position: 'absolute',
                 bottom: '1rem',
                 right: '1rem',
                 zIndex: 35,
-                background: 'rgba(13,148,136,0.9)',
+                background: 'rgba(13,148,136,0.92)',
                 color: 'white',
-                padding: '10px 16px',
+                padding: activeSign.length > 2 ? '8px 14px' : '10px 16px',
                 borderRadius: '12px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.35)',
                 backdropFilter: 'blur(8px)',
-                pointerEvents: 'none'
+                pointerEvents: 'none',
+                maxWidth: '180px'
               }}>
-                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', lineHeight: 1 }}>
-                  {recognition.detectedLetter}
+                <div style={{ 
+                  fontSize: activeSign.length > 4 ? '1.15rem' : (activeSign.length > 2 ? '1.4rem' : '2.5rem'), 
+                  fontWeight: 'bold', 
+                  lineHeight: 1.1,
+                  textAlign: 'center',
+                  letterSpacing: activeSign.length > 2 ? '0.04em' : 'normal'
+                }}>
+                  {activeSign}
                 </div>
                 {recognition.confidence > 0 && (
-                  <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '2px', fontFamily: 'monospace' }}>
-                    {Math.round(recognition.confidence * 100)}%
+                  <div style={{ fontSize: '0.7rem', opacity: 0.95, marginTop: '3px', fontFamily: 'monospace' }}>
+                    {Math.round(recognition.confidence * 100)}% {isWordMode ? 'Word' : 'Letter'}
                   </div>
                 )}
               </div>
-            )}
+            ) : (recognition.confidence > 0 && recognition.confidence < 0.55 && recognition.status === 'tracking') ? (
+              <div style={{
+                position: 'absolute',
+                bottom: '1rem',
+                right: '1rem',
+                zIndex: 35,
+                background: 'rgba(217, 119, 6, 0.85)',
+                color: 'white',
+                padding: '8px 14px',
+                borderRadius: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.35)',
+                backdropFilter: 'blur(8px)',
+                pointerEvents: 'none',
+                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                maxWidth: '180px'
+              }}>
+                <AlertCircle size={20} style={{ marginBottom: '4px', opacity: 0.9 }} />
+                <div style={{ fontSize: '0.78rem', fontWeight: 600, textAlign: 'center' }}>
+                  Low Confidence
+                </div>
+                <div style={{ fontSize: '0.65rem', opacity: 0.85, marginTop: '2px', fontFamily: 'monospace' }}>
+                  {Math.round(recognition.confidence * 100)}% — adjust hand
+                </div>
+              </div>
+            ) : null}
           </>
         ) : (
           <div className="camera-sim-fallback">
@@ -247,7 +340,7 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
           isLive ? (
             <>
               <Video size={14} className="text-teal-400" />
-              <span>LIVE FEED</span>
+              <span>{isWordMode ? 'WORD DETECTION' : 'LETTER DETECTION'}</span>
             </>
           ) : (
             <>
