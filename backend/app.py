@@ -37,6 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from services.translator_model import TranslatorModel
 from services.arduino_serial import ArduinoSerial
 from services.word_recognizer import WordRecognizer
+from services.gemini_manager import gemini_manager
 from database.schema import init_db, log_conversation, get_recent_history, log_dataset_session
 
 # ─── Configuration ──────────────────────────────────────────────────────────
@@ -44,9 +45,8 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
 )
-logger = logging.getLogger('sign-bridge-api')
+logger = logging.getLogger("SignBridge.API")
 
-# Initialize SQLite database
 try:
     init_db()
 except Exception as e:
@@ -65,7 +65,7 @@ arduino = ArduinoSerial()
 # TIERED DYNAMIC LLM CASCADE (Groq LPU -> Google Gemini -> Local)
 # ═══════════════════════════════════════════════════════════════════════════
 
-# Master priority candidate lists (sorted from latest/highest capability down to fast fallbacks)
+# Master priority candidate lists for Groq LPU
 PREFERRED_GROQ_MODELS = [
     "llama-3.3-70b-versatile",
     "llama-3.3-70b-specdec",
@@ -77,18 +77,6 @@ PREFERRED_GROQ_MODELS = [
     "mixtral-8x7b-32768",
     "groq/compound",
     "groq/compound-mini",
-]
-
-PREFERRED_GEMINI_MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-    "gemini-2.0-pro-exp-02-05",
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-    "gemini-1.5-pro",
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-8b",
-    "gemini-pro",
 ]
 
 # Initialize Groq Real-Time LLM Client
@@ -103,7 +91,6 @@ if GROQ_API_KEY:
         try:
             available_groq = [m.id for m in groq_client.models.list().data if 'whisper' not in m.id and 'guard' not in m.id]
             if available_groq:
-                # Prioritize latest models from PREFERRED_GROQ_MODELS that exist on this account
                 ordered_groq = [m for m in PREFERRED_GROQ_MODELS if m in available_groq]
                 for m in available_groq:
                     if m not in ordered_groq:
@@ -111,63 +98,9 @@ if GROQ_API_KEY:
                 active_groq_models = ordered_groq
         except Exception as e:
             logger.debug(f"Groq dynamic model list notice: {e}")
-        logger.info(f"Groq LLM service initialized with tiered models (Latest -> Fallback): {active_groq_models[:4]}")
+        logger.info(f"Groq LLM service initialized with tiered models: {active_groq_models[:4]}")
     except Exception as e:
         logger.warning(f"Groq LLM initialization warning: {e}")
-
-# Initialize Google Gemini LLM Client
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
-gemini_client = None
-gemini_sdk_mode = None  # 'genai' | 'legacy'
-active_gemini_models: list[str] = PREFERRED_GEMINI_MODELS.copy()
-
-if GOOGLE_API_KEY:
-    try:
-        # Try modern google-genai SDK first (Gemini 2.0 / 2.5)
-        from google import genai
-        gemini_client = genai.Client(api_key=GOOGLE_API_KEY)
-        gemini_sdk_mode = 'genai'
-        try:
-            available_gem = []
-            for m in gemini_client.models.list():
-                mid = getattr(m, 'name', '') or getattr(m, 'id', '')
-                mid = mid.replace('models/', '').strip()
-                if mid and 'gemini' in mid and 'embedding' not in mid and 'aqa' not in mid:
-                    available_gem.append(mid)
-            if available_gem:
-                ordered_gem = [m for m in PREFERRED_GEMINI_MODELS if m in available_gem]
-                for m in available_gem:
-                    if m not in ordered_gem:
-                        ordered_gem.append(m)
-                active_gemini_models = ordered_gem
-        except Exception as e:
-            logger.debug(f"Google GenAI dynamic list notice: {e}")
-        logger.info(f"Google GenAI service initialized with tiered models (Latest -> Fallback): {active_gemini_models[:4]}")
-    except Exception as genai_err:
-        try:
-            # Fallback to legacy google.generativeai SDK
-            import google.generativeai as legacy_genai
-            legacy_genai.configure(api_key=GOOGLE_API_KEY)
-            gemini_client = legacy_genai
-            gemini_sdk_mode = 'legacy'
-            try:
-                available_gem = []
-                for m in legacy_genai.list_models():
-                    mid = getattr(m, 'name', '').replace('models/', '').strip()
-                    methods = getattr(m, 'supported_generation_methods', [])
-                    if 'generateContent' in methods and 'gemini' in mid:
-                        available_gem.append(mid)
-                if available_gem:
-                    ordered_gem = [m for m in PREFERRED_GEMINI_MODELS if m in available_gem]
-                    for m in available_gem:
-                        if m not in ordered_gem:
-                            ordered_gem.append(m)
-                    active_gemini_models = ordered_gem
-            except Exception as e:
-                logger.debug(f"Google legacy genai dynamic list notice: {e}")
-            logger.info(f"Google Gemini (legacy SDK) service initialized with models: {active_gemini_models[:4]}")
-        except Exception as e:
-            logger.warning(f"Google Gemini LLM initialization warning: {e}")
 
 logger.info(f"Translator mode: {translator.mode}")
 logger.info("Services ready.")
@@ -217,7 +150,7 @@ def generate_llm_response(prompt: str, system_instruction: str = "You are SignBr
     """
     Tiered Automatic Drop-Down LLM Cascade:
     1. Primary Tier: Groq LPU (Latest 70B -> 8B -> Speculative Models for sub-100ms response).
-    2. Secondary Tier: Google Gemini (Latest 2.5 -> 2.0 Flash -> 2.0 Lite -> 1.5 Pro/Flash -> Legacy).
+    2. Secondary Tier: Google Gemini Manager (Dual-Key rotation, auto-discovery & backoff retry).
     3. Final Tier: Smart Local Semantic Engine.
     """
     errors = []
@@ -251,40 +184,22 @@ def generate_llm_response(prompt: str, system_instruction: str = "You are SignBr
                 errors.append(f"Groq [{model_id}] error: {groq_err}")
                 continue
 
-    # 2. Secondary Tier Attempt: Google Gemini (Iterating latest 2.5/2.0 to 1.5/legacy models)
-    client_gemini = gemini_client
-    if client_gemini is not None:
-        for gem_model in active_gemini_models:
-            try:
-                if gemini_sdk_mode == 'genai' and hasattr(client_gemini, 'models'):
-                    response = client_gemini.models.generate_content(
-                        model=gem_model,
-                        contents=f"{system_instruction}\n\nUser Input: {prompt}"
-                    )
-                    text_raw = getattr(response, 'text', None)
-                    if text_raw:
-                        text_out = str(text_raw).strip()
-                        if text_out:
-                            return {
-                                "text": text_out,
-                                "provider": f"Google Gemini ({gem_model})",
-                                "fallback_used": True
-                            }
-                elif gemini_sdk_mode == 'legacy' and hasattr(client_gemini, 'GenerativeModel'):
-                    model_obj = client_gemini.GenerativeModel(gem_model)
-                    res = model_obj.generate_content(f"{system_instruction}\n\nUser Input: {prompt}")
-                    text_raw = getattr(res, 'text', None)
-                    if text_raw:
-                        text_out = str(text_raw).strip()
-                        if text_out:
-                            return {
-                                "text": text_out,
-                                "provider": f"Google Gemini ({gem_model})",
-                                "fallback_used": True
-                            }
-            except Exception as gem_err:
-                errors.append(f"Gemini [{gem_model}] error: {gem_err}")
-                continue
+    # 2. Secondary Tier Attempt: Centralized Google Gemini Manager
+    if gemini_manager.is_available():
+        try:
+            gem_res = gemini_manager.generate(
+                prompt=prompt,
+                system_instruction=system_instruction,
+                task_type="text"
+            )
+            if gem_res and gem_res.get("text"):
+                return {
+                    "text": gem_res["text"],
+                    "provider": gem_res["provider"],
+                    "fallback_used": True
+                }
+        except Exception as gem_err:
+            errors.append(f"GeminiManager error: {gem_err}")
 
     # 3. Final Tier Attempt: Smart Local Keyword Semantic Engine
     logger.warning(f"All external LLM APIs exhausted or unreachable. Errors: {'; '.join(errors)}")
@@ -483,8 +398,22 @@ def health():
         'translator_mode': translator.mode,
         'arduino_connected': arduino.is_connected,
         'groq_available': groq_client is not None,
-        'gemini_available': gemini_client is not None,
+        'gemini_available': gemini_manager.is_available(),
+        'gemini_health': gemini_manager.get_health_status(),
         'word_recognizer_available': word_recognizer.is_available
+    })
+
+
+@app.route('/api/llm/status', methods=['GET'])
+def llm_status():
+    """Return real-time status of Groq, Gemini multi-key management, and Local LLM tiers."""
+    return jsonify({
+        'groq': {
+            'available': groq_client is not None,
+            'models': active_groq_models[:4]
+        },
+        'gemini': gemini_manager.get_health_status(),
+        'local_fallback': True
     })
 
 
