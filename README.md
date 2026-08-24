@@ -13,7 +13,7 @@
 
 ---
 
-## 📖 Table of Contents
+## Table of Contents
 
 - [Project Overview](#-project-overview)
 - [Key Features](#-key-features)
@@ -38,7 +38,7 @@
 
 ---
 
-## 🎯 Project Overview
+## Project Overview
 
 Communication barriers between the Deaf and Hard-of-Hearing (DHH) community and hearing individuals remain a significant hurdle in healthcare, public administration, education, and daily life. Indian Sign Language (ISL) is predominantly **two-handed**, distinguishing it from single-handed sign languages such as ASL and rendering standard single-hand translation software ineffective.
 
@@ -52,7 +52,7 @@ Communication barriers between the Deaf and Hard-of-Hearing (DHH) community and 
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **Dual-Hand Real-Time Landmark Tracking**: Processes 42 landmark points ($21 \times 2$ hands in 3D space = 126 coordinates) at 30 FPS using MediaPipe HandLandmarker with zero manual keypoint latency.
 - **Multi-Tier Machine Learning Pipeline**:
@@ -69,7 +69,7 @@ Communication barriers between the Deaf and Hard-of-Hearing (DHH) community and 
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Category | Technology | Description |
 | :--- | :--- | :--- |
@@ -88,7 +88,7 @@ Communication barriers between the Deaf and Hard-of-Hearing (DHH) community and 
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TD
@@ -131,7 +131,7 @@ flowchart TD
 
 ---
 
-## 🔄 Project Workflow
+## Project Workflow
 
 1. **Video Ingestion & Landmark Extraction**:
    - The user signs in front of the browser webcam.
@@ -151,7 +151,7 @@ flowchart TD
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 SignBridge/
@@ -285,7 +285,7 @@ npm run dev
 
 ---
 
-## 🔐 Environment Variables
+## Environment Variables
 
 Configure `backend/.env` with your API credentials:
 
@@ -305,7 +305,7 @@ FLASK_ENV=development
 
 ---
 
-## 💻 Usage
+## Usage
 
 1. **Open the Application**: Navigate to `http://localhost:5173` in your browser.
 2. **Select Camera**: Allow webcam permissions. Use the top-left dropdown in the camera card to select your preferred video device.
@@ -318,7 +318,7 @@ FLASK_ENV=development
 
 ---
 
-## 📡 API Documentation
+## API Documentation
 
 | Method | Endpoint | Description | Request Payload / Params |
 | :--- | :--- | :--- | :--- |
@@ -337,7 +337,7 @@ FLASK_ENV=development
 
 ---
 
-## 🧠 AI/ML Model Details
+## AI/ML Model Details
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -372,7 +372,7 @@ FLASK_ENV=development
 
 ---
 
-## 🔒 Security
+##  Security
 
 - **Environment Isolation**: API secrets (`GROQ_API_KEY`, `GOOGLE_API_KEY`) are managed exclusively via environment variables and excluded from source control via `.gitignore`.
 - **Input Validation**: Strict shape, dimension, and type checking on all incoming landmark payloads (`validate_landmark_array`) preventing NaN/infinite coordinate exploits.
@@ -381,7 +381,7 @@ FLASK_ENV=development
 
 ---
 
-## 🧪 Testing & Validation
+##  Testing & Validation
 
 ### Running the Model Evaluation Pipeline
 ```bash
@@ -402,7 +402,7 @@ npm run build
 
 ---
 
-## 📸 Screenshots & Demo
+## Screenshots & Demo
 
 > *Screenshots and hardware demonstration videos available in the project documentation directory.*
 
@@ -412,7 +412,7 @@ npm run build
 
 ---
 
-## ⚡ Performance Benchmarks
+## Performance Benchmarks
 
 | Component | Hardware / Target | Latency / Metric |
 | :--- | :--- | :--- |
@@ -424,7 +424,7 @@ npm run build
 
 ---
 
-## ⚠️ Limitations
+## Limitations
 
 - **Complex Overlapping Contact Signs**: Signs where fingers tightly interlace or overlap (such as `K`, `O`, `S`, `T`) can experience partial MediaPipe 2D projection occlusion under poor lighting.
 - **Video Vocabulary Scope**: The temporal word model currently covers 17 core conversational gestures; arbitrary full-sentence continuous signing defaults to fingerspelling.
@@ -432,7 +432,7 @@ npm run build
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
 - [ ] **MediaPipe Holistic Upgrade**: Incorporate 54-point upper-body (shoulders, elbows) and facial landmarks to disambiguate body-relative signs (`DEAF`, `SORRY`, `NAMASTE`).
 - [ ] **Continuous Sign Language Recognition (CSLR)**: Implement Conformer architecture with Connectionist Temporal Classification (CTC Loss) for unconstrained continuous signing streams.
@@ -441,7 +441,7 @@ npm run build
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -462,13 +462,13 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ---
 
-## 🙏 Acknowledgements
+##  Acknowledgements
 
 - **Google MediaPipe**: Real-time dual-hand landmark tracking.
 - **RealSign ISL Dataset Authors**: Benchmark dataset for Indian Sign Language training.
