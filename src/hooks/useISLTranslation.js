@@ -39,7 +39,10 @@ export function useISLTranslation() {
   // ─── Check Flask API Health ─────────────────────────────────────────────
   const checkApiHealth = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/health`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(`${API_BASE}/health`, { signal: controller.signal });
+      clearTimeout(timeoutId);
       if (res.ok) {
         const data = await res.json();
         setApiStatus('connected');
