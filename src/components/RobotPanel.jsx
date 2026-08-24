@@ -134,68 +134,92 @@ export const RobotPanel = React.memo(({
         >
           {messages.length === 0 && !isStreaming && (
             <motion.div 
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100%',
-                minHeight: '260px',
-                padding: '2rem 1.5rem',
+                minHeight: '280px',
+                padding: '2.5rem 1.5rem',
                 textAlign: 'center',
                 userSelect: 'none'
               }}
             >
-              {/* Glowing Icon Badge */}
+              {/* Status Pill */}
               <div 
                 style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '16px',
-                  background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.12), rgba(99, 102, 241, 0.15))',
-                  border: '1px solid rgba(13, 148, 136, 0.25)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  padding: '0.3rem 0.75rem',
+                  borderRadius: '20px',
+                  background: 'rgba(110, 127, 107, 0.12)',
+                  border: '1px solid rgba(110, 127, 107, 0.28)',
+                  color: '#475845',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  marginBottom: '1rem'
+                }}
+              >
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 8px rgba(16, 185, 129, 0.7)' }} />
+                Dual-Communication Ready
+              </div>
+
+              {/* Glowing Icon Container */}
+              <div 
+                style={{
+                  width: '58px',
+                  height: '58px',
+                  borderRadius: '18px',
+                  background: 'linear-gradient(135deg, rgba(110, 127, 107, 0.15), rgba(13, 148, 136, 0.15))',
+                  border: '1px solid rgba(110, 127, 107, 0.25)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '1rem',
-                  boxShadow: '0 8px 24px -6px rgba(13, 148, 136, 0.2)',
-                  color: '#0d9488'
+                  marginBottom: '1.1rem',
+                  boxShadow: '0 10px 28px -6px rgba(110, 127, 107, 0.25)',
+                  color: '#556b52'
                 }}
               >
-                <Bot size={28} />
+                <Bot size={28} strokeWidth={2.2} />
               </div>
 
-              {/* Title & Description */}
-              <div 
+              {/* Main Headline */}
+              <h3 
                 style={{ 
-                  fontSize: '1.05rem', 
-                  fontWeight: 600, 
-                  color: 'var(--text-espresso, #2e2825)', 
-                  marginBottom: '0.35rem',
-                  letterSpacing: '-0.01em'
+                  fontSize: '1.2rem', 
+                  fontWeight: 700, 
+                  color: '#2D2A26', 
+                  marginBottom: '0.45rem',
+                  letterSpacing: '-0.02em',
+                  fontFamily: 'var(--font-family)'
                 }}
               >
                 Ready for Live Dialogue
-              </div>
+              </h3>
 
-              <div 
+              {/* Subtitle with High-Contrast Typography */}
+              <p 
                 style={{ 
-                  fontSize: '0.8rem', 
-                  color: 'var(--text-espresso, #5c524d)', 
-                  opacity: 0.75, 
-                  lineHeight: 1.45,
-                  maxWidth: '280px',
-                  marginBottom: '1.25rem'
+                  fontSize: '0.84rem', 
+                  color: '#656059', 
+                  lineHeight: 1.55,
+                  maxWidth: '310px',
+                  marginBottom: '1.4rem',
+                  fontWeight: 400
                 }}
               >
-                Show signs to the camera on the left, or try a quick message below:
-              </div>
+                Perform <strong style={{ color: '#475845', fontWeight: 600 }}>camera signs</strong> on the left, or pick a sample prompt to start:
+              </p>
 
               {/* Quick-Prompt Suggestion Chips */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center', maxWidth: '320px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', justifyContent: 'center', maxWidth: '340px' }}>
                 {[
                   { text: 'Namaste! How can I help you?', label: '🙏 Namaste' },
                   { text: 'How are you?', label: '🤝 How are you?' },
@@ -207,28 +231,30 @@ export const RobotPanel = React.memo(({
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '0.3rem',
-                      padding: '0.4rem 0.75rem',
-                      fontSize: '0.75rem',
-                      fontWeight: 500,
-                      color: 'var(--text-espresso, #3d3531)',
-                      background: 'rgba(255, 255, 255, 0.75)',
-                      border: '1px solid rgba(0, 0, 0, 0.08)',
+                      gap: '0.35rem',
+                      padding: '0.45rem 0.85rem',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      color: '#38332e',
+                      background: 'rgba(255, 255, 255, 0.85)',
+                      border: '1px solid rgba(200, 173, 147, 0.35)',
                       borderRadius: '20px',
                       cursor: 'pointer',
-                      backdropFilter: 'blur(8px)',
-                      boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)',
-                      transition: 'all 0.18s ease'
+                      backdropFilter: 'blur(10px)',
+                      boxShadow: '0 2px 8px rgba(45, 42, 38, 0.04)',
+                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.borderColor = 'rgba(13, 148, 136, 0.4)';
-                      e.currentTarget.style.color = '#0d9488';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.borderColor = 'rgba(110, 127, 107, 0.6)';
+                      e.currentTarget.style.color = '#475845';
+                      e.currentTarget.style.boxShadow = '0 6px 14px rgba(110, 127, 107, 0.15)';
                     }}
                     onMouseLeave={e => {
                       e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                      e.currentTarget.style.color = 'var(--text-espresso, #3d3531)';
+                      e.currentTarget.style.borderColor = 'rgba(200, 173, 147, 0.35)';
+                      e.currentTarget.style.color = '#38332e';
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(45, 42, 38, 0.04)';
                     }}
                   >
                     {chip.label}
