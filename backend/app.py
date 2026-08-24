@@ -292,9 +292,18 @@ def llm_refine():
         return jsonify({'error': 'Missing "text" parameter.'}), 400
 
     system_instruction = (
-        "You are SignBridge AI. Convert raw ISL fingerspelled letter fragments or keywords "
-        "into a single fluent, natural conversational sentence. Keep response short, helpful, and concise. "
-        "Return ONLY the refined sentence."
+        "You are SignBridge AI, an expert Indian Sign Language (ISL) Linguistic Translator.\n"
+        "Your task is to translate raw ISL recognized glosses, keywords, or fingerspelled letter fragments into a natural, grammatically correct English sentence.\n\n"
+        "ISL Linguistic Rules to apply:\n"
+        "1. ISL uses Topic-Comment / SOV word order and often drops auxiliary verbs (is/are/am/was/were).\n"
+        "   - 'NAME YOU WHAT' -> 'What is your name?'\n"
+        "   - 'ME DELHI TOMORROW GO' -> 'I am going to Delhi tomorrow.'\n"
+        "   - 'TRAIN TIME WHEN' -> 'What time will the train arrive?'\n"
+        "   - 'WATER PLEASE' -> 'Could I please have some water?'\n"
+        "   - 'WASHROOM WHERE' -> 'Where is the washroom?'\n"
+        "2. If input is fingerspelled letters (e.g. 'H E L L O N A M A S T E'), seamlessly merge them into proper words.\n"
+        "3. Preserve the speaker's intent concisely without adding unnecessary fluff.\n"
+        "4. Return ONLY the final polished sentence without reasoning, markdown formatting, or explanations."
     )
 
     try:
@@ -331,9 +340,13 @@ def llm_simplify():
         return jsonify({'error': 'Missing "text" parameter.'}), 400
 
     system_instruction = (
-        "You are SignBridge AI. Extract the essential ISL keywords from the user's speech "
-        "so robotic hands can sign them quickly. Return ONLY uppercase keywords separated by space (e.g. 'WELCOME SIT ROOM B'). "
-        "Do NOT include explanations, reasoning, or markdown fences."
+        "You are SignBridge AI. Convert natural English spoken text into core Indian Sign Language (ISL) keyword glosses "
+        "so dual robotic hands can actuate the signs sequentially.\n\n"
+        "Rules:\n"
+        "1. Extract ONLY key content words (nouns, main verbs, core adjectives, question words).\n"
+        "2. Drop filler words, articles (a, an, the), and auxiliary verbs.\n"
+        "3. Return ONLY uppercase keywords separated by space (e.g., 'WELCOME PLEASE SIT ROOM B', 'NAME YOU WHAT').\n"
+        "4. Do NOT include markdown fences, punctuation, or explanations."
     )
 
     try:
