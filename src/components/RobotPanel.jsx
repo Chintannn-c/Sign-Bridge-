@@ -143,34 +143,12 @@ export const RobotPanel = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100%',
-                minHeight: '280px',
-                padding: '2.5rem 1.5rem',
+                minHeight: '260px',
+                padding: '2rem 1.5rem',
                 textAlign: 'center',
                 userSelect: 'none'
               }}
             >
-              {/* Status Pill */}
-              <div 
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.45rem',
-                  padding: '0.3rem 0.75rem',
-                  borderRadius: '20px',
-                  background: 'rgba(110, 127, 107, 0.12)',
-                  border: '1px solid rgba(110, 127, 107, 0.28)',
-                  color: '#475845',
-                  fontSize: '0.72rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
-                  marginBottom: '1rem'
-                }}
-              >
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 8px rgba(16, 185, 129, 0.7)' }} />
-                Dual-Communication Ready
-              </div>
-
               {/* Glowing Icon Container */}
               <div 
                 style={{
@@ -182,7 +160,7 @@ export const RobotPanel = React.memo(({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '1.1rem',
+                  marginBottom: '1rem',
                   boxShadow: '0 10px 28px -6px rgba(110, 127, 107, 0.25)',
                   color: '#556b52'
                 }}
