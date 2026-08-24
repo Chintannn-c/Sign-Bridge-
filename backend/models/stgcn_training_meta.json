@@ -1,0 +1,42 @@
+{
+  "model_type": "st_gcn",
+  "raw_input_landmarks": 126,
+  "num_classes": 26,
+  "labels": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z"
+  ],
+  "metrics": {
+    "val_accuracy": 0.6277,
+    "test_accuracy": 0.7897,
+    "test_macro_f1": 0.7877,
+    "test_precision": 0.8116,
+    "test_recall": 0.7904
+  },
+  "trained_at": "2026-08-24T05:56:26Z",
+  "training_time_seconds": 306.14
+}
