@@ -79,7 +79,7 @@ def get_smart_fallback_response(query_text: str) -> str:
     elif any(k in q for k in ['ice cream', 'food', 'hungry', 'eat', 'drink', 'coffee', 'tea', 'water']):
         return "That sounds wonderful! How can I assist you with your request?"
     elif any(k in q for k in ['hello', 'hi', 'namaste', 'hey', 'greetings']):
-        return "Hello! Namaste. How can I assist you today?"
+        return "Namaste! How can I help you?"
     elif any(k in q for k in ['how are you', 'how do you do', 'how r u']):
         return "I am doing well, thank you! How can I help you with Indian Sign Language today?"
     elif any(k in q for k in ['name', 'who are you']):

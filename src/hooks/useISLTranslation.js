@@ -12,7 +12,7 @@ const API_BASE = '/api';  // Proxied by Vite to http://localhost:5000
  *   2. DEMO mode  — uses simulated typewriter text pools for UI demonstration
  */
 export function useISLTranslation() {
-  const [humanText, setHumanText] = useState('Hello! Namaste.');
+  const [humanText, setHumanText] = useState('Namaste! How can I help you?');
   const [robotText, setRobotText] = useState('Hello! Welcome to SignBridge.');
 
   const [humanStreamText, setHumanStreamText] = useState('');
@@ -26,7 +26,7 @@ export function useISLTranslation() {
     {
       id: 1,
       sender: 'human',
-      text: 'Hello! Namaste.',
+      text: 'Namaste! How can I help you?',
       timestamp: '10:14 AM'
     },
     {
@@ -250,7 +250,7 @@ export function useISLTranslation() {
     if (q.includes('washroom') || q.includes('toilet') || q.includes('restroom') || q.includes('bathroom')) {
       return "The washroom is straight ahead to your left.";
     } else if (q.includes('hello') || q.includes('namaste') || q.includes('hi') || q.includes('hey')) {
-      return "Hello! Namaste. How can I assist you today?";
+      return "Namaste! How can I help you?";
     } else if (q.includes('how are you') || q.includes('how do you do') || q.includes('how r u')) {
       return "I am doing well, thank you! How can I help you with Indian Sign Language today?";
     } else if (q.includes('name') || q.includes('who are you')) {

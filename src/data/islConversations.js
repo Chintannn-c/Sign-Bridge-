@@ -8,7 +8,7 @@ export const ISL_CONVERSATIONS = [
     exchanges: [
       {
         speaker: 'human',
-        text: 'Hello! Namaste.',
+        text: 'Namaste! How can I help you?',
         duration: 3000
       },
       {
@@ -84,7 +84,7 @@ export const ISL_CONVERSATIONS = [
 
 // Simple hand gesture detection outputs (User input pool)
 export const HUMAN_INPUT_POOL = [
-  'Hello! Namaste. 🙏',
+  'Namaste! How can I help you? 🙏',
   'How are you? 🤝',
   'Nice to meet you. 😊',
   'Thank you very much. 💖',
