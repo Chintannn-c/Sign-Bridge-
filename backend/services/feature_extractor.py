@@ -1,21 +1,46 @@
 """
 Enriched Feature extraction for Indian Sign Language (ISL) alphabet recognition.
-Converts 126-D MediaPipe landmark coordinates into a 176-D geometric invariant feature vector:
+Converts 126-D MediaPipe landmark coordinates into a 202-D geometric invariant feature vector:
   - 126 normalized Cartesian coordinates (wrist-centered and hand-span scaled)
   - 18 Left-hand geometric invariants (tip-wrist, tip-thumb, adjacent tip spans, finger curls, pinch ratio)
   - 18 Right-hand geometric invariants
+  - 10 Left-hand knuckle joint bending angles (MCP-PIP-DIP & PIP-DIP-TIP cosines)
+  - 10 Right-hand knuckle joint bending angles
+  - 3 Left-hand palm surface normal orientation coordinates (wrist roll & tilt)
+  - 3 Right-hand palm surface normal orientation coordinates
   - 14 Inter-hand cross-interaction distances (critical for contact signs like M, N, T, K, P, R, S)
 """
 
 import numpy as np
 
 NUM_RAW_FEATURES = 126
-NUM_EXTRACTED_FEATURES = 176
+NUM_EXTRACTED_FEATURES = 202
+
+# Joint triplets for angle calculation (MCP, PIP, DIP) and (PIP, DIP, TIP)
+FINGER_JOINT_TRIPLETS = [
+    (1, 2, 3), (2, 3, 4),       # Thumb
+    (5, 6, 7), (6, 7, 8),       # Index
+    (9, 10, 11), (10, 11, 12),  # Middle
+    (13, 14, 15), (14, 15, 16), # Ring
+    (17, 18, 19), (18, 19, 20), # Pinky
+]
+
+
+def _compute_angle_cos(p_a, p_b, p_c):
+    """Compute cosine of the 3D angle at vertex p_b between vectors (p_a - p_b) and (p_c - p_b)."""
+    v1 = p_a - p_b
+    v2 = p_c - p_b
+    norm1 = np.linalg.norm(v1)
+    norm2 = np.linalg.norm(v2)
+    if norm1 < 1e-6 or norm2 < 1e-6:
+        return 1.0
+    cos_theta = np.dot(v1, v2) / (norm1 * norm2)
+    return float(np.clip(cos_theta, -1.0, 1.0))
 
 
 def extract_features(raw_landmarks):
     """
-    Extract a 176-D normalized geometric feature vector from 126 raw landmark floats.
+    Extract a 202-D normalized geometric feature vector from 126 raw landmark floats.
     Handles single sample (126,) or batch (N, 126).
     """
     raw = np.asarray(raw_landmarks, dtype=np.float32)
@@ -48,7 +73,7 @@ def extract_features(raw_landmarks):
         geo = []
         for h in range(2):
             if not present[h]:
-                geo.extend([0.0] * 18)
+                geo.extend([0.0] * (18 + 10 + 3))
                 continue
             hp = norm_p[h]
             w = hp[0]
@@ -84,6 +109,21 @@ def extract_features(raw_landmarks):
             pinch = np.linalg.norm(thumb_tip - index_tip) / (d_w_i + 1e-6)
             
             geo.extend([d_w_t, d_w_i, d_w_m, d_w_r, d_w_p, d_t_i, d_t_m, d_t_r, d_t_p, d_i_m, d_m_r, d_r_p, c_t, c_i, c_m, c_r, c_p, pinch])
+
+            # 6. Joint bending angles (10)
+            for a, b, c in FINGER_JOINT_TRIPLETS:
+                geo.append(_compute_angle_cos(hp[a], hp[b], hp[c]))
+
+            # 7. Palm surface normal unit vector (3)
+            v_idx = hp[5] - hp[0]
+            v_pnk = hp[17] - hp[0]
+            n_palm = np.cross(v_idx, v_pnk)
+            norm_np = np.linalg.norm(n_palm)
+            if norm_np > 1e-6:
+                n_palm = n_palm / norm_np
+            else:
+                n_palm = np.array([0.0, 0.0, 1.0], dtype=np.float32)
+            geo.extend([float(n_palm[0]), float(n_palm[1]), float(n_palm[2])])
         
         # Inter-hand interactions (14)
         if present[0] and present[1]:

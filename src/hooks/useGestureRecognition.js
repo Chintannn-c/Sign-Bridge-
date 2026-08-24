@@ -57,7 +57,22 @@ function isValidHandGeometry(landmarks) {
   return true;
 }
 
-export function useGestureRecognition({ enabled = false, initialMode = 'letter' } = {}) {
+function captureVideoSnapshot(videoEl) {
+  if (!videoEl || videoEl.readyState < 2) return null;
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 224;
+    canvas.height = 224;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(videoEl, 0, 0, 224, 224);
+    return canvas.toDataURL('image/jpeg', 0.8);
+  } catch {
+    return null;
+  }
+}
+
+export function useGestureRecognition({ enabled = false, initialMode = 'letter', videoElement = null } = {}) {
   const [recognitionMode, setRecognitionMode] = useState(initialMode); // 'letter' | 'word'
   const [status, setStatus] = useState(STATES.IDLE);
   const [detectedLetter, setDetectedLetter] = useState(null);
@@ -265,7 +280,29 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter' 
 
       if (!res.ok) return null;
 
-      const prediction = await res.json();
+      let prediction = await res.json();
+
+      // On-demand visual silhouette fallback for borderline contact signs
+      if (videoElement && (prediction.rejected || prediction.confidence < 0.65)) {
+        const snapB64 = captureVideoSnapshot(videoElement);
+        if (snapB64) {
+          try {
+            const snapRes = await fetch(`${API_BASE}/translate/snapshot`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ landmarks, image: snapB64 }),
+            });
+            if (snapRes.ok) {
+              const snapData = await snapRes.json();
+              if (snapData && snapData.letter && snapData.letter !== '?') {
+                prediction = snapData;
+              }
+            }
+          } catch (snapErr) {
+            console.debug('Snapshot fallback bypassed:', snapErr);
+          }
+        }
+      }
 
       // Handle confidence rejection or low confidence from backend
       if (prediction.rejected || !prediction.letter || prediction.letter === '?' || prediction.confidence < CONFIDENCE_THRESHOLD_LETTER) {
