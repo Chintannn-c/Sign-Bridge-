@@ -219,7 +219,7 @@ export const HumanPanel = React.memo(({
           
           {/* Action controls for the live sentence */}
           {isCameraOn && recognitionState && (
-            <div style={{ marginTop: '1rem', width: '100%', opacity: hasLiveSentence ? 1 : 0.5, transition: 'opacity 0.2s' }} onClick={e => e.stopPropagation()}>
+            <div style={{ marginTop: '1rem', width: '100%', opacity: (hasLiveSentence || recognitionState.inactivityCountdown || recognitionState.lastAutoSpoken) ? 1 : 0.5, transition: 'opacity 0.2s' }} onClick={e => e.stopPropagation()}>
               <SentenceBuilder 
                 sentence={sentenceBuffer}
                 onUndo={recognitionState.undoLetter}
@@ -227,6 +227,11 @@ export const HumanPanel = React.memo(({
                 onClear={recognitionState.clearBuffer}
                 onAddSpace={recognitionState.addSpace}
                 onAIRefine={recognitionState.refineSentence}
+                inactivityCountdown={recognitionState.inactivityCountdown}
+                autoSendEnabled={recognitionState.autoSendEnabled}
+                onToggleAutoSend={() => recognitionState.setAutoSendEnabled(prev => !prev)}
+                lastAutoSpoken={recognitionState.lastAutoSpoken}
+                onCancelCountdown={recognitionState.cancelInactivityCountdown}
               />
             </div>
           )}

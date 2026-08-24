@@ -87,6 +87,12 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     'AGAIN', 'BYE_BYE', 'DEAF', 'HEARING', 'HELLO', 'INDIA', 'LANGUAGE', 'MAN', 'ME', 'NAMASTE'
   ]);
 
+  // Inactivity / Hand-Drop Auto-Send states
+  const [autoSendEnabled, setAutoSendEnabled] = useState(true);
+  const [autoSendTimeoutMs, setAutoSendTimeoutMs] = useState(1800);
+  const [inactivityCountdown, setInactivityCountdown] = useState(null);
+  const [lastAutoSpoken, setLastAutoSpoken] = useState(null);
+
   // Temporal smoothing & buffering refs
   const consecutiveLetterRef = useRef({ letter: null, count: 0 });
   const consecutiveWordRef = useRef({ word: null, count: 0 });
@@ -95,6 +101,102 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const frameBufferRef = useRef([]);
   const wordInferenceCooldownRef = useRef(0);
   const isRequestPendingRef = useRef(false);
+
+  // Inactivity auto-send refs
+  const sentenceBufferRef = useRef('');
+  sentenceBufferRef.current = sentenceBuffer;
+  const autoSendTimerRef = useRef(null);
+  const countdownIntervalRef = useRef(null);
+  const isAutoSendingRef = useRef(false);
+
+  const cancelInactivityCountdown = useCallback(() => {
+    if (autoSendTimerRef.current) {
+      clearTimeout(autoSendTimerRef.current);
+      autoSendTimerRef.current = null;
+    }
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
+    }
+    setInactivityCountdown(null);
+  }, []);
+
+  const triggerAutoSend = useCallback(async () => {
+    const rawText = sentenceBufferRef.current.trim();
+    if (!rawText || isAutoSendingRef.current) {
+      cancelInactivityCountdown();
+      return;
+    }
+
+    isAutoSendingRef.current = true;
+    cancelInactivityCountdown();
+
+    try {
+      let speechText = rawText;
+      // 1. Refine with LLM (Groq / Gemini)
+      try {
+        const res = await fetch(`${API_BASE}/llm/refine`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: rawText })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.refined_sentence && data.refined_sentence.trim()) {
+            speechText = data.refined_sentence.trim();
+          }
+        }
+      } catch (refineErr) {
+        console.debug('Auto-send LLM refine notice:', refineErr);
+      }
+
+      // 2. Speak aloud via Web Speech TTS
+      if (speechText && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Stop any previous speech
+        const utterance = new SpeechSynthesisUtterance(speechText);
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // 3. Update feedback and clear buffer
+      setLastAutoSpoken(speechText);
+      setSentenceBuffer('');
+    } catch (e) {
+      console.warn('Auto-send execution error:', e);
+    } finally {
+      isAutoSendingRef.current = false;
+      cancelInactivityCountdown();
+    }
+  }, [cancelInactivityCountdown]);
+
+  const handleHandsDropped = useCallback(() => {
+    if (!autoSendEnabled || !sentenceBufferRef.current.trim() || isAutoSendingRef.current) {
+      return;
+    }
+
+    // Start countdown if not already started
+    if (!autoSendTimerRef.current) {
+      const startTime = Date.now();
+      const targetTime = startTime + autoSendTimeoutMs;
+
+      setInactivityCountdown((autoSendTimeoutMs / 1000).toFixed(1));
+
+      countdownIntervalRef.current = setInterval(() => {
+        const remainingMs = targetTime - Date.now();
+        if (remainingMs <= 0) {
+          if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+          countdownIntervalRef.current = null;
+        } else {
+          setInactivityCountdown((remainingMs / 1000).toFixed(1));
+        }
+      }, 100);
+
+      autoSendTimerRef.current = setTimeout(() => {
+        autoSendTimerRef.current = null;
+        triggerAutoSend();
+      }, autoSendTimeoutMs);
+    }
+  }, [autoSendEnabled, autoSendTimeoutMs, triggerAutoSend]);
 
   // Fetch model information & available word classes
   useEffect(() => {
@@ -132,12 +234,13 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       lastCommittedItemRef.current = null;
       frameBufferRef.current = [];
       setWordBufferCount(0);
+      cancelInactivityCountdown();
     } else {
       setStatus(STATES.SEARCHING);
       frameBufferRef.current = [];
       setWordBufferCount(0);
     }
-  }, [enabled, recognitionMode]);
+  }, [enabled, recognitionMode, cancelInactivityCountdown]);
 
   /**
    * Process a frame of 126 landmark floats from MediaPipe.
@@ -149,6 +252,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
     // Update hand status
     if (handCount > 0 && hasActiveLandmarks) {
+      cancelInactivityCountdown(); // Active signing: cancel any pending hand-drop auto-send
       setHandInfo({
         count: handCount,
         label: handedness || (handCount >= 2 ? 'Both Hands (ISL)' : 'Single Hand'),
@@ -167,6 +271,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       lastCommittedItemRef.current = null;
       frameBufferRef.current = [];
       setWordBufferCount(0);
+
+      // Trigger hand-drop countdown if sentence buffer has words
+      handleHandsDropped();
       return null;
     }
 
@@ -435,7 +542,13 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     sentenceBuffer,
     wordBufferCount,
     wordBufferMax: WORD_SEQUENCE_LENGTH,
-    availableWords,
+    // Auto-Send / Inactivity states
+    autoSendEnabled,
+    setAutoSendEnabled,
+    autoSendTimeoutMs,
+    setAutoSendTimeoutMs,
+    inactivityCountdown,
+    lastAutoSpoken,
 
     // Actions
     processLandmarks,
@@ -446,6 +559,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     updateSentence,
     refineSentence,
     commitSentence,
+    triggerAutoSend,
+    cancelInactivityCountdown,
   };
 }
 
