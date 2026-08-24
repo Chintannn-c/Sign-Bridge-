@@ -36,8 +36,8 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
     }
   }, [webcamVideoRef, videoElement]);
 
-  // Recognition state machine with dual letter & word modes
-  const recognition = useGestureRecognition({ enabled: isLive && isCameraOn });
+  // Recognition state machine with dual letter & word modes and automatic snapshot fallback
+  const recognition = useGestureRecognition({ enabled: isLive && isCameraOn, videoElement });
 
   // MediaPipe hands integration (2-hand detection, 0.25 confidence)
   const detection = useHandDetection({

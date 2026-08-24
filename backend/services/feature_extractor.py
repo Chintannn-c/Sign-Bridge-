@@ -14,7 +14,7 @@ Converts 126-D MediaPipe landmark coordinates into a 202-D geometric invariant f
 import numpy as np
 
 NUM_RAW_FEATURES = 126
-NUM_EXTRACTED_FEATURES = 202
+NUM_EXTRACTED_FEATURES = 208
 
 # Joint triplets for angle calculation (MCP, PIP, DIP) and (PIP, DIP, TIP)
 FINGER_JOINT_TRIPLETS = [
@@ -40,7 +40,7 @@ def _compute_angle_cos(p_a, p_b, p_c):
 
 def extract_features(raw_landmarks):
     """
-    Extract a 202-D normalized geometric feature vector from 126 raw landmark floats.
+    Extract a 208-D normalized geometric feature vector from 126 raw landmark floats.
     Handles single sample (126,) or batch (N, 126).
     """
     raw = np.asarray(raw_landmarks, dtype=np.float32)
@@ -73,7 +73,7 @@ def extract_features(raw_landmarks):
         geo = []
         for h in range(2):
             if not present[h]:
-                geo.extend([0.0] * (18 + 10 + 3))
+                geo.extend([0.0] * (18 + 10 + 3 + 3))
                 continue
             hp = norm_p[h]
             w = hp[0]
@@ -124,6 +124,15 @@ def extract_features(raw_landmarks):
             else:
                 n_palm = np.array([0.0, 0.0, 1.0], dtype=np.float32)
             geo.extend([float(n_palm[0]), float(n_palm[1]), float(n_palm[2])])
+
+            # 8. Signature disambiguation metrics (3):
+            # a) Ring extension ratio (distinguishes W from V / U)
+            ring_ext_ratio = float(d_w_r / (d_w_i + 1e-6))
+            # b) O-Ring radial std variance (distinguishes O from U / P / S)
+            o_ring_var = float(np.std([d_t_i, d_t_m, d_t_r, d_t_p]))
+            # c) Thumb-over-knuckles signed crossing (distinguishes S from A / E)
+            thumb_cross_mcp = float(np.dot(thumb_tip - mcp_m, n_palm))
+            geo.extend([ring_ext_ratio, o_ring_var, thumb_cross_mcp])
         
         # Inter-hand interactions (14)
         if present[0] and present[1]:
