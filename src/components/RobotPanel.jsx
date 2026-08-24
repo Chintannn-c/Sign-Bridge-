@@ -132,6 +132,14 @@ export const RobotPanel = React.memo(({
           onScroll={handleScroll}
           onClick={e => e.stopPropagation()}
         >
+          {messages.length === 0 && !isStreaming && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-espresso)', opacity: 0.6, fontSize: '0.85rem', textAlign: 'center', padding: '2.5rem 1.5rem', userSelect: 'none' }}>
+              <Bot size={32} style={{ marginBottom: '0.6rem', opacity: 0.5, color: '#0d9488' }} />
+              <div style={{ fontWeight: 500, marginBottom: '0.2rem' }}>No messages yet</div>
+              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>Start signing in front of the camera or type below to begin dialogue.</div>
+            </div>
+          )}
+
           {messages.map((msg) => {
             const isHuman = msg.sender === 'human';
             return (

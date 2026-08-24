@@ -12,30 +12,17 @@ const API_BASE = '/api';  // Proxied by Vite to http://localhost:5000
  *   2. DEMO mode  — uses simulated typewriter text pools for UI demonstration
  */
 export function useISLTranslation() {
-  const [humanText, setHumanText] = useState('Namaste! How can I help you?');
-  const [robotText, setRobotText] = useState('Hello! Welcome to SignBridge.');
+  const [humanText, setHumanText] = useState('');
+  const [robotText, setRobotText] = useState('');
 
   const [humanStreamText, setHumanStreamText] = useState('');
   const [robotStreamText, setRobotStreamText] = useState('');
 
-  const [activeSide, setActiveSide] = useState('human'); // 'human' | 'robot' | null
+  const [activeSide, setActiveSide] = useState(null); // 'human' | 'robot' | null
   const [isStreamingHuman, setIsStreamingHuman] = useState(false);
   const [isStreamingRobot, setIsStreamingRobot] = useState(false);
 
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: 'human',
-      text: 'Namaste! How can I help you?',
-      timestamp: '10:14 AM'
-    },
-    {
-      id: 2,
-      sender: 'robot',
-      text: 'Hello! Welcome to SignBridge.',
-      timestamp: '10:14 AM'
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
 
   const [isAutoDemo, setIsAutoDemo] = useState(false);
 
