@@ -134,74 +134,72 @@ export const RobotPanel = React.memo(({
         >
           {messages.length === 0 && !isStreaming && (
             <motion.div 
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, ease: 'easeOut' }}
+              transition={{ duration: 0.25 }}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100%',
-                minHeight: '260px',
-                padding: '2rem 1.5rem',
+                minHeight: '220px',
+                padding: '2rem 1rem',
                 textAlign: 'center',
-                userSelect: 'none'
+                userSelect: 'none',
+                color: 'var(--text-espresso)'
               }}
             >
-              {/* Glowing Icon Container */}
+              {/* Native Rounded Avatar matching Chat UI */}
               <div 
                 style={{
-                  width: '58px',
-                  height: '58px',
-                  borderRadius: '18px',
-                  background: 'linear-gradient(135deg, rgba(110, 127, 107, 0.15), rgba(13, 148, 136, 0.15))',
-                  border: '1px solid rgba(110, 127, 107, 0.25)',
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '50%',
+                  background: 'var(--bg-secondary, #FAF8F5)',
+                  border: '1.5px solid var(--accent-camel, #C8AD93)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '1rem',
-                  boxShadow: '0 10px 28px -6px rgba(110, 127, 107, 0.25)',
-                  color: '#556b52'
+                  marginBottom: '0.85rem',
+                  color: 'var(--accent-sage, #6E7F6B)',
+                  boxShadow: '0 2px 8px rgba(45, 42, 38, 0.04)'
                 }}
               >
-                <Bot size={28} strokeWidth={2.2} />
+                <Bot size={22} />
               </div>
 
-              {/* Main Headline */}
-              <h3 
+              {/* Native Header */}
+              <div 
                 style={{ 
-                  fontSize: '1.2rem', 
-                  fontWeight: 700, 
-                  color: '#2D2A26', 
-                  marginBottom: '0.45rem',
-                  letterSpacing: '-0.02em',
-                  fontFamily: 'var(--font-family)'
+                  fontSize: '1rem', 
+                  fontWeight: 600, 
+                  color: 'var(--text-espresso)', 
+                  marginBottom: '0.25rem'
                 }}
               >
                 Ready for Live Dialogue
-              </h3>
+              </div>
 
-              {/* Subtitle with High-Contrast Typography */}
-              <p 
+              {/* Subtitle */}
+              <div 
                 style={{ 
-                  fontSize: '0.84rem', 
-                  color: '#656059', 
-                  lineHeight: 1.55,
-                  maxWidth: '310px',
-                  marginBottom: '1.4rem',
-                  fontWeight: 400
+                  fontSize: '0.82rem', 
+                  color: 'var(--text-muted, #6A6A67)', 
+                  lineHeight: 1.5,
+                  maxWidth: '290px',
+                  marginBottom: '1.1rem'
                 }}
               >
-                Perform <strong style={{ color: '#475845', fontWeight: 600 }}>camera signs</strong> on the left, or pick a sample prompt to start:
-              </p>
+                Sign with your camera or select a sample prompt to start:
+              </div>
 
-              {/* Quick-Prompt Suggestion Chips */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', justifyContent: 'center', maxWidth: '340px' }}>
+              {/* Native Suggestion Chips matching app action buttons */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center', maxWidth: '320px' }}>
                 {[
-                  { text: 'Namaste! How can I help you?', label: '🙏 Namaste' },
-                  { text: 'How are you?', label: '🤝 How are you?' },
-                  { text: 'Where is the washroom?', label: '🚻 Washroom' },
+                  { text: 'Namaste! How can I help you?', label: 'Namaste' },
+                  { text: 'How are you?', label: 'How are you?' },
+                  { text: 'Where is the washroom?', label: 'Where is the washroom?' },
                 ].map((chip, idx) => (
                   <button
                     key={idx}
@@ -209,30 +207,26 @@ export const RobotPanel = React.memo(({
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '0.35rem',
-                      padding: '0.45rem 0.85rem',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      color: '#38332e',
-                      background: 'rgba(255, 255, 255, 0.85)',
-                      border: '1px solid rgba(200, 173, 147, 0.35)',
-                      borderRadius: '20px',
+                      padding: '0.35rem 0.75rem',
+                      fontSize: '0.76rem',
+                      fontWeight: 500,
+                      color: 'var(--text-espresso)',
+                      background: 'var(--ui-white, #FFFFFF)',
+                      border: '1px solid var(--accent-camel, #C8AD93)',
+                      borderRadius: '9999px',
                       cursor: 'pointer',
-                      backdropFilter: 'blur(10px)',
-                      boxShadow: '0 2px 8px rgba(45, 42, 38, 0.04)',
-                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+                      transition: 'all 0.15s ease',
+                      boxShadow: '0 1px 3px rgba(45, 42, 38, 0.03)'
                     }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.borderColor = 'rgba(110, 127, 107, 0.6)';
-                      e.currentTarget.style.color = '#475845';
-                      e.currentTarget.style.boxShadow = '0 6px 14px rgba(110, 127, 107, 0.15)';
+                      e.currentTarget.style.background = 'var(--accent-sage, #6E7F6B)';
+                      e.currentTarget.style.color = 'var(--ui-white, #FFFFFF)';
+                      e.currentTarget.style.borderColor = 'var(--accent-sage, #6E7F6B)';
                     }}
                     onMouseLeave={e => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.borderColor = 'rgba(200, 173, 147, 0.35)';
-                      e.currentTarget.style.color = '#38332e';
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(45, 42, 38, 0.04)';
+                      e.currentTarget.style.background = 'var(--ui-white, #FFFFFF)';
+                      e.currentTarget.style.color = 'var(--text-espresso)';
+                      e.currentTarget.style.borderColor = 'var(--accent-camel, #C8AD93)';
                     }}
                   >
                     {chip.label}
