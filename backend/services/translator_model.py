@@ -116,30 +116,34 @@ class TranslatorModel:
     """
     ISL Gesture-to-Text translation model.
 
-    Supports three ML modes:
-      1. ST-GCN mode — loads PyTorch kinematic graph model (.pt)
-      2. XGBoost mode — loads trained XGBoost tree classifier (.pkl)
-      3. Deep Learning mode — loads a trained Keras .h5 model
-      4. Heuristic mode — rule-based matching using landmark geometry
+    Supports four ML modes:
+      1. Hybrid Ensemble mode — Combines ST-GCN graph logits + XGBoost trees (calibrated)
+      2. ST-GCN mode          — loads PyTorch kinematic graph model (.pt)
+      3. XGBoost mode         — loads trained XGBoost tree classifier (.pkl)
+      4. Deep Learning mode   — loads a trained Keras .h5 model
+      5. Heuristic mode       — rule-based matching using landmark geometry
     """
 
     def __init__(self):
+        self.stgcn_model = None
+        self.xgb_model = None
         self.model = None
-        self.mode = 'heuristic'  # 'stgcn' | 'xgboost' | 'deep_learning' | 'heuristic'
+        self.mode = 'heuristic'  # 'hybrid_ensemble' | 'stgcn' | 'xgboost' | 'deep_learning' | 'heuristic'
         self.mendeley_ref = {}
         self.metadata = {}
         self._load()
 
     def _load(self):
-        """Attempt to load trained model; fall back to heuristic.
+        """Attempt to load trained models; fall back to heuristic.
 
         Loading priority:
-          1. ST-GCN (.pt)    — highest geometric fidelity & bone structure
-          2. XGBoost (.pkl)  — high accuracy, fast CPU inference
-          3. Keras (.h5)     — deep learning fallback
-          4. Heuristic       — rule-based geometric matching
+          1. Hybrid Ensemble (ST-GCN + XGBoost) — Best calibration & geometric fidelity
+          2. ST-GCN standalone (.pt)
+          3. XGBoost standalone (.pkl)
+          4. Keras (.h5)
+          5. Heuristic — rule-based geometric matching
         """
-        # Priority 1: Try loading ST-GCN PyTorch model
+        # Load ST-GCN if available
         if os.path.exists(STGCN_MODEL_PATH):
             try:
                 import torch
@@ -150,35 +154,48 @@ class TranslatorModel:
                         self.metadata = json.load(f)
 
                 labels = self.metadata.get('labels', [c for c in ISL_LABELS if c.isalpha()])
-                model = STGCNHandClassifier(num_classes=len(labels))
+                st_model = STGCNHandClassifier(num_classes=len(labels))
                 checkpoint = torch.load(STGCN_MODEL_PATH, map_location='cpu')
                 if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
-                    model.load_state_dict(checkpoint['model_state_dict'])
+                    st_model.load_state_dict(checkpoint['model_state_dict'])
                 else:
-                    model.load_state_dict(checkpoint)
-                model.eval()
-                self.model = model
-                self.mode = 'stgcn'
-                logger.info(f"Loaded ST-GCN Kinematic Graph model from {STGCN_MODEL_PATH} ({len(labels)} classes)")
-                return
+                    st_model.load_state_dict(checkpoint)
+                st_model.eval()
+                self.stgcn_model = st_model
+                logger.info(f"Loaded ST-GCN Kinematic Graph model from {STGCN_MODEL_PATH}")
             except Exception as e:
-                logger.warning(f"Failed to load ST-GCN model: {e}. Trying XGBoost...")
+                logger.warning(f"Failed to load ST-GCN model: {e}")
 
-        # Priority 2: Try loading XGBoost model
+        # Load XGBoost if available
         if os.path.exists(XGB_MODEL_PATH):
             try:
                 with open(XGB_MODEL_PATH, 'rb') as f:
-                    self.model = pickle.load(f)
-                if os.path.exists(XGB_META_PATH):
+                    self.xgb_model = pickle.load(f)
+                if not self.metadata and os.path.exists(XGB_META_PATH):
                     with open(XGB_META_PATH, 'r', encoding='utf-8') as f:
                         self.metadata = json.load(f)
-                self.mode = 'xgboost'
                 logger.info(f"Loaded XGBoost model from {XGB_MODEL_PATH}")
-                return
             except Exception as e:
-                logger.warning(f"Failed to load XGBoost model: {e}. Trying Keras...")
+                logger.warning(f"Failed to load XGBoost model: {e}")
 
-        # Priority 3: Try loading the trained Keras model
+        # Determine best operating mode
+        if self.stgcn_model is not None and self.xgb_model is not None:
+            self.mode = 'hybrid_ensemble'
+            self.model = self.stgcn_model
+            logger.info("Sign-Bridge Alphabet Engine initialized in CALIBRATED HYBRID ENSEMBLE mode (ST-GCN + XGBoost).")
+            return
+        elif self.stgcn_model is not None:
+            self.mode = 'stgcn'
+            self.model = self.stgcn_model
+            logger.info("Sign-Bridge Alphabet Engine initialized in ST-GCN mode.")
+            return
+        elif self.xgb_model is not None:
+            self.mode = 'xgboost'
+            self.model = self.xgb_model
+            logger.info("Sign-Bridge Alphabet Engine initialized in XGBoost mode.")
+            return
+
+        # Fallback to Keras model
         if os.path.exists(MODEL_PATH):
             try:
                 import tensorflow as tf
@@ -192,7 +209,7 @@ class TranslatorModel:
             except Exception as e:
                 logger.warning(f"Failed to load Keras model: {e}. Falling back to heuristic mode.")
 
-        # Priority 3: Load Mendeley reference data for heuristic mode
+        # Fallback to Heuristic
         self.mode = 'heuristic'
         self._load_mendeley_ref()
         logger.info("Running in HEURISTIC mode (no trained model found).")
@@ -222,22 +239,10 @@ class TranslatorModel:
     def predict(self, landmarks):
         """
         Predict the ISL letter from a set of hand landmarks.
-
-        Args:
-            landmarks: list or numpy array of hand landmark coordinates.
-                       For deep learning: shape (126,) or (1, 126) — flattened (x,y,z) for 42 points.
-                       For heuristic: list of 42 dicts with {x, y, z} keys,
-                                      or a flat array of 126 floats.
-
-        Returns:
-            dict: {
-                'letter': str,       # Predicted ISL letter
-                'confidence': float, # 0.0 to 1.0
-                'mode': str,         # 'xgboost' | 'deep_learning' | 'heuristic'
-                'all_scores': dict   # Letter -> score mapping (top 5)
-            }
         """
-        if self.mode == 'stgcn' and self.model is not None:
+        if self.mode == 'hybrid_ensemble':
+            return self._predict_hybrid_ensemble(landmarks)
+        elif self.mode == 'stgcn' and self.model is not None:
             return self._predict_stgcn(landmarks)
         elif self.mode == 'xgboost' and self.model is not None:
             return self._predict_xgb(landmarks)
@@ -245,6 +250,84 @@ class TranslatorModel:
             return self._predict_dl(landmarks)
         else:
             return self._predict_heuristic(landmarks)
+
+    def _predict_hybrid_ensemble(self, landmarks):
+        """Run inference through the calibrated ST-GCN + XGBoost Hybrid Ensemble."""
+        if self.stgcn_model is None or self.xgb_model is None:
+            return self._predict_stgcn(landmarks) if self.stgcn_model else self._predict_xgb(landmarks)
+
+        try:
+            import torch
+            arr = validate_landmark_array(landmarks)
+            if not np.any(arr != 0):
+                return self._invalid_input_result('hybrid_ensemble')
+
+            normalized = [normalize_landmarks(row) for row in arr]
+            if any(row is None for row in normalized):
+                return self._invalid_input_result('hybrid_ensemble')
+            arr_norm = np.asarray(normalized, dtype=np.float32)
+
+            labels = self.metadata.get('labels', [c for c in ISL_LABELS if c.isalpha()])
+
+            # 1. XGBoost primary and swapped pass
+            feat_primary = extract_features(arr_norm)
+            probs_xgb = self.xgb_model.predict_proba(feat_primary)[0]
+
+            swapped = np.zeros_like(arr_norm)
+            swapped[:, :63] = arr_norm[:, 63:]
+            swapped[:, 63:] = arr_norm[:, :63]
+            feat_swapped = extract_features(swapped)
+            probs_xgb_swapped = self.xgb_model.predict_proba(feat_swapped)[0]
+            if np.max(probs_xgb_swapped) > np.max(probs_xgb):
+                probs_xgb = probs_xgb_swapped
+
+            # 2. ST-GCN primary and swapped pass with temperature scaling (T=1.20)
+            tensor_in = torch.tensor(arr_norm, dtype=torch.float32)
+            with torch.no_grad():
+                logits = self.stgcn_model(tensor_in)
+                probs_stgcn = torch.softmax(logits / 1.20, dim=1).numpy()[0]
+
+            tensor_swapped = torch.tensor(swapped, dtype=torch.float32)
+            with torch.no_grad():
+                logits_swapped = self.stgcn_model(tensor_swapped)
+                probs_stgcn_swapped = torch.softmax(logits_swapped / 1.20, dim=1).numpy()[0]
+            if np.max(probs_stgcn_swapped) > np.max(probs_stgcn):
+                probs_stgcn = probs_stgcn_swapped
+
+            # 3. Weighted Blending: 0.65 XGBoost + 0.35 ST-GCN
+            probs = (0.65 * probs_xgb) + (0.35 * probs_stgcn)
+
+            top_idx = int(np.argmax(probs))
+            confidence = float(probs[top_idx])
+            letter = labels[top_idx] if top_idx < len(labels) else '?'
+
+            # Top 2 margin calculation
+            sorted_probs = np.sort(probs)[::-1]
+            margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
+
+            sorted_indices = np.argsort(probs)[::-1][:5]
+            top_scores = {
+                labels[i]: round(float(probs[i]), 4)
+                for i in sorted_indices if i < len(labels)
+            }
+
+            is_rejected = bool(confidence < 0.48 or margin < 0.04 or letter == '?')
+
+            return {
+                'letter': '?' if is_rejected else letter,
+                'confidence': round(confidence, 4),
+                'margin': round(margin, 4),
+                'mode': 'hybrid_ensemble',
+                'rejected': is_rejected,
+                'rejection_reason': 'low_confidence_or_margin' if is_rejected else None,
+                'all_scores': top_scores
+            }
+        except LandmarkValidationError as e:
+            logger.warning(f"Ensemble prediction skipped — bad input: {e}")
+            return self._invalid_input_result('hybrid_ensemble')
+        except Exception as e:
+            logger.error(f"Ensemble prediction failed: {e}")
+            return self._predict_xgb(landmarks)
 
     def _predict_stgcn(self, landmarks):
         """Run inference through the trained PyTorch ST-GCN model."""
