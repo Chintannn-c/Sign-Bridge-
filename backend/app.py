@@ -38,6 +38,7 @@ from services.translator_model import TranslatorModel
 from services.arduino_serial import ArduinoSerial
 from services.word_recognizer import WordRecognizer
 from services.gemini_manager import gemini_manager
+from services.groq_manager import groq_manager
 from database.schema import init_db, log_conversation, get_recent_history, log_dataset_session
 
 # ─── Configuration ──────────────────────────────────────────────────────────
@@ -60,47 +61,6 @@ logger.info("Initializing Sign-Bridge API services...")
 translator = TranslatorModel()
 word_recognizer = WordRecognizer()
 arduino = ArduinoSerial()
-
-# ═══════════════════════════════════════════════════════════════════════════
-# TIERED DYNAMIC LLM CASCADE (Groq LPU -> Google Gemini -> Local)
-# ═══════════════════════════════════════════════════════════════════════════
-
-# Master priority candidate lists for Groq LPU
-PREFERRED_GROQ_MODELS = [
-    "llama-3.3-70b-versatile",
-    "llama-3.3-70b-specdec",
-    "llama-3.1-70b-versatile",
-    "openai/gpt-oss-120b",
-    "qwen/qwen3.6-27b",
-    "llama-3.1-8b-instant",
-    "gemma2-9b-it",
-    "mixtral-8x7b-32768",
-    "groq/compound",
-    "groq/compound-mini",
-]
-
-# Initialize Groq Real-Time LLM Client
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-groq_client = None
-active_groq_models: list[str] = PREFERRED_GROQ_MODELS.copy()
-
-if GROQ_API_KEY:
-    try:
-        from groq import Groq
-        groq_client = Groq(api_key=GROQ_API_KEY)
-        try:
-            available_groq = [m.id for m in groq_client.models.list().data if 'whisper' not in m.id and 'guard' not in m.id]
-            if available_groq:
-                ordered_groq = [m for m in PREFERRED_GROQ_MODELS if m in available_groq]
-                for m in available_groq:
-                    if m not in ordered_groq:
-                        ordered_groq.append(m)
-                active_groq_models = ordered_groq
-        except Exception as e:
-            logger.debug(f"Groq dynamic model list notice: {e}")
-        logger.info(f"Groq LLM service initialized with tiered models: {active_groq_models[:4]}")
-    except Exception as e:
-        logger.warning(f"Groq LLM initialization warning: {e}")
 
 logger.info(f"Translator mode: {translator.mode}")
 logger.info("Services ready.")
@@ -149,40 +109,27 @@ class LLMResponse(TypedDict):
 def generate_llm_response(prompt: str, system_instruction: str = "You are SignBridge AI assistant.") -> LLMResponse:
     """
     Tiered Automatic Drop-Down LLM Cascade:
-    1. Primary Tier: Groq LPU (Latest 70B -> 8B -> Speculative Models for sub-100ms response).
+    1. Primary Tier: Groq LPU Manager (Dual-Key rotation, auto-discovery & backoff retry).
     2. Secondary Tier: Google Gemini Manager (Dual-Key rotation, auto-discovery & backoff retry).
     3. Final Tier: Smart Local Semantic Engine.
     """
     errors = []
 
-    # 1. Primary Tier Attempt: Groq LPU (Iterating latest to lowest fallback models)
-    client_groq = groq_client
-    if client_groq is not None:
-        for model_id in active_groq_models:
-            try:
-                response = client_groq.chat.completions.create(
-                    model=model_id,
-                    messages=[
-                        {"role": "system", "content": system_instruction},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.3,
-                    max_tokens=300
-                )
-                if response.choices and len(response.choices) > 0:
-                    msg = response.choices[0].message
-                    content = getattr(msg, 'content', None)
-                    if content:
-                        result = str(content).strip()
-                        if result:
-                            return {
-                                "text": result,
-                                "provider": f"Groq ({model_id})",
-                                "fallback_used": False
-                            }
-            except Exception as groq_err:
-                errors.append(f"Groq [{model_id}] error: {groq_err}")
-                continue
+    # 1. Primary Tier Attempt: Centralized Groq LPU Manager
+    if groq_manager.is_available():
+        try:
+            groq_res = groq_manager.generate(
+                prompt=prompt,
+                system_instruction=system_instruction
+            )
+            if groq_res and groq_res.get("text"):
+                return {
+                    "text": groq_res["text"],
+                    "provider": groq_res["provider"],
+                    "fallback_used": groq_res.get("fallback_used", False)
+                }
+        except Exception as groq_err:
+            errors.append(f"GroqManager error: {groq_err}")
 
     # 2. Secondary Tier Attempt: Centralized Google Gemini Manager
     if gemini_manager.is_available():
@@ -397,7 +344,8 @@ def health():
         'service': 'Sign-Bridge Flask API',
         'translator_mode': translator.mode,
         'arduino_connected': arduino.is_connected,
-        'groq_available': groq_client is not None,
+        'groq_available': groq_manager.is_available(),
+        'groq_health': groq_manager.get_health_status(),
         'gemini_available': gemini_manager.is_available(),
         'gemini_health': gemini_manager.get_health_status(),
         'word_recognizer_available': word_recognizer.is_available
@@ -408,10 +356,7 @@ def health():
 def llm_status():
     """Return real-time status of Groq, Gemini multi-key management, and Local LLM tiers."""
     return jsonify({
-        'groq': {
-            'available': groq_client is not None,
-            'models': active_groq_models[:4]
-        },
+        'groq': groq_manager.get_health_status(),
         'gemini': gemini_manager.get_health_status(),
         'local_fallback': True
     })
