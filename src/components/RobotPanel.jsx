@@ -317,40 +317,81 @@ export const RobotPanel = React.memo(({
           </div>
         )}
 
-        {/* Collapsible Secondary Keyboard Input Bar */}
+        {/* Modern Rounded Pill Keyboard Input Bar */}
         <AnimatePresence>
           {showKeyboard && (
             <motion.div
-              initial={{ opacity: 0, y: 12, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: 'auto' }}
-              exit={{ opacity: 0, y: 12, height: 0 }}
-              className="secondary-input-wrapper"
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                zIndex: 25,
+                marginTop: '0.5rem',
+                width: '100%'
+              }}
               onClick={e => e.stopPropagation()}
             >
-              <div className="secondary-input-header">
-                <span className="secondary-tag">
-                  <Keyboard size={11} /> SECONDARY INPUT
-                </span>
-                <button
-                  className="hide-keyboard-close-btn"
-                  onClick={() => setShowKeyboard(false)}
-                >
-                  <X size={12} />
-                  <span>Hide</span>
-                </button>
-              </div>
-              <form className="chat-input-bar secondary-input-bar" onSubmit={handleSend}>
+              <form 
+                onSubmit={handleSend}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: '#FFFFFF',
+                  border: '1.5px solid rgba(200, 173, 147, 0.5)',
+                  borderRadius: '9999px',
+                  padding: '0.35rem 0.45rem 0.35rem 1.25rem',
+                  boxShadow: '0 4px 16px -2px rgba(45, 42, 38, 0.08), 0 2px 6px rgba(0, 0, 0, 0.02)',
+                  transition: 'border-color 0.2s, box-shadow 0.2s'
+                }}
+              >
                 <input
                   type="text"
-                  placeholder="Type message response here..."
+                  placeholder="Type your message..."
                   value={inputVal}
                   onChange={e => setInputVal(e.target.value)}
-                  className="chat-input"
                   autoFocus
+                  style={{
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    fontSize: '0.88rem',
+                    fontWeight: 450,
+                    color: 'var(--text-espresso, #2D2A26)',
+                    fontFamily: 'var(--font-family)'
+                  }}
                 />
-                <button type="submit" className="chat-send-btn secondary-send-btn" title="Send text message">
-                  <Send size={13} />
-                  <span>Send</span>
+                <button 
+                  type="submit" 
+                  title="Send message"
+                  disabled={!inputVal.trim()}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: inputVal.trim() 
+                      ? 'linear-gradient(135deg, #818cf8, #6366f1)' 
+                      : 'linear-gradient(135deg, #a5b4fc, #818cf8)',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: inputVal.trim() ? 'pointer' : 'default',
+                    opacity: inputVal.trim() ? 1 : 0.85,
+                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)',
+                    transition: 'transform 0.15s ease, opacity 0.15s ease'
+                  }}
+                  onMouseEnter={e => {
+                    if (inputVal.trim()) e.currentTarget.style.transform = 'scale(1.06)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                >
+                  <Send size={15} style={{ transform: 'translateX(1px)' }} />
                 </button>
               </form>
             </motion.div>

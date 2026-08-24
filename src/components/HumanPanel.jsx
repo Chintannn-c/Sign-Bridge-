@@ -152,11 +152,12 @@ export const HumanPanel = React.memo(({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    padding: '0.4rem 0.6rem',
-                    borderRadius: '12px',
-                    border: '1.5px solid var(--accent-camel)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+                    background: '#FFFFFF',
+                    border: '1.5px solid rgba(200, 173, 147, 0.5)',
+                    borderRadius: '9999px',
+                    padding: '0.35rem 0.45rem 0.35rem 1.25rem',
+                    boxShadow: '0 4px 16px -2px rgba(45, 42, 38, 0.08), 0 2px 6px rgba(0, 0, 0, 0.02)',
+                    width: '100%'
                   }}
                 >
                   <input
@@ -170,30 +171,41 @@ export const HumanPanel = React.memo(({
                       border: 'none',
                       background: 'transparent',
                       outline: 'none',
-                      fontSize: '0.9rem',
+                      fontSize: '0.88rem',
                       color: 'var(--text-espresso)',
-                      padding: '0.3rem'
+                      fontFamily: 'var(--font-family)',
+                      fontWeight: 450
                     }}
                   />
                   <button
                     type="submit"
                     title="Send message"
+                    disabled={!tempInput.trim()}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.3rem',
-                      padding: '0.4rem 0.75rem',
-                      borderRadius: '8px',
-                      background: 'var(--accent-sage)',
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      background: tempInput.trim() 
+                        ? 'linear-gradient(135deg, #818cf8, #6366f1)' 
+                        : 'linear-gradient(135deg, #a5b4fc, #818cf8)',
                       color: '#fff',
                       border: 'none',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer'
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: tempInput.trim() ? 'pointer' : 'default',
+                      opacity: tempInput.trim() ? 1 : 0.85,
+                      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)',
+                      transition: 'transform 0.15s ease'
+                    }}
+                    onMouseEnter={e => {
+                      if (tempInput.trim()) e.currentTarget.style.transform = 'scale(1.06)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
-                    <Send size={13} />
-                    <span>Send</span>
+                    <Send size={15} style={{ transform: 'translateX(1px)' }} />
                   </button>
                   <button
                     type="button"
@@ -202,10 +214,12 @@ export const HumanPanel = React.memo(({
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      padding: '0.4rem',
-                      borderRadius: '8px',
+                      justifyContent: 'center',
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '50%',
                       background: 'transparent',
-                      color: 'var(--text-espresso)',
+                      color: 'var(--text-muted)',
                       border: 'none',
                       cursor: 'pointer'
                     }}
