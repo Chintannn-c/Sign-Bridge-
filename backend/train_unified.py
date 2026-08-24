@@ -269,6 +269,157 @@ def train_letter_model():
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# PHASE 2B: Letter Model Training (ST-GCN Kinematic Graph)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def train_stgcn_model(epochs=35, batch_size=64, lr=0.003):
+    """Train PyTorch ST-GCN kinematic hand graph classifier."""
+    import torch
+    import torch.nn as nn
+    import torch.optim as optim
+    from torch.utils.data import TensorDataset, DataLoader
+    from models.st_gcn import STGCNHandClassifier
+    from services.data_loader import load_dataset_partitioned, ALPHABET_LABELS
+
+    logger.info("=" * 70)
+    logger.info("PHASE 2B: Training ST-GCN Hand Graph Classifier")
+    logger.info("=" * 70)
+
+    partitions, report = load_dataset_partitioned()
+    if report['train_samples'] == 0:
+        logger.error("No training data found! Run extraction first.")
+        return None
+
+    X_train_aug, y_train_aug = augment_training_partition(partitions['X_train'], partitions['y_train'])
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    logger.info(f"Training ST-GCN on device: {device} ({len(X_train_aug)} training samples)")
+
+    train_ds = TensorDataset(torch.tensor(X_train_aug, dtype=torch.float32), torch.tensor(y_train_aug, dtype=torch.long))
+    val_ds = TensorDataset(torch.tensor(partitions['X_val'], dtype=torch.float32), torch.tensor(partitions['y_val'], dtype=torch.long))
+    test_ds = TensorDataset(torch.tensor(partitions['X_test'], dtype=torch.float32), torch.tensor(partitions['y_test'], dtype=torch.long))
+
+    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False)
+
+    model = STGCNHandClassifier(num_classes=len(ALPHABET_LABELS), in_channels=3, hidden_dim=64).to(device)
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.05)
+    optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-5)
+
+    best_val_acc = 0.0
+    best_state = None
+    t0 = time.time()
+
+    for epoch in range(1, epochs + 1):
+        model.train()
+        total_loss = 0.0
+        correct = 0
+        total = 0
+
+        for X_b, y_b in train_loader:
+            X_b, y_b = X_b.to(device), y_b.to(device)
+            optimizer.zero_grad()
+            logits = model(X_b)
+            loss = criterion(logits, y_b)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=2.0)
+            optimizer.step()
+
+            total_loss += loss.item() * len(y_b)
+            preds = logits.argmax(dim=1)
+            correct += (preds == y_b).sum().item()
+            total += len(y_b)
+
+        scheduler.step()
+        train_acc = correct / max(1, total)
+
+        # Validation
+        model.eval()
+        val_correct = 0
+        val_total = 0
+        with torch.no_grad():
+            for X_b, y_b in val_loader:
+                X_b, y_b = X_b.to(device), y_b.to(device)
+                logits = model(X_b)
+                preds = logits.argmax(dim=1)
+                val_correct += (preds == y_b).sum().item()
+                val_total += len(y_b)
+
+        val_acc = val_correct / max(1, val_total)
+        if val_acc > best_val_acc:
+            best_val_acc = val_acc
+            best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+
+        if epoch % 5 == 0 or epoch == epochs:
+            logger.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Acc: {train_acc*100:.2f}% | Val Acc: {val_acc*100:.2f}% (Best: {best_val_acc*100:.2f}%)")
+
+    train_time = time.time() - t0
+
+    # Load best weights
+    if best_state is not None:
+        model.load_state_dict(best_state)
+    model.eval()
+
+    # Final Test evaluation
+    test_preds_list = []
+    test_targets_list = []
+    with torch.no_grad():
+        for X_b, y_b in test_loader:
+            logits = model(X_b.to(device))
+            preds = logits.argmax(dim=1).cpu().numpy()
+            test_preds_list.extend(preds)
+            test_targets_list.extend(y_b.numpy())
+
+    test_preds = np.array(test_preds_list)
+    test_targets = np.array(test_targets_list)
+
+    test_acc = accuracy_score(test_targets, test_preds)
+    test_f1 = f1_score(test_targets, test_preds, average='macro')
+    test_prec = precision_score(test_targets, test_preds, average='macro', zero_division=0)
+    test_rec = recall_score(test_targets, test_preds, average='macro', zero_division=0)
+
+    logger.info("=" * 60)
+    logger.info(f"ST-GCN Final Test Accuracy: {test_acc*100:.2f}% | Test Macro F1: {test_f1:.4f}")
+    logger.info(f"ST-GCN Test Precision: {test_prec:.4f} | Test Recall: {test_rec:.4f}")
+    logger.info("=" * 60)
+
+    # Save ST-GCN model
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    model_path = MODEL_DIR / 'isl_stgcn_model.pt'
+    torch.save({
+        'model_type': 'st_gcn',
+        'model_state_dict': model.state_dict(),
+        'num_classes': len(ALPHABET_LABELS),
+        'labels': ALPHABET_LABELS,
+    }, model_path)
+
+    metadata = {
+        'model_type': 'st_gcn',
+        'raw_input_landmarks': 126,
+        'num_classes': len(ALPHABET_LABELS),
+        'labels': ALPHABET_LABELS,
+        'metrics': {
+            'val_accuracy': round(float(best_val_acc), 4),
+            'test_accuracy': round(float(test_acc), 4),
+            'test_macro_f1': round(float(test_f1), 4),
+            'test_precision': round(float(test_prec), 4),
+            'test_recall': round(float(test_rec), 4),
+        },
+        'trained_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+        'training_time_seconds': round(train_time, 2),
+    }
+
+    meta_path = MODEL_DIR / 'stgcn_training_meta.json'
+    meta_path.write_text(json.dumps(metadata, indent=2), encoding='utf-8')
+    logger.info(f"ST-GCN Model saved to: {model_path}")
+    logger.info(f"ST-GCN Metadata saved to: {meta_path}")
+
+    return metadata
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # PHASE 3: Word Model Training (CNN-BiLSTM)
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -640,7 +791,9 @@ def main():
     parser.add_argument('--skip-extract', action='store_true',
                         help='Skip data extraction phase')
     parser.add_argument('--letters-only', action='store_true',
-                        help='Train only letter model')
+                        help='Train only letter models (XGBoost + ST-GCN)')
+    parser.add_argument('--stgcn-only', action='store_true',
+                        help='Train only ST-GCN Kinematic Graph letter model')
     parser.add_argument('--words-only', action='store_true',
                         help='Train only word model')
     args = parser.parse_args()
@@ -659,15 +812,22 @@ def main():
 
     results = {}
 
-    # Phase 2: Letter model
-    if not args.words_only:
+    # Phase 2A: XGBoost Letter model
+    if not args.words_only and not args.stgcn_only:
         try:
             results['letter'] = train_letter_model()
         except Exception as e:
             logger.error(f"Letter model training failed: {e}", exc_info=True)
 
+    # Phase 2B: ST-GCN Kinematic Graph Letter model
+    if not args.words_only:
+        try:
+            results['stgcn'] = train_stgcn_model()
+        except Exception as e:
+            logger.error(f"ST-GCN model training failed: {e}", exc_info=True)
+
     # Phase 3: Word model
-    if not args.letters_only:
+    if not args.letters_only and not args.stgcn_only:
         try:
             results['word'] = train_word_model()
         except Exception as e:
@@ -682,10 +842,14 @@ def main():
 
     if 'letter' in results and results['letter']:
         m = results['letter']['metrics']
-        logger.info(f"Letter Model: Val={m['val_accuracy']*100:.1f}% | Test={m['test_accuracy']*100:.1f}%")
+        logger.info(f"XGBoost Letter Model: Val={m['val_accuracy']*100:.1f}% | Test={m['test_accuracy']*100:.1f}%")
+
+    if 'stgcn' in results and results['stgcn']:
+        m = results['stgcn']['metrics']
+        logger.info(f"ST-GCN Graph Model:   Val={m['val_accuracy']*100:.1f}% | Test={m['test_accuracy']*100:.1f}%")
 
     if 'word' in results and results['word']:
-        logger.info(f"Word Model: Val={results['word']['val_accuracy']*100:.1f}%")
+        logger.info(f"Word Model:           Val={results['word']['val_accuracy']*100:.1f}%")
 
     logger.info("#" * 70)
 

@@ -35,11 +35,15 @@ logger = logging.getLogger(__name__)
 # Path to the trained model weights files
 MODEL_DIR = os.path.join(os.path.dirname(__file__), '..', 'models')
 
-# XGBoost model (created by train_model_xgb.py) — Priority 1
+# ST-GCN Kinematic Graph model (.pt) — Priority 1 (Highest geometric fidelity)
+STGCN_MODEL_PATH = os.path.join(MODEL_DIR, 'isl_stgcn_model.pt')
+STGCN_META_PATH = os.path.join(MODEL_DIR, 'stgcn_training_meta.json')
+
+# XGBoost model (created by train_model_xgb.py) — Priority 2
 XGB_MODEL_PATH = os.path.join(MODEL_DIR, 'isl_xgboost_model.pkl')
 XGB_META_PATH = os.path.join(MODEL_DIR, 'xgb_training_meta.json')
 
-# Keras model (created by train_model.py) — Priority 2
+# Keras model (created by train_model.py) — Priority 3
 MODEL_PATH = os.path.join(MODEL_DIR, 'isl_gesture_model.h5')
 META_PATH = os.path.join(MODEL_DIR, 'training_meta.json')
 
@@ -50,7 +54,7 @@ MENDELEY_CSV = os.path.join(
 )
 
 # ISL alphabet + digit labels (36 classes: A-Z then 0-9)
-ISL_LABELS: list[str] = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ') + list('0123456789')
+ISL_LABELS: list[str] = [str(c) for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789']
 
 # Below this, a same-hand thumb-to-index distance counts as "touching"
 # (in the same normalized units used by normalize_landmarks()).
@@ -84,11 +88,7 @@ class LandmarkValidationError(ValueError):
 
 
 def validate_landmark_array(landmarks):
-    """Coerce landmarks to a (126,) or (N, 126) float array, or raise.
-
-    Centralizes the shape/type checks that _predict_xgb / _predict_dl
-    previously relied on numpy to raise deep inside reshape() for.
-    """
+    """Coerce landmarks to a (126,) or (N, 126) float array, or raise."""
     if isinstance(landmarks, list) and len(landmarks) == 42 and len(landmarks) > 0 and isinstance(landmarks[0], dict):
         flat = []
         for pt in landmarks:
@@ -116,14 +116,16 @@ class TranslatorModel:
     """
     ISL Gesture-to-Text translation model.
 
-    Supports two modes:
-      1. Deep Learning mode — loads a trained Keras .h5 model
-      2. Heuristic mode — rule-based matching using landmark geometry
+    Supports three ML modes:
+      1. ST-GCN mode — loads PyTorch kinematic graph model (.pt)
+      2. XGBoost mode — loads trained XGBoost tree classifier (.pkl)
+      3. Deep Learning mode — loads a trained Keras .h5 model
+      4. Heuristic mode — rule-based matching using landmark geometry
     """
 
     def __init__(self):
         self.model = None
-        self.mode = 'heuristic'  # 'xgboost' | 'deep_learning' | 'heuristic'
+        self.mode = 'heuristic'  # 'stgcn' | 'xgboost' | 'deep_learning' | 'heuristic'
         self.mendeley_ref = {}
         self.metadata = {}
         self._load()
@@ -132,11 +134,37 @@ class TranslatorModel:
         """Attempt to load trained model; fall back to heuristic.
 
         Loading priority:
-          1. XGBoost (.pkl)  — best accuracy, fastest CPU inference
-          2. Keras (.h5)     — deep learning fallback
-          3. Heuristic       — rule-based geometric matching
+          1. ST-GCN (.pt)    — highest geometric fidelity & bone structure
+          2. XGBoost (.pkl)  — high accuracy, fast CPU inference
+          3. Keras (.h5)     — deep learning fallback
+          4. Heuristic       — rule-based geometric matching
         """
-        # Priority 1: Try loading XGBoost model
+        # Priority 1: Try loading ST-GCN PyTorch model
+        if os.path.exists(STGCN_MODEL_PATH):
+            try:
+                import torch
+                from models.st_gcn import STGCNHandClassifier
+
+                if os.path.exists(STGCN_META_PATH):
+                    with open(STGCN_META_PATH, 'r', encoding='utf-8') as f:
+                        self.metadata = json.load(f)
+
+                labels = self.metadata.get('labels', [c for c in ISL_LABELS if c.isalpha()])
+                model = STGCNHandClassifier(num_classes=len(labels))
+                checkpoint = torch.load(STGCN_MODEL_PATH, map_location='cpu')
+                if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+                    model.load_state_dict(checkpoint['model_state_dict'])
+                else:
+                    model.load_state_dict(checkpoint)
+                model.eval()
+                self.model = model
+                self.mode = 'stgcn'
+                logger.info(f"Loaded ST-GCN Kinematic Graph model from {STGCN_MODEL_PATH} ({len(labels)} classes)")
+                return
+            except Exception as e:
+                logger.warning(f"Failed to load ST-GCN model: {e}. Trying XGBoost...")
+
+        # Priority 2: Try loading XGBoost model
         if os.path.exists(XGB_MODEL_PATH):
             try:
                 with open(XGB_MODEL_PATH, 'rb') as f:
@@ -150,7 +178,7 @@ class TranslatorModel:
             except Exception as e:
                 logger.warning(f"Failed to load XGBoost model: {e}. Trying Keras...")
 
-        # Priority 2: Try loading the trained Keras model
+        # Priority 3: Try loading the trained Keras model
         if os.path.exists(MODEL_PATH):
             try:
                 import tensorflow as tf
@@ -209,12 +237,84 @@ class TranslatorModel:
                 'all_scores': dict   # Letter -> score mapping (top 5)
             }
         """
-        if self.mode == 'xgboost' and self.model is not None:
+        if self.mode == 'stgcn' and self.model is not None:
+            return self._predict_stgcn(landmarks)
+        elif self.mode == 'xgboost' and self.model is not None:
             return self._predict_xgb(landmarks)
         elif self.mode == 'deep_learning' and self.model is not None:
             return self._predict_dl(landmarks)
         else:
             return self._predict_heuristic(landmarks)
+
+    def _predict_stgcn(self, landmarks):
+        """Run inference through the trained PyTorch ST-GCN model."""
+        if self.model is None:
+            return self._predict_xgb(landmarks)
+
+        try:
+            import torch
+            arr = validate_landmark_array(landmarks)
+
+            if not np.any(arr != 0):
+                return self._invalid_input_result('stgcn')
+
+            # Normalization
+            normalized = [normalize_landmarks(row) for row in arr]
+            if any(row is None for row in normalized):
+                return self._invalid_input_result('stgcn')
+            arr = np.asarray(normalized, dtype=np.float32)
+
+            labels = self.metadata.get('labels', [c for c in ISL_LABELS if c.isalpha()])
+
+            # 1. Primary orientation pass
+            tensor_in = torch.tensor(arr, dtype=torch.float32)
+            with torch.no_grad():
+                logits = self.model(tensor_in)
+                probs = torch.softmax(logits, dim=1).numpy()[0]
+
+            # 2. Hand-swapped orientation pass (enforce hand invariance)
+            swapped = np.zeros_like(arr)
+            swapped[:, :63] = arr[:, 63:]
+            swapped[:, 63:] = arr[:, :63]
+            tensor_swapped = torch.tensor(swapped, dtype=torch.float32)
+            with torch.no_grad():
+                logits_swapped = self.model(tensor_swapped)
+                probs_swapped = torch.softmax(logits_swapped, dim=1).numpy()[0]
+
+            if np.max(probs_swapped) > np.max(probs):
+                probs = probs_swapped
+
+            top_idx = int(np.argmax(probs))
+            confidence = float(probs[top_idx])
+            letter = labels[top_idx] if top_idx < len(labels) else '?'
+
+            # Top 2 margin calculation
+            sorted_probs = np.sort(probs)[::-1]
+            margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
+
+            sorted_indices = np.argsort(probs)[::-1][:5]
+            top_scores = {
+                labels[i]: round(float(probs[i]), 4)
+                for i in sorted_indices if i < len(labels)
+            }
+
+            is_rejected = bool(confidence < 0.48 or margin < 0.04 or letter == '?')
+
+            return {
+                'letter': '?' if is_rejected else letter,
+                'confidence': round(confidence, 4),
+                'margin': round(margin, 4),
+                'mode': 'stgcn',
+                'rejected': is_rejected,
+                'rejection_reason': 'low_confidence_or_margin' if is_rejected else None,
+                'all_scores': top_scores
+            }
+        except LandmarkValidationError as e:
+            logger.warning(f"ST-GCN prediction skipped — bad input: {e}")
+            return self._invalid_input_result('stgcn')
+        except Exception as e:
+            logger.error(f"ST-GCN prediction failed: {e}")
+            return self._predict_xgb(landmarks)
 
     def _predict_xgb(self, landmarks):
         """Run inference through the trained XGBoost model."""

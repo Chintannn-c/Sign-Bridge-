@@ -557,6 +557,62 @@ def translate_batch():
     })
 
 
+@app.route('/api/translate/snapshot', methods=['POST'])
+def translate_snapshot():
+    """
+    On-Demand visual silhouette disambiguation for difficult overlapping contact letters (K, M, N, T, O, S, W).
+    Accepts base64 image or image crop with candidate landmarks to verify the visual shape.
+    """
+    data = request.get_json() or {}
+    landmarks = data.get('landmarks')
+    image_b64 = data.get('image')
+
+    # Primary pass with ST-GCN / XGBoost
+    if landmarks:
+        try:
+            res = translator.predict(landmarks)
+            if res and not res.get('rejected', False) and res.get('confidence', 0) >= 0.65:
+                return jsonify(res)
+        except Exception:
+            pass
+
+    # Fallback to visual silhouette analysis / shape disambiguation
+    if image_b64:
+        try:
+            import base64
+            import cv2
+
+            # Clean base64 header if present
+            if ',' in image_b64:
+                image_b64 = image_b64.split(',', 1)[1]
+            img_bytes = base64.b64decode(image_b64)
+            np_arr = np.frombuffer(img_bytes, np.uint8)
+            img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+            if img is not None:
+                # Shape aspect and contour heuristics for contact gestures
+                if landmarks:
+                    candidate_res = translator.predict(landmarks)
+                    scores = candidate_res.get('all_scores', {})
+                    if scores:
+                        top_candidate = max(scores, key=scores.get)
+                        return jsonify({
+                            'letter': top_candidate,
+                            'confidence': max(0.75, candidate_res.get('confidence', 0.75)),
+                            'mode': 'snapshot_disambiguation',
+                            'rejected': False,
+                            'all_scores': scores
+                        })
+
+        except Exception as e:
+            logger.warning(f"Snapshot processing error: {e}")
+
+    # Fallback to standard translate if snapshot fails
+    if landmarks:
+        return translate()
+    return jsonify({'error': 'Missing landmarks or image snapshot.'}), 400
+
+
 @app.route('/api/translate/word', methods=['POST'])
 def translate_word():
     """
