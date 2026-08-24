@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useISLTranslation } from '../hooks/useISLTranslation';
 import { HumanPanel } from './HumanPanel';
 import { RobotPanel } from './RobotPanel';
-import { AssistantBottomSheet } from './SignLanguageAssistant/AssistantBottomSheet';
 
 export const SignBridgeKiosk = () => {
-  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
-
   const {
     humanText,
     robotText,
@@ -36,7 +33,7 @@ export const SignBridgeKiosk = () => {
         return;
       }
 
-       if (e.code === 'Space') {
+      if (e.code === 'Space') {
         e.preventDefault();
         setIsAutoDemo(prev => !prev);
       } else if (e.code === 'Digit1' || e.code === 'KeyH') {
@@ -45,8 +42,6 @@ export const SignBridgeKiosk = () => {
         triggerNextRobot();
       } else if (e.code === 'KeyC') {
         clearAll();
-      } else if (e.code === 'KeyA') {
-        setIsAssistantOpen(prev => !prev);
       }
     };
 
@@ -73,15 +68,8 @@ export const SignBridgeKiosk = () => {
           isStreaming={isStreamingRobot}
           onSendMessage={sendMessage}
           onClear={clearAll}
-          onOpenAssistant={() => setIsAssistantOpen(true)}
         />
       </main>
-
-      <AssistantBottomSheet
-        isOpen={isAssistantOpen}
-        onClose={() => setIsAssistantOpen(false)}
-        onSendToChat={sendMessage}
-      />
     </div>
   );
 };

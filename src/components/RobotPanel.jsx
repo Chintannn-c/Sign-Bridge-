@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Bot, User, ChevronDown, Keyboard, Send, X, BookOpen, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Trash2, Bot, User, ChevronDown, Keyboard, Send, X, BookOpen, Eye, EyeOff } from 'lucide-react';
 import { GestureReferenceSheet } from './GestureReferenceSheet';
 
 /**
@@ -14,8 +14,7 @@ export const RobotPanel = React.memo(({
   isActive = false,
   isStreaming = false,
   onSendMessage,
-  onClear,
-  onOpenAssistant
+  onClear
 }) => {
   const [inputVal, setInputVal] = useState('');
   const [showKeyboard, setShowKeyboard] = useState(false);
@@ -91,16 +90,6 @@ export const RobotPanel = React.memo(({
                 >
                   <BookOpen size={15} />
                 </button>
-                {onOpenAssistant && (
-                  <button
-                    className="chat-action-btn"
-                    onClick={onOpenAssistant}
-                    title="Open Sign Language Assistant (Practice / Learn / Dataset)"
-                    style={{ color: '#0d9488' }}
-                  >
-                    <Sparkles size={15} />
-                  </button>
-                )}
                 <button
                   className={`chat-action-btn ${showKeyboard ? 'is-active-toggle' : ''}`}
                   onClick={() => setShowKeyboard(prev => !prev)}
