@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Undo2, Delete, Trash2, Copy, Volume2, Sparkles, Hand, Clock, CheckCircle2 } from 'lucide-react';
+import { Undo2, Delete, Trash2, Copy, Volume2, Sparkles, Hand, Clock, CheckCircle2, Send } from 'lucide-react';
 
 export const SentenceBuilder = ({
   sentence,
@@ -8,6 +8,7 @@ export const SentenceBuilder = ({
   onClear,
   onAddSpace,
   onAIRefine,
+  onSend,
   inactivityCountdown = null,
   autoSendEnabled = true,
   onToggleAutoSend = null,
@@ -15,6 +16,11 @@ export const SentenceBuilder = ({
   onCancelCountdown = null,
 }) => {
   const [isRefining, setIsRefining] = useState(false);
+
+  const cleanSpoken = (lastAutoSpoken || '')
+    .replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '')
+    .replace(/^(?:Here'?s (?:a )?(?:quick )?thinking process:?|Thinking Process:?)[\s\S]*?(?=\n\n|\n|$)/gi, '')
+    .trim();
 
   const handleCopy = () => {
     if (sentence) navigator.clipboard.writeText(sentence);
@@ -48,31 +54,32 @@ export const SentenceBuilder = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15))',
+            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.12))',
             border: '1px solid rgba(99, 102, 241, 0.35)',
             borderRadius: '10px',
             padding: '0.45rem 0.8rem',
             fontSize: '0.8rem',
-            color: '#e0e7ff',
+            color: 'var(--text-espresso, #2D2A26)',
             animation: 'pulse 1.5s infinite'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Clock size={14} className="animate-spin text-indigo-400" />
+            <Clock size={14} className="animate-spin text-indigo-500" />
             <span>
-              Hands dropped: Auto-speaking in <strong>{inactivityCountdown}s</strong>... (keep signing to continue)
+              Hands dropped: Auto-sending in <strong>{inactivityCountdown}s</strong>... (keep signing to continue)
             </span>
           </div>
           {onCancelCountdown && (
             <button
               onClick={onCancelCountdown}
               style={{
-                background: 'rgba(255, 255, 255, 0.12)',
+                background: 'rgba(45, 42, 38, 0.1)',
                 border: 'none',
                 borderRadius: '6px',
                 padding: '0.2rem 0.5rem',
-                color: '#fff',
+                color: 'var(--text-espresso, #2D2A26)',
                 fontSize: '0.75rem',
+                fontWeight: 600,
                 cursor: 'pointer'
               }}
             >
@@ -82,28 +89,47 @@ export const SentenceBuilder = ({
         </div>
       )}
 
-      {/* Last auto-spoken toast */}
-      {lastAutoSpoken && !sentence && (
+      {/* Clean auto-spoken toast with high contrast */}
+      {cleanSpoken && !sentence && (
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
-            background: 'rgba(34, 197, 94, 0.12)',
-            border: '1px solid rgba(34, 197, 94, 0.3)',
-            borderRadius: '8px',
-            padding: '0.35rem 0.75rem',
-            fontSize: '0.75rem',
-            color: '#86efac'
+            gap: '0.5rem',
+            background: 'rgba(110, 127, 107, 0.15)',
+            border: '1px solid rgba(110, 127, 107, 0.35)',
+            borderRadius: '10px',
+            padding: '0.45rem 0.85rem',
+            fontSize: '0.8rem',
+            color: 'var(--text-espresso, #2D2A26)',
+            boxShadow: '0 2px 6px rgba(45, 42, 38, 0.04)'
           }}
         >
-          <CheckCircle2 size={13} />
-          <span>Auto-spoken aloud: <em>"{lastAutoSpoken}"</em></span>
+          <CheckCircle2 size={15} color="#475845" />
+          <span>Auto-sent to dialogue: <strong style={{ color: '#2D2A26' }}>"{cleanSpoken}"</strong></span>
         </div>
       )}
 
       {/* Action Toolbar */}
       <div className="sla-builder-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center' }}>
+        {onSend && (
+          <button 
+            className="sla-action-btn primary" 
+            onClick={() => onSend(sentence)} 
+            disabled={!sentence}
+            title="Send sentence to conversation dialogue"
+            style={{
+              background: sentence ? 'linear-gradient(135deg, #818cf8, #6366f1)' : undefined,
+              color: sentence ? '#FFFFFF' : undefined,
+              border: sentence ? 'none' : undefined,
+              fontWeight: 600,
+              boxShadow: sentence ? '0 2px 8px rgba(99, 102, 241, 0.25)' : undefined
+            }}
+          >
+            <Send size={12} /> Send
+          </button>
+        )}
+
         <button className="sla-action-btn" onClick={onAddSpace} disabled={!sentence}>
           Space
         </button>
@@ -150,9 +176,10 @@ export const SentenceBuilder = ({
             style={{
               marginLeft: 'auto',
               fontSize: '0.75rem',
-              color: autoSendEnabled ? '#818cf8' : '#94a3b8',
-              borderColor: autoSendEnabled ? 'rgba(129, 140, 248, 0.4)' : 'rgba(255,255,255,0.1)',
-              background: autoSendEnabled ? 'rgba(99, 102, 241, 0.1)' : 'transparent'
+              color: autoSendEnabled ? '#6366f1' : '#888',
+              borderColor: autoSendEnabled ? 'rgba(99, 102, 241, 0.4)' : 'rgba(200, 173, 147, 0.4)',
+              background: autoSendEnabled ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+              fontWeight: 600
             }}
           >
             <Hand size={12} /> Hand-Drop Auto-Send: <strong>{autoSendEnabled ? 'ON' : 'OFF'}</strong>

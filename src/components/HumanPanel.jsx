@@ -86,6 +86,7 @@ export const HumanPanel = React.memo(({
         <CameraView 
           isActive={isActive} 
           onRecognitionUpdate={setRecognitionState}
+          onSendMessage={onSendMessage}
         />
 
         {/* Text Feed below the Horizontal Webcam */}
@@ -241,6 +242,7 @@ export const HumanPanel = React.memo(({
                 onClear={recognitionState.clearBuffer}
                 onAddSpace={recognitionState.addSpace}
                 onAIRefine={recognitionState.refineSentence}
+                onSend={() => recognitionState.sendSentence ? recognitionState.sendSentence() : (onSendMessage && onSendMessage(sentenceBuffer, 'human'))}
                 inactivityCountdown={recognitionState.inactivityCountdown}
                 autoSendEnabled={recognitionState.autoSendEnabled}
                 onToggleAutoSend={() => recognitionState.setAutoSendEnabled(prev => !prev)}

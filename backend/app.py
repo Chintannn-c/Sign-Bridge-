@@ -174,17 +174,35 @@ def clean_llm_text(text: str) -> str:
     """Removes thinking blocks, reasoning fences, and markdown formatting from LLM outputs."""
     if not text:
         return ""
-    # Strip <think>...</think> if present
-    cleaned = re.sub(r'<think>[\s\S]*?</think>', '', text, flags=re.IGNORECASE).strip()
-    # If code fence present, extract fence content
+
+    cleaned = text
+
+    # 1. Strip <think>...</think> tags and any unclosed <think> blocks
+    cleaned = re.sub(r'<think>[\s\S]*?</think>', '', cleaned, flags=re.IGNORECASE).strip()
+    cleaned = re.sub(r'<think>[\s\S]*$', '', cleaned, flags=re.IGNORECASE).strip()
+
+    # 2. Strip explicit thinking preambles (e.g., "Here's a thinking process:", "Thinking Process:")
+    cleaned = re.sub(r'^(?:Here\'?s (?:a )?(?:quick )?thinking process:?|Thinking Process:?|Thought Process:?|Thinking:?)[\s\S]*?(?=\n\n|\n[A-Z0-9]|$)', '', cleaned, flags=re.IGNORECASE).strip()
+
+    # 3. If numbered reasoning steps exist like "Final Answer: ...", extract the final sentence
+    if re.search(r'(?:Final Answer|Polished Sentence|Translation|Response):', cleaned, re.IGNORECASE):
+        parts = re.split(r'(?:Final Answer|Polished Sentence|Translation|Response):', cleaned, flags=re.IGNORECASE)
+        if len(parts) > 1 and parts[-1].strip():
+            cleaned = parts[-1].strip()
+
+    # 4. If code fence present, extract fence content
     fences = re.findall(r'```(?:[a-zA-Z]*\n)?([\s\S]*?)```', cleaned)
     if fences:
         cleaned = fences[-1].strip()
-    # Strip reasoning headers if any
-    if '**Final' in cleaned:
-        cleaned = cleaned.split('**Final')[-1].strip(':').strip()
-    # Remove markdown bold/italic asterisks
+
+    # 5. Remove markdown bold/italic asterisks and quotes
     cleaned = re.sub(r'\*{1,3}', '', cleaned).strip()
+    cleaned = cleaned.strip('"\'`').strip()
+
+    # 6. Safety check: never return leftover think strings
+    if '<think>' in cleaned.lower() or 'thinking process' in cleaned.lower():
+        cleaned = re.sub(r'<think>[\s\S]*', '', cleaned, flags=re.IGNORECASE).strip()
+
     return cleaned if cleaned else text.strip()
 
 

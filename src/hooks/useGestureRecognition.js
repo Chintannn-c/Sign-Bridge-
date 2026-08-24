@@ -72,7 +72,7 @@ function captureVideoSnapshot(videoEl) {
   }
 }
 
-export function useGestureRecognition({ enabled = false, initialMode = 'letter', videoElement = null } = {}) {
+export function useGestureRecognition({ enabled = false, initialMode = 'letter', videoElement = null, onSendMessage = null } = {}) {
   const [recognitionMode, setRecognitionMode] = useState(initialMode); // 'letter' | 'word'
   const [status, setStatus] = useState(STATES.IDLE);
   const [detectedLetter, setDetectedLetter] = useState(null);
@@ -150,6 +150,12 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         console.debug('Auto-send LLM refine notice:', refineErr);
       }
 
+      // Sanitize text from any residual thinking tokens
+      speechText = speechText
+        .replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '')
+        .replace(/^(?:Here'?s (?:a )?thinking process:?|Thinking Process:?)[\s\S]*?(?=\n\n|\n|$)/gi, '')
+        .trim() || rawText;
+
       // 2. Speak aloud via Web Speech TTS
       if (speechText && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel(); // Stop any previous speech
@@ -158,7 +164,12 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         window.speechSynthesis.speak(utterance);
       }
 
-      // 3. Update feedback and clear buffer
+      // 3. Send message to the Dialogue Chat Thread
+      if (onSendMessage) {
+        onSendMessage(speechText, 'human');
+      }
+
+      // 4. Update feedback and clear buffer
       setLastAutoSpoken(speechText);
       setSentenceBuffer('');
     } catch (e) {
@@ -167,7 +178,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       isAutoSendingRef.current = false;
       cancelInactivityCountdown();
     }
-  }, [cancelInactivityCountdown]);
+  }, [cancelInactivityCountdown, onSendMessage]);
 
   const handleHandsDropped = useCallback(() => {
     if (!autoSendEnabled || !sentenceBufferRef.current.trim() || isAutoSendingRef.current) {
@@ -524,6 +535,34 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     return text;
   }, [sentenceBuffer]);
 
+  const sendSentence = useCallback(async () => {
+    const rawText = sentenceBufferRef.current.trim();
+    if (!rawText) return;
+    cancelInactivityCountdown();
+    let textToSend = rawText;
+    try {
+      const res = await fetch(`${API_BASE}/llm/refine`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: rawText })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.refined_sentence && data.refined_sentence.trim()) {
+          textToSend = data.refined_sentence.trim();
+        }
+      }
+    } catch (e) {
+      console.warn('Manual send refine notice:', e);
+    }
+    textToSend = textToSend.replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '').trim() || rawText;
+    if (onSendMessage) {
+      onSendMessage(textToSend, 'human');
+    }
+    setLastAutoSpoken(textToSend);
+    setSentenceBuffer('');
+  }, [cancelInactivityCountdown, onSendMessage]);
+
   return {
     // Mode
     recognitionMode,
@@ -559,6 +598,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     updateSentence,
     refineSentence,
     commitSentence,
+    sendSentence,
     triggerAutoSend,
     cancelInactivityCountdown,
   };

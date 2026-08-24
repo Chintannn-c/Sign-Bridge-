@@ -11,7 +11,7 @@ import './SignLanguageAssistant/assistant.css';
  * Positioned on the left side of the Human panel card.
  * Supports dual-mode recognition: Static Letters (A-Z) & Whole-Word Sequence Gestures.
  */
-export const CameraView = ({ isActive, onRecognitionUpdate }) => {
+export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => {
   const {
     videoRef: webcamVideoRef,
     isLive,
@@ -37,7 +37,7 @@ export const CameraView = ({ isActive, onRecognitionUpdate }) => {
   }, [webcamVideoRef, videoElement]);
 
   // Recognition state machine with dual letter & word modes and automatic snapshot fallback
-  const recognition = useGestureRecognition({ enabled: isLive && isCameraOn, videoElement });
+  const recognition = useGestureRecognition({ enabled: isLive && isCameraOn, videoElement, onSendMessage });
 
   // MediaPipe hands integration (2-hand detection, 0.25 confidence)
   const detection = useHandDetection({
