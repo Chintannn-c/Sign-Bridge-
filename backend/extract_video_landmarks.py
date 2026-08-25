@@ -95,11 +95,8 @@ def sample_or_interpolate(sequence, target_length=SEQUENCE_LENGTH):
     if current_len == 0:
         return np.zeros((target_length, 126), dtype=np.float32).tolist()
 
-    indices = np.linspace(0, current_len - 1, target_length)
-    sampled = []
-    for idx in indices:
-        sampled.append(arr[(round(float(idx)))].tolist())
-    return sampled
+    indices = np.linspace(0, current_len - 1, target_length).round().astype(np.int64)
+    return arr[indices].tolist()
 
 
 def augment_raw_sequence(raw_frames, rng, aug_id):
@@ -132,8 +129,8 @@ def augment_raw_sequence(raw_frames, rng, aug_id):
     # Resample to SEQUENCE_LENGTH with slight speed jitter
     speed_factor = rng.uniform(0.8, 1.2)
     target_frames = max(10, int(SEQUENCE_LENGTH * speed_factor))
-    indices = np.linspace(0, len(sub_clip) - 1, target_frames)
-    resampled = np.array([sub_clip[(round(float(idx)))] for idx in indices])
+    speed_idx = np.linspace(0, len(sub_clip) - 1, target_frames).round().astype(np.int64)
+    resampled = sub_clip[speed_idx]
     
     # --- Strategy 3: Time warp ---
     if rng.random() < 0.4:
@@ -145,13 +142,13 @@ def augment_raw_sequence(raw_frames, rng, aug_id):
         
         orig_indices = np.linspace(0, 1, len(resampled))
         warped_indices = np.interp(orig_indices, warp_points, target_points)
-        warped_indices = np.clip(warped_indices * (len(resampled) - 1), 0, len(resampled) - 1)
-        resampled = np.array([resampled[(round(float(idx)))] for idx in warped_indices])
+        warp_idx = np.clip(warped_indices * (len(resampled) - 1), 0, len(resampled) - 1).round().astype(np.int64)
+        resampled = resampled[warp_idx]
     
     # Final resample to exact SEQUENCE_LENGTH
     if len(resampled) != SEQUENCE_LENGTH:
-        final_indices = np.linspace(0, len(resampled) - 1, SEQUENCE_LENGTH)
-        resampled = np.array([resampled[(round(float(idx)))] for idx in final_indices])
+        final_idx = np.linspace(0, len(resampled) - 1, SEQUENCE_LENGTH).round().astype(np.int64)
+        resampled = resampled[final_idx]
     
     result = resampled.copy()
     
