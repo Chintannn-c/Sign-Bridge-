@@ -31,12 +31,12 @@
     "Z"
   ],
   "metrics": {
-    "val_accuracy": 0.6132,
-    "test_accuracy": 0.7808,
-    "test_macro_f1": 0.7781,
-    "test_precision": 0.8009,
-    "test_recall": 0.7806
+    "val_accuracy": 0.6438,
+    "test_accuracy": 0.8038,
+    "test_macro_f1": 0.8036,
+    "test_precision": 0.8201,
+    "test_recall": 0.8066
   },
-  "trained_at": "2026-08-24T06:37:54Z",
-  "training_time_seconds": 348.21
+  "trained_at": "2026-08-25T11:12:12Z",
+  "training_time_seconds": 482.85
 }
