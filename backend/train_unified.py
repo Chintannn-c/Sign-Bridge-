@@ -466,7 +466,11 @@ def train_word_model():
         for json_path in sorted(word_dir.glob('*.json')):
             try:
                 data = json.loads(json_path.read_text(encoding='utf-8'))
-                for seq in data.get('frame_sequences', []):
+                seq_list = data.get('frame_sequences', [])
+                if not seq_list and 'frames' in data:
+                    seq_list = [data['frames']]
+
+                for seq in seq_list:
                     arr = np.array(seq, dtype=np.float32)
                     if arr.shape != (SEQUENCE_LENGTH, NUM_FEATURES):
                         continue

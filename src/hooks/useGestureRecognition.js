@@ -84,7 +84,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const [guidance, setGuidance] = useState(null);
   const [wordBufferCount, setWordBufferCount] = useState(0);
   const [availableWords, setAvailableWords] = useState([
-    'AGAIN', 'BYE_BYE', 'DEAF', 'HEARING', 'HELLO', 'INDIA', 'LANGUAGE', 'MAN', 'ME', 'NAMASTE'
+    'AGAIN', 'BYE_BYE', 'DEAF', 'DOCTOR', 'FOOD', 'HEARING', 'HELLO', 'HELP', 'INDIA', 'LANGUAGE',
+    'MAN', 'ME', 'NAMASTE', 'PLEASE', 'SIGN', 'SORRY', 'THANK_YOU', 'WASHROOM', 'WATER', 'WELCOME',
+    'WHERE', 'WOMAN', 'YOU'
   ]);
 
   // Inactivity / Hand-Drop Auto-Send states
