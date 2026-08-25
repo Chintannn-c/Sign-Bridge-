@@ -531,30 +531,59 @@ def train_word_model():
     logger.info(f"Training: {len(X_train)} sequences, Validation: {len(X_val)} sequences")
     logger.info(f"Train classes: {len(set(y_train))}/{len(word_labels)} | Val classes: {len(set(y_val))}/{len(word_labels)}")
 
-    # Additional in-memory augmentation for training
-    def augment_sequences_inmemory(X, y, copies=5):
-        aug_X, aug_y = [X], [y]
+    # Equalized per-class in-memory augmentation to ensure EXACT balanced representation
+    def balance_and_augment_sequences(X, y, target_per_class=250):
+        aug_X, aug_y = [], []
         _rng = np.random.default_rng(123)
-        for c in range(copies):
-            batch = X.copy()
-            noise_scale = 0.003 + (c * 0.0015)
-            batch += _rng.normal(0, noise_scale, size=batch.shape).astype(np.float32)
-            if c % 3 == 0:
-                for i in range(len(batch)):
+        unique_classes = np.unique(y)
+
+        for cls in unique_classes:
+            cls_mask = (y == cls)
+            cls_samples = X[cls_mask]
+            n_samples = len(cls_samples)
+            if n_samples == 0:
+                continue
+
+            # First add all original samples
+            for s in cls_samples:
+                aug_X.append(s)
+                aug_y.append(cls)
+
+            # Generate synthetic variations until target_per_class is reached
+            needed = target_per_class - n_samples
+            for k in range(needed):
+                base_sample = cls_samples[k % n_samples].copy()
+                # Apply multi-strategy kinematic augmentations
+                noise_scale = _rng.uniform(0.003, 0.010)
+                aug_sample = base_sample + _rng.normal(0, noise_scale, size=base_sample.shape).astype(np.float32)
+
+                # Random time warp / speed variation
+                if _rng.random() < 0.4:
+                    speed = _rng.uniform(0.85, 1.15)
+                    indices = np.linspace(0, SEQUENCE_LENGTH - 1, int(SEQUENCE_LENGTH * speed))
+                    resampled = np.array([aug_sample[int(round(min(max(0, idx), SEQUENCE_LENGTH - 1)))] for idx in indices])
+                    final_indices = np.linspace(0, len(resampled) - 1, SEQUENCE_LENGTH)
+                    aug_sample = np.array([resampled[int(round(idx))] for idx in final_indices])
+
+                # Random frame dropout (simulate occlusion)
+                if _rng.random() < 0.3:
                     n_drop = _rng.integers(1, 4)
                     drop_idx = _rng.choice(SEQUENCE_LENGTH, size=n_drop, replace=False)
-                    batch[i, drop_idx] = 0.0
-            if c % 4 == 0:
-                for i in range(len(batch)):
-                    shift = _rng.integers(-2, 3)
-                    if shift != 0:
-                        batch[i] = np.roll(batch[i], shift, axis=0)
-            aug_X.append(batch)
-            aug_y.append(y)
-        return np.concatenate(aug_X, axis=0), np.concatenate(aug_y, axis=0)
+                    aug_sample[drop_idx] = 0.0
 
-    X_train_aug, y_train_aug = augment_sequences_inmemory(X_train, y_train, copies=8)
-    logger.info(f"Augmented training: {len(X_train_aug)} sequences")
+                aug_X.append(aug_sample)
+                aug_y.append(cls)
+
+        return np.array(aug_X, dtype=np.float32), np.array(aug_y, dtype=np.int64)
+
+    X_train_aug, y_train_aug = balance_and_augment_sequences(X_train, y_train, target_per_class=250)
+    logger.info(f"Class-balanced training: {len(X_train_aug)} sequences ({dict(Counter(y_train_aug))})")
+
+    # Compute inverse class frequencies for weighted loss
+    class_counts = np.bincount(y_train_aug, minlength=len(word_labels))
+    class_weights = np.where(class_counts > 0, 1.0 / class_counts, 0.0)
+    class_weights = class_weights / np.sum(class_weights) * len(word_labels)
+    class_weights_tensor = torch.tensor(class_weights, dtype=torch.float32)
 
     # --- PyTorch Dataset ---
     class SeqDataset(Dataset):
@@ -601,7 +630,7 @@ def train_word_model():
             return self.classifier(pooled)
 
     model = CNNBiLSTMWordClassifier(num_classes=len(word_labels))
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
 

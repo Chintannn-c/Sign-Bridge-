@@ -260,8 +260,8 @@ class WordRecognizer:
             diffs = np.diff(norm_arr, axis=0)
             motion_velocity = float(np.mean(np.linalg.norm(diffs.reshape(SEQUENCE_LENGTH - 1, 2, 21, 3), axis=-1)))
 
-            # If hand is static / motionless (< 0.015 units/frame), reject to prevent false word hallucinations
-            if motion_velocity < 0.015:
+            # If hand is static / motionless (< 0.020 units/frame), reject to prevent false word hallucinations
+            if motion_velocity < 0.020:
                 return {
                     'word': '?',
                     'confidence': 0.0,
@@ -294,7 +294,7 @@ class WordRecognizer:
 
             sorted_probs = np.sort(probs)[::-1]
             margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
-            is_rejected = bool(confidence < 0.45 or margin < 0.05 or word == '?')
+            is_rejected = bool(confidence < 0.52 or margin < 0.08 or word == '?')
 
             sorted_indices = np.argsort(probs)[::-1][:5]
             top_scores = {

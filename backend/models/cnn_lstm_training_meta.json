@@ -1,8 +1,8 @@
 {
   "model_type": "cnn_bilstm",
-  "train_samples": 7803,
-  "val_samples": 133,
-  "val_accuracy": 0.7293233082706767,
+  "train_samples": 5750,
+  "val_samples": 108,
+  "val_accuracy": 0.8703703703703703,
   "num_classes": 23,
   "labels": [
     "AGAIN",
@@ -31,8 +31,8 @@
   ],
   "sequence_length": 30,
   "input_features": 126,
-  "epochs_trained": 25,
-  "training_time_seconds": 373.22,
+  "epochs_trained": 23,
+  "training_time_seconds": 287.36,
   "architecture": "1D-CNN(126->64->128) + BiLSTM(128, 2-layers) + FC(256->64->N)",
   "per_class": {
     "AGAIN": {
@@ -46,9 +46,9 @@
       "f1-score": 1.0
     },
     "DEAF": {
-      "precision": 0.5,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1-score": 0.6667
+      "f1-score": 1.0
     },
     "DOCTOR": {
       "precision": 1.0,
@@ -81,9 +81,9 @@
       "f1-score": 1.0
     },
     "LANGUAGE": {
-      "precision": 0.8571,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1-score": 0.9231
+      "f1-score": 1.0
     },
     "MAN": {
       "precision": 0.0,
@@ -92,8 +92,8 @@
     },
     "ME": {
       "precision": 1.0,
-      "recall": 0.6667,
-      "f1-score": 0.8
+      "recall": 1.0,
+      "f1-score": 1.0
     },
     "NAMASTE": {
       "precision": 1.0,
@@ -101,9 +101,9 @@
       "f1-score": 1.0
     },
     "PLEASE": {
-      "precision": 1.0,
-      "recall": 0.6538,
-      "f1-score": 0.7907
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
     },
     "SIGN": {
       "precision": 1.0,
@@ -111,14 +111,14 @@
       "f1-score": 1.0
     },
     "SORRY": {
-      "precision": 0.9286,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1-score": 0.963
+      "f1-score": 1.0
     },
     "THANK_YOU": {
-      "precision": 0.1,
-      "recall": 1.0,
-      "f1-score": 0.1818
+      "precision": 0.9375,
+      "recall": 0.5769,
+      "f1-score": 0.7143
     },
     "WASHROOM": {
       "precision": 1.0,
@@ -146,10 +146,10 @@
       "f1-score": 0.6667
     },
     "YOU": {
-      "precision": 1.0,
-      "recall": 0.0769,
-      "f1-score": 0.1429
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
     }
   },
-  "trained_at": "2026-08-25T04:53:21Z"
+  "trained_at": "2026-08-25T05:20:24Z"
 }

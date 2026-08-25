@@ -152,7 +152,7 @@ def augment_raw_sequence(raw_frames, rng, aug_id):
     # Final resample to exact SEQUENCE_LENGTH
     if len(resampled) != SEQUENCE_LENGTH:
         final_indices = np.linspace(0, len(resampled) - 1, SEQUENCE_LENGTH)
-        resampled = np.array([resampled[int(round(idx))] for idx in final_indices])
+        resampled = np.array([resampled[(round(idx))] for idx in final_indices])
     
     result = resampled.copy()
     
