@@ -112,7 +112,16 @@ def load_dataset_partitioned(
         source_field = str(payload.get('source', '')).lower()
 
         # Determine partition based on ground-truth source provenance
-        if 'selfmade' in filename or 'isl_self_made' in source_field:
+        if 'dataset2_test' in filename:
+            target_partition = 'test'
+            source_tag = 'dataset2_test'
+        elif 'dataset2_val' in filename:
+            target_partition = 'val'
+            source_tag = 'dataset2_val'
+        elif 'dataset2_train' in filename or 'dataset2' in filename:
+            target_partition = 'train'
+            source_tag = 'dataset2_train'
+        elif 'selfmade' in filename or 'isl_self_made' in source_field:
             # Self-made goes to TRAINING (new signer = diversity)
             target_partition = 'train'
             source_tag = 'selfmade'

@@ -45,6 +45,7 @@ backend/database/*.db
 dataset/RealSign-Indian-Sign-Language-Dataset-main/
 dataset/ISL self made dataset/
 dataset/Words and Phrases/
+dataset_2/
 *.zip
 !dataset/Mendeley_ISL/ISL_Dataset.zip
 backend/models/*_backup.pkl
