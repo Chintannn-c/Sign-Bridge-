@@ -57,14 +57,6 @@
      (42 3D Landmarks / 126 Floats)                (10 Servos / 2 Bionic Hands)
 ```
 
-### End-to-End Data Flows:
-1. **Path 1 (Deaf Signer $\rightarrow$ Speech/Text)**:
-   Webcam $\rightarrow$ `CameraView.jsx` $\rightarrow$ MediaPipe HandLandmarker $\rightarrow$ 42 3D coordinates (126 floats) $\rightarrow$ `POST /api/translate` (or `POST /api/translate/word`) $\rightarrow$ XGBoost / CNN-BiLSTM model $\rightarrow$ 300ms temporal consensus smoothing $\rightarrow$ Sentence Buffer $\rightarrow$ Touchless 1.8s hand-drop trigger $\rightarrow$ Web Speech Audio TTS + Chat Transcript.
-2. **Path 2 (Hearing User $\rightarrow$ Robot / ISL Reference)**:
-   Hearing User Speech / Typing $\rightarrow$ `RobotPanel.jsx` $\rightarrow$ `POST /api/llm/simplify` (Groq/Gemini extracts keywords) $\rightarrow$ `POST /api/robot/sign` $\rightarrow$ `arduino_serial.py` $\rightarrow$ Serial ASCII Packet `<L0..L4|R0..R4>` $\rightarrow$ Arduino actsuate SG90 servos + Frontend displays animated visual gesture reference.
-3. **Path 3 (LLM Sentence Refinement)**:
-   Raw fingerspelled letters (e.g. `"H E L P W A T E R"`) $\rightarrow$ `POST /api/llm/refine` $\rightarrow$ Groq Llama-3.3-70b (sub-100ms LPU) $\rightarrow$ Fallback to Gemini 1.5-Flash $\rightarrow$ Grammatical, natural English/Hindi sentence (`"Please bring me some water."`).
-
 ---
 
 ## 4. Complete Directory & File Map
@@ -102,7 +94,7 @@ SignBridge/
 │       ├── test_groq_manager.py    # Groq manager rate-limiting & fallback unit tests
 │       └── test_gemini_manager.py  # Gemini manager multi-key & error handling tests
 ├── src/
-│   ├── App.jsx                     # Core application view switcher
+│   ├── App.jsx                     # Core view switcher
 │   ├── main.jsx                    # React 19 application root
 │   ├── index.css                   # Global CSS design system, themes, and kiosk layouts
 │   ├── components/                 # React UI Components
@@ -194,13 +186,77 @@ SignBridge operates a 3-tier ensemble recognition pipeline:
 
 ---
 
-## 6. Backend REST API Reference
+## 6. Datasets, Modalities & Feature Engineering
+
+SignBridge relies on a multi-source, multimodal data architecture consisting of 3D landmark coordinates, geometric invariants, temporal sequence streams, and physical servo calibration mappings.
+
+### 📐 Coordinate Schema & Feature Representation
+
+```
+   MediaPipe HandLandmarker (Raw RGB Image / Video Frame)
+                       │
+                       ▼
+   42 3D Cartesian Keypoints (21 per hand × [x, y, z])
+   • Indices 0..62:   Left Hand  (21 landmarks × 3 coords = 63 floats)
+   • Indices 63..125: Right Hand (21 landmarks × 3 coords = 63 floats)
+   • Total: 126 Raw Floats per Frame
+```
+
+1. **Static Fingerspelling Features (208-D Invariant Vector)**:
+   - **Wrist-Centric Translation Invariance**: Origin shifted to wrist landmark (point 0).
+   - **Scale Invariance**: All distances divided by the hand span (wrist to middle MCP joint 9).
+   - **Pairwise Joint Distance Ratios**: Euclidean distances between all 5 fingertips and base palm.
+   - **Joint Cosine Angles**: 3D angles at PIP and DIP joints measuring finger curls.
+   - **Fingertip-to-Palm Vectors**: 3D normal vectors capturing palm orientation.
+2. **Dynamic Temporal Sequence Features (30 Frames $\times$ 126 Coordinates)**:
+   - Sliding window of 30 frames (1.0 second duration at 30 FPS).
+   - Total matrix dimension: `(30, 126)` representing the continuous 3D velocity and kinematic trajectory of both hands.
+
+---
+
+### 📦 The 5 Primary Datasets Used in SignBridge
+
+| Dataset Source | Modality & File Type | Classes Covered | Sample Volume | Role in System |
+|---|---|---|---|---|
+| **1. RealSign ISL Dataset** | Static JPGs $\rightarrow$ 126-D JSONs | 26 Alphabet (`A`–`Z`) | 14,932 raw frames (7,862 Train, 2,270 Val, 4,800 Test) | Primary academic benchmark for ISL 2-handed and 1-handed signs |
+| **2. Custom `dataset_2`** | 4000×2252 Ultra HD Phone Captures | 26 Alphabet (`A`–`Z`) | 521 high-res photos (20/letter) $\rightarrow$ 2,441 landmark frames | Real-world camera angle, lighting, and skin-tone diversity |
+| **3. User Session Kiosk Data** | WebRTC Canvas Captures | Alphabet (`A`–`Z`) & Digits (`0`–`9`) | 2,730 landmark frames (Sessions 1, 2, 3) | In-situ calibration for direct kiosk webcam perspective |
+| **4. Mendeley ISL Dataset** | Static ISL Reference Images | Manual Alphabets & Digits | Standard ISL reference frames | Supplementary baseline anchor |
+| **5. ISLRTC National Dictionary (Hugging Face)** | Full-motion MP4 Videos (Streamed to RAM) | 23 Dynamic Words | 220+ raw videos $\rightarrow$ 5,750 balanced 30-frame sequences | Official Government of India ISL whole-word video dictionary |
+
+---
+
+### 🧬 Data Augmentation & Kinematic Synthesis Pipeline
+
+To prevent overfitting and simulate natural signing speed and hand jitter, raw data undergoes 7 geometric augmentation strategies during training:
+
+1. **Wrist Rotation Jitter**: Random 2D rotation ($\pm 10^\circ$) around the wrist axis.
+2. **Scale Variation**: Linear coordinate scaling ($0.95\times$ to $1.05\times$) simulating distance from camera.
+3. **Gaussian Noise**: Coordinate perturbation ($\sigma = 0.005$) simulating sensor noise.
+4. **Hand Slot Swapping**: Swapping left/right hand slots for single-handed signs to enable ambidextrous signing.
+5. **Dual-Hand Jitter**: Independent displacement ($\sigma = 0.015$) applied between left and right hands.
+6. **Non-Linear Time-Warping (Words)**: Piecewise linear velocity interpolation ($0.85\times$ to $1.15\times$ speed).
+7. **Temporal Frame Dropout (Words)**: Randomly zeroing out 1–4 frames per sequence to simulate brief camera occlusions.
+
+---
+
+### 🦾 Physical Actuation & Hardware Data (`gestureData.js`)
+
+In addition to vision data, SignBridge maintains calibrated **10-servo motor angle arrays ($0^\circ$–$180^\circ$)** mapping every English letter to physical finger flexion/extension states on the bionic robotic hands:
+- **Left Hand Servos**: `[Thumb, Index, Middle, Ring, Pinky]`
+- **Right Hand Servos**: `[Thumb, Index, Middle, Ring, Pinky]`
+- **Resting Stance**: `<0,0,0,0,0|0,0,0,0,0>` (Fully open flat palms)
+- **Fist Pose**: `<180,180,180,180,180|180,180,180,180,180>` (Fully flexed closed fists)
+
+---
+
+## 7. Backend REST API Reference
 
 All backend endpoints are hosted at `http://localhost:5000/api` (proxied by Vite via `/api`):
 
 | Method | Endpoint | Description | Request Payload | Response Schema |
 |---|---|---|---|---|
-| **GET** | `/api/health` | Service health, model status, and hardware links | None | `{ status: "ok", translator_mode: "hybrid_ensemble", arduino_connected: bool, gemini_available: bool, groq_available: bool, word_recognizer_available: bool }` |
+| **GET** | `/api/health` | Backend health, model status, and hardware links | None | `{ status: "ok", translator_mode: "hybrid_ensemble", arduino_connected: bool, gemini_available: bool, groq_available: bool, word_recognizer_available: bool }` |
 | **GET** | `/api/model/info` | Detailed ML models and labels metadata | None | `{ model_type: "xgboost", classes: [...], loaded: true, val_accuracy: 0.8817 }` |
 | **POST** | `/api/translate` | Translates 1 frame of landmarks to ISL letter | `{ landmarks: [ {x,y,z}, ... ] }` | `{ letter: "A", confidence: 0.98, mode: "xgboost", all_scores: {...} }` |
 | **POST** | `/api/translate/batch` | Translates batch of frames with sentence output | `{ frames: [ [...] ] }` | `{ results: [...], sentence: "HELLO" }` |
@@ -215,27 +271,24 @@ All backend endpoints are hosted at `http://localhost:5000/api` (proxied by Vite
 
 ---
 
-## 7. Key Mathematical & Business Logic Algorithms
+## 8. Key Mathematical & Business Logic Algorithms
 
 1. **208-D Invariant Geometric Features (`feature_extractor.py`)**:
-   - **Wrist-Centric Normalization**: Translates coordinate origin to the wrist (landmark 0).
-   - **Scale Invariance**: Normalizes all coordinates by dividing by the Euclidean distance from wrist to middle MCP joint (landmark 9).
-   - **Inter-Joint Distance Ratios**: Computes pairwise distances between fingertips and palm base.
-   - **Joint Cosine Angles**: Calculates 3D angles at PIP and DIP joints to accurately distinguish finger curls (e.g. `C` vs `O`, `A` vs `S`).
+   - Computes pairwise Euclidean distances, joint cosine angles, and tip-to-palm ratios to achieve scale/distance invariance.
 2. **Kinematic Motion Velocity Gating (`word_recognizer.py`)**:
    $$\text{Velocity} = \frac{1}{N-1} \sum_{t=1}^{N-1} \|\mathbf{p}_{t} - \mathbf{p}_{t-1}\|_2$$
-   If $\text{Velocity} < 0.020$, the gesture is rejected as `static_hand_detected`.
+   If $\text{Velocity} < 0.020$, the gesture is rejected as `static_hand_detected` to eliminate resting-hand hallucinations.
 3. **Temporal Multi-Frame Voting (`useGestureRecognition.js`)**:
    - Commits a letter or word only after it maintains consistent top-1 prediction across a **300ms temporal window** (9–12 frames), eliminating single-frame visual glitches.
 4. **Touchless Hand-Drop Auto-Send**:
-   - Monitored by `useGestureRecognition.js`: When no hands are detected in the active frame, a **1.8-second countdown** is initiated. When it reaches 0, the sentence buffer is committed, spoken via Web Speech TTS, and broadcast to the dialogue panel.
+   - When no hands are detected in the camera frame for 1.8 seconds, a countdown timer triggers automatic text-to-speech synthesis and sends the message into the dialogue stream.
 5. **Dual-Provider LLM Fallback (`groq_manager.py` & `gemini_manager.py`)**:
    - Primary request sent to Groq LPU (`llama-3.3-70b-versatile`, latency $<100\text{ms}$).
-   - Catches rate-limits (`429`), timeouts, or network errors and transparently fails over to Google Gemini `gemini-1.5-flash` without interrupting user experience.
+   - Automatically catches rate-limits or network errors and transparently fails over to Google Gemini `gemini-1.5-flash`.
 
 ---
 
-## 8. Physical Hardware Setup (Dual Bionic Hands)
+## 9. Physical Hardware Setup (Dual Bionic Hands)
 
 * **Physical Layout**: Dual 5-finger hands (Left & Right) with 10 independent degrees of freedom.
 * **Actuators**: 10x TowerPro SG90 micro-servos (5 per hand) mounted on acrylic/3D printed tendon linkages.
@@ -245,7 +298,7 @@ All backend endpoints are hosted at `http://localhost:5000/api` (proxied by Vite
 
 ---
 
-## 9. DevOps, Deployment & Verification
+## 10. DevOps, Deployment & Verification
 
 - **Dockerization**:
   - `Dockerfile.frontend`: Multi-stage build (Node 20 Alpine builder $\rightarrow$ Nginx Alpine runtime).
@@ -257,7 +310,7 @@ All backend endpoints are hosted at `http://localhost:5000/api` (proxied by Vite
 
 ---
 
-## 10. Complete Project Change Log
+## 11. Complete Project Change Log
 
 - **2026-08-07**: Initial system design and Flask REST skeleton.
 - **2026-08-15**: Implemented React 19 split-screen kiosk UI with MediaPipe live canvas overlay.
@@ -272,4 +325,4 @@ All backend endpoints are hosted at `http://localhost:5000/api` (proxied by Vite
   - Implemented motion velocity gating ($0.020$) and margin filtering ($0.08$) to eliminate resting-hand hallucinations.
   - Ingested **`dataset_2`** (521 high-resolution phone captures across all 26 letters).
   - Added Touchless Hand-Drop Auto-Send (1.8s countdown) and 300ms temporal consensus smoothing.
-- **2026-09-02**: Comprehensive full-codebase audit and `PROJECT_CONTEXT.md` synchronization.
+- **2026-09-02**: Comprehensive full-codebase audit and `PROJECT_CONTEXT.md` synchronization with detailed data modality, feature engineering, and dataset sources documentation.
