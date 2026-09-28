@@ -74,26 +74,39 @@ class ArduinoSerial:
         self.connection = None
         self.is_connected = False
         self.is_signing = False
+        self.is_at_rest = True
+        self.last_sign_time = time.time()
         self._lock = threading.Lock()
         self._sign_queue = queue.Queue()
         self._worker_thread = threading.Thread(target=self._process_sign_queue, daemon=True)
         self._worker_thread.start()
 
     def _process_sign_queue(self):
-        """Worker thread to process signing tasks asynchronously."""
+        """Worker thread to process signing tasks asynchronously with auto-idle rest."""
         while True:
             try:
-                task = self._sign_queue.get()
-                if task is None:
-                    break
+                task = self._sign_queue.get(timeout=2.0)
+            except queue.Empty:
+                # If idle >15s after signing, release servo strain by returning to neutral rest pose
+                if self.is_connected and not self.is_at_rest and (time.time() - self.last_sign_time > 15.0):
+                    logger.info("Arduino idle >15s: returning servos to relaxed rest pose.")
+                    self.send_angles(REST_POSE)
+                    self.is_at_rest = True
+                continue
+
+            if task is None:
+                break
+            try:
                 text, letter_hold, gap = task
                 self.is_signing = True
+                self.is_at_rest = False
                 self._sign_text_sync(text, letter_hold, gap)
-                self.is_signing = False
-                self._sign_queue.task_done()
+                self.last_sign_time = time.time()
             except Exception as e:
                 logger.error(f"Error in async signing queue worker: {e}")
+            finally:
                 self.is_signing = False
+                self._sign_queue.task_done()
 
     def auto_detect_port(self):
         """Scan COM ports for an Arduino device."""
@@ -125,16 +138,18 @@ class ArduinoSerial:
                     baudrate=self.baud_rate,
                     timeout=self.timeout
                 )
-                # Wait for Arduino to reset after serial open
-                time.sleep(2)
-                self.is_connected = True
                 self.port = target_port
-                logger.info(f"Connected to Arduino on {target_port} at {self.baud_rate} baud.")
-                return True
             except serial.SerialException as e:
                 logger.error(f"Serial connection failed: {e}")
                 self.is_connected = False
                 return False
+
+        # Wait for Arduino to reset after serial open (outside lock)
+        time.sleep(2)
+        with self._lock:
+            self.is_connected = True
+            logger.info(f"Connected to Arduino on {target_port} at {self.baud_rate} baud.")
+            return True
 
     def disconnect(self):
         """Close the serial connection."""

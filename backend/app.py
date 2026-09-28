@@ -54,7 +54,10 @@ except Exception as e:
     logger.warning(f"Database initialization warning: {e}")
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'])  # type: ignore
+CORS(app, origins=[  # type: ignore[arg-type] # pyrefly: ignore[bad-argument-type]
+    'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175',
+    'http://localhost:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174'
+])
 
 # ─── Initialize Services ───────────────────────────────────────────────────
 logger.info("Initializing Sign-Bridge API services...")
@@ -250,8 +253,8 @@ def llm_refine():
             'fallback_used': res['fallback_used']
         })
     except Exception as e:
-        logger.error(f"LLM refine failed: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"LLM refine failed: {e}", exc_info=True)
+        return jsonify({'error': 'LLM refinement service failed.'}), 500
 
 
 @app.route('/api/llm/simplify', methods=['POST'])
@@ -288,8 +291,8 @@ def llm_simplify():
             'fallback_used': res['fallback_used']
         })
     except Exception as e:
-        logger.error(f"LLM simplify failed: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"LLM simplify failed: {e}", exc_info=True)
+        return jsonify({'error': 'LLM simplification service failed.'}), 500
 
 
 @app.route('/api/llm/answer', methods=['POST'])
@@ -461,8 +464,8 @@ def translate():
 
         return jsonify(result)
     except Exception as e:
-        logger.error(f"Translation error: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Translation error: {e}", exc_info=True)
+        return jsonify({'error': 'Translation processing error.'}), 500
 
 
 @app.route('/api/translate/batch', methods=['POST'])
@@ -603,8 +606,8 @@ def translate_word():
 
         return jsonify(result)
     except Exception as e:
-        logger.error(f"Word translation error: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Word translation error: {e}", exc_info=True)
+        return jsonify({'error': 'Word translation processing error.'}), 500
 
 
 @app.route('/api/history', methods=['GET'])
@@ -642,9 +645,14 @@ def collect_data():
     if not data or 'frames' not in data or 'letter' not in data:
         return jsonify({'error': 'Missing required fields: frames, letter.'}), 400
         
-    letter = data['letter'].upper()
-    session_id = data.get('session_id', 'unknown_session')
-    signer_id = data.get('signer_id', 'unknown_signer')
+    letter = str(data['letter']).strip().upper()
+    session_id = str(data.get('session_id', 'unknown_session')).strip()
+    signer_id = str(data.get('signer_id', 'unknown_signer')).strip()
+
+    # Prevent path traversal and enforce alphanumeric labels
+    if not re.match(r'^[A-Z0-9]$', letter) or not re.match(r'^[a-zA-Z0-9_\-]+$', session_id):
+        return jsonify({'error': 'Invalid letter or session_id: only alphanumeric characters allowed.'}), 400
+
     frames = data['frames']
     
     # Save directory
@@ -669,8 +677,8 @@ def collect_data():
         logger.info(f"Saved {len(frames)} frames for letter {letter} to {file_path}")
         return jsonify({'status': 'ok', 'message': f'Saved {len(frames)} frames.'})
     except Exception as e:
-        logger.error(f"Failed to save data: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Failed to save data: {e}", exc_info=True)
+        return jsonify({'error': 'Failed to save dataset collection session.'}), 500
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -814,12 +822,15 @@ def robot_sign_letter():
 # ═══════════════════════════════════════════════════════════════════════════
 
 if __name__ == '__main__':
+    host = os.getenv('HOST', '127.0.0.1')
+    port = int(os.getenv('PORT', 5000))
+    debug = os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1')
     logger.info("=" * 60)
     logger.info("  SIGN-BRIDGE FLASK API SERVER")
-    logger.info("  http://localhost:5000")
+    logger.info(f"  http://{host}:{port}")
     logger.info("=" * 60)
     app.run(
-        host='0.0.0.0',
-        port=5000,
-        debug=True
+        host=host,
+        port=port,
+        debug=debug
     )

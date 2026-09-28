@@ -106,6 +106,7 @@ export const LiveDetectionTab = ({ isActive, onSendToChat }) => {
         onClear={recognition.clearBuffer}
         onAddSpace={recognition.addSpace}
         onAIRefine={recognition.refineSentence}
+        onSend={handleSend}
         inactivityCountdown={recognition.inactivityCountdown}
         autoSendEnabled={recognition.autoSendEnabled}
         onToggleAutoSend={() => recognition.setAutoSendEnabled(prev => !prev)}

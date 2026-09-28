@@ -659,9 +659,10 @@ class TranslatorModel:
         rh = points[21:42]
 
         # Reference scale per hand (wrist-to-middle-MCP), used to make the
-        # thumb/index touch check scale-invariant instead of a raw distance.
+        # touch and inter-hand checks scale-invariant instead of raw camera pixels.
         l_scale = dist(lh[0], lh[9]) or 1.0
         r_scale = dist(rh[0], rh[9]) or 1.0
+        pair_scale = (l_scale + r_scale) / 2.0 if (l_scale > 0.01 and r_scale > 0.01) else max(l_scale, r_scale, 1.0)
 
         features = {
             # Left hand finger extensions
@@ -678,15 +679,14 @@ class TranslatorModel:
             'r_ring_ext': finger_extended(rh[0], rh[13], rh[16]),
             'r_pinky_ext': finger_extended(rh[0], rh[17], rh[20]),
 
-            # Inter-hand distances
-            'hands_dist': dist(lh[0], rh[0]),  # Wrist-to-wrist distance
-            'index_touch': dist(lh[8], rh[8]),  # Index-to-index distance
-            'thumb_touch': dist(lh[4], rh[4]),  # Thumb-to-thumb distance
+            # Inter-hand scale-normalized spatial relations
+            'hands_dist': dist(lh[0], rh[0]) / pair_scale,  # Scale-invariant wrist-to-wrist
+            'index_touch': dist(lh[8], rh[8]) / pair_scale,  # Scale-invariant index-to-index
+            'thumb_touch': dist(lh[4], rh[4]) / pair_scale,  # Scale-invariant thumb-to-thumb
+            'l_index_to_r_palm': dist(lh[8], rh[0]) / pair_scale,
+            'r_index_to_l_palm': dist(rh[8], lh[0]) / pair_scale,
 
-            # Same-hand thumb-to-index distance (scale-normalized), used for
-            # postures like ASL/ISL "F" where a single hand's thumb and index
-            # tip touch. This was previously missing, so that branch of
-            # _score_letter always used a hardcoded default.
+            # Same-hand thumb-to-index distance (scale-normalized)
             'l_index_thumb_touch': dist(lh[4], lh[8]) / l_scale,
             'r_index_thumb_touch': dist(rh[4], rh[8]) / r_scale,
 
@@ -738,14 +738,12 @@ class TranslatorModel:
         elif 'l-shape' in lh_posture:
             score += (1.0 if features['l_thumb_ext'] and features['l_index_ext'] else 0.0) * 2.0
         elif 'cross' in lh_posture or letter == 'F':
-            # Now uses the real same-hand thumb-to-index distance instead of
-            # a key that was never populated.
             is_isl_f = features['l_index_thumb_touch'] < THUMB_INDEX_TOUCH_THRESHOLD and features['l_middle_ext']
             score += 10.0 if is_isl_f else ((1.0 if features['l_index_ext'] or features['l_middle_ext'] else 0.0) * 2.0)
 
         # Match right hand posture keywords
         if 'touch index' in rh_posture:
-            score += (2.0 if features['index_touch'] < 0.05 else 0.0)
+            score += (2.0 if features['index_touch'] < 0.35 else 0.0)
         elif 'flat palm' in rh_posture or 'sweep palm' in rh_posture or 'base palm' in rh_posture:
             score += features['r_openness'] * 2.0
         elif 'fist' in rh_posture:

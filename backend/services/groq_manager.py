@@ -115,7 +115,7 @@ class KeyInfo:
         remaining_cooldown = max(0.0, round(self.cooldown_until - now, 1)) if self.cooldown_until > now else 0.0
         return {
             "key_id": self.key_id,
-            "masked_key": self.masked,
+            "configured": bool(self.api_key),
             "status": self.status.value,
             "success_count": self.success_count,
             "failure_count": self.failure_count,

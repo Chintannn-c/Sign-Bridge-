@@ -60,7 +60,10 @@ export function useISLTranslation() {
   useEffect(() => {
     checkApiHealth();
     const interval = setInterval(checkApiHealth, 30000); // Every 30s
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [checkApiHealth]);
 
   // ─── Core Message System ────────────────────────────────────────────────
@@ -84,6 +87,8 @@ export function useISLTranslation() {
     const fullText = (rawFullText != null) ? String(rawFullText) : '';
     let charIdx = 0;
     if (timerRef.current) clearInterval(timerRef.current);
+    setIsStreamingHuman(false);
+    setIsStreamingRobot(false);
 
     if (targetSide === 'human') {
       setActiveSide('human');

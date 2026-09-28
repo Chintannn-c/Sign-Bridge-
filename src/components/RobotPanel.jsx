@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Bot, User, ChevronDown, Keyboard, Send, X, BookOpen, Eye, EyeOff } from 'lucide-react';
+import { Trash2, Bot, User, ChevronDown, Keyboard, Send, BookOpen, Eye, EyeOff, Mic, MicOff } from 'lucide-react';
 import { GestureReferenceSheet } from './GestureReferenceSheet';
 
 /**
@@ -21,8 +21,58 @@ export const RobotPanel = React.memo(({
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [showActions, setShowActions] = useState(true);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const scrollContainerRef = useRef(null);
   const chatEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  // Initialize Web Speech API for voice input
+  const toggleSpeechRecognition = useCallback(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-IN';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event) => {
+        const transcript = event.results?.[0]?.[0]?.transcript;
+        if (transcript) {
+          setInputVal(transcript);
+          setShowKeyboard(true);
+          if (onSendMessage) {
+            onSendMessage(transcript, 'robot');
+          }
+        }
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.warn('Speech recognition init failed:', err);
+      setIsListening(false);
+    }
+  }, [isListening, onSendMessage]);
+
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) recognitionRef.current.abort();
+    };
+  }, []);
 
   // Calculate active word being fingerspelled
   const safeFullText = fullText || '';
@@ -96,6 +146,14 @@ export const RobotPanel = React.memo(({
                   title={showKeyboard ? 'Hide Input' : 'Type Message'}
                 >
                   <Keyboard size={15} />
+                </button>
+                <button
+                  className={`chat-action-btn ${isListening ? 'is-active-toggle' : ''}`}
+                  onClick={toggleSpeechRecognition}
+                  title={isListening ? 'Stop listening' : 'Voice Input (Speak to Sign)'}
+                  style={isListening ? { color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', background: 'rgba(239, 68, 68, 0.12)' } : {}}
+                >
+                  {isListening ? <MicOff size={15} /> : <Mic size={15} />}
                 </button>
                 {onClear && (
                   <button
@@ -363,6 +421,26 @@ export const RobotPanel = React.memo(({
                     fontFamily: 'var(--font-family)'
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={toggleSpeechRecognition}
+                  title={isListening ? 'Stop listening' : 'Voice input'}
+                  style={{
+                    background: isListening ? '#ef4444' : 'transparent',
+                    color: isListening ? '#fff' : 'var(--text-muted, #6A6A67)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {isListening ? <MicOff size={15} /> : <Mic size={15} />}
+                </button>
                 <button 
                   type="submit" 
                   title="Send message"
@@ -409,4 +487,3 @@ export const RobotPanel = React.memo(({
     </div>
   );
 });
-

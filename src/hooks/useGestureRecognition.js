@@ -103,6 +103,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const frameBufferRef = useRef([]);
   const wordInferenceCooldownRef = useRef(0);
   const isRequestPendingRef = useRef(false);
+  const prevLandmarksRef = useRef(null);
 
   // Inactivity auto-send refs
   const sentenceBufferRef = useRef('');
@@ -388,6 +389,29 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     // ─────────────────────────────────────────────────────────────────────────
     // MODE 2: STATIC LETTER RECOGNITION (A-Z)
     // ─────────────────────────────────────────────────────────────────────────
+    // Kinematic Velocity Gating: suppress false positives during hand transition movement
+    if (prevLandmarksRef.current && prevLandmarksRef.current.length === landmarks.length) {
+      let totalDisplacement = 0;
+      let activePoints = 0;
+      for (let i = 0; i < landmarks.length; i += 3) {
+        if (landmarks[i] !== 0 || landmarks[i + 1] !== 0) {
+          const dx = landmarks[i] - prevLandmarksRef.current[i];
+          const dy = landmarks[i + 1] - prevLandmarksRef.current[i + 1];
+          totalDisplacement += Math.sqrt(dx * dx + dy * dy);
+          activePoints += 1;
+        }
+      }
+      const meanVelocity = activePoints > 0 ? totalDisplacement / activePoints : 0;
+      if (meanVelocity > 0.042) {
+        setStatus(STATES.TRACKING);
+        setGuidance('Hold sign steady...');
+        consecutiveLetterRef.current = { letter: null, count: 0 };
+        prevLandmarksRef.current = landmarks;
+        return null;
+      }
+    }
+    prevLandmarksRef.current = landmarks;
+
     if (isRequestPendingRef.current) return null;
     isRequestPendingRef.current = true;
 
@@ -475,7 +499,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     } finally {
       isRequestPendingRef.current = false;
     }
-  }, [enabled, recognitionMode]);
+  }, [enabled, recognitionMode, cancelInactivityCountdown, handleHandsDropped, videoElement]);
 
   // Sentence buffer actions
   const undoLetter = useCallback(() => {
@@ -583,6 +607,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     sentenceBuffer,
     wordBufferCount,
     wordBufferMax: WORD_SEQUENCE_LENGTH,
+    availableWords,
     // Auto-Send / Inactivity states
     autoSendEnabled,
     setAutoSendEnabled,
