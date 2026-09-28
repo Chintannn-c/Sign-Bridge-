@@ -189,10 +189,12 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
               muted
               className={`camera-video ${isMirrored ? 'is-mirrored' : ''}`}
             />
-            {/* Real-time Hand Tracking Overlay */}
-            {detection.isDetecting && detection.landmarkData && (
+            {/* Real-time Holistic Tracking Overlay (Upper-Body & Hands) */}
+            {detection.isDetecting && (detection.landmarkData || detection.poseData) && (
               <HandTrackingOverlay 
                 landmarks={detection.landmarkData}
+                poseLandmarks={detection.poseData}
+                bodyAnchors={detection.bodyAnchors}
                 width={videoElement?.videoWidth || 640}
                 height={videoElement?.videoHeight || 480}
                 isMirrored={isMirrored}

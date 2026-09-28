@@ -104,6 +104,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const wordInferenceCooldownRef = useRef(0);
   const isRequestPendingRef = useRef(false);
   const prevLandmarksRef = useRef(null);
+  const bodyAnchorsRef = useRef(null);
 
   // Inactivity auto-send refs
   const sentenceBufferRef = useRef('');
@@ -257,10 +258,14 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   }, [enabled, recognitionMode, cancelInactivityCountdown]);
 
   /**
-   * Process a frame of 126 landmark floats from MediaPipe.
+   * Process a frame of 126 landmark floats from MediaPipe Holistic (with upper-body anchors).
    */
-  const processLandmarks = useCallback(async (landmarks, handCount = 0, handedness = null) => {
+  const processLandmarks = useCallback(async (landmarks, handCount = 0, handedness = null, holisticData = null) => {
     if (!enabled) return null;
+
+    if (holisticData && holisticData.bodyAnchors) {
+      bodyAnchorsRef.current = holisticData.bodyAnchors;
+    }
 
     const hasActiveLandmarks = Boolean(handCount > 0 && isValidHandGeometry(landmarks));
 
@@ -321,7 +326,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           const res = await fetch(`${API_BASE}/translate/word`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ frames: frameBufferRef.current }),
+            body: JSON.stringify({
+              frames: frameBufferRef.current,
+              body_anchors: bodyAnchorsRef.current,
+            }),
           });
 
           if (!res.ok) return null;
@@ -419,7 +427,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       const res = await fetch(`${API_BASE}/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ landmarks }),
+        body: JSON.stringify({
+          landmarks,
+          body_anchors: bodyAnchorsRef.current,
+        }),
       });
 
       if (!res.ok) return null;

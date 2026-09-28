@@ -56,10 +56,12 @@ export const LiveDetectionTab = ({ isActive, onSendToChat }) => {
           </div>
         )}
 
-        {/* MediaPipe tracking visualization */}
-        {isActive && detection.isDetecting && detection.landmarkData && (
+        {/* MediaPipe Holistic tracking visualization */}
+        {isActive && detection.isDetecting && (detection.landmarkData || detection.poseData) && (
           <HandTrackingOverlay 
             landmarks={detection.landmarkData}
+            poseLandmarks={detection.poseData}
+            bodyAnchors={detection.bodyAnchors}
             width={videoElement?.videoWidth || 640}
             height={videoElement?.videoHeight || 480}
           />

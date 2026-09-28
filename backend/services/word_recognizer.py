@@ -200,13 +200,14 @@ class WordRecognizer:
 
         logger.info("Word model not found. Word recognition is disabled.")
 
-    def predict(self, frame_sequence):
+    def predict(self, frame_sequence, body_anchors=None):
         """
-        Predict a word from a sequence of landmark frames.
+        Predict a word from a sequence of landmark frames with optional MediaPipe Holistic body anchors.
 
         Args:
             frame_sequence: list of 30 frames, each frame is a list/array
                             of 126 floats (42 landmarks x 3 coordinates).
+            body_anchors: optional dict of upper-body relative anchors from MediaPipe Holistic.
         """
         if not self.is_available or self.model is None:
             return None
@@ -288,13 +289,64 @@ class WordRecognizer:
                 input_data = norm_arr.reshape(1, SEQUENCE_LENGTH, NUM_FEATURES)
                 probs = model.predict(input_data, verbose=0)[0]
 
+            # Multimodal Holistic anatomical re-weighting
+            if body_anchors and isinstance(body_anchors, dict) and len(probs) == len(self.labels):
+                l_mouth = float(body_anchors.get('l_hand_to_mouth', 999.0))
+                r_mouth = float(body_anchors.get('r_hand_to_mouth', 999.0))
+                min_mouth = min(l_mouth, r_mouth)
+
+                l_chest = float(body_anchors.get('l_hand_to_chest', 999.0))
+                r_chest = float(body_anchors.get('r_hand_to_chest', 999.0))
+                min_chest = min(l_chest, r_chest)
+
+                l_elev = float(body_anchors.get('l_elevation', 0.0))
+                r_elev = float(body_anchors.get('r_elevation', 0.0))
+                max_elev = max(l_elev, r_elev)
+                min_elev = min(l_elev, r_elev)
+
+                priors = np.ones(len(self.labels), dtype=np.float32)
+
+                for idx, lbl in enumerate(self.labels):
+                    # Facial / Mouth signs: THANK_YOU, WATER, FOOD
+                    if lbl in ('THANK_YOU', 'WATER', 'FOOD', 'DOCTOR'):
+                        if min_mouth < 0.40:
+                            priors[idx] *= 1.45
+                        elif min_mouth > 0.85:
+                            priors[idx] *= 0.50
+
+                    # Chest signs: NAMASTE, PLEASE, SORRY, ME, HEARING
+                    elif lbl in ('NAMASTE', 'PLEASE', 'SORRY', 'ME', 'HEARING'):
+                        if min_chest < 0.35:
+                            priors[idx] *= 1.40
+                        elif min_chest > 0.80:
+                            priors[idx] *= 0.55
+
+                    # High signs (above shoulder level): HELLO, BYE_BYE, INDIA
+                    elif lbl in ('HELLO', 'BYE_BYE', 'INDIA'):
+                        if max_elev > 0.05:
+                            priors[idx] *= 1.35
+                        elif max_elev < -0.25:
+                            priors[idx] *= 0.60
+
+                    # Lower body / waist signs: WASHROOM
+                    elif lbl == 'WASHROOM':
+                        if min_elev < -0.30:
+                            priors[idx] *= 1.40
+                        elif max_elev > 0.10:
+                            priors[idx] *= 0.40
+
+                probs = probs * priors
+                sum_p = np.sum(probs)
+                if sum_p > 1e-6:
+                    probs = probs / sum_p
+
             top_idx = int(np.argmax(probs))
             confidence = float(probs[top_idx])
             word = self.labels[top_idx] if top_idx < len(self.labels) else '?'
 
             sorted_probs = np.sort(probs)[::-1]
             margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
-            is_rejected = bool(confidence < 0.52 or margin < 0.08 or word == '?')
+            is_rejected = bool(confidence < 0.50 or margin < 0.06 or word == '?')
 
             sorted_indices = np.argsort(probs)[::-1][:5]
             top_scores = {
@@ -310,6 +362,7 @@ class WordRecognizer:
                 'rejected': is_rejected,
                 'rejection_reason': 'low_confidence_or_margin' if is_rejected else None,
                 'motion_velocity': round(motion_velocity, 5),
+                'holistic_anchored': bool(body_anchors is not None),
                 'all_scores': top_scores,
             }
 

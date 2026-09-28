@@ -164,3 +164,42 @@ def extract_features(raw_landmarks):
         
     res = np.array(feats, dtype=np.float32)
     return res[0] if single else res
+
+
+def extract_holistic_features(raw_landmarks, body_anchors=None):
+    """
+    Extracts geometric feature vector enriched with upper-body anchor metrics.
+    If body_anchors are provided, appends 8 normalized body-relative features:
+      - l_hand_to_mouth_dist, r_hand_to_mouth_dist
+      - l_hand_to_chest_dist, r_hand_to_chest_dist
+      - l_elevation (relative to shoulder height)
+      - r_elevation
+      - shoulder_span
+      - hands_to_torso_symmetry
+    """
+    base_features = extract_features(raw_landmarks)
+    if not body_anchors or not isinstance(body_anchors, dict):
+        return base_features
+
+    l_mouth = float(body_anchors.get('l_hand_to_mouth', 999.0))
+    r_mouth = float(body_anchors.get('r_hand_to_mouth', 999.0))
+    l_chest = float(body_anchors.get('l_hand_to_chest', 999.0))
+    r_chest = float(body_anchors.get('r_hand_to_chest', 999.0))
+    l_elev = float(body_anchors.get('l_elevation', 0.0))
+    r_elev = float(body_anchors.get('r_elevation', 0.0))
+    s_dist = float(body_anchors.get('shoulderDist', 1.0))
+    sym = float(abs(l_elev - r_elev))
+
+    holistic_vec = np.array([
+        min(l_mouth, 5.0), min(r_mouth, 5.0),
+        min(l_chest, 5.0), min(r_chest, 5.0),
+        float(np.clip(l_elev, -3.0, 3.0)), float(np.clip(r_elev, -3.0, 3.0)),
+        min(s_dist, 5.0), min(sym, 5.0)
+    ], dtype=np.float32)
+
+    if base_features.ndim == 1:
+        return np.concatenate([base_features, holistic_vec])
+    else:
+        tiled = np.tile(holistic_vec, (len(base_features), 1))
+        return np.concatenate([base_features, tiled], axis=1)
+

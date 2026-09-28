@@ -6,9 +6,9 @@
     "semantic_hash": "5e6e3cea3e89137071c142dd7835b0ef"
   },
   "backend/app.py": {
-    "mtime": 1790577738.808009,
-    "seen": 1790577863.8357387,
-    "ast_hash": "0078166265b67cb108b55abe6a2e6af1",
+    "mtime": 1790578985.620754,
+    "seen": 1790579095.680146,
+    "ast_hash": "81184299d4e19e7d8e01d29ce997cae6",
     "semantic_hash": ""
   },
   "backend/database/schema.py": {
@@ -2916,10 +2916,10 @@
     "semantic_hash": "0959169586b471e7089c742e7bb268cb"
   },
   "backend/services/feature_extractor.py": {
-    "mtime": 1787552748.8109467,
-    "seen": 1790572451.7572732,
-    "ast_hash": "988aab5452908cbd2323fda8edc4c2c9",
-    "semantic_hash": "988aab5452908cbd2323fda8edc4c2c9"
+    "mtime": 1790578851.037485,
+    "seen": 1790579095.7876065,
+    "ast_hash": "6f00d6780cd0b1fc207668156244c627",
+    "semantic_hash": ""
   },
   "backend/services/gemini_manager.py": {
     "mtime": 1790577728.8583937,
@@ -2934,16 +2934,16 @@
     "semantic_hash": ""
   },
   "backend/services/translator_model.py": {
-    "mtime": 1790576541.9728618,
-    "seen": 1790576688.5287685,
-    "ast_hash": "0fc5d09e21d96ef62f416236ff50ad5b",
+    "mtime": 1790578942.485729,
+    "seen": 1790579095.7886066,
+    "ast_hash": "34653e25ce53ec45ff50e9dedee1bf5e",
     "semantic_hash": ""
   },
   "backend/services/word_recognizer.py": {
-    "mtime": 1787634894.056659,
-    "seen": 1790572451.7572732,
-    "ast_hash": "e77ba755b6645fc199f5188ba17108df",
-    "semantic_hash": "e77ba755b6645fc199f5188ba17108df"
+    "mtime": 1790578890.8381302,
+    "seen": 1790579095.7886066,
+    "ast_hash": "9ccada441c2d3c4b5670dfe075e5ed5f",
+    "semantic_hash": ""
   },
   "backend/stream_and_extract_hf.py": {
     "mtime": 1787632320.68161,
@@ -3468,10 +3468,10 @@
     "semantic_hash": "3a3144fed4f557bbf0dd329257656f2d"
   },
   "src/components/CameraView.jsx": {
-    "mtime": 1787560173.3748667,
-    "seen": 1790572451.7572732,
-    "ast_hash": "97fc2bd6a43985e49356b3608e297ddf",
-    "semantic_hash": "97fc2bd6a43985e49356b3608e297ddf"
+    "mtime": 1790578686.476169,
+    "seen": 1790579095.8066065,
+    "ast_hash": "081fd9fb99fc31138b9ce7ac51bdf14e",
+    "semantic_hash": ""
   },
   "src/components/GestureReferenceSheet.jsx": {
     "mtime": 1785389724.4558275,
@@ -3504,10 +3504,10 @@
     "semantic_hash": "3cc46d46a9ad89b5165069646ac48081"
   },
   "src/components/SignLanguageAssistant/HandTrackingOverlay.jsx": {
-    "mtime": 1785407083.9856827,
-    "seen": 1790572451.7572732,
-    "ast_hash": "7c98f50486b152521ef27a4d6930a31f",
-    "semantic_hash": "7c98f50486b152521ef27a4d6930a31f"
+    "mtime": 1790578620.0045516,
+    "seen": 1790579095.8086102,
+    "ast_hash": "a9b4e54809f4519b1a4a5e19ac705468",
+    "semantic_hash": ""
   },
   "src/components/SignLanguageAssistant/SentenceBuilder.jsx": {
     "mtime": 1787560209.811957,
@@ -3534,9 +3534,9 @@
     "semantic_hash": "36a5b60b513b1eb5cb4203d7e214c076"
   },
   "src/components/SignLanguageAssistant/tabs/LiveDetectionTab.jsx": {
-    "mtime": 1790573545.505366,
-    "seen": 1790573735.561431,
-    "ast_hash": "c5195e6392ae1f06463328023bb10ad6",
+    "mtime": 1790578703.874992,
+    "seen": 1790579095.80961,
+    "ast_hash": "3a76f6211f44b3aed47ed0b365264b0d",
     "semantic_hash": ""
   },
   "src/components/SignLanguageAssistant/tabs/PracticeTab.jsx": {
@@ -3564,16 +3564,16 @@
     "semantic_hash": "ece8bec5154fcc0a1da253745a7798e0"
   },
   "src/hooks/useGestureRecognition.js": {
-    "mtime": 1790576472.9223988,
-    "seen": 1790576688.5672863,
-    "ast_hash": "f531edffedbd7d3bf1569e259ddeca9e",
+    "mtime": 1790578796.690699,
+    "seen": 1790579095.8105807,
+    "ast_hash": "8d1a163e4ee3c152fd71ec82365bace6",
     "semantic_hash": ""
   },
   "src/hooks/useHandDetection.js": {
-    "mtime": 1787046966.2446525,
-    "seen": 1790572451.7572732,
-    "ast_hash": "daf58a3a37dc1022961ff479dd3efcc2",
-    "semantic_hash": "daf58a3a37dc1022961ff479dd3efcc2"
+    "mtime": 1790578604.4762967,
+    "seen": 1790579095.8105807,
+    "ast_hash": "b4aef4c3028d518bb65d7ae41a26998a",
+    "semantic_hash": ""
   },
   "src/hooks/useISLTranslation.js": {
     "mtime": 1790573554.6742518,

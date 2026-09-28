@@ -448,7 +448,8 @@ def translate():
         })
 
     try:
-        result = translator.predict(landmarks)
+        body_anchors = data.get('body_anchors')
+        result = translator.predict(landmarks, body_anchors=body_anchors)
 
         conf_raw = result.get('confidence', 0.0)
         confidence = safe_float(conf_raw, 0.0)
@@ -588,7 +589,8 @@ def translate_word():
         pass
 
     try:
-        result = word_recognizer.predict(frames)
+        body_anchors = data.get('body_anchors')
+        result = word_recognizer.predict(frames, body_anchors=body_anchors)
         if result is None:
             return jsonify({'error': 'Word prediction failed or input invalid.'}), 400
 

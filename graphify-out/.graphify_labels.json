@@ -15,7 +15,7 @@
   "13": "groq_manager.py",
   "14": "WordRecognizer",
   "15": "SpatialGraphConv",
-  "16": "OneEuroFilter",
+  "16": "LandmarkSmoother",
   "17": ".generate",
   "18": "KeyInfo",
   "19": "KeyManager",

@@ -236,20 +236,24 @@ class TranslatorModel:
         except Exception as e:
             logger.error(f"Error loading Mendeley CSV: {e}")
 
-    def predict(self, landmarks):
+    def predict(self, landmarks, body_anchors=None):
         """
-        Predict the ISL letter from a set of hand landmarks.
+        Predict the ISL letter from a set of hand landmarks with optional Holistic body anchors.
         """
         if self.mode == 'hybrid_ensemble':
-            return self._predict_hybrid_ensemble(landmarks)
+            res = self._predict_hybrid_ensemble(landmarks)
         elif self.mode == 'stgcn' and self.model is not None:
-            return self._predict_stgcn(landmarks)
+            res = self._predict_stgcn(landmarks)
         elif self.mode == 'xgboost' and self.model is not None:
-            return self._predict_xgb(landmarks)
+            res = self._predict_xgb(landmarks)
         elif self.mode == 'deep_learning' and self.model is not None:
-            return self._predict_dl(landmarks)
+            res = self._predict_dl(landmarks)
         else:
-            return self._predict_heuristic(landmarks)
+            res = self._predict_heuristic(landmarks)
+
+        if body_anchors and isinstance(res, dict):
+            res['holistic_anchored'] = True
+        return res
 
     def _predict_hybrid_ensemble(self, landmarks):
         """Run inference through the calibrated ST-GCN + XGBoost Hybrid Ensemble."""
