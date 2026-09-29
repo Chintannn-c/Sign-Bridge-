@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Keyboard, Send, X, Trash2 } from 'lucide-react';
+import { Keyboard, Send, X, Trash2, Sparkles } from 'lucide-react';
 import { CameraView } from './CameraView';
 import { SentenceBuilder } from './SignLanguageAssistant/SentenceBuilder';
 
@@ -25,6 +25,9 @@ export const HumanPanel = React.memo(({
   const rawBuffer = recognitionState?.sentenceBuffer || '';
   const sentenceBuffer = isCameraOn ? rawBuffer : (fullText || '');
   const hasLiveSentence = Boolean(sentenceBuffer && sentenceBuffer.trim().length > 0);
+  const isAutoSending = Boolean(recognitionState?.isAutoSending);
+  const inactivityCountdown = recognitionState?.inactivityCountdown;
+  const detectedSign = recognitionState?.detectedSign || recognitionState?.detectedLetter || recognitionState?.detectedWord;
   const displayText = isStreaming
     ? streamingText
     : (hasLiveSentence
@@ -91,13 +94,86 @@ export const HumanPanel = React.memo(({
 
         {/* Text Feed below the Horizontal Webcam */}
         <div className="card-text-wrapper human-text-wrapper" style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
+          
+          {/* Animated Text Processing Header Bar (appears after letters appear in section) */}
+          <AnimatePresence>
+            {hasLiveSentence && !showTextbox && (
+              <motion.div
+                initial={{ opacity: 0, y: -6, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: 'auto' }}
+                exit={{ opacity: 0, y: -6, height: 0 }}
+                transition={{ duration: 0.22 }}
+                className="text-processing-header-bar"
+              >
+                <div className={`live-processing-pill ${isAutoSending ? 'is-refining' : ''}`}>
+                  <div className="neural-soundwave">
+                    <span className="wave-bar bar-1" />
+                    <span className="wave-bar bar-2" />
+                    <span className="wave-bar bar-3" />
+                    <span className="wave-bar bar-4" />
+                  </div>
+                  <span className="live-processing-text">
+                    {isAutoSending ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <Sparkles size={13} className="animate-spin text-purple-600" />
+                        AI Refining Spoken Sentence...
+                      </span>
+                    ) : (
+                      inactivityCountdown ? (
+                        <span>Auto-sending in <strong>{inactivityCountdown}s</strong>...</span>
+                      ) : (
+                        <span>Live AI Text Processing...</span>
+                      )
+                    )}
+                  </span>
+                </div>
+
+                <div className="live-processing-meta">
+                  {detectedSign && (
+                    <span className="live-detected-tag">
+                      <span className="live-pulse-dot" />
+                      Sign: <strong>{detectedSign}</strong>
+                    </span>
+                  )}
+                  <span className="live-char-counter">
+                    {sentenceBuffer.length} {sentenceBuffer.length === 1 ? 'char' : 'chars'}
+                  </span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {!showTextbox && (
             <div style={{ width: '100%', position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}>
               <h2 className={`card-text ${isCameraOn && !hasLiveSentence ? 'text-slate-400 italic' : ''}`} style={{ flex: 1, margin: 0 }}>
-                {displayText}
-                {isStreaming && !isCameraOn && <span className="streaming-cursor-teal" />}
-                {isCameraOn && recognitionState?.status === 'detecting' && <span className="streaming-cursor-teal" />}
+                {hasLiveSentence ? (
+                  <>
+                    <AnimatePresence mode="popLayout">
+                      {sentenceBuffer.split('').map((char, index) => (
+                        <motion.span
+                          key={`char-${index}-${char}`}
+                          initial={{ opacity: 0, y: 8, scale: 0.8 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.18, ease: 'easeOut' }}
+                          className={`live-letter-char ${index === sentenceBuffer.length - 1 ? 'latest-letter' : ''}`}
+                          style={{ display: 'inline-block', whiteSpace: char === ' ' ? 'pre' : 'normal' }}
+                        >
+                          {char === ' ' ? '\u00A0' : char}
+                        </motion.span>
+                      ))}
+                    </AnimatePresence>
+                    <span className="active-live-cursor" />
+                  </>
+                ) : (
+                  <>
+                    {displayText}
+                    {isStreaming && !isCameraOn && <span className="streaming-cursor-teal" />}
+                    {isCameraOn && recognitionState?.status === 'detecting' && <span className="streaming-cursor-teal" />}
+                  </>
+                )}
               </h2>
+
               {isCameraOn && hasLiveSentence && (
                 <button
                   onClick={(e) => {
@@ -136,6 +212,47 @@ export const HumanPanel = React.memo(({
               )}
             </div>
           )}
+
+          {/* Flowing Animated Shimmer Underline (when letters appear in section) */}
+          <AnimatePresence>
+            {hasLiveSentence && !showTextbox && (
+              <motion.div
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                exit={{ opacity: 0, scaleX: 0 }}
+                transition={{ duration: 0.25 }}
+                className="processing-shimmer-track"
+              >
+                <div className={`processing-shimmer-glow ${isAutoSending ? 'is-refining' : ''}`} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Live Detected Sign Token Badges Row (when letters appear in section) */}
+          <AnimatePresence>
+            {hasLiveSentence && !showTextbox && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.2 }}
+                className="live-sign-tokens-container"
+              >
+                <div className="live-sign-tokens-list">
+                  {sentenceBuffer.split(' ').filter(Boolean).map((word, wIdx, arr) => (
+                    <motion.div 
+                      key={`token-${wIdx}-${word}`}
+                      initial={{ scale: 0.85, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className={`live-sign-token-chip ${wIdx === arr.length - 1 ? 'is-active-token' : ''}`}
+                    >
+                      <span className="token-text">{word}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Temporary Custom Textbox Input */}
           <AnimatePresence>

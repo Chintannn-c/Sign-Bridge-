@@ -242,24 +242,30 @@ export function useISLTranslation() {
 
     // Client-side smart fallback if API endpoint is unreachable
     const q = cleanQuery.toLowerCase();
-    if (q.includes('washroom') || q.includes('toilet') || q.includes('restroom') || q.includes('bathroom')) {
-      return "The washroom is straight ahead to your left.";
+    if (q.length <= 2 && !['hi', 'no', 'ok'].includes(q)) {
+      return "Could you sign that again?";
+    } else if (q.includes('washroom') || q.includes('toilet') || q.includes('restroom') || q.includes('bathroom')) {
+      return "Down the hall on your left.";
+    } else if (q.includes('water') || q.includes('drink') || q.includes('thirsty')) {
+      return "Sure thing! Here's some water for you.";
+    } else if (q.includes('food') || q.includes('hungry') || q.includes('eat')) {
+      return "Let's grab a bite! What are you craving?";
     } else if (q.includes('hello') || q.includes('namaste') || q.includes('hi') || q.includes('hey')) {
-      return "Namaste! How can I help you?";
+      return "Hey! How's your day going?";
     } else if (q.includes('how are you') || q.includes('how do you do') || q.includes('how r u')) {
-      return "I am doing well, thank you! How can I help you with Indian Sign Language today?";
+      return "Doing great, thanks! How about you?";
     } else if (q.includes('name') || q.includes('who are you')) {
-      return "I am SignBridge AI, your dual-communication Indian Sign Language assistant.";
+      return "I'm SignBridge! Nice to meet you.";
     } else if (q.includes('thank')) {
-      return "You are very welcome! Happy to help.";
+      return "Anytime! Happy to help.";
     } else if (q.includes('help') || q.includes('assist')) {
-      return "I am here to assist you! You can sign or type your message.";
+      return "I'm right here! How can I help?";
     } else if (q.includes('bye') || q.includes('goodbye')) {
-      return "Goodbye! Have a wonderful day ahead.";
+      return "Take care! See you soon.";
     } else if (q.includes('nice to meet you')) {
-      return "Nice to meet you too! Welcome to SignBridge.";
+      return "Nice to meet you too!";
     }
-    return `I received your query: "${cleanQuery}". How can I assist you further?`;
+    return "Got it! How can I help with that?";
   }, []);
 
   // ─── LIVE MODE: Commit Buffer as a Message ──────────────────────────────
@@ -321,7 +327,7 @@ export function useISLTranslation() {
     // 2. Fetch AI response and stream it to the robot panel
     (async () => {
       const fetchedAnswer = await fetchAIAnswer(cleanText);
-      const aiAnswer = fetchedAnswer || `I received your message: "${cleanText}". How can I help you further with Indian Sign Language?`;
+      const aiAnswer = fetchedAnswer || "Got it! How can I help with that?";
       
       streamText('robot', aiAnswer, async () => {
         if (apiStatus === 'connected') {

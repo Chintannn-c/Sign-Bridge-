@@ -72,35 +72,41 @@ logger.info("Services ready.")
 def get_smart_fallback_response(query_text: str) -> str:
     """
     Intelligent keyword-based fallback response when LLM APIs are offline/unreachable.
-    Responds directly to the specific question asked instead of returning random generic strings.
+    Responds directly, casually, and like a real human (short, 1 brief sentence).
     """
     q = query_text.lower().strip()
-    if any(k in q for k in ['washroom', 'toilet', 'restroom', 'bathroom']):
-        return "The washroom is straight ahead to your left."
+    if len(q) <= 2 and q not in ('hi', 'no', 'ok'):
+        return "Could you sign that again?"
+    elif any(k in q for k in ['washroom', 'toilet', 'restroom', 'bathroom']):
+        return "Down the hall on your left."
     elif any(k in q for k in ['repeat', 'say again', 'once more', 'pardon']):
-        return "Sure! Please let me know what you would like me to sign or repeat."
-    elif any(k in q for k in ['ice cream', 'food', 'hungry', 'eat', 'drink', 'coffee', 'tea', 'water']):
-        return "That sounds wonderful! How can I assist you with your request?"
+        return "Sure, what did you want me to repeat?"
+    elif any(k in q for k in ['water', 'drink', 'thirsty', 'tea', 'coffee']):
+        return "Sure thing! Here's some water for you."
+    elif any(k in q for k in ['food', 'hungry', 'eat', 'lunch', 'dinner', 'snack']):
+        return "Let's grab a bite! What are you craving?"
     elif any(k in q for k in ['hello', 'hi', 'namaste', 'hey', 'greetings']):
-        return "Namaste! How can I help you?"
+        return "Hey! How's your day going?"
     elif any(k in q for k in ['how are you', 'how do you do', 'how r u']):
-        return "I am doing well, thank you! How can I help you with Indian Sign Language today?"
+        return "Doing great, thanks! How about you?"
     elif any(k in q for k in ['name', 'who are you']):
-        return "I am SignBridge AI, your dual-communication Indian Sign Language assistant."
+        return "I'm SignBridge! Nice to meet you."
     elif any(k in q for k in ['thank', 'thanks']):
-        return "You are very welcome! Happy to help."
+        return "Anytime! Happy to help."
     elif any(k in q for k in ['help', 'assist', 'support']):
-        return "I am here to assist you! You can sign with your camera or type below."
+        return "I'm right here! How can I help?"
     elif any(k in q for k in ['bye', 'goodbye', 'see you']):
-        return "Goodbye! Have a wonderful day ahead."
-    elif any(k in q for k in ['morning', 'afternoon', 'evening']):
-        return "Good day! How can I help you today?"
+        return "Take care! See you soon."
+    elif any(k in q for k in ['morning']):
+        return "Good morning! Hope you have a great day."
+    elif any(k in q for k in ['evening', 'night']):
+        return "Good evening! How's everything?"
     elif any(k in q for k in ['nice to meet you']):
-        return "Nice to meet you too! Welcome to SignBridge."
+        return "Nice to meet you too!"
     elif any(k in q for k in ['where', 'location', 'direction']):
-        return "Please tell me which place you are looking for, and I will be happy to guide you."
+        return "Tell me where you want to go and I'll point the way."
     else:
-        return f"Got it! Let me know how else I can assist you with '{query_text}'."
+        return "Got it! How can I help with that?"
 
 
 class LLMResponse(TypedDict):
@@ -109,7 +115,12 @@ class LLMResponse(TypedDict):
     fallback_used: bool
 
 
-def generate_llm_response(prompt: str, system_instruction: str = "You are SignBridge AI assistant.") -> LLMResponse:
+def generate_llm_response(
+    prompt: str,
+    system_instruction: str = "You are SignBridge AI assistant.",
+    temperature: float = 0.6,
+    max_tokens: int = 60
+) -> LLMResponse:
     """
     Tiered Automatic Drop-Down LLM Cascade:
     1. Primary Tier: Groq LPU Manager (Dual-Key rotation, auto-discovery & backoff retry).
@@ -123,7 +134,9 @@ def generate_llm_response(prompt: str, system_instruction: str = "You are SignBr
         try:
             groq_res = groq_manager.generate(
                 prompt=prompt,
-                system_instruction=system_instruction
+                system_instruction=system_instruction,
+                temperature=temperature,
+                max_tokens=max_tokens
             )
             if groq_res and groq_res.get("text"):
                 return {
@@ -140,7 +153,9 @@ def generate_llm_response(prompt: str, system_instruction: str = "You are SignBr
             gem_res = gemini_manager.generate(
                 prompt=prompt,
                 system_instruction=system_instruction,
-                task_type="text"
+                task_type="text",
+                temperature=temperature,
+                max_output_tokens=max_tokens
             )
             if gem_res and gem_res.get("text"):
                 return {
@@ -174,11 +189,17 @@ def safe_float(val: object, default: float = 0.0) -> float:
 
 
 def clean_llm_text(text: str) -> str:
-    """Removes thinking blocks, reasoning fences, and markdown formatting from LLM outputs."""
+    """Removes thinking blocks, reasoning fences, markdown formatting, and normalizes characters."""
     if not text:
         return ""
 
     cleaned = text
+
+    # Normalize unicode spaces and fancy quotes/dashes
+    cleaned = cleaned.replace('\u202f', ' ').replace('\u00a0', ' ')
+    cleaned = cleaned.replace('\u2018', "'").replace('\u2019', "'")
+    cleaned = cleaned.replace('\u201c', '"').replace('\u201d', '"')
+    cleaned = cleaned.replace('\u2013', '-').replace('\u2014', '-')
 
     # 1. Strip <think>...</think> tags and any unclosed <think> blocks
     cleaned = re.sub(r'<think>[\s\S]*?</think>', '', cleaned, flags=re.IGNORECASE).strip()
@@ -198,7 +219,8 @@ def clean_llm_text(text: str) -> str:
     if fences:
         cleaned = fences[-1].strip()
 
-    # 5. Remove markdown bold/italic asterisks and quotes
+    # 5. Remove markdown bold/italic asterisks, hash headers, and quotes
+    cleaned = re.sub(r'#{1,6}\s*', '', cleaned)
     cleaned = re.sub(r'\*{1,3}', '', cleaned).strip()
     cleaned = cleaned.strip('"\'`').strip()
 
@@ -206,13 +228,39 @@ def clean_llm_text(text: str) -> str:
     if '<think>' in cleaned.lower() or 'thinking process' in cleaned.lower():
         cleaned = re.sub(r'<think>[\s\S]*', '', cleaned, flags=re.IGNORECASE).strip()
 
+    # 7. Normalize multi-line or excess whitespace into a single concise line
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+
     return cleaned if cleaned else text.strip()
+
+
+def limit_to_human_length(text: str) -> str:
+    """
+    Ensure the response stays small and conversational (1-2 short sentences max, under 18 words).
+    """
+    if not text:
+        return ""
+    # Split by sentence ending punctuation (.!?) keeping punctuation
+    sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text) if s.strip()]
+    if not sentences:
+        return text
+
+    if len(sentences) == 1:
+        return sentences[0]
+
+    # If first sentence is very short (e.g. "Hey!", "Sure thing!", "Namaste!"), keep second sentence too
+    first_len = len(sentences[0].split())
+    if first_len <= 3 and len(sentences) >= 2:
+        return f"{sentences[0]} {sentences[1]}"
+
+    # Otherwise return just the first punchy sentence
+    return sentences[0]
 
 
 @app.route('/api/llm/refine', methods=['POST'])
 def llm_refine():
     """
-    Refine raw ISL letter buffer into a fluent conversational sentence.
+    Refine raw ISL letter/word buffer into a natural spoken English sentence.
     Uses automatic fallback (Groq -> Gemini).
     """
     data = request.get_json() or {}
@@ -220,24 +268,36 @@ def llm_refine():
     if not text:
         return jsonify({'error': 'Missing "text" parameter.'}), 400
 
+    # Quick short-circuit: single letter or empty stays minimal
+    if len(text) <= 1:
+        return jsonify({
+            'raw_text': text,
+            'refined_sentence': text,
+            'llm_provider': 'passthrough',
+            'fallback_used': False
+        })
+
     system_instruction = (
-        "You are SignBridge AI, an expert Indian Sign Language (ISL) Linguistic Translator.\n"
-        "Your task is to translate raw ISL recognized glosses, keywords, or fingerspelled letter fragments into a natural, grammatically correct English sentence.\n\n"
-        "ISL Linguistic Rules to apply:\n"
-        "1. ISL uses Topic-Comment / SOV word order and often drops auxiliary verbs (is/are/am/was/were).\n"
-        "   - 'NAME YOU WHAT' -> 'What is your name?'\n"
-        "   - 'ME DELHI TOMORROW GO' -> 'I am going to Delhi tomorrow.'\n"
-        "   - 'TRAIN TIME WHEN' -> 'What time will the train arrive?'\n"
-        "   - 'WATER PLEASE' -> 'Could I please have some water?'\n"
-        "   - 'WASHROOM WHERE' -> 'Where is the washroom?'\n"
-        "2. If input is fingerspelled letters (e.g. 'H E L L O N A M A S T E'), seamlessly merge them into proper words.\n"
-        "3. Preserve the speaker's intent concisely without adding unnecessary fluff.\n"
-        "4. Return ONLY the final polished sentence without reasoning, markdown formatting, or explanations."
+        "You are an Indian Sign Language (ISL) translator for a live dialogue system.\n"
+        "Convert raw recognized ISL glosses, keywords, or fingerspelled letters into 1 short, natural, everyday English sentence — exactly how a real human speaks in casual conversation.\n\n"
+        "Rules:\n"
+        "1. Keep it short, casual, and direct. Use natural contractions (e.g., 'What's', 'I'm', 'Where's', 'Can I').\n"
+        "   - 'NAME YOU WHAT' -> 'What\'s your name?'\n"
+        "   - 'WATER PLEASE' -> 'Can I get some water?'\n"
+        "   - 'WHERE WASHROOM' -> 'Where\'s the washroom?'\n"
+        "   - 'ME HUNGRY' -> 'I\'m hungry.'\n"
+        "   - 'ME DELHI GO' -> 'I\'m going to Delhi.'\n"
+        "   - 'TRAIN TIME WHEN' -> 'When does the train arrive?'\n"
+        "   - 'THANK YOU' -> 'Thank you!'\n"
+        "   - 'HELLO NAMASTE' -> 'Hello! Namaste.'\n"
+        "2. If input is fingerspelled letters (e.g. 'H E L L O'), merge them into words.\n"
+        "3. NEVER add explanations, meta-commentary, or extra sentences.\n"
+        "4. Return ONLY the final spoken sentence."
     )
 
     try:
-        res = generate_llm_response(text, system_instruction=system_instruction)
-        cleaned_text = clean_llm_text(res['text'])
+        res = generate_llm_response(text, system_instruction=system_instruction, temperature=0.3, max_tokens=150)
+        cleaned_text = limit_to_human_length(clean_llm_text(res['text']))
         # Log to SQLite database
         log_conversation(
             speaker='human',
@@ -269,17 +329,17 @@ def llm_simplify():
         return jsonify({'error': 'Missing "text" parameter.'}), 400
 
     system_instruction = (
-        "You are SignBridge AI. Convert natural English spoken text into core Indian Sign Language (ISL) keyword glosses "
-        "so dual robotic hands can actuate the signs sequentially.\n\n"
+        "Convert English spoken text into 1 to 4 core Indian Sign Language (ISL) keyword glosses "
+        "for robotic hands.\n\n"
         "Rules:\n"
         "1. Extract ONLY key content words (nouns, main verbs, core adjectives, question words).\n"
         "2. Drop filler words, articles (a, an, the), and auxiliary verbs.\n"
-        "3. Return ONLY uppercase keywords separated by space (e.g., 'WELCOME PLEASE SIT ROOM B', 'NAME YOU WHAT').\n"
-        "4. Do NOT include markdown fences, punctuation, or explanations."
+        "3. Return ONLY uppercase keywords separated by space (e.g., 'WATER PLEASE', 'WASHROOM LEFT', 'WELCOME').\n"
+        "4. Maximum 4 words. No markdown fences, punctuation, or explanations."
     )
 
     try:
-        res = generate_llm_response(text, system_instruction=system_instruction)
+        res = generate_llm_response(text, system_instruction=system_instruction, temperature=0.2, max_tokens=30)
         cleaned_keywords = clean_llm_text(res['text']).upper()
         # Keep only letters and spaces
         cleaned_keywords = re.sub(r'[^A-Z\s]', '', cleaned_keywords)
@@ -298,7 +358,7 @@ def llm_simplify():
 @app.route('/api/llm/answer', methods=['POST'])
 def llm_answer():
     """
-    Generate an intelligent AI response to a specific user question/statement.
+    Generate a small, warm, human-like AI response to what the user signed/said.
     Uses automatic fallback (Groq -> Gemini -> Smart Local Fallback).
     """
     data = request.get_json() or {}
@@ -306,21 +366,32 @@ def llm_answer():
     if not text:
         return jsonify({'error': 'Missing "text" parameter.'}), 400
 
+    # If single isolated character or gibberish (e.g. 'L', 'X'), respond casually without lecturing
+    clean_in = text.strip()
+    if len(clean_in) <= 2 and clean_in.lower() not in ('hi', 'no', 'ok'):
+        short_prompt_ans = "Could you sign that again?"
+        return jsonify({
+            'user_text': text,
+            'answer': short_prompt_ans,
+            'llm_provider': 'direct_guard',
+            'fallback_used': False
+        })
+
     system_instruction = (
-        "You are SignBridge AI, a helpful, polite, and direct dual-communication Indian Sign Language assistant. "
-        "Your task is to provide a direct, relevant, and natural response to what the user said or asked.\n"
-        "Strict rules:\n"
-        "1. Directly address the user's input, question, or statement without going off-topic.\n"
-        "2. If asked for your name or identity, identify yourself as 'SignBridge AI'.\n"
-        "3. NEVER complain or make meta-comments about lack of prior context or instructions.\n"
-        "4. If asked to repeat or clarify, politely ask what they would like you to repeat or sign.\n"
-        "5. If the user makes a statement, respond pleasantly and engagingly.\n"
-        "6. Keep your response concise (1-2 short sentences max), direct, and friendly. Return ONLY the answer without reasoning."
+        "You are a friendly, everyday human conversation partner talking with someone using sign language through SignBridge.\n"
+        "Reply directly, naturally, and warmly to what they said.\n\n"
+        "CRITICAL RULES:\n"
+        "1. KEEP IT SMALL: Respond in exactly 1 brief sentence (5 to 12 words max). Never write long paragraphs.\n"
+        "2. SOUND LIKE A REAL HUMAN: Warm, casual, and friendly. Use contractions like 'I\'m', 'what\'s', 'here\'s', 'sure thing'.\n"
+        "3. YOU ARE NOT A TEACHER: The user is communicating in real life! If they say 'water', 'food', or 'where is the washroom', answer their real-life need (e.g., 'Here\'s some water!' or 'Down the hall on your left.'). NEVER teach them how to sign or describe handshapes!\n"
+        "4. ZERO BOT CLICHES: Never say 'How can I assist you with Indian Sign Language today?', 'As an AI', 'Feel free to sign', or 'Got it!'.\n"
+        "5. If asked your name, say: 'I\'m SignBridge! Nice to meet you.'\n"
+        "6. Return ONLY the spoken response. No quotes, no preamble, no reasoning."
     )
 
     try:
-        res = generate_llm_response(text, system_instruction=system_instruction)
-        cleaned_answer = clean_llm_text(res['text'])
+        res = generate_llm_response(text, system_instruction=system_instruction, temperature=0.7, max_tokens=180)
+        cleaned_answer = limit_to_human_length(clean_llm_text(res['text']))
         # Log to SQLite database
         log_conversation(
             speaker='robot',

@@ -91,9 +91,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
   // Inactivity / Hand-Drop Auto-Send states
   const [autoSendEnabled, setAutoSendEnabled] = useState(true);
-  const [autoSendTimeoutMs, setAutoSendTimeoutMs] = useState(1800);
+  const [autoSendTimeoutMs, setAutoSendTimeoutMs] = useState(2200);
   const [inactivityCountdown, setInactivityCountdown] = useState(null);
   const [lastAutoSpoken, setLastAutoSpoken] = useState(null);
+  const [isAutoSending, setIsAutoSending] = useState(false);
 
   // Temporal smoothing & buffering refs
   const consecutiveLetterRef = useRef({ letter: null, count: 0 });
@@ -132,7 +133,14 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       return;
     }
 
+    // Guard: ignore single-character noise (except 'A' or 'I') to prevent stray gesture triggers
+    if (rawText.length < 2 && !['A', 'I'].includes(rawText.toUpperCase())) {
+      cancelInactivityCountdown();
+      return;
+    }
+
     isAutoSendingRef.current = true;
+    setIsAutoSending(true);
     cancelInactivityCountdown();
 
     try {
@@ -180,6 +188,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       console.warn('Auto-send execution error:', e);
     } finally {
       isAutoSendingRef.current = false;
+      setIsAutoSending(false);
       cancelInactivityCountdown();
     }
   }, [cancelInactivityCountdown, onSendMessage]);
@@ -576,6 +585,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     const rawText = sentenceBufferRef.current.trim();
     if (!rawText) return;
     cancelInactivityCountdown();
+    setIsAutoSending(true);
     let textToSend = rawText;
     try {
       const res = await fetch(`${API_BASE}/llm/refine`, {
@@ -591,6 +601,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       }
     } catch (e) {
       console.warn('Manual send refine notice:', e);
+    } finally {
+      setIsAutoSending(false);
     }
     textToSend = textToSend.replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '').trim() || rawText;
     if (onSendMessage) {
@@ -626,6 +638,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     setAutoSendTimeoutMs,
     inactivityCountdown,
     lastAutoSpoken,
+    isAutoSending,
 
     // Actions
     processLandmarks,

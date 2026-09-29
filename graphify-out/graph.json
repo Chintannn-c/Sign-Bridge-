@@ -4,6 +4,19 @@
   "graph": {},
   "nodes": [
     {
+      "id": "src_utils_oneeurofilter_landmarksmoother",
+      "label": "LandmarkSmoother",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "landmarksmoother",
+      "source_file": "src/utils/oneEuroFilter.js",
+      "source_location": "L82"
+    },
+    {
       "id": "backend_models_st_gcn_stgcnhandclassifier",
       "label": "STGCNHandClassifier",
       "_callable": true,
@@ -66,7 +79,7 @@
       "file_type": "code",
       "norm_label": "groqmanager",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L296"
+      "source_location": "L299"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager",
@@ -160,26 +173,13 @@
       "source_location": "L56"
     },
     {
-      "id": "src_utils_oneeurofilter_landmarksmoother",
-      "label": "LandmarkSmoother",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "LandmarkSmoother",
-      "file_type": "code",
-      "norm_label": "landmarksmoother",
-      "source_file": "src/utils/oneEuroFilter.js",
-      "source_location": "L82"
-    },
-    {
       "id": "src_utils_oneeurofilter_lowpassfilter",
       "label": "LowPassFilter",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": "lowpassfilter",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -192,7 +192,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": "oneeurofilter",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -248,7 +248,7 @@
       "file_type": "code",
       "norm_label": "llmresponse",
       "source_file": "backend/app.py",
-      "source_location": "L106"
+      "source_location": "L112"
     },
     {
       "id": "backend_services_groq_manager_modelselector",
@@ -261,7 +261,7 @@
       "file_type": "code",
       "norm_label": "modelselector",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L243"
+      "source_location": "L246"
     },
     {
       "id": "backend_services_gemini_manager_modelselector",
@@ -365,7 +365,7 @@
       "file_type": "code",
       "norm_label": "groqresult",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L287"
+      "source_location": "L290"
     },
     {
       "id": "src_app_app",
@@ -569,7 +569,7 @@
       "file_type": "code",
       "norm_label": "analyzequality()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L648"
+      "source_location": "L661"
     },
     {
       "id": "src_hooks_usegesturerecognition_capturevideosnapshot",
@@ -617,7 +617,7 @@
       "file_type": "code",
       "norm_label": "fetchmodelinfo()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L218"
+      "source_location": "L227"
     },
     {
       "id": "src_hooks_usehanddetection_usehanddetection",
@@ -678,6 +678,30 @@
       "norm_label": "startmedia()",
       "source_file": "src/hooks/useWebcam.js",
       "source_location": "L37"
+    },
+    {
+      "id": "src_utils_oneeurofilter_landmarksmoother_reset",
+      "label": ".reset()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": ".reset()",
+      "source_file": "src/utils/oneEuroFilter.js",
+      "source_location": "L115"
+    },
+    {
+      "id": "src_utils_oneeurofilter_landmarksmoother_smooth",
+      "label": ".smooth()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": ".smooth()",
+      "source_file": "src/utils/oneEuroFilter.js",
+      "source_location": "L93"
     },
     {
       "id": "backend_models_st_gcn_stgcnhandclassifier_forward",
@@ -1109,7 +1133,7 @@
       "file_type": "code",
       "norm_label": ".get_health_status()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L432"
+      "source_location": "L435"
     },
     {
       "id": "backend_services_groq_manager_groqmanager_is_available",
@@ -1121,7 +1145,7 @@
       "file_type": "code",
       "norm_label": ".is_available()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L308"
+      "source_location": "L311"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_setup",
@@ -1441,35 +1465,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": ".constructor()",
       "source_file": "src/utils/oneEuroFilter.js",
       "source_location": "L83"
-    },
-    {
-      "id": "src_utils_oneeurofilter_landmarksmoother_reset",
-      "label": ".reset()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "LandmarkSmoother",
-      "file_type": "code",
-      "norm_label": ".reset()",
-      "source_file": "src/utils/oneEuroFilter.js",
-      "source_location": "L115"
-    },
-    {
-      "id": "src_utils_oneeurofilter_landmarksmoother_smooth",
-      "label": ".smooth()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "LandmarkSmoother",
-      "file_type": "code",
-      "norm_label": ".smooth()",
-      "source_file": "src/utils/oneEuroFilter.js",
-      "source_location": "L93"
     },
     {
       "id": "src_utils_oneeurofilter_lowpassfilter_constructor",
@@ -1477,7 +1477,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": ".constructor()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1489,7 +1489,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": ".filter()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1501,7 +1501,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": ".reset()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1513,7 +1513,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": ".computealpha()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1525,7 +1525,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": ".constructor()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1537,7 +1537,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": ".filter()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1549,7 +1549,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "LandmarkSmoother",
+      "community_name": "OneEuroFilter",
       "file_type": "code",
       "norm_label": ".reset()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1649,7 +1649,7 @@
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L302"
+      "source_location": "L305"
     },
     {
       "id": "backend_services_groq_manager_keymanager_get_available_keys",
@@ -1733,7 +1733,7 @@
       "file_type": "code",
       "norm_label": "clean_llm_text()",
       "source_file": "backend/app.py",
-      "source_location": "L176"
+      "source_location": "L191"
     },
     {
       "id": "backend_app_collect_data",
@@ -1745,7 +1745,7 @@
       "file_type": "code",
       "norm_label": "collect_data()",
       "source_file": "backend/app.py",
-      "source_location": "L632"
+      "source_location": "L703"
     },
     {
       "id": "backend_app_generate_llm_response",
@@ -1757,7 +1757,7 @@
       "file_type": "code",
       "norm_label": "generate_llm_response()",
       "source_file": "backend/app.py",
-      "source_location": "L112"
+      "source_location": "L118"
     },
     {
       "id": "backend_app_get_history",
@@ -1769,7 +1769,7 @@
       "file_type": "code",
       "norm_label": "get_history()",
       "source_file": "backend/app.py",
-      "source_location": "L616"
+      "source_location": "L687"
     },
     {
       "id": "backend_app_get_smart_fallback_response",
@@ -1793,7 +1793,19 @@
       "file_type": "code",
       "norm_label": "health()",
       "source_file": "backend/app.py",
-      "source_location": "L361"
+      "source_location": "L432"
+    },
+    {
+      "id": "backend_app_limit_to_human_length",
+      "label": "limit_to_human_length()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "app.py",
+      "file_type": "code",
+      "norm_label": "limit_to_human_length()",
+      "source_file": "backend/app.py",
+      "source_location": "L237"
     },
     {
       "id": "backend_app_llm_answer",
@@ -1805,7 +1817,7 @@
       "file_type": "code",
       "norm_label": "llm_answer()",
       "source_file": "backend/app.py",
-      "source_location": "L299"
+      "source_location": "L359"
     },
     {
       "id": "backend_app_llm_refine",
@@ -1817,7 +1829,7 @@
       "file_type": "code",
       "norm_label": "llm_refine()",
       "source_file": "backend/app.py",
-      "source_location": "L213"
+      "source_location": "L261"
     },
     {
       "id": "backend_app_llm_simplify",
@@ -1829,7 +1841,7 @@
       "file_type": "code",
       "norm_label": "llm_simplify()",
       "source_file": "backend/app.py",
-      "source_location": "L261"
+      "source_location": "L321"
     },
     {
       "id": "backend_app_llm_status",
@@ -1841,7 +1853,7 @@
       "file_type": "code",
       "norm_label": "llm_status()",
       "source_file": "backend/app.py",
-      "source_location": "L377"
+      "source_location": "L448"
     },
     {
       "id": "backend_app_model_info",
@@ -1853,7 +1865,7 @@
       "file_type": "code",
       "norm_label": "model_info()",
       "source_file": "backend/app.py",
-      "source_location": "L387"
+      "source_location": "L458"
     },
     {
       "id": "backend_app_model_reload",
@@ -1865,7 +1877,7 @@
       "file_type": "code",
       "norm_label": "model_reload()",
       "source_file": "backend/app.py",
-      "source_location": "L399"
+      "source_location": "L470"
     },
     {
       "id": "backend_app_robot_connect",
@@ -1877,7 +1889,7 @@
       "file_type": "code",
       "norm_label": "robot_connect()",
       "source_file": "backend/app.py",
-      "source_location": "L697"
+      "source_location": "L768"
     },
     {
       "id": "backend_app_robot_disconnect",
@@ -1889,7 +1901,7 @@
       "file_type": "code",
       "norm_label": "robot_disconnect()",
       "source_file": "backend/app.py",
-      "source_location": "L723"
+      "source_location": "L794"
     },
     {
       "id": "backend_app_robot_sign",
@@ -1901,7 +1913,7 @@
       "file_type": "code",
       "norm_label": "robot_sign()",
       "source_file": "backend/app.py",
-      "source_location": "L730"
+      "source_location": "L801"
     },
     {
       "id": "backend_app_robot_sign_letter",
@@ -1913,7 +1925,7 @@
       "file_type": "code",
       "norm_label": "robot_sign_letter()",
       "source_file": "backend/app.py",
-      "source_location": "L787"
+      "source_location": "L858"
     },
     {
       "id": "backend_app_robot_status",
@@ -1925,7 +1937,7 @@
       "file_type": "code",
       "norm_label": "robot_status()",
       "source_file": "backend/app.py",
-      "source_location": "L691"
+      "source_location": "L762"
     },
     {
       "id": "backend_app_safe_float",
@@ -1937,7 +1949,7 @@
       "file_type": "code",
       "norm_label": "safe_float()",
       "source_file": "backend/app.py",
-      "source_location": "L164"
+      "source_location": "L179"
     },
     {
       "id": "backend_app_translate",
@@ -1949,7 +1961,7 @@
       "file_type": "code",
       "norm_label": "translate()",
       "source_file": "backend/app.py",
-      "source_location": "L415"
+      "source_location": "L486"
     },
     {
       "id": "backend_app_translate_batch",
@@ -1961,7 +1973,7 @@
       "file_type": "code",
       "norm_label": "translate_batch()",
       "source_file": "backend/app.py",
-      "source_location": "L473"
+      "source_location": "L544"
     },
     {
       "id": "backend_app_translate_snapshot",
@@ -1973,7 +1985,7 @@
       "file_type": "code",
       "norm_label": "translate_snapshot()",
       "source_file": "backend/app.py",
-      "source_location": "L503"
+      "source_location": "L574"
     },
     {
       "id": "backend_app_translate_word",
@@ -1985,7 +1997,7 @@
       "file_type": "code",
       "norm_label": "translate_word()",
       "source_file": "backend/app.py",
-      "source_location": "L559"
+      "source_location": "L630"
     },
     {
       "id": "backend_app_words_info",
@@ -1997,7 +2009,7 @@
       "file_type": "code",
       "norm_label": "words_info()",
       "source_file": "backend/app.py",
-      "source_location": "L393"
+      "source_location": "L464"
     },
     {
       "id": "backend_database_schema_get_db_connection",
@@ -2105,7 +2117,7 @@
       "file_type": "code",
       "norm_label": ".discover_models_for_key()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L266"
+      "source_location": "L269"
     },
     {
       "id": "backend_services_groq_manager_modelselector_get_candidate_models",
@@ -2117,7 +2129,7 @@
       "file_type": "code",
       "norm_label": ".get_candidate_models()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L247"
+      "source_location": "L250"
     },
     {
       "id": "vite_config_manualchunks",
@@ -2130,78 +2142,6 @@
       "norm_label": "manualchunks()",
       "source_file": "vite.config.js",
       "source_location": "L13"
-    },
-    {
-      "id": "backend_extract_video_landmarks_augment_raw_sequence",
-      "label": "augment_raw_sequence()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "code",
-      "norm_label": "augment_raw_sequence()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L102"
-    },
-    {
-      "id": "backend_extract_video_landmarks_clean_word_label",
-      "label": "clean_word_label()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "code",
-      "norm_label": "clean_word_label()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L37"
-    },
-    {
-      "id": "backend_extract_video_landmarks_get_landmark_vector_from_result",
-      "label": "get_landmark_vector_from_result()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "code",
-      "norm_label": "get_landmark_vector_from_result()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L53"
-    },
-    {
-      "id": "backend_extract_video_landmarks_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L208"
-    },
-    {
-      "id": "backend_extract_video_landmarks_process_video",
-      "label": "process_video()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "code",
-      "norm_label": "process_video()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L185"
-    },
-    {
-      "id": "backend_extract_video_landmarks_sample_or_interpolate",
-      "label": "sample_or_interpolate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "code",
-      "norm_label": "sample_or_interpolate()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L89"
     },
     {
       "id": "backend_ingest_dataset_2_augment_vector",
@@ -2382,6 +2322,78 @@
       "norm_label": ".get_candidate_models()",
       "source_file": "backend/services/gemini_manager.py",
       "source_location": "L271"
+    },
+    {
+      "id": "backend_extract_video_landmarks_augment_raw_sequence",
+      "label": "augment_raw_sequence()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "code",
+      "norm_label": "augment_raw_sequence()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L102"
+    },
+    {
+      "id": "backend_extract_video_landmarks_clean_word_label",
+      "label": "clean_word_label()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "code",
+      "norm_label": "clean_word_label()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L37"
+    },
+    {
+      "id": "backend_extract_video_landmarks_get_landmark_vector_from_result",
+      "label": "get_landmark_vector_from_result()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "code",
+      "norm_label": "get_landmark_vector_from_result()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L53"
+    },
+    {
+      "id": "backend_extract_video_landmarks_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L208"
+    },
+    {
+      "id": "backend_extract_video_landmarks_process_video",
+      "label": "process_video()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "code",
+      "norm_label": "process_video()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L185"
+    },
+    {
+      "id": "backend_extract_video_landmarks_sample_or_interpolate",
+      "label": "sample_or_interpolate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "code",
+      "norm_label": "sample_or_interpolate()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L89"
     },
     {
       "id": "backend_stream_and_extract_hf_augment_raw_sequence",
@@ -2741,7 +2753,7 @@
       "file_type": "code",
       "norm_label": "._call_sdk()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L399"
+      "source_location": "L402"
     },
     {
       "id": "backend_services_groq_manager_groqmanager_generate",
@@ -2753,7 +2765,7 @@
       "file_type": "code",
       "norm_label": ".generate()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L312"
+      "source_location": "L315"
     },
     {
       "id": "src_app",
@@ -3196,6 +3208,17 @@
       "source_location": "L1"
     },
     {
+      "id": "src_utils_oneeurofilter",
+      "label": "oneEuroFilter.js",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "oneeurofilter.js",
+      "source_file": "src/utils/oneEuroFilter.js",
+      "source_location": "L1"
+    },
+    {
       "id": "ref_framer_motion",
       "label": "framer-motion",
       "_origin": "ast",
@@ -3282,17 +3305,6 @@
       "norm_label": "train_unified.py",
       "source_file": "backend/train_unified.py",
       "source_location": "L1"
-    },
-    {
-      "id": "path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "valueerror",
@@ -3702,7 +3714,7 @@
       "source_location": "L223"
     },
     {
-      "id": "backend_services_groq_manager_rationale_297",
+      "id": "backend_services_groq_manager_rationale_300",
       "label": "Centralized, resilient Groq LPU API Manager. Orchestrates: Model Selection ->\u2026",
       "_origin": "ast",
       "community": 11,
@@ -3710,10 +3722,10 @@
       "file_type": "rationale",
       "norm_label": "centralized, resilient groq lpu api manager. orchestrates: model selection ->...",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L297"
+      "source_location": "L300"
     },
     {
-      "id": "backend_services_groq_manager_rationale_309",
+      "id": "backend_services_groq_manager_rationale_312",
       "label": "Check if at least one Groq API key is configured and not permanently invalid.",
       "_origin": "ast",
       "community": 11,
@@ -3721,10 +3733,10 @@
       "file_type": "rationale",
       "norm_label": "check if at least one groq api key is configured and not permanently invalid.",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L309"
+      "source_location": "L312"
     },
     {
-      "id": "backend_services_groq_manager_rationale_433",
+      "id": "backend_services_groq_manager_rationale_436",
       "label": "Comprehensive health status for telemetry and monitoring.",
       "_origin": "ast",
       "community": 11,
@@ -3732,7 +3744,7 @@
       "file_type": "rationale",
       "norm_label": "comprehensive health status for telemetry and monitoring.",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L433"
+      "source_location": "L436"
     },
     {
       "id": "backend_tests_test_groq_manager_rationale_113",
@@ -4109,17 +4121,6 @@
       "source_location": "L57"
     },
     {
-      "id": "src_utils_oneeurofilter",
-      "label": "oneEuroFilter.js",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "LandmarkSmoother",
-      "file_type": "code",
-      "norm_label": "oneeurofilter.js",
-      "source_file": "src/utils/oneEuroFilter.js",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_services_gemini_manager_py_typeddict",
       "label": "TypedDict",
       "_origin": "ast",
@@ -4340,7 +4341,7 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_app_rationale_113",
+      "id": "backend_app_rationale_124",
       "label": "Tiered Automatic Drop-Down LLM Cascade: 1. Primary Tier: Groq LPU Manager\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4348,10 +4349,10 @@
       "file_type": "rationale",
       "norm_label": "tiered automatic drop-down llm cascade: 1. primary tier: groq lpu manager...",
       "source_file": "backend/app.py",
-      "source_location": "L113"
+      "source_location": "L124"
     },
     {
-      "id": "backend_app_rationale_165",
+      "id": "backend_app_rationale_180",
       "label": "Safely convert any raw value (float, int, str, or unknown) to float without\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4359,32 +4360,43 @@
       "file_type": "rationale",
       "norm_label": "safely convert any raw value (float, int, str, or unknown) to float without...",
       "source_file": "backend/app.py",
-      "source_location": "L165"
+      "source_location": "L180"
     },
     {
-      "id": "backend_app_rationale_177",
-      "label": "Removes thinking blocks, reasoning fences, and markdown formatting from LLM\u2026",
+      "id": "backend_app_rationale_192",
+      "label": "Removes thinking blocks, reasoning fences, markdown formatting, and normalizes\u2026",
       "_origin": "ast",
       "community": 2,
       "community_name": "app.py",
       "file_type": "rationale",
-      "norm_label": "removes thinking blocks, reasoning fences, and markdown formatting from llm...",
+      "norm_label": "removes thinking blocks, reasoning fences, markdown formatting, and normalizes...",
       "source_file": "backend/app.py",
-      "source_location": "L177"
+      "source_location": "L192"
     },
     {
-      "id": "backend_app_rationale_214",
-      "label": "Refine raw ISL letter buffer into a fluent conversational sentence. Uses\u2026",
+      "id": "backend_app_rationale_238",
+      "label": "Ensure the response stays small and conversational (1-2 short sentences max,\u2026",
       "_origin": "ast",
       "community": 2,
       "community_name": "app.py",
       "file_type": "rationale",
-      "norm_label": "refine raw isl letter buffer into a fluent conversational sentence. uses...",
+      "norm_label": "ensure the response stays small and conversational (1-2 short sentences max,...",
       "source_file": "backend/app.py",
-      "source_location": "L214"
+      "source_location": "L238"
     },
     {
       "id": "backend_app_rationale_262",
+      "label": "Refine raw ISL letter/word buffer into a natural spoken English sentence. Uses\u2026",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "app.py",
+      "file_type": "rationale",
+      "norm_label": "refine raw isl letter/word buffer into a natural spoken english sentence. uses...",
+      "source_file": "backend/app.py",
+      "source_location": "L262"
+    },
+    {
+      "id": "backend_app_rationale_322",
       "label": "Simplify complex spoken text into essential keywords for robotic hands. Uses\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4392,21 +4404,21 @@
       "file_type": "rationale",
       "norm_label": "simplify complex spoken text into essential keywords for robotic hands. uses...",
       "source_file": "backend/app.py",
-      "source_location": "L262"
+      "source_location": "L322"
     },
     {
-      "id": "backend_app_rationale_300",
-      "label": "Generate an intelligent AI response to a specific user question/statement. Uses\u2026",
+      "id": "backend_app_rationale_360",
+      "label": "Generate a small, warm, human-like AI response to what the user signed/said.\u2026",
       "_origin": "ast",
       "community": 2,
       "community_name": "app.py",
       "file_type": "rationale",
-      "norm_label": "generate an intelligent ai response to a specific user question/statement. uses...",
+      "norm_label": "generate a small, warm, human-like ai response to what the user signed/said....",
       "source_file": "backend/app.py",
-      "source_location": "L300"
+      "source_location": "L360"
     },
     {
-      "id": "backend_app_rationale_378",
+      "id": "backend_app_rationale_449",
       "label": "Return real-time status of Groq, Gemini multi-key management, and Local LLM\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4414,10 +4426,10 @@
       "file_type": "rationale",
       "norm_label": "return real-time status of groq, gemini multi-key management, and local llm...",
       "source_file": "backend/app.py",
-      "source_location": "L378"
+      "source_location": "L449"
     },
     {
-      "id": "backend_app_rationale_388",
+      "id": "backend_app_rationale_459",
       "label": "Return alphabet model metadata.",
       "_origin": "ast",
       "community": 2,
@@ -4425,10 +4437,10 @@
       "file_type": "rationale",
       "norm_label": "return alphabet model metadata.",
       "source_file": "backend/app.py",
-      "source_location": "L388"
+      "source_location": "L459"
     },
     {
-      "id": "backend_app_rationale_394",
+      "id": "backend_app_rationale_465",
       "label": "Return word recognizer metadata.",
       "_origin": "ast",
       "community": 2,
@@ -4436,10 +4448,10 @@
       "file_type": "rationale",
       "norm_label": "return word recognizer metadata.",
       "source_file": "backend/app.py",
-      "source_location": "L394"
+      "source_location": "L465"
     },
     {
-      "id": "backend_app_rationale_400",
+      "id": "backend_app_rationale_471",
       "label": "Reload model weights and metadata from disk.",
       "_origin": "ast",
       "community": 2,
@@ -4447,10 +4459,10 @@
       "file_type": "rationale",
       "norm_label": "reload model weights and metadata from disk.",
       "source_file": "backend/app.py",
-      "source_location": "L400"
+      "source_location": "L471"
     },
     {
-      "id": "backend_app_rationale_416",
+      "id": "backend_app_rationale_487",
       "label": "Translate hand landmarks to an ISL letter/word.",
       "_origin": "ast",
       "community": 2,
@@ -4458,10 +4470,10 @@
       "file_type": "rationale",
       "norm_label": "translate hand landmarks to an isl letter/word.",
       "source_file": "backend/app.py",
-      "source_location": "L416"
+      "source_location": "L487"
     },
     {
-      "id": "backend_app_rationale_474",
+      "id": "backend_app_rationale_545",
       "label": "Translate a batch of landmark frames (for sentence-level recognition).",
       "_origin": "ast",
       "community": 2,
@@ -4469,10 +4481,10 @@
       "file_type": "rationale",
       "norm_label": "translate a batch of landmark frames (for sentence-level recognition).",
       "source_file": "backend/app.py",
-      "source_location": "L474"
+      "source_location": "L545"
     },
     {
-      "id": "backend_app_rationale_504",
+      "id": "backend_app_rationale_575",
       "label": "On-Demand visual silhouette disambiguation for difficult overlapping contact\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4480,10 +4492,10 @@
       "file_type": "rationale",
       "norm_label": "on-demand visual silhouette disambiguation for difficult overlapping contact...",
       "source_file": "backend/app.py",
-      "source_location": "L504"
+      "source_location": "L575"
     },
     {
-      "id": "backend_app_rationale_560",
+      "id": "backend_app_rationale_631",
       "label": "Translate a sequence of landmark frames to an ISL word. Uses the CNN-BiLSTM\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4491,10 +4503,10 @@
       "file_type": "rationale",
       "norm_label": "translate a sequence of landmark frames to an isl word. uses the cnn-bilstm...",
       "source_file": "backend/app.py",
-      "source_location": "L560"
+      "source_location": "L631"
     },
     {
-      "id": "backend_app_rationale_617",
+      "id": "backend_app_rationale_688",
       "label": "Returns recent conversation history from SQLite database.",
       "_origin": "ast",
       "community": 2,
@@ -4502,10 +4514,10 @@
       "file_type": "rationale",
       "norm_label": "returns recent conversation history from sqlite database.",
       "source_file": "backend/app.py",
-      "source_location": "L617"
+      "source_location": "L688"
     },
     {
-      "id": "backend_app_rationale_633",
+      "id": "backend_app_rationale_704",
       "label": "Saves recorded landmark frames for a specific ISL letter to build a dataset.\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4513,40 +4525,7 @@
       "file_type": "rationale",
       "norm_label": "saves recorded landmark frames for a specific isl letter to build a dataset....",
       "source_file": "backend/app.py",
-      "source_location": "L633"
-    },
-    {
-      "id": "backend_app_rationale_692",
-      "label": "Return Arduino connection status.",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "app.py",
-      "file_type": "rationale",
-      "norm_label": "return arduino connection status.",
-      "source_file": "backend/app.py",
-      "source_location": "L692"
-    },
-    {
-      "id": "backend_app_rationale_698",
-      "label": "Connect to Arduino. Optional JSON body: { \"port\": \"COM3\", // Optional, auto-\u2026",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "app.py",
-      "file_type": "rationale",
-      "norm_label": "connect to arduino. optional json body: { \"port\": \"com3\", // optional, auto-...",
-      "source_file": "backend/app.py",
-      "source_location": "L698"
-    },
-    {
-      "id": "backend_app_rationale_724",
-      "label": "Disconnect from Arduino.",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "app.py",
-      "file_type": "rationale",
-      "norm_label": "disconnect from arduino.",
-      "source_file": "backend/app.py",
-      "source_location": "L724"
+      "source_location": "L704"
     },
     {
       "id": "backend_app_rationale_73",
@@ -4560,7 +4539,40 @@
       "source_location": "L73"
     },
     {
-      "id": "backend_app_rationale_731",
+      "id": "backend_app_rationale_763",
+      "label": "Return Arduino connection status.",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "app.py",
+      "file_type": "rationale",
+      "norm_label": "return arduino connection status.",
+      "source_file": "backend/app.py",
+      "source_location": "L763"
+    },
+    {
+      "id": "backend_app_rationale_769",
+      "label": "Connect to Arduino. Optional JSON body: { \"port\": \"COM3\", // Optional, auto-\u2026",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "app.py",
+      "file_type": "rationale",
+      "norm_label": "connect to arduino. optional json body: { \"port\": \"com3\", // optional, auto-...",
+      "source_file": "backend/app.py",
+      "source_location": "L769"
+    },
+    {
+      "id": "backend_app_rationale_795",
+      "label": "Disconnect from Arduino.",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "app.py",
+      "file_type": "rationale",
+      "norm_label": "disconnect from arduino.",
+      "source_file": "backend/app.py",
+      "source_location": "L795"
+    },
+    {
+      "id": "backend_app_rationale_802",
       "label": "Send text to the robotic hands for ISL fingerspelling. Request JSON body: {\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4568,10 +4580,10 @@
       "file_type": "rationale",
       "norm_label": "send text to the robotic hands for isl fingerspelling. request json body: {...",
       "source_file": "backend/app.py",
-      "source_location": "L731"
+      "source_location": "L802"
     },
     {
-      "id": "backend_app_rationale_788",
+      "id": "backend_app_rationale_859",
       "label": "Sign a single letter on the robotic hands. Request JSON body: { \"letter\": \"A\",\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4579,7 +4591,7 @@
       "file_type": "rationale",
       "norm_label": "sign a single letter on the robotic hands. request json body: { \"letter\": \"a\",...",
       "source_file": "backend/app.py",
-      "source_location": "L788"
+      "source_location": "L859"
     },
     {
       "id": "backend_database_schema_rationale_1",
@@ -4692,7 +4704,7 @@
       "source_location": "L495"
     },
     {
-      "id": "backend_services_groq_manager_rationale_244",
+      "id": "backend_services_groq_manager_rationale_247",
       "label": "Task-aware Groq model selector with auto-discovery and capability sorting.",
       "_origin": "ast",
       "community": 21,
@@ -4700,10 +4712,10 @@
       "file_type": "rationale",
       "norm_label": "task-aware groq model selector with auto-discovery and capability sorting.",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L244"
+      "source_location": "L247"
     },
     {
-      "id": "backend_services_groq_manager_rationale_248",
+      "id": "backend_services_groq_manager_rationale_251",
       "label": "Get ordered list of candidate models (latest -> fallback). Prioritizes\u2026",
       "_origin": "ast",
       "community": 21,
@@ -4711,10 +4723,10 @@
       "file_type": "rationale",
       "norm_label": "get ordered list of candidate models (latest -> fallback). prioritizes...",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L248"
+      "source_location": "L251"
     },
     {
-      "id": "backend_services_groq_manager_rationale_267",
+      "id": "backend_services_groq_manager_rationale_270",
       "label": "Query Groq API to discover active models for this key.",
       "_origin": "ast",
       "community": 21,
@@ -4722,7 +4734,7 @@
       "file_type": "rationale",
       "norm_label": "query groq api to discover active models for this key.",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L267"
+      "source_location": "L270"
     },
     {
       "id": "oxlintrc",
@@ -6577,83 +6589,6 @@
       "source_location": "L21"
     },
     {
-      "id": "backend_extract_video_landmarks",
-      "label": "extract_video_landmarks.py",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "code",
-      "norm_label": "extract_video_landmarks.py",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_1",
-      "label": "SignBridge \u2014 Batch Video Landmark Extractor (v2) + Heavy Augmentation Extracts\u2026",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "rationale",
-      "norm_label": "signbridge \u2014 batch video landmark extractor (v2) + heavy augmentation extracts...",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_103",
-      "label": "Apply heavy augmentation to a raw sequence of frames before resampling.\u2026",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "rationale",
-      "norm_label": "apply heavy augmentation to a raw sequence of frames before resampling....",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L103"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_186",
-      "label": "Processes a single video into raw landmark frames (variable length).",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "rationale",
-      "norm_label": "processes a single video into raw landmark frames (variable length).",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L186"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_38",
-      "label": "Derives a clean uppercase word class name from video filename.",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "rationale",
-      "norm_label": "derives a clean uppercase word class name from video filename.",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L38"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_54",
-      "label": "Standardizes MediaPipe HandLandmarker result into a 126-float array.",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "rationale",
-      "norm_label": "standardizes mediapipe handlandmarker result into a 126-float array.",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L54"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_90",
-      "label": "Resamples a list of landmark frames to exactly target_length frames.",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "extract_video_landmarks.py",
-      "file_type": "rationale",
-      "norm_label": "resamples a list of landmark frames to exactly target_length frames.",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L90"
-    },
-    {
       "id": "ai_memory",
       "label": "AI_MEMORY.md",
       "_origin": "ast",
@@ -8057,6 +7992,17 @@
       "source_location": "L15"
     },
     {
+      "id": "backend_extract_video_landmarks",
+      "label": "extract_video_landmarks.py",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "code",
+      "norm_label": "extract_video_landmarks.py",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_stream_and_extract_hf",
       "label": "stream_and_extract_hf.py",
       "_origin": "ast",
@@ -8066,6 +8012,83 @@
       "norm_label": "stream_and_extract_hf.py",
       "source_file": "backend/stream_and_extract_hf.py",
       "source_location": "L1"
+    },
+    {
+      "id": "path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_1",
+      "label": "SignBridge \u2014 Batch Video Landmark Extractor (v2) + Heavy Augmentation Extracts\u2026",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "rationale",
+      "norm_label": "signbridge \u2014 batch video landmark extractor (v2) + heavy augmentation extracts...",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_103",
+      "label": "Apply heavy augmentation to a raw sequence of frames before resampling.\u2026",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "rationale",
+      "norm_label": "apply heavy augmentation to a raw sequence of frames before resampling....",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L103"
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_186",
+      "label": "Processes a single video into raw landmark frames (variable length).",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "rationale",
+      "norm_label": "processes a single video into raw landmark frames (variable length).",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L186"
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_38",
+      "label": "Derives a clean uppercase word class name from video filename.",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "rationale",
+      "norm_label": "derives a clean uppercase word class name from video filename.",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L38"
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_54",
+      "label": "Standardizes MediaPipe HandLandmarker result into a 126-float array.",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "rationale",
+      "norm_label": "standardizes mediapipe handlandmarker result into a 126-float array.",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L54"
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_90",
+      "label": "Resamples a list of landmark frames to exactly target_length frames.",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "stream_and_extract_hf.py",
+      "file_type": "rationale",
+      "norm_label": "resamples a list of landmark frames to exactly target_length frames.",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L90"
     },
     {
       "id": "backend_stream_and_extract_hf_rationale_1",
@@ -8674,7 +8697,7 @@
       "source_location": ""
     },
     {
-      "id": "backend_services_groq_manager_rationale_319",
+      "id": "backend_services_groq_manager_rationale_322",
       "label": "Execute robust generation across Groq (Model x Key) matrix.",
       "_origin": "ast",
       "community": 9,
@@ -8682,10 +8705,10 @@
       "file_type": "rationale",
       "norm_label": "execute robust generation across groq (model x key) matrix.",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L319"
+      "source_location": "L322"
     },
     {
-      "id": "backend_services_groq_manager_rationale_408",
+      "id": "backend_services_groq_manager_rationale_411",
       "label": "Low-level Groq completions caller.",
       "_origin": "ast",
       "community": 9,
@@ -8693,7 +8716,7 @@
       "file_type": "rationale",
       "norm_label": "low-level groq completions caller.",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L408"
+      "source_location": "L411"
     }
   ],
   "links": [
@@ -8706,7 +8729,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L671",
+      "source_location": "L742",
       "weight": 1.0
     },
     {
@@ -8718,7 +8741,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L156",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
@@ -8730,7 +8753,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L619",
+      "source_location": "L690",
       "weight": 1.0
     },
     {
@@ -8742,7 +8765,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L322",
+      "source_location": "L393",
       "weight": 1.0
     },
     {
@@ -8754,7 +8777,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L323",
+      "source_location": "L394",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_llm_answer",
+      "target": "backend_app_limit_to_human_length",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/app.py",
+      "source_location": "L394",
       "weight": 1.0
     },
     {
@@ -8766,7 +8801,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L325",
+      "source_location": "L396",
       "weight": 1.0
     },
     {
@@ -8778,7 +8813,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L340",
+      "source_location": "L411",
       "weight": 1.0
     },
     {
@@ -8790,7 +8825,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L239",
+      "source_location": "L299",
       "weight": 1.0
     },
     {
@@ -8802,7 +8837,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L240",
+      "source_location": "L300",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_llm_refine",
+      "target": "backend_app_limit_to_human_length",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/app.py",
+      "source_location": "L300",
       "weight": 1.0
     },
     {
@@ -8814,7 +8861,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L242",
+      "source_location": "L302",
       "weight": 1.0
     },
     {
@@ -8826,7 +8873,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L282",
+      "source_location": "L342",
       "weight": 1.0
     },
     {
@@ -8838,7 +8885,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L283",
+      "source_location": "L343",
       "weight": 1.0
     },
     {
@@ -8850,7 +8897,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L455",
+      "source_location": "L526",
       "weight": 1.0
     },
     {
@@ -8862,7 +8909,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L489",
+      "source_location": "L560",
       "weight": 1.0
     },
     {
@@ -8874,7 +8921,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L554",
+      "source_location": "L625",
       "weight": 1.0
     },
     {
@@ -8886,7 +8933,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L599",
+      "source_location": "L670",
       "weight": 1.0
     },
     {
@@ -9426,7 +9473,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L346",
+      "source_location": "L349",
       "weight": 1.0
     },
     {
@@ -9438,7 +9485,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L436",
+      "source_location": "L439",
       "weight": 1.0
     },
     {
@@ -9450,7 +9497,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L303",
+      "source_location": "L306",
       "weight": 1.0
     },
     {
@@ -10350,7 +10397,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L270",
+      "source_location": "L279",
       "weight": 1.0
     },
     {
@@ -10362,7 +10409,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L303",
+      "source_location": "L312",
       "weight": 1.0
     },
     {
@@ -10374,7 +10421,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L442",
+      "source_location": "L451",
       "weight": 1.0
     },
     {
@@ -10434,7 +10481,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L218",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -10470,7 +10517,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L631",
+      "source_location": "L702",
       "weight": 1.0
     },
     {
@@ -10482,7 +10529,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L615",
+      "source_location": "L686",
       "weight": 1.0
     },
     {
@@ -10494,7 +10541,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L360",
+      "source_location": "L431",
       "weight": 1.0
     },
     {
@@ -10506,7 +10553,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L298",
+      "source_location": "L358",
       "weight": 1.0
     },
     {
@@ -10518,7 +10565,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L212",
+      "source_location": "L260",
       "weight": 1.0
     },
     {
@@ -10530,7 +10577,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L260",
+      "source_location": "L320",
       "weight": 1.0
     },
     {
@@ -10542,7 +10589,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L376",
+      "source_location": "L447",
       "weight": 1.0
     },
     {
@@ -10554,7 +10601,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L386",
+      "source_location": "L457",
       "weight": 1.0
     },
     {
@@ -10566,7 +10613,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L398",
+      "source_location": "L469",
       "weight": 1.0
     },
     {
@@ -10578,7 +10625,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L696",
+      "source_location": "L767",
       "weight": 1.0
     },
     {
@@ -10590,7 +10637,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L722",
+      "source_location": "L793",
       "weight": 1.0
     },
     {
@@ -10602,7 +10649,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L729",
+      "source_location": "L800",
       "weight": 1.0
     },
     {
@@ -10614,7 +10661,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L786",
+      "source_location": "L857",
       "weight": 1.0
     },
     {
@@ -10626,7 +10673,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L690",
+      "source_location": "L761",
       "weight": 1.0
     },
     {
@@ -10638,7 +10685,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L414",
+      "source_location": "L485",
       "weight": 1.0
     },
     {
@@ -10650,7 +10697,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L472",
+      "source_location": "L543",
       "weight": 1.0
     },
     {
@@ -10662,7 +10709,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L502",
+      "source_location": "L573",
       "weight": 1.0
     },
     {
@@ -10674,7 +10721,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L558",
+      "source_location": "L629",
       "weight": 1.0
     },
     {
@@ -10686,7 +10733,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L392",
+      "source_location": "L463",
       "weight": 1.0
     },
     {
@@ -10770,7 +10817,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L432",
+      "source_location": "L435",
       "weight": 1.0
     },
     {
@@ -12810,7 +12857,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L399",
+      "source_location": "L402",
       "weight": 1.0
     },
     {
@@ -12858,7 +12905,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L266",
+      "source_location": "L269",
       "weight": 1.0
     },
     {
@@ -12870,7 +12917,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L247",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -12882,7 +12929,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app.py",
-      "source_location": "L112",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -12918,7 +12965,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L312",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -14051,7 +14098,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L106",
+      "source_location": "L112",
       "weight": 1.0
     },
     {
@@ -14062,7 +14109,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L112",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -14073,7 +14120,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L164",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -14084,7 +14131,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L176",
+      "source_location": "L191",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app",
+      "target": "backend_app_limit_to_human_length",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -14095,7 +14153,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L213",
+      "source_location": "L261",
       "weight": 1.0
     },
     {
@@ -14106,7 +14164,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L261",
+      "source_location": "L321",
       "weight": 1.0
     },
     {
@@ -14117,7 +14175,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L299",
+      "source_location": "L359",
       "weight": 1.0
     },
     {
@@ -14128,7 +14186,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L361",
+      "source_location": "L432",
       "weight": 1.0
     },
     {
@@ -14139,7 +14197,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L377",
+      "source_location": "L448",
       "weight": 1.0
     },
     {
@@ -14150,7 +14208,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L387",
+      "source_location": "L458",
       "weight": 1.0
     },
     {
@@ -14161,7 +14219,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L393",
+      "source_location": "L464",
       "weight": 1.0
     },
     {
@@ -14172,7 +14230,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L399",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -14183,7 +14241,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L415",
+      "source_location": "L486",
       "weight": 1.0
     },
     {
@@ -14194,7 +14252,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L473",
+      "source_location": "L544",
       "weight": 1.0
     },
     {
@@ -14205,7 +14263,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L503",
+      "source_location": "L574",
       "weight": 1.0
     },
     {
@@ -14216,7 +14274,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L559",
+      "source_location": "L630",
       "weight": 1.0
     },
     {
@@ -14227,7 +14285,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L616",
+      "source_location": "L687",
       "weight": 1.0
     },
     {
@@ -14238,29 +14296,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L632",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app",
-      "target": "backend_app_robot_status",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L691",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app",
-      "target": "backend_app_robot_connect",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L697",
+      "source_location": "L703",
       "weight": 1.0
     },
     {
@@ -14276,13 +14312,35 @@
     },
     {
       "source": "backend_app",
+      "target": "backend_app_robot_status",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L762",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app",
+      "target": "backend_app_robot_connect",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L768",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app",
       "target": "backend_app_robot_disconnect",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L723",
+      "source_location": "L794",
       "weight": 1.0
     },
     {
@@ -14293,7 +14351,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L730",
+      "source_location": "L801",
       "weight": 1.0
     },
     {
@@ -14304,7 +14362,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L787",
+      "source_location": "L858",
       "weight": 1.0
     },
     {
@@ -14854,7 +14912,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L243",
+      "source_location": "L246",
       "weight": 1.0
     },
     {
@@ -14865,7 +14923,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L287",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -14876,7 +14934,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L296",
+      "source_location": "L299",
       "weight": 1.0
     },
     {
@@ -16911,7 +16969,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L648",
+      "source_location": "L661",
       "weight": 1.0
     },
     {
@@ -17010,7 +17068,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L106",
+      "source_location": "L112",
       "weight": 1.0
     },
     {
@@ -17076,7 +17134,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L287",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -17461,7 +17519,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L302",
+      "source_location": "L305",
       "weight": 1.0
     },
     {
@@ -17472,7 +17530,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L308",
+      "source_location": "L311",
       "weight": 1.0
     },
     {
@@ -17483,7 +17541,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L312",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -17494,7 +17552,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L399",
+      "source_location": "L402",
       "weight": 1.0
     },
     {
@@ -17505,7 +17563,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L432",
+      "source_location": "L435",
       "weight": 1.0
     },
     {
@@ -17626,7 +17684,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L247",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -17637,7 +17695,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L266",
+      "source_location": "L269",
       "weight": 1.0
     },
     {
@@ -18213,52 +18271,52 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_113",
+      "source": "backend_app_rationale_124",
       "target": "backend_app_generate_llm_response",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L113",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_165",
+      "source": "backend_app_rationale_180",
       "target": "backend_app_safe_float",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L165",
+      "source_location": "L180",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_177",
+      "source": "backend_app_rationale_192",
       "target": "backend_app_clean_llm_text",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L177",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_214",
-      "target": "backend_app_llm_refine",
+      "source": "backend_app_rationale_238",
+      "target": "backend_app_limit_to_human_length",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L214",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
       "source": "backend_app_rationale_262",
-      "target": "backend_app_llm_simplify",
+      "target": "backend_app_llm_refine",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18268,157 +18326,135 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_300",
+      "source": "backend_app_rationale_322",
+      "target": "backend_app_llm_simplify",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L322",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_360",
       "target": "backend_app_llm_answer",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L300",
+      "source_location": "L360",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_378",
+      "source": "backend_app_rationale_449",
       "target": "backend_app_llm_status",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L378",
+      "source_location": "L449",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_388",
+      "source": "backend_app_rationale_459",
       "target": "backend_app_model_info",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L388",
+      "source_location": "L459",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_394",
+      "source": "backend_app_rationale_465",
       "target": "backend_app_words_info",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L394",
+      "source_location": "L465",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_400",
+      "source": "backend_app_rationale_471",
       "target": "backend_app_model_reload",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L400",
+      "source_location": "L471",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_416",
+      "source": "backend_app_rationale_487",
       "target": "backend_app_translate",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L416",
+      "source_location": "L487",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_474",
+      "source": "backend_app_rationale_545",
       "target": "backend_app_translate_batch",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L474",
+      "source_location": "L545",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_504",
+      "source": "backend_app_rationale_575",
       "target": "backend_app_translate_snapshot",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L504",
+      "source_location": "L575",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_560",
+      "source": "backend_app_rationale_631",
       "target": "backend_app_translate_word",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L560",
+      "source_location": "L631",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_617",
+      "source": "backend_app_rationale_688",
       "target": "backend_app_get_history",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L617",
+      "source_location": "L688",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_633",
+      "source": "backend_app_rationale_704",
       "target": "backend_app_collect_data",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L633",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_692",
-      "target": "backend_app_robot_status",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L692",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_698",
-      "target": "backend_app_robot_connect",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L698",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_724",
-      "target": "backend_app_robot_disconnect",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L724",
+      "source_location": "L704",
       "weight": 1.0
     },
     {
@@ -18433,25 +18469,58 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_731",
+      "source": "backend_app_rationale_763",
+      "target": "backend_app_robot_status",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L763",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_769",
+      "target": "backend_app_robot_connect",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L769",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_795",
+      "target": "backend_app_robot_disconnect",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L795",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_802",
       "target": "backend_app_robot_sign",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L731",
+      "source_location": "L802",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_788",
+      "source": "backend_app_rationale_859",
       "target": "backend_app_robot_sign_letter",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L788",
+      "source_location": "L859",
       "weight": 1.0
     },
     {
@@ -19302,91 +19371,91 @@
       "weight": 1.0
     },
     {
-      "source": "backend_services_groq_manager_rationale_244",
+      "source": "backend_services_groq_manager_rationale_247",
       "target": "backend_services_groq_manager_modelselector",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L244",
+      "source_location": "L247",
       "weight": 1.0
     },
     {
-      "source": "backend_services_groq_manager_rationale_248",
+      "source": "backend_services_groq_manager_rationale_251",
       "target": "backend_services_groq_manager_modelselector_get_candidate_models",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L248",
+      "source_location": "L251",
       "weight": 1.0
     },
     {
-      "source": "backend_services_groq_manager_rationale_267",
+      "source": "backend_services_groq_manager_rationale_270",
       "target": "backend_services_groq_manager_modelselector_discover_models_for_key",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L267",
+      "source_location": "L270",
       "weight": 1.0
     },
     {
-      "source": "backend_services_groq_manager_rationale_297",
+      "source": "backend_services_groq_manager_rationale_300",
       "target": "backend_services_groq_manager_groqmanager",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L297",
+      "source_location": "L300",
       "weight": 1.0
     },
     {
-      "source": "backend_services_groq_manager_rationale_309",
+      "source": "backend_services_groq_manager_rationale_312",
       "target": "backend_services_groq_manager_groqmanager_is_available",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L309",
+      "source_location": "L312",
       "weight": 1.0
     },
     {
-      "source": "backend_services_groq_manager_rationale_319",
+      "source": "backend_services_groq_manager_rationale_322",
       "target": "backend_services_groq_manager_groqmanager_generate",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L319",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
-      "source": "backend_services_groq_manager_rationale_408",
+      "source": "backend_services_groq_manager_rationale_411",
       "target": "backend_services_groq_manager_groqmanager_call_sdk",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L408",
+      "source_location": "L411",
       "weight": 1.0
     },
     {
-      "source": "backend_services_groq_manager_rationale_433",
+      "source": "backend_services_groq_manager_rationale_436",
       "target": "backend_services_groq_manager_groqmanager_get_health_status",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L433",
+      "source_location": "L436",
       "weight": 1.0
     },
     {
@@ -20104,7 +20173,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L375",
+      "source_location": "L378",
       "weight": 1.0
     },
     {
@@ -20264,5 +20333,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0ed981da97eb20936531c753c76d29b0a4058481"
+  "built_at_commit": "26d75a8e3b2e66ab69cd37b880790daeca085de2"
 }

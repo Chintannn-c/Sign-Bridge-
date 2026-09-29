@@ -222,6 +222,9 @@ class ErrorClassifier:
         if "401" in err_str or "403" in err_str or "invalid_api_key" in err_lower or "unauthenticated" in err_lower or "authentication" in err_lower or "invalid api key" in err_lower:
             return GroqErrorType.AUTHENTICATION_ERROR, err_str
 
+        if "terms" in err_lower or "model_terms_required" in err_lower or "requires terms" in err_lower:
+            return GroqErrorType.MODEL_NOT_FOUND, err_str
+
         if "404" in err_str or "model_not_found" in err_lower or "model not found" in err_lower or "does not exist" in err_lower or "decommissioned" in err_lower:
             return GroqErrorType.MODEL_NOT_FOUND, err_str
 
@@ -273,7 +276,7 @@ class ModelSelector:
             raw_list = key_info.client.models.list().data
             for m in raw_list:
                 mid = getattr(m, "id", "")
-                if mid and "whisper" not in mid and "guard" not in mid:
+                if mid and not any(skip in mid.lower() for skip in ['whisper', 'guard', 'orpheus', 'tts', 'audio', 'canopylabs']):
                     discovered.append(mid)
         except Exception as e:
             logger.debug(f"[Groq] Model discovery notice on {key_info.key_id}: {e}")

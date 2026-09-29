@@ -6,9 +6,9 @@
     "semantic_hash": "5e6e3cea3e89137071c142dd7835b0ef"
   },
   "backend/app.py": {
-    "mtime": 1790578985.620754,
-    "seen": 1790579095.680146,
-    "ast_hash": "81184299d4e19e7d8e01d29ce997cae6",
+    "mtime": 1790655962.9005232,
+    "seen": 1790656133.503039,
+    "ast_hash": "d34b5d5ac6745d4ad90735f7389b7cb0",
     "semantic_hash": ""
   },
   "backend/database/schema.py": {
@@ -2928,9 +2928,9 @@
     "semantic_hash": ""
   },
   "backend/services/groq_manager.py": {
-    "mtime": 1790577720.0666459,
-    "seen": 1790577864.1408012,
-    "ast_hash": "ec9120262d0e11ab5ee0e9035361202b",
+    "mtime": 1790655824.201981,
+    "seen": 1790656133.635578,
+    "ast_hash": "5b27f201b53783f9d6223e932d3ad97f",
     "semantic_hash": ""
   },
   "backend/services/translator_model.py": {
@@ -3480,10 +3480,10 @@
     "semantic_hash": "ce0a23cfdef4f278ea5fb954c85e0bde"
   },
   "src/components/HumanPanel.jsx": {
-    "mtime": 1787560191.25231,
-    "seen": 1790572451.7572732,
-    "ast_hash": "2826b91156f848727c61b54577951028",
-    "semantic_hash": "2826b91156f848727c61b54577951028"
+    "mtime": 1790656956.6834629,
+    "seen": 1790657072.8001792,
+    "ast_hash": "85563cd05fa2ec6f2595816e58d9f7be",
+    "semantic_hash": ""
   },
   "src/components/RobotPanel.jsx": {
     "mtime": 1790576439.7810993,
@@ -3564,9 +3564,9 @@
     "semantic_hash": "ece8bec5154fcc0a1da253745a7798e0"
   },
   "src/hooks/useGestureRecognition.js": {
-    "mtime": 1790578796.690699,
-    "seen": 1790579095.8105807,
-    "ast_hash": "8d1a163e4ee3c152fd71ec82365bace6",
+    "mtime": 1790656819.0960202,
+    "seen": 1790657072.8031793,
+    "ast_hash": "cb60a4a2b3eddecda977c9c723caf7d2",
     "semantic_hash": ""
   },
   "src/hooks/useHandDetection.js": {
@@ -3576,9 +3576,9 @@
     "semantic_hash": ""
   },
   "src/hooks/useISLTranslation.js": {
-    "mtime": 1790573554.6742518,
-    "seen": 1790573735.563428,
-    "ast_hash": "c08eaf16bdf03849cd342a334bbc733b",
+    "mtime": 1790655530.1527407,
+    "seen": 1790656133.6611228,
+    "ast_hash": "82d84fbc04b0569d6d7bb36e8b52e59a",
     "semantic_hash": ""
   },
   "src/hooks/useWebcam.js": {
