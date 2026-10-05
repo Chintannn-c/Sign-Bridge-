@@ -27,18 +27,20 @@ logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent
-VIDEO_DIR = PROJECT_ROOT / 'dataset' / 'Words and Phrases'
+VIDEO_DIRS = [
+    PROJECT_ROOT / 'Dataset_Words' / 'Words',
+]
 OUTPUT_DIR = BASE_DIR / 'dataset_words'
 MODEL_TASK_PATH = BASE_DIR / 'models' / 'hand_landmarker.task'
 
 SEQUENCE_LENGTH = 30  # Standard frame buffer size for Bi-LSTM
 
-
-def clean_word_label(filename):
-    """Derives a clean uppercase word class name from video filename."""
-    stem = Path(filename).stem.strip()
-    name = re.sub(r'[\d_]+', ' ', stem).strip().upper()
+def _normalize_word_str(s):
+    """Normalizes string to canonical uppercase word label."""
+    name = re.sub(r'[\d_\-,\.]+', ' ', s).strip().upper()
     name = re.sub(r'\s+', '_', name)
+    if 'THANK' in name and 'VERY' in name:
+        return 'THANK_YOU_VERY_MUCH'
     if 'THANK' in name:
         return 'THANK_YOU'
     if 'BYE' in name:
@@ -47,7 +49,43 @@ def clean_word_label(filename):
         return 'NAMASTE'
     if 'INDIAN' in name or 'INDIA' in name:
         return 'INDIA'
+    if 'DONT_UNDERSTAND' in name or 'I_DONT_UNDERSTAND' in name:
+        return 'I_DONT_UNDERSTAND'
+    if 'I_AM_FINE' in name or 'IM_FINE' in name:
+        return 'IM_FINE'
+    if 'MY_NAME' in name:
+        return 'MY_NAME_IS'
+    if 'GOOD_MORNING' in name:
+        return 'GOOD_MORNING'
+    if 'GOOD_AFTERNOON' in name:
+        return 'GOOD_AFTERNOON'
+    if 'GOOD_EVENING' in name:
+        return 'GOOD_EVENING'
+    if 'GOOD_NIGHT' in name:
+        return 'GOOD_NIGHT'
+    if 'HOW_ARE_YOU' in name:
+        return 'HOW_ARE_YOU'
+    if 'NO_FEAR' in name:
+        return 'NO_FEAR'
+    if name in ('ME', 'I', 'ME_I') or name.startswith('ME_'):
+        return 'ME'
     return name
+
+
+def clean_word_label(path_or_name):
+    """Derives a clean uppercase word class name from video file path or filename."""
+    p = Path(path_or_name)
+    # Check if the video is located in a word subdirectory under VIDEO_DIRS
+    for vdir in VIDEO_DIRS:
+        try:
+            rel = p.resolve().relative_to(vdir.resolve())
+            if len(rel.parts) > 1:
+                folder_cand = _normalize_word_str(rel.parts[0])
+                if folder_cand:
+                    return folder_cand
+        except (ValueError, RuntimeError):
+            pass
+    return _normalize_word_str(p.stem)
 
 
 def get_landmark_vector_from_result(detection_result):
@@ -210,14 +248,10 @@ def main():
     from mediapipe.tasks import python  # type: ignore # pyright: ignore[reportMissingImports]
     from mediapipe.tasks.python import vision  # type: ignore # pyright: ignore[reportMissingImports]
 
-    AUGMENTATIONS_PER_VIDEO = 25  # Generate 25 augmented sequences per original
+    AUGMENTATIONS_PER_VIDEO = 30  # Generate 30 augmented sequences per original
 
     if not MODEL_TASK_PATH.exists():
         logger.error(f"Task model not found at {MODEL_TASK_PATH}")
-        sys.exit(1)
-
-    if not VIDEO_DIR.exists():
-        logger.error(f"Video directory not found at {VIDEO_DIR}")
         sys.exit(1)
 
     base_options = python.BaseOptions(model_asset_path=str(MODEL_TASK_PATH))
@@ -229,8 +263,15 @@ def main():
     )
     detector = vision.HandLandmarker.create_from_options(options)
 
-    videos = sorted(list(VIDEO_DIR.glob('*.mp4')) + list(VIDEO_DIR.glob('*.avi')) + list(VIDEO_DIR.glob('*.mov')))
-    logger.info(f"Found {len(videos)} gesture videos in {VIDEO_DIR}")
+    videos = []
+    video_exts = {'.mp4', '.avi', '.mov', '.webm', '.mkv'}
+    for vdir in VIDEO_DIRS:
+        if vdir.exists():
+            vids = [f for f in vdir.rglob('*') if f.is_file() and f.suffix.lower() in video_exts]
+            logger.info(f"Found {len(vids)} gesture videos in {vdir}")
+            videos.extend(vids)
+    videos = sorted(videos, key=lambda v: (clean_word_label(v), v.name))
+    logger.info(f"Total gesture videos to process: {len(videos)}")
 
     rng = np.random.default_rng(42)
     total_saved = 0
@@ -238,7 +279,7 @@ def main():
     words_collected = {}
 
     for vid in videos:
-        word = clean_word_label(vid.name)
+        word = clean_word_label(vid)
         target_dir = OUTPUT_DIR / word
         target_dir.mkdir(parents=True, exist_ok=True)
 
@@ -250,7 +291,8 @@ def main():
 
         # Save original (resampled to 30 frames)
         original_seq = sample_or_interpolate(raw_frames, SEQUENCE_LENGTH)
-        session_id = f"vid_{vid.stem.replace(' ', '_').lower()}"
+        ext_tag = vid.suffix.lower().strip('.')
+        session_id = f"vid_{vid.stem.replace(' ', '_').lower()}_{ext_tag}"
         
         all_sequences = [original_seq]
 
@@ -285,7 +327,6 @@ def main():
     for word, count in sorted(words_collected.items()):
         logger.info(f"    {word:15s}: {count:4d} sequences")
     logger.info("=" * 70)
-
 
 if __name__ == '__main__':
     main()

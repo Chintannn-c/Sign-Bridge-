@@ -94,6 +94,13 @@ def augment_vector(vec_126, rng, copies=5):
         for h in range(2):
             if np.any(copy_pts[h] != 0):
                 copy_pts[h] += noise[h]
+
+        # 4. Fingertip curl jitter (improves invariance on closed-fist & curled signs like O, S, E, I)
+        if rng.random() < 0.5:
+            for h in range(2):
+                if np.any(copy_pts[h] != 0):
+                    for tip in (4, 8, 12, 16, 20):
+                        copy_pts[h, tip] += rng.normal(0, 0.007, size=3).astype(np.float32)
                 
         aug_vectors.append(copy_pts.reshape(-1).tolist())
         
@@ -172,11 +179,12 @@ def main():
             if vec is not None:
                 if idx in train_set:
                     train_frames.append(vec)
-                    # Add 5 augmentations to training
-                    train_frames.extend(augment_vector(vec, rng, copies=5))
+                    # Adaptive heavy augmentation: 20 copies for weak letters (O, S, E, I, Q, W, X), 12 for others
+                    n_copies = 20 if letter in {'O', 'S', 'E', 'I', 'Q', 'W', 'X'} else 12
+                    train_frames.extend(augment_vector(vec, rng, copies=n_copies))
                 elif idx in val_set:
                     val_frames.append(vec)
-                    val_frames.extend(augment_vector(vec, rng, copies=2))
+                    val_frames.extend(augment_vector(vec, rng, copies=3))
                 else:
                     test_frames.append(vec)
 

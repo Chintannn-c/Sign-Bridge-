@@ -3,13 +3,14 @@ import { useWebcam } from '../hooks/useWebcam';
 import { useHandDetection } from '../hooks/useHandDetection';
 import { useGestureRecognition } from '../hooks/useGestureRecognition';
 import { HandTrackingOverlay } from './SignLanguageAssistant/HandTrackingOverlay';
-import { Video, VideoOff, Activity, CameraOff, Camera, FlipHorizontal, AlertCircle, Layers } from 'lucide-react';
+import { Video, VideoOff, Activity, CameraOff, Camera, FlipHorizontal, AlertCircle, Layers, Maximize2, Minimize2, Send, Trash2 } from 'lucide-react';
 import './SignLanguageAssistant/assistant.css';
 
 /**
  * Pure React Camera View Component
  * Positioned on the left side of the Human panel card.
  * Supports dual-mode recognition: Static Letters (A-Z) & Whole-Word Sequence Gestures.
+ * Fullscreen mode allows dedicating 100% of the screen exclusively to the camera feed and live tracking.
  */
 export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => {
   const {
@@ -28,6 +29,49 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [videoElement, setVideoElement] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen(prev => {
+      const next = !prev;
+      if (next) {
+        if (containerRef.current && containerRef.current.requestFullscreen) {
+          containerRef.current.requestFullscreen().catch(() => {});
+        }
+      } else {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isDocFull = Boolean(document.fullscreenElement && document.fullscreenElement === containerRef.current);
+      if (!isDocFull && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+        setIsFullscreen(false);
+      }
+      if ((e.key === 'f' || e.key === 'F') && !['INPUT', 'TEXTAREA'].includes(e.target?.tagName) && isCameraOn) {
+        toggleFullscreen();
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen, isCameraOn, toggleFullscreen]);
 
   const handleVideoRef = useCallback((node) => {
     webcamVideoRef(node);
@@ -120,7 +164,7 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
   const activeSign = (recognition.handInfo && recognition.confidence >= 0.60) ? (recognition.detectedWord || recognition.detectedLetter) : null;
 
   return (
-    <div className="camera-feed-box" ref={containerRef}>
+    <div className={`camera-feed-box ${isFullscreen ? 'camera-fullscreen-mode' : ''}`} ref={containerRef}>
       {/* Top-Left Camera Source Selector Dropdown */}
       {devices && devices.length > 0 && (
         <div className="camera-select-pill" onClick={e => e.stopPropagation()}>
@@ -165,6 +209,19 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
           >
             <FlipHorizontal size={14} />
             <span>{isMirrored ? 'Mirrored' : 'Normal'}</span>
+          </button>
+        )}
+
+        {/* Fullscreen Camera-Only Mode Toggle Button */}
+        {isCameraOn && (
+          <button
+            className={`camera-toggle-btn ${isFullscreen ? 'is-fullscreen-active' : ''}`}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Exit Full Screen Camera Mode (Esc or F)' : 'Enter Full Screen Camera Mode (F)'}
+            style={{ fontWeight: 700 }}
+          >
+            {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+            <span>{isFullscreen ? 'Exit Full' : 'Full Screen'}</span>
           </button>
         )}
 
@@ -351,6 +408,65 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
           </>
         )}
       </div>
+
+      {/* Floating HUD only visible in Fullscreen Mode */}
+      {isFullscreen && (
+        <div className="fullscreen-live-hud" onClick={e => e.stopPropagation()}>
+          <div className="fullscreen-hud-main">
+            <div className="fullscreen-hud-tag">
+              <span className="fullscreen-hud-dot" />
+              <span>{isWordMode ? 'ISL WORDS' : 'A-Z LETTERS'}</span>
+            </div>
+
+            <div className="fullscreen-hud-buffer">
+              {recognition.sentenceBuffer && recognition.sentenceBuffer.trim().length > 0 ? (
+                <div className="fullscreen-hud-text">
+                  <span>{recognition.sentenceBuffer}</span>
+                  <span className="fullscreen-hud-cursor">|</span>
+                </div>
+              ) : (
+                <span className="fullscreen-hud-placeholder">
+                  Full screen camera active • Signs recognized in real time
+                </span>
+              )}
+            </div>
+
+            {recognition.sentenceBuffer && recognition.sentenceBuffer.trim().length > 0 && (
+              <div className="fullscreen-hud-actions">
+                <button
+                  type="button"
+                  className="fullscreen-action-btn btn-clear"
+                  onClick={recognition.clearBuffer}
+                  title="Clear recognized text"
+                >
+                  <Trash2 size={13} />
+                  <span>Clear</span>
+                </button>
+                <button
+                  type="button"
+                  className="fullscreen-action-btn btn-send"
+                  onClick={recognition.sendSentence}
+                  disabled={recognition.isAutoSending}
+                  title="Send to AI Assistant"
+                >
+                  <Send size={13} />
+                  <span>{recognition.isAutoSending ? 'Sending...' : 'Send'}</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            className="fullscreen-exit-pill"
+            onClick={toggleFullscreen}
+            title="Exit Full Screen (Esc or F)"
+          >
+            <Minimize2 size={13} />
+            <span>Exit Full Screen (Esc)</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

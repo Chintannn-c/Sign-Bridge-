@@ -179,7 +179,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": "lowpassfilter",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -192,7 +192,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": "oneeurofilter",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -262,6 +262,32 @@
       "norm_label": "modelselector",
       "source_file": "backend/services/groq_manager.py",
       "source_location": "L246"
+    },
+    {
+      "id": "backend_services_robot_actuator_baserobotactuator",
+      "label": "BaseRobotActuator",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": "baserobotactuator",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L14"
+    },
+    {
+      "id": "backend_services_robot_actuator_ros2actuatorstub",
+      "label": "ROS2ActuatorStub",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": "ros2actuatorstub",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L38"
     },
     {
       "id": "backend_services_gemini_manager_modelselector",
@@ -389,7 +415,7 @@
       "file_type": "code",
       "norm_label": "cameraview()",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L14"
+      "source_location": "L15"
     },
     {
       "id": "src_components_gesturereferencesheet_gesturereferencesheet",
@@ -569,7 +595,7 @@
       "file_type": "code",
       "norm_label": "analyzequality()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L661"
+      "source_location": "L731"
     },
     {
       "id": "src_hooks_usegesturerecognition_capturevideosnapshot",
@@ -582,6 +608,18 @@
       "norm_label": "capturevideosnapshot()",
       "source_file": "src/hooks/useGestureRecognition.js",
       "source_location": "L60"
+    },
+    {
+      "id": "src_hooks_usegesturerecognition_formatwordforsentence",
+      "label": "formatWordForSentence()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "formatwordforsentence()",
+      "source_file": "src/hooks/useGestureRecognition.js",
+      "source_location": "L75"
     },
     {
       "id": "src_hooks_usegesturerecognition_isvalidhandgeometry",
@@ -605,7 +643,7 @@
       "file_type": "code",
       "norm_label": "usegesturerecognition()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L75"
+      "source_location": "L81"
     },
     {
       "id": "src_hooks_usegesturerecognition_usegesturerecognition_fetchmodelinfo",
@@ -617,7 +655,7 @@
       "file_type": "code",
       "norm_label": "fetchmodelinfo()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L227"
+      "source_location": "L272"
     },
     {
       "id": "src_hooks_usehanddetection_usehanddetection",
@@ -1001,7 +1039,7 @@
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "backend/train_unified.py",
-      "source_location": "L822"
+      "source_location": "L832"
     },
     {
       "id": "backend_train_unified_run_extraction",
@@ -1412,6 +1450,18 @@
       "source_location": "L203"
     },
     {
+      "id": "backend_test_word_model_run_checks",
+      "label": "run_checks()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "WordRecognizer",
+      "file_type": "code",
+      "norm_label": "run_checks()",
+      "source_file": "backend/test_word_model.py",
+      "source_location": "L24"
+    },
+    {
       "id": "backend_models_st_gcn_build_dual_hand_adjacency",
       "label": "build_dual_hand_adjacency()",
       "_callable": true,
@@ -1465,7 +1515,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": ".constructor()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1477,7 +1527,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": ".constructor()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1489,7 +1539,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": ".filter()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1501,7 +1551,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": ".reset()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1513,7 +1563,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": ".computealpha()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1525,7 +1575,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": ".constructor()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1537,7 +1587,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": ".filter()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1549,7 +1599,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "OneEuroFilter",
+      "community_name": "LandmarkSmoother",
       "file_type": "code",
       "norm_label": ".reset()",
       "source_file": "src/utils/oneEuroFilter.js",
@@ -1733,7 +1783,7 @@
       "file_type": "code",
       "norm_label": "clean_llm_text()",
       "source_file": "backend/app.py",
-      "source_location": "L191"
+      "source_location": "L187"
     },
     {
       "id": "backend_app_collect_data",
@@ -1745,7 +1795,7 @@
       "file_type": "code",
       "norm_label": "collect_data()",
       "source_file": "backend/app.py",
-      "source_location": "L703"
+      "source_location": "L669"
     },
     {
       "id": "backend_app_generate_llm_response",
@@ -1769,7 +1819,7 @@
       "file_type": "code",
       "norm_label": "get_history()",
       "source_file": "backend/app.py",
-      "source_location": "L687"
+      "source_location": "L653"
     },
     {
       "id": "backend_app_get_smart_fallback_response",
@@ -1793,7 +1843,7 @@
       "file_type": "code",
       "norm_label": "health()",
       "source_file": "backend/app.py",
-      "source_location": "L432"
+      "source_location": "L398"
     },
     {
       "id": "backend_app_limit_to_human_length",
@@ -1805,7 +1855,7 @@
       "file_type": "code",
       "norm_label": "limit_to_human_length()",
       "source_file": "backend/app.py",
-      "source_location": "L237"
+      "source_location": "L203"
     },
     {
       "id": "backend_app_llm_answer",
@@ -1817,7 +1867,7 @@
       "file_type": "code",
       "norm_label": "llm_answer()",
       "source_file": "backend/app.py",
-      "source_location": "L359"
+      "source_location": "L325"
     },
     {
       "id": "backend_app_llm_refine",
@@ -1829,7 +1879,7 @@
       "file_type": "code",
       "norm_label": "llm_refine()",
       "source_file": "backend/app.py",
-      "source_location": "L261"
+      "source_location": "L227"
     },
     {
       "id": "backend_app_llm_simplify",
@@ -1841,7 +1891,7 @@
       "file_type": "code",
       "norm_label": "llm_simplify()",
       "source_file": "backend/app.py",
-      "source_location": "L321"
+      "source_location": "L287"
     },
     {
       "id": "backend_app_llm_status",
@@ -1853,7 +1903,7 @@
       "file_type": "code",
       "norm_label": "llm_status()",
       "source_file": "backend/app.py",
-      "source_location": "L448"
+      "source_location": "L414"
     },
     {
       "id": "backend_app_model_info",
@@ -1865,7 +1915,7 @@
       "file_type": "code",
       "norm_label": "model_info()",
       "source_file": "backend/app.py",
-      "source_location": "L458"
+      "source_location": "L424"
     },
     {
       "id": "backend_app_model_reload",
@@ -1877,7 +1927,7 @@
       "file_type": "code",
       "norm_label": "model_reload()",
       "source_file": "backend/app.py",
-      "source_location": "L470"
+      "source_location": "L436"
     },
     {
       "id": "backend_app_robot_connect",
@@ -1889,7 +1939,7 @@
       "file_type": "code",
       "norm_label": "robot_connect()",
       "source_file": "backend/app.py",
-      "source_location": "L768"
+      "source_location": "L734"
     },
     {
       "id": "backend_app_robot_disconnect",
@@ -1901,7 +1951,7 @@
       "file_type": "code",
       "norm_label": "robot_disconnect()",
       "source_file": "backend/app.py",
-      "source_location": "L794"
+      "source_location": "L760"
     },
     {
       "id": "backend_app_robot_sign",
@@ -1913,7 +1963,7 @@
       "file_type": "code",
       "norm_label": "robot_sign()",
       "source_file": "backend/app.py",
-      "source_location": "L801"
+      "source_location": "L767"
     },
     {
       "id": "backend_app_robot_sign_letter",
@@ -1925,7 +1975,7 @@
       "file_type": "code",
       "norm_label": "robot_sign_letter()",
       "source_file": "backend/app.py",
-      "source_location": "L858"
+      "source_location": "L824"
     },
     {
       "id": "backend_app_robot_status",
@@ -1937,7 +1987,7 @@
       "file_type": "code",
       "norm_label": "robot_status()",
       "source_file": "backend/app.py",
-      "source_location": "L762"
+      "source_location": "L728"
     },
     {
       "id": "backend_app_safe_float",
@@ -1961,7 +2011,7 @@
       "file_type": "code",
       "norm_label": "translate()",
       "source_file": "backend/app.py",
-      "source_location": "L486"
+      "source_location": "L452"
     },
     {
       "id": "backend_app_translate_batch",
@@ -1973,7 +2023,7 @@
       "file_type": "code",
       "norm_label": "translate_batch()",
       "source_file": "backend/app.py",
-      "source_location": "L544"
+      "source_location": "L510"
     },
     {
       "id": "backend_app_translate_snapshot",
@@ -1985,7 +2035,7 @@
       "file_type": "code",
       "norm_label": "translate_snapshot()",
       "source_file": "backend/app.py",
-      "source_location": "L574"
+      "source_location": "L540"
     },
     {
       "id": "backend_app_translate_word",
@@ -1997,7 +2047,7 @@
       "file_type": "code",
       "norm_label": "translate_word()",
       "source_file": "backend/app.py",
-      "source_location": "L630"
+      "source_location": "L596"
     },
     {
       "id": "backend_app_words_info",
@@ -2009,7 +2059,7 @@
       "file_type": "code",
       "norm_label": "words_info()",
       "source_file": "backend/app.py",
-      "source_location": "L464"
+      "source_location": "L430"
     },
     {
       "id": "backend_database_schema_get_db_connection",
@@ -2144,6 +2194,114 @@
       "source_location": "L13"
     },
     {
+      "id": "backend_services_robot_actuator_baserobotactuator_connect",
+      "label": ".connect()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": ".connect()",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L18"
+    },
+    {
+      "id": "backend_services_robot_actuator_baserobotactuator_disconnect",
+      "label": ".disconnect()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": ".disconnect()",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L23"
+    },
+    {
+      "id": "backend_services_robot_actuator_baserobotactuator_send_angles",
+      "label": ".send_angles()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": ".send_angles()",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L28"
+    },
+    {
+      "id": "backend_services_robot_actuator_baserobotactuator_sign_letter",
+      "label": ".sign_letter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": ".sign_letter()",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L33"
+    },
+    {
+      "id": "backend_services_robot_actuator_ros2actuatorstub_connect",
+      "label": ".connect()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": ".connect()",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L50"
+    },
+    {
+      "id": "backend_services_robot_actuator_ros2actuatorstub_disconnect",
+      "label": ".disconnect()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": ".disconnect()",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L63"
+    },
+    {
+      "id": "backend_services_robot_actuator_ros2actuatorstub_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L45"
+    },
+    {
+      "id": "backend_services_robot_actuator_ros2actuatorstub_send_angles",
+      "label": ".send_angles()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": ".send_angles()",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L66"
+    },
+    {
+      "id": "backend_services_robot_actuator_ros2actuatorstub_sign_letter",
+      "label": ".sign_letter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": ".sign_letter()",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L72"
+    },
+    {
       "id": "backend_ingest_dataset_2_augment_vector",
       "label": "augment_vector()",
       "_callable": true,
@@ -2177,7 +2335,7 @@
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "backend/ingest_dataset_2.py",
-      "source_location": "L103"
+      "source_location": "L110"
     },
     {
       "id": "backend_ingest_zip_dataset_augment_landmark_vector",
@@ -2214,6 +2372,90 @@
       "norm_label": "ingest_zip()",
       "source_file": "backend/ingest_zip_dataset.py",
       "source_location": "L90"
+    },
+    {
+      "id": "backend_extract_video_landmarks_augment_raw_sequence",
+      "label": "augment_raw_sequence()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "code",
+      "norm_label": "augment_raw_sequence()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L140"
+    },
+    {
+      "id": "backend_extract_video_landmarks_clean_word_label",
+      "label": "clean_word_label()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "code",
+      "norm_label": "clean_word_label()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L75"
+    },
+    {
+      "id": "backend_extract_video_landmarks_get_landmark_vector_from_result",
+      "label": "get_landmark_vector_from_result()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "code",
+      "norm_label": "get_landmark_vector_from_result()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L91"
+    },
+    {
+      "id": "backend_extract_video_landmarks_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L246"
+    },
+    {
+      "id": "backend_extract_video_landmarks_normalize_word_str",
+      "label": "_normalize_word_str()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "code",
+      "norm_label": "_normalize_word_str()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L38"
+    },
+    {
+      "id": "backend_extract_video_landmarks_process_video",
+      "label": "process_video()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "code",
+      "norm_label": "process_video()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L223"
+    },
+    {
+      "id": "backend_extract_video_landmarks_sample_or_interpolate",
+      "label": "sample_or_interpolate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "code",
+      "norm_label": "sample_or_interpolate()",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L127"
     },
     {
       "id": "backend_extract_static_landmarks_extract_mendeley_zip",
@@ -2322,78 +2564,6 @@
       "norm_label": ".get_candidate_models()",
       "source_file": "backend/services/gemini_manager.py",
       "source_location": "L271"
-    },
-    {
-      "id": "backend_extract_video_landmarks_augment_raw_sequence",
-      "label": "augment_raw_sequence()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "code",
-      "norm_label": "augment_raw_sequence()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L102"
-    },
-    {
-      "id": "backend_extract_video_landmarks_clean_word_label",
-      "label": "clean_word_label()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "code",
-      "norm_label": "clean_word_label()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L37"
-    },
-    {
-      "id": "backend_extract_video_landmarks_get_landmark_vector_from_result",
-      "label": "get_landmark_vector_from_result()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "code",
-      "norm_label": "get_landmark_vector_from_result()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L53"
-    },
-    {
-      "id": "backend_extract_video_landmarks_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L208"
-    },
-    {
-      "id": "backend_extract_video_landmarks_process_video",
-      "label": "process_video()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "code",
-      "norm_label": "process_video()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L185"
-    },
-    {
-      "id": "backend_extract_video_landmarks_sample_or_interpolate",
-      "label": "sample_or_interpolate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "code",
-      "norm_label": "sample_or_interpolate()",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L89"
     },
     {
       "id": "backend_stream_and_extract_hf_augment_raw_sequence",
@@ -3227,7 +3397,7 @@
       "file_type": "concept",
       "norm_label": "framer-motion",
       "source_file": "package.json",
-      "source_location": "L13"
+      "source_location": "L14"
     },
     {
       "id": "ref_lucide_react",
@@ -3238,7 +3408,7 @@
       "file_type": "concept",
       "norm_label": "lucide-react",
       "source_file": "package.json",
-      "source_location": "L14"
+      "source_location": "L15"
     },
     {
       "id": "ref_react",
@@ -3249,7 +3419,7 @@
       "file_type": "concept",
       "norm_label": "react",
       "source_file": "package.json",
-      "source_location": "L15"
+      "source_location": "L16"
     },
     {
       "id": "backend_services_data_loader",
@@ -3305,6 +3475,17 @@
       "norm_label": "train_unified.py",
       "source_file": "backend/train_unified.py",
       "source_location": "L1"
+    },
+    {
+      "id": "path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "valueerror",
@@ -4000,6 +4181,17 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_test_word_model",
+      "label": "test_word_model.py",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "WordRecognizer",
+      "file_type": "code",
+      "norm_label": "test_word_model.py",
+      "source_file": "backend/test_word_model.py",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_services_word_recognizer_rationale_1",
       "label": "Sign-Bridge Flask API \u2014 ISL Word Recognition Service Loads a trained model that\u2026",
       "_origin": "ast",
@@ -4064,6 +4256,17 @@
       "norm_label": "attempt to load the trained word model. loading priority: 1. cnn-bilstm hybrid...",
       "source_file": "backend/services/word_recognizer.py",
       "source_location": "L49"
+    },
+    {
+      "id": "backend_test_word_model_rationale_1",
+      "label": "SignBridge \u2014 Automated Word Model Self-Check & Validation Suite Evaluates\u2026",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "WordRecognizer",
+      "file_type": "rationale",
+      "norm_label": "signbridge \u2014 automated word model self-check & validation suite evaluates...",
+      "source_file": "backend/test_word_model.py",
+      "source_location": "L1"
     },
     {
       "id": "backend_models_st_gcn",
@@ -4353,17 +4556,17 @@
     },
     {
       "id": "backend_app_rationale_180",
-      "label": "Safely convert any raw value (float, int, str, or unknown) to float without\u2026",
+      "label": "Safely convert any raw value to float without errors.",
       "_origin": "ast",
       "community": 2,
       "community_name": "app.py",
       "file_type": "rationale",
-      "norm_label": "safely convert any raw value (float, int, str, or unknown) to float without...",
+      "norm_label": "safely convert any raw value to float without errors.",
       "source_file": "backend/app.py",
       "source_location": "L180"
     },
     {
-      "id": "backend_app_rationale_192",
+      "id": "backend_app_rationale_188",
       "label": "Removes thinking blocks, reasoning fences, markdown formatting, and normalizes\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4371,10 +4574,10 @@
       "file_type": "rationale",
       "norm_label": "removes thinking blocks, reasoning fences, markdown formatting, and normalizes...",
       "source_file": "backend/app.py",
-      "source_location": "L192"
+      "source_location": "L188"
     },
     {
-      "id": "backend_app_rationale_238",
+      "id": "backend_app_rationale_204",
       "label": "Ensure the response stays small and conversational (1-2 short sentences max,\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4382,10 +4585,10 @@
       "file_type": "rationale",
       "norm_label": "ensure the response stays small and conversational (1-2 short sentences max,...",
       "source_file": "backend/app.py",
-      "source_location": "L238"
+      "source_location": "L204"
     },
     {
-      "id": "backend_app_rationale_262",
+      "id": "backend_app_rationale_228",
       "label": "Refine raw ISL letter/word buffer into a natural spoken English sentence. Uses\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4393,10 +4596,10 @@
       "file_type": "rationale",
       "norm_label": "refine raw isl letter/word buffer into a natural spoken english sentence. uses...",
       "source_file": "backend/app.py",
-      "source_location": "L262"
+      "source_location": "L228"
     },
     {
-      "id": "backend_app_rationale_322",
+      "id": "backend_app_rationale_288",
       "label": "Simplify complex spoken text into essential keywords for robotic hands. Uses\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4404,10 +4607,10 @@
       "file_type": "rationale",
       "norm_label": "simplify complex spoken text into essential keywords for robotic hands. uses...",
       "source_file": "backend/app.py",
-      "source_location": "L322"
+      "source_location": "L288"
     },
     {
-      "id": "backend_app_rationale_360",
+      "id": "backend_app_rationale_326",
       "label": "Generate a small, warm, human-like AI response to what the user signed/said.\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4415,10 +4618,10 @@
       "file_type": "rationale",
       "norm_label": "generate a small, warm, human-like ai response to what the user signed/said....",
       "source_file": "backend/app.py",
-      "source_location": "L360"
+      "source_location": "L326"
     },
     {
-      "id": "backend_app_rationale_449",
+      "id": "backend_app_rationale_415",
       "label": "Return real-time status of Groq, Gemini multi-key management, and Local LLM\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4426,10 +4629,10 @@
       "file_type": "rationale",
       "norm_label": "return real-time status of groq, gemini multi-key management, and local llm...",
       "source_file": "backend/app.py",
-      "source_location": "L449"
+      "source_location": "L415"
     },
     {
-      "id": "backend_app_rationale_459",
+      "id": "backend_app_rationale_425",
       "label": "Return alphabet model metadata.",
       "_origin": "ast",
       "community": 2,
@@ -4437,10 +4640,10 @@
       "file_type": "rationale",
       "norm_label": "return alphabet model metadata.",
       "source_file": "backend/app.py",
-      "source_location": "L459"
+      "source_location": "L425"
     },
     {
-      "id": "backend_app_rationale_465",
+      "id": "backend_app_rationale_431",
       "label": "Return word recognizer metadata.",
       "_origin": "ast",
       "community": 2,
@@ -4448,10 +4651,10 @@
       "file_type": "rationale",
       "norm_label": "return word recognizer metadata.",
       "source_file": "backend/app.py",
-      "source_location": "L465"
+      "source_location": "L431"
     },
     {
-      "id": "backend_app_rationale_471",
+      "id": "backend_app_rationale_437",
       "label": "Reload model weights and metadata from disk.",
       "_origin": "ast",
       "community": 2,
@@ -4459,10 +4662,10 @@
       "file_type": "rationale",
       "norm_label": "reload model weights and metadata from disk.",
       "source_file": "backend/app.py",
-      "source_location": "L471"
+      "source_location": "L437"
     },
     {
-      "id": "backend_app_rationale_487",
+      "id": "backend_app_rationale_453",
       "label": "Translate hand landmarks to an ISL letter/word.",
       "_origin": "ast",
       "community": 2,
@@ -4470,10 +4673,10 @@
       "file_type": "rationale",
       "norm_label": "translate hand landmarks to an isl letter/word.",
       "source_file": "backend/app.py",
-      "source_location": "L487"
+      "source_location": "L453"
     },
     {
-      "id": "backend_app_rationale_545",
+      "id": "backend_app_rationale_511",
       "label": "Translate a batch of landmark frames (for sentence-level recognition).",
       "_origin": "ast",
       "community": 2,
@@ -4481,10 +4684,10 @@
       "file_type": "rationale",
       "norm_label": "translate a batch of landmark frames (for sentence-level recognition).",
       "source_file": "backend/app.py",
-      "source_location": "L545"
+      "source_location": "L511"
     },
     {
-      "id": "backend_app_rationale_575",
+      "id": "backend_app_rationale_541",
       "label": "On-Demand visual silhouette disambiguation for difficult overlapping contact\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4492,10 +4695,10 @@
       "file_type": "rationale",
       "norm_label": "on-demand visual silhouette disambiguation for difficult overlapping contact...",
       "source_file": "backend/app.py",
-      "source_location": "L575"
+      "source_location": "L541"
     },
     {
-      "id": "backend_app_rationale_631",
+      "id": "backend_app_rationale_597",
       "label": "Translate a sequence of landmark frames to an ISL word. Uses the CNN-BiLSTM\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4503,10 +4706,10 @@
       "file_type": "rationale",
       "norm_label": "translate a sequence of landmark frames to an isl word. uses the cnn-bilstm...",
       "source_file": "backend/app.py",
-      "source_location": "L631"
+      "source_location": "L597"
     },
     {
-      "id": "backend_app_rationale_688",
+      "id": "backend_app_rationale_654",
       "label": "Returns recent conversation history from SQLite database.",
       "_origin": "ast",
       "community": 2,
@@ -4514,10 +4717,10 @@
       "file_type": "rationale",
       "norm_label": "returns recent conversation history from sqlite database.",
       "source_file": "backend/app.py",
-      "source_location": "L688"
+      "source_location": "L654"
     },
     {
-      "id": "backend_app_rationale_704",
+      "id": "backend_app_rationale_670",
       "label": "Saves recorded landmark frames for a specific ISL letter to build a dataset.\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4525,7 +4728,18 @@
       "file_type": "rationale",
       "norm_label": "saves recorded landmark frames for a specific isl letter to build a dataset....",
       "source_file": "backend/app.py",
-      "source_location": "L704"
+      "source_location": "L670"
+    },
+    {
+      "id": "backend_app_rationale_729",
+      "label": "Return Arduino connection status.",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "app.py",
+      "file_type": "rationale",
+      "norm_label": "return arduino connection status.",
+      "source_file": "backend/app.py",
+      "source_location": "L729"
     },
     {
       "id": "backend_app_rationale_73",
@@ -4539,18 +4753,7 @@
       "source_location": "L73"
     },
     {
-      "id": "backend_app_rationale_763",
-      "label": "Return Arduino connection status.",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "app.py",
-      "file_type": "rationale",
-      "norm_label": "return arduino connection status.",
-      "source_file": "backend/app.py",
-      "source_location": "L763"
-    },
-    {
-      "id": "backend_app_rationale_769",
+      "id": "backend_app_rationale_735",
       "label": "Connect to Arduino. Optional JSON body: { \"port\": \"COM3\", // Optional, auto-\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4558,10 +4761,10 @@
       "file_type": "rationale",
       "norm_label": "connect to arduino. optional json body: { \"port\": \"com3\", // optional, auto-...",
       "source_file": "backend/app.py",
-      "source_location": "L769"
+      "source_location": "L735"
     },
     {
-      "id": "backend_app_rationale_795",
+      "id": "backend_app_rationale_761",
       "label": "Disconnect from Arduino.",
       "_origin": "ast",
       "community": 2,
@@ -4569,10 +4772,10 @@
       "file_type": "rationale",
       "norm_label": "disconnect from arduino.",
       "source_file": "backend/app.py",
-      "source_location": "L795"
+      "source_location": "L761"
     },
     {
-      "id": "backend_app_rationale_802",
+      "id": "backend_app_rationale_768",
       "label": "Send text to the robotic hands for ISL fingerspelling. Request JSON body: {\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4580,10 +4783,10 @@
       "file_type": "rationale",
       "norm_label": "send text to the robotic hands for isl fingerspelling. request json body: {...",
       "source_file": "backend/app.py",
-      "source_location": "L802"
+      "source_location": "L768"
     },
     {
-      "id": "backend_app_rationale_859",
+      "id": "backend_app_rationale_825",
       "label": "Sign a single letter on the robotic hands. Request JSON body: { \"letter\": \"A\",\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4591,7 +4794,7 @@
       "file_type": "rationale",
       "norm_label": "sign a single letter on the robotic hands. request json body: { \"letter\": \"a\",...",
       "source_file": "backend/app.py",
-      "source_location": "L859"
+      "source_location": "L825"
     },
     {
       "id": "backend_database_schema_rationale_1",
@@ -6300,7 +6503,7 @@
       "file_type": "code",
       "norm_label": "dependencies",
       "source_file": "package.json",
-      "source_location": "L12"
+      "source_location": "L13"
     },
     {
       "id": "package_dependencies_framer_motion",
@@ -6311,7 +6514,7 @@
       "file_type": "code",
       "norm_label": "framer-motion",
       "source_file": "package.json",
-      "source_location": "L13"
+      "source_location": "L14"
     },
     {
       "id": "package_dependencies_lucide_react",
@@ -6322,7 +6525,7 @@
       "file_type": "code",
       "norm_label": "lucide-react",
       "source_file": "package.json",
-      "source_location": "L14"
+      "source_location": "L15"
     },
     {
       "id": "package_dependencies_react",
@@ -6333,7 +6536,7 @@
       "file_type": "code",
       "norm_label": "react",
       "source_file": "package.json",
-      "source_location": "L15"
+      "source_location": "L16"
     },
     {
       "id": "package_dependencies_react_dom",
@@ -6344,7 +6547,18 @@
       "file_type": "code",
       "norm_label": "react-dom",
       "source_file": "package.json",
-      "source_location": "L16"
+      "source_location": "L17"
+    },
+    {
+      "id": "package_description",
+      "label": "description",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "package.json",
+      "file_type": "code",
+      "norm_label": "description",
+      "source_file": "package.json",
+      "source_location": "L5"
     },
     {
       "id": "package_devdependencies",
@@ -6355,7 +6569,7 @@
       "file_type": "code",
       "norm_label": "devdependencies",
       "source_file": "package.json",
-      "source_location": "L18"
+      "source_location": "L19"
     },
     {
       "id": "package_devdependencies_oxlint",
@@ -6366,7 +6580,7 @@
       "file_type": "code",
       "norm_label": "oxlint",
       "source_file": "package.json",
-      "source_location": "L22"
+      "source_location": "L23"
     },
     {
       "id": "package_devdependencies_types_react",
@@ -6377,7 +6591,7 @@
       "file_type": "code",
       "norm_label": "@types/react",
       "source_file": "package.json",
-      "source_location": "L19"
+      "source_location": "L20"
     },
     {
       "id": "package_devdependencies_types_react_dom",
@@ -6388,7 +6602,7 @@
       "file_type": "code",
       "norm_label": "@types/react-dom",
       "source_file": "package.json",
-      "source_location": "L20"
+      "source_location": "L21"
     },
     {
       "id": "package_devdependencies_vite",
@@ -6399,7 +6613,7 @@
       "file_type": "code",
       "norm_label": "vite",
       "source_file": "package.json",
-      "source_location": "L23"
+      "source_location": "L24"
     },
     {
       "id": "package_devdependencies_vitejs_plugin_react",
@@ -6410,7 +6624,7 @@
       "file_type": "code",
       "norm_label": "@vitejs/plugin-react",
       "source_file": "package.json",
-      "source_location": "L21"
+      "source_location": "L22"
     },
     {
       "id": "package_name",
@@ -6443,7 +6657,7 @@
       "file_type": "code",
       "norm_label": "scripts",
       "source_file": "package.json",
-      "source_location": "L6"
+      "source_location": "L7"
     },
     {
       "id": "package_scripts_build",
@@ -6454,7 +6668,7 @@
       "file_type": "code",
       "norm_label": "build",
       "source_file": "package.json",
-      "source_location": "L8"
+      "source_location": "L9"
     },
     {
       "id": "package_scripts_dev",
@@ -6465,7 +6679,7 @@
       "file_type": "code",
       "norm_label": "dev",
       "source_file": "package.json",
-      "source_location": "L7"
+      "source_location": "L8"
     },
     {
       "id": "package_scripts_lint",
@@ -6476,7 +6690,7 @@
       "file_type": "code",
       "norm_label": "lint",
       "source_file": "package.json",
-      "source_location": "L9"
+      "source_location": "L10"
     },
     {
       "id": "package_scripts_preview",
@@ -6487,7 +6701,7 @@
       "file_type": "code",
       "norm_label": "preview",
       "source_file": "package.json",
-      "source_location": "L10"
+      "source_location": "L11"
     },
     {
       "id": "package_type",
@@ -6498,7 +6712,7 @@
       "file_type": "code",
       "norm_label": "type",
       "source_file": "package.json",
-      "source_location": "L5"
+      "source_location": "L6"
     },
     {
       "id": "package_version",
@@ -6531,7 +6745,7 @@
       "file_type": "concept",
       "norm_label": "oxlint",
       "source_file": "package.json",
-      "source_location": "L22"
+      "source_location": "L23"
     },
     {
       "id": "ref_react_dom",
@@ -6542,7 +6756,7 @@
       "file_type": "concept",
       "norm_label": "react-dom",
       "source_file": "package.json",
-      "source_location": "L16"
+      "source_location": "L17"
     },
     {
       "id": "ref_types_react",
@@ -6553,7 +6767,7 @@
       "file_type": "concept",
       "norm_label": "@types/react",
       "source_file": "package.json",
-      "source_location": "L19"
+      "source_location": "L20"
     },
     {
       "id": "ref_types_react_dom",
@@ -6564,7 +6778,7 @@
       "file_type": "concept",
       "norm_label": "@types/react-dom",
       "source_file": "package.json",
-      "source_location": "L20"
+      "source_location": "L21"
     },
     {
       "id": "ref_vite",
@@ -6575,7 +6789,7 @@
       "file_type": "concept",
       "norm_label": "vite",
       "source_file": "package.json",
-      "source_location": "L23"
+      "source_location": "L24"
     },
     {
       "id": "ref_vitejs_plugin_react",
@@ -6586,7 +6800,106 @@
       "file_type": "concept",
       "norm_label": "@vitejs/plugin-react",
       "source_file": "package.json",
-      "source_location": "L21"
+      "source_location": "L22"
+    },
+    {
+      "id": "abc",
+      "label": "ABC",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": "abc",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_services_robot_actuator",
+      "label": "robot_actuator.py",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "code",
+      "norm_label": "robot_actuator.py",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_robot_actuator_rationale_1",
+      "label": "SignBridge \u2014 Robotics Actuation Interface & ROS2 Stub Provides a standardized\u2026",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "rationale",
+      "norm_label": "signbridge \u2014 robotics actuation interface & ros2 stub provides a standardized...",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_robot_actuator_rationale_15",
+      "label": "Abstract base actuator for dual robotic hands / arms.",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "rationale",
+      "norm_label": "abstract base actuator for dual robotic hands / arms.",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L15"
+    },
+    {
+      "id": "backend_services_robot_actuator_rationale_19",
+      "label": "Establish connection to actuator hardware or middleware.",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "rationale",
+      "norm_label": "establish connection to actuator hardware or middleware.",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L19"
+    },
+    {
+      "id": "backend_services_robot_actuator_rationale_24",
+      "label": "Cleanly close actuator connection.",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "rationale",
+      "norm_label": "cleanly close actuator connection.",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L24"
+    },
+    {
+      "id": "backend_services_robot_actuator_rationale_29",
+      "label": "Send 10-element servo angle array [0..180].",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "rationale",
+      "norm_label": "send 10-element servo angle array [0..180].",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L29"
+    },
+    {
+      "id": "backend_services_robot_actuator_rationale_34",
+      "label": "Actuate robotic hands to form a specific ISL letter.",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "rationale",
+      "norm_label": "actuate robotic hands to form a specific isl letter.",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L34"
+    },
+    {
+      "id": "backend_services_robot_actuator_rationale_39",
+      "label": "ROS2 Middleware Adapter Stub. Publishes joint angles to\u2026",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "BaseRobotActuator",
+      "file_type": "rationale",
+      "norm_label": "ros2 middleware adapter stub. publishes joint angles to...",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L39"
     },
     {
       "id": "ai_memory",
@@ -7143,88 +7456,92 @@
       "source_location": "L67"
     },
     {
-      "id": "dataset_isltranslate_readme",
-      "label": "ISLTranslate/README.md",
+      "id": "backend_extract_video_landmarks",
+      "label": "extract_video_landmarks.py",
       "_origin": "ast",
       "community": 37,
-      "community_name": "ISLTranslate/README.md",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "isltranslate/readme.md",
-      "source_file": "dataset/ISLTranslate/README.md",
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "code",
+      "norm_label": "extract_video_landmarks.py",
+      "source_file": "backend/extract_video_landmarks.py",
       "source_location": "L1"
     },
     {
-      "id": "dataset_isltranslate_readme_citation",
-      "label": "Citation",
+      "id": "backend_extract_video_landmarks_rationale_1",
+      "label": "SignBridge \u2014 Batch Video Landmark Extractor (v2) + Heavy Augmentation Extracts\u2026",
       "_origin": "ast",
       "community": 37,
-      "community_name": "ISLTranslate/README.md",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "citation",
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L95"
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "rationale",
+      "norm_label": "signbridge \u2014 batch video landmark extractor (v2) + heavy augmentation extracts...",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L1"
     },
     {
-      "id": "dataset_isltranslate_readme_comparison_scores",
-      "label": "**Comparison Scores:**",
+      "id": "backend_extract_video_landmarks_rationale_128",
+      "label": "Resamples a list of landmark frames to exactly target_length frames.",
       "_origin": "ast",
       "community": 37,
-      "community_name": "ISLTranslate/README.md",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "**comparison scores:**",
-      "source_file": "dataset/ISLTranslate/README.md",
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "rationale",
+      "norm_label": "resamples a list of landmark frames to exactly target_length frames.",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L128"
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_141",
+      "label": "Apply heavy augmentation to a raw sequence of frames before resampling.\u2026",
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "rationale",
+      "norm_label": "apply heavy augmentation to a raw sequence of frames before resampling....",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L141"
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_224",
+      "label": "Processes a single video into raw landmark frames (variable length).",
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "rationale",
+      "norm_label": "processes a single video into raw landmark frames (variable length).",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L224"
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_39",
+      "label": "Normalizes string to canonical uppercase word label.",
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "rationale",
+      "norm_label": "normalizes string to canonical uppercase word label.",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L39"
+    },
+    {
+      "id": "backend_extract_video_landmarks_rationale_76",
+      "label": "Derives a clean uppercase word class name from video file path or filename.",
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "rationale",
+      "norm_label": "derives a clean uppercase word class name from video file path or filename.",
+      "source_file": "backend/extract_video_landmarks.py",
       "source_location": "L76"
     },
     {
-      "id": "dataset_isltranslate_readme_download_dataset",
-      "label": "Download Dataset",
+      "id": "backend_extract_video_landmarks_rationale_92",
+      "label": "Standardizes MediaPipe HandLandmarker result into a 126-float array.",
       "_origin": "ast",
       "community": 37,
-      "community_name": "ISLTranslate/README.md",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "download dataset",
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L34"
-    },
-    {
-      "id": "dataset_isltranslate_readme_isl_signer_validation",
-      "label": "ISL-Signer Validation",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "ISLTranslate/README.md",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "isl-signer validation",
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L56"
-    },
-    {
-      "id": "dataset_isltranslate_readme_isltranslate_dataset_for_translating_indian_sign_language",
-      "label": "ISLTranslate: Dataset for Translating Indian Sign Language",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "ISLTranslate/README.md",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "isltranslate: dataset for translating indian sign language",
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "dataset_isltranslate_readme_license",
-      "label": "License",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "ISLTranslate/README.md",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "license",
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L91"
+      "community_name": "extract_video_landmarks.py",
+      "file_type": "rationale",
+      "norm_label": "standardizes mediapipe handlandmarker result into a 126-float array.",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L92"
     },
     {
       "id": "agents",
@@ -7992,17 +8309,6 @@
       "source_location": "L15"
     },
     {
-      "id": "backend_extract_video_landmarks",
-      "label": "extract_video_landmarks.py",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "code",
-      "norm_label": "extract_video_landmarks.py",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_stream_and_extract_hf",
       "label": "stream_and_extract_hf.py",
       "_origin": "ast",
@@ -8012,83 +8318,6 @@
       "norm_label": "stream_and_extract_hf.py",
       "source_file": "backend/stream_and_extract_hf.py",
       "source_location": "L1"
-    },
-    {
-      "id": "path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_1",
-      "label": "SignBridge \u2014 Batch Video Landmark Extractor (v2) + Heavy Augmentation Extracts\u2026",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "rationale",
-      "norm_label": "signbridge \u2014 batch video landmark extractor (v2) + heavy augmentation extracts...",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_103",
-      "label": "Apply heavy augmentation to a raw sequence of frames before resampling.\u2026",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "rationale",
-      "norm_label": "apply heavy augmentation to a raw sequence of frames before resampling....",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L103"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_186",
-      "label": "Processes a single video into raw landmark frames (variable length).",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "rationale",
-      "norm_label": "processes a single video into raw landmark frames (variable length).",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L186"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_38",
-      "label": "Derives a clean uppercase word class name from video filename.",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "rationale",
-      "norm_label": "derives a clean uppercase word class name from video filename.",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L38"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_54",
-      "label": "Standardizes MediaPipe HandLandmarker result into a 126-float array.",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "rationale",
-      "norm_label": "standardizes mediapipe handlandmarker result into a 126-float array.",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L54"
-    },
-    {
-      "id": "backend_extract_video_landmarks_rationale_90",
-      "label": "Resamples a list of landmark frames to exactly target_length frames.",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "stream_and_extract_hf.py",
-      "file_type": "rationale",
-      "norm_label": "resamples a list of landmark frames to exactly target_length frames.",
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L90"
     },
     {
       "id": "backend_stream_and_extract_hf_rationale_1",
@@ -8353,6 +8582,66 @@
       "node_kind": "page",
       "norm_label": "software requirement specification_f42c747e.md",
       "source_file": "graphify-out/converted/Software Requirement Specification_f42c747e.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "architecture",
+      "label": "ARCHITECTURE.md",
+      "_origin": "ast",
+      "community": 57,
+      "community_name": "SignBridge Architecture",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "architecture.md",
+      "source_file": "ARCHITECTURE.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "architecture_1_perception_engine_backend_services",
+      "label": "1. Perception Engine (`backend/services/`)",
+      "_origin": "ast",
+      "community": 57,
+      "community_name": "SignBridge Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "1. perception engine (`backend/services/`)",
+      "source_file": "ARCHITECTURE.md",
+      "source_location": "L27"
+    },
+    {
+      "id": "architecture_2_presentation_layer_src_components",
+      "label": "2. Presentation Layer (`src/components/`)",
+      "_origin": "ast",
+      "community": 57,
+      "community_name": "SignBridge Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2. presentation layer (`src/components/`)",
+      "source_file": "ARCHITECTURE.md",
+      "source_location": "L37"
+    },
+    {
+      "id": "architecture_3_actuation_layer_backend_services_arduino_serial_py",
+      "label": "3. Actuation Layer (`backend/services/arduino_serial.py`)",
+      "_origin": "ast",
+      "community": 57,
+      "community_name": "SignBridge Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3. actuation layer (`backend/services/arduino_serial.py`)",
+      "source_file": "ARCHITECTURE.md",
+      "source_location": "L51"
+    },
+    {
+      "id": "architecture_signbridge_architecture",
+      "label": "SignBridge Architecture",
+      "_origin": "ast",
+      "community": 57,
+      "community_name": "SignBridge Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "signbridge architecture",
+      "source_file": "ARCHITECTURE.md",
       "source_location": "L1"
     },
     {
@@ -8729,7 +9018,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L742",
+      "source_location": "L708",
       "weight": 1.0
     },
     {
@@ -8753,7 +9042,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L690",
+      "source_location": "L656",
       "weight": 1.0
     },
     {
@@ -8765,7 +9054,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L393",
+      "source_location": "L359",
       "weight": 1.0
     },
     {
@@ -8777,7 +9066,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L394",
+      "source_location": "L360",
       "weight": 1.0
     },
     {
@@ -8789,7 +9078,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L394",
+      "source_location": "L360",
       "weight": 1.0
     },
     {
@@ -8801,7 +9090,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L396",
+      "source_location": "L362",
       "weight": 1.0
     },
     {
@@ -8813,7 +9102,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L411",
+      "source_location": "L377",
       "weight": 1.0
     },
     {
@@ -8825,7 +9114,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L299",
+      "source_location": "L265",
       "weight": 1.0
     },
     {
@@ -8837,7 +9126,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L300",
+      "source_location": "L266",
       "weight": 1.0
     },
     {
@@ -8849,7 +9138,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L300",
+      "source_location": "L266",
       "weight": 1.0
     },
     {
@@ -8861,7 +9150,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L302",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -8873,7 +9162,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L342",
+      "source_location": "L308",
       "weight": 1.0
     },
     {
@@ -8885,7 +9174,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L343",
+      "source_location": "L309",
       "weight": 1.0
     },
     {
@@ -8897,7 +9186,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L526",
+      "source_location": "L492",
       "weight": 1.0
     },
     {
@@ -8909,7 +9198,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L560",
+      "source_location": "L526",
       "weight": 1.0
     },
     {
@@ -8921,7 +9210,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L625",
+      "source_location": "L591",
       "weight": 1.0
     },
     {
@@ -8933,7 +9222,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L670",
+      "source_location": "L636",
       "weight": 1.0
     },
     {
@@ -9093,6 +9382,18 @@
       "weight": 1.0
     },
     {
+      "source": "backend_extract_video_landmarks_clean_word_label",
+      "target": "backend_extract_video_landmarks_normalize_word_str",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
       "source": "backend_extract_video_landmarks_main",
       "target": "backend_extract_video_landmarks_clean_word_label",
       "relation": "calls",
@@ -9101,7 +9402,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L241",
+      "source_location": "L273",
       "weight": 1.0
     },
     {
@@ -9113,7 +9414,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L246",
+      "source_location": "L287",
       "weight": 1.0
     },
     {
@@ -9125,7 +9426,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L252",
+      "source_location": "L293",
       "weight": 1.0
     },
     {
@@ -9137,7 +9438,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L259",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -9149,7 +9450,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L197",
+      "source_location": "L235",
       "weight": 1.0
     },
     {
@@ -9161,7 +9462,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/ingest_dataset_2.py",
-      "source_location": "L171",
+      "source_location": "L178",
       "weight": 1.0
     },
     {
@@ -9173,7 +9474,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/ingest_dataset_2.py",
-      "source_location": "L176",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -10029,6 +10330,18 @@
       "weight": 1.0
     },
     {
+      "source": "backend_test_word_model_run_checks",
+      "target": "backend_services_word_recognizer_wordrecognizer",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/test_word_model.py",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
       "source": "backend_tests_test_gemini_manager_testgeminimanager_setup",
       "target": "backend_services_gemini_manager_geminimanager",
       "relation": "calls",
@@ -10121,7 +10434,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/train_unified.py",
-      "source_location": "L842",
+      "source_location": "L852",
       "weight": 1.0
     },
     {
@@ -10133,7 +10446,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/train_unified.py",
-      "source_location": "L851",
+      "source_location": "L861",
       "weight": 1.0
     },
     {
@@ -10145,7 +10458,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/train_unified.py",
-      "source_location": "L858",
+      "source_location": "L868",
       "weight": 1.0
     },
     {
@@ -10157,7 +10470,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/train_unified.py",
-      "source_location": "L865",
+      "source_location": "L875",
       "weight": 1.0
     },
     {
@@ -10253,7 +10566,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -10265,7 +10578,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L40",
+      "source_location": "L84",
       "weight": 1.0
     },
     {
@@ -10277,7 +10590,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L43",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -10397,7 +10710,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L279",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -10409,7 +10722,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L312",
+      "source_location": "L357",
+      "weight": 1.0
+    },
+    {
+      "source": "src_hooks_usegesturerecognition_usegesturerecognition",
+      "target": "src_hooks_usegesturerecognition_formatwordforsentence",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/hooks/useGestureRecognition.js",
+      "source_location": "L423",
       "weight": 1.0
     },
     {
@@ -10421,7 +10746,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L451",
+      "source_location": "L500",
       "weight": 1.0
     },
     {
@@ -10481,7 +10806,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L227",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -10517,7 +10842,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L702",
+      "source_location": "L668",
       "weight": 1.0
     },
     {
@@ -10529,7 +10854,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L686",
+      "source_location": "L652",
       "weight": 1.0
     },
     {
@@ -10541,7 +10866,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L431",
+      "source_location": "L397",
       "weight": 1.0
     },
     {
@@ -10553,7 +10878,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L358",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -10565,7 +10890,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L260",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -10577,7 +10902,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L320",
+      "source_location": "L286",
       "weight": 1.0
     },
     {
@@ -10589,7 +10914,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L447",
+      "source_location": "L413",
       "weight": 1.0
     },
     {
@@ -10601,7 +10926,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L457",
+      "source_location": "L423",
       "weight": 1.0
     },
     {
@@ -10613,7 +10938,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L469",
+      "source_location": "L435",
       "weight": 1.0
     },
     {
@@ -10625,7 +10950,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L767",
+      "source_location": "L733",
       "weight": 1.0
     },
     {
@@ -10637,7 +10962,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L793",
+      "source_location": "L759",
       "weight": 1.0
     },
     {
@@ -10649,7 +10974,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L800",
+      "source_location": "L766",
       "weight": 1.0
     },
     {
@@ -10661,7 +10986,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L857",
+      "source_location": "L823",
       "weight": 1.0
     },
     {
@@ -10673,7 +10998,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L761",
+      "source_location": "L727",
       "weight": 1.0
     },
     {
@@ -10685,7 +11010,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L485",
+      "source_location": "L451",
       "weight": 1.0
     },
     {
@@ -10697,7 +11022,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L543",
+      "source_location": "L509",
       "weight": 1.0
     },
     {
@@ -10709,7 +11034,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L573",
+      "source_location": "L539",
       "weight": 1.0
     },
     {
@@ -10721,7 +11046,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L629",
+      "source_location": "L595",
       "weight": 1.0
     },
     {
@@ -10733,7 +11058,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L463",
+      "source_location": "L429",
       "weight": 1.0
     },
     {
@@ -10974,6 +11299,18 @@
       "context": "import",
       "source_file": "backend/services/word_recognizer.py",
       "source_location": "L216",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_test_word_model",
+      "target": "backend_services_word_recognizer_wordrecognizer",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/test_word_model.py",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -11225,7 +11562,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -11237,7 +11574,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -11249,7 +11586,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -11261,7 +11598,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -11273,7 +11610,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L19",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -11285,7 +11622,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -11297,7 +11634,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L21",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -11309,7 +11646,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L22",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -11321,7 +11658,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -11874,6 +12211,18 @@
       "context": "import",
       "source_file": "backend/services/groq_manager.py",
       "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator",
+      "target": "abc",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -14091,6 +14440,50 @@
       "weight": 1.0
     },
     {
+      "source": "architecture",
+      "target": "architecture_signbridge_architecture",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ARCHITECTURE.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "architecture_signbridge_architecture",
+      "target": "architecture_1_perception_engine_backend_services",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ARCHITECTURE.md",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "architecture_signbridge_architecture",
+      "target": "architecture_2_presentation_layer_src_components",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ARCHITECTURE.md",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "architecture_signbridge_architecture",
+      "target": "architecture_3_actuation_layer_backend_services_arduino_serial_py",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ARCHITECTURE.md",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
       "source": "backend_app",
       "target": "backend_app_llmresponse",
       "relation": "contains",
@@ -14131,7 +14524,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L191",
+      "source_location": "L187",
       "weight": 1.0
     },
     {
@@ -14142,7 +14535,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L237",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -14153,7 +14546,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L261",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -14164,7 +14557,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L321",
+      "source_location": "L287",
       "weight": 1.0
     },
     {
@@ -14175,7 +14568,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L359",
+      "source_location": "L325",
       "weight": 1.0
     },
     {
@@ -14186,7 +14579,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L432",
+      "source_location": "L398",
       "weight": 1.0
     },
     {
@@ -14197,7 +14590,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L448",
+      "source_location": "L414",
       "weight": 1.0
     },
     {
@@ -14208,7 +14601,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L458",
+      "source_location": "L424",
       "weight": 1.0
     },
     {
@@ -14219,7 +14612,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L464",
+      "source_location": "L430",
       "weight": 1.0
     },
     {
@@ -14230,7 +14623,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L470",
+      "source_location": "L436",
       "weight": 1.0
     },
     {
@@ -14241,7 +14634,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L486",
+      "source_location": "L452",
       "weight": 1.0
     },
     {
@@ -14252,7 +14645,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L544",
+      "source_location": "L510",
       "weight": 1.0
     },
     {
@@ -14263,7 +14656,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L574",
+      "source_location": "L540",
       "weight": 1.0
     },
     {
@@ -14274,7 +14667,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L630",
+      "source_location": "L596",
       "weight": 1.0
     },
     {
@@ -14285,7 +14678,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L687",
+      "source_location": "L653",
       "weight": 1.0
     },
     {
@@ -14296,7 +14689,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L703",
+      "source_location": "L669",
       "weight": 1.0
     },
     {
@@ -14318,7 +14711,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L762",
+      "source_location": "L728",
       "weight": 1.0
     },
     {
@@ -14329,7 +14722,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L768",
+      "source_location": "L734",
       "weight": 1.0
     },
     {
@@ -14340,7 +14733,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L794",
+      "source_location": "L760",
       "weight": 1.0
     },
     {
@@ -14351,7 +14744,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L801",
+      "source_location": "L767",
       "weight": 1.0
     },
     {
@@ -14362,7 +14755,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L858",
+      "source_location": "L824",
       "weight": 1.0
     },
     {
@@ -14499,13 +14892,24 @@
     },
     {
       "source": "backend_extract_video_landmarks",
+      "target": "backend_extract_video_landmarks_sample_or_interpolate",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L127",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_extract_video_landmarks",
       "target": "backend_extract_video_landmarks_augment_raw_sequence",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L102",
+      "source_location": "L140",
       "weight": 1.0
     },
     {
@@ -14516,7 +14920,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L185",
+      "source_location": "L223",
       "weight": 1.0
     },
     {
@@ -14527,7 +14931,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L208",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_extract_video_landmarks",
+      "target": "backend_extract_video_landmarks_normalize_word_str",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L38",
       "weight": 1.0
     },
     {
@@ -14538,7 +14953,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L37",
+      "source_location": "L75",
       "weight": 1.0
     },
     {
@@ -14549,18 +14964,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L53",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_extract_video_landmarks",
-      "target": "backend_extract_video_landmarks_sample_or_interpolate",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L89",
+      "source_location": "L91",
       "weight": 1.0
     },
     {
@@ -14571,7 +14975,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/ingest_dataset_2.py",
-      "source_location": "L103",
+      "source_location": "L110",
       "weight": 1.0
     },
     {
@@ -14971,6 +15375,28 @@
       "weight": 1.0
     },
     {
+      "source": "backend_services_robot_actuator",
+      "target": "backend_services_robot_actuator_baserobotactuator",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator",
+      "target": "backend_services_robot_actuator_ros2actuatorstub",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
       "source": "backend_services_translator_model",
       "target": "backend_services_translator_model_translatormodel",
       "relation": "contains",
@@ -15103,6 +15529,17 @@
       "weight": 1.0
     },
     {
+      "source": "backend_test_word_model",
+      "target": "backend_test_word_model_run_checks",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/test_word_model.py",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
       "source": "backend_tests_test_gemini_manager",
       "target": "backend_tests_test_gemini_manager_testgeminimanager",
       "relation": "contains",
@@ -15187,7 +15624,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/train_unified.py",
-      "source_location": "L822",
+      "source_location": "L832",
       "weight": 1.0
     },
     {
@@ -15199,72 +15636,6 @@
       "confidence_score": 1.0,
       "source_file": "backend/train_unified.py",
       "source_location": "L85",
-      "weight": 1.0
-    },
-    {
-      "source": "dataset_isltranslate_readme",
-      "target": "dataset_isltranslate_readme_isltranslate_dataset_for_translating_indian_sign_language",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L1",
-      "weight": 1.0
-    },
-    {
-      "source": "dataset_isltranslate_readme",
-      "target": "dataset_isltranslate_readme_download_dataset",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L34",
-      "weight": 1.0
-    },
-    {
-      "source": "dataset_isltranslate_readme",
-      "target": "dataset_isltranslate_readme_isl_signer_validation",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L56",
-      "weight": 1.0
-    },
-    {
-      "source": "dataset_isltranslate_readme",
-      "target": "dataset_isltranslate_readme_license",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L91",
-      "weight": 1.0
-    },
-    {
-      "source": "dataset_isltranslate_readme",
-      "target": "dataset_isltranslate_readme_citation",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L95",
-      "weight": 1.0
-    },
-    {
-      "source": "dataset_isltranslate_readme_isl_signer_validation",
-      "target": "dataset_isltranslate_readme_comparison_scores",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "dataset/ISLTranslate/README.md",
-      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -15770,7 +16141,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -15781,7 +16152,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -15819,7 +16190,7 @@
     },
     {
       "source": "package",
-      "target": "package_type",
+      "target": "package_description",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15830,13 +16201,24 @@
     },
     {
       "source": "package",
-      "target": "package_scripts",
+      "target": "package_type",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
+      "target": "package_scripts",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "package.json",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -15847,7 +16229,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -15858,7 +16240,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -15869,7 +16251,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -15880,7 +16262,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -15891,7 +16273,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L19",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -15902,7 +16284,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -15913,7 +16295,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L21",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -15924,7 +16306,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L22",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -15935,12 +16317,12 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
       "source": "package_scripts",
-      "target": "package_scripts_preview",
+      "target": "package_scripts_lint",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15951,18 +16333,18 @@
     },
     {
       "source": "package_scripts",
-      "target": "package_scripts_dev",
+      "target": "package_scripts_preview",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L7",
+      "source_location": "L11",
       "weight": 1.0
     },
     {
       "source": "package_scripts",
-      "target": "package_scripts_build",
+      "target": "package_scripts_dev",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15973,7 +16355,7 @@
     },
     {
       "source": "package_scripts",
-      "target": "package_scripts_lint",
+      "target": "package_scripts_build",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16584,7 +16966,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -16969,7 +17351,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L661",
+      "source_location": "L731",
+      "weight": 1.0
+    },
+    {
+      "source": "src_hooks_usegesturerecognition",
+      "target": "src_hooks_usegesturerecognition_formatwordforsentence",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/hooks/useGestureRecognition.js",
+      "source_location": "L75",
       "weight": 1.0
     },
     {
@@ -16980,7 +17373,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L75",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -17135,6 +17528,28 @@
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
       "source_location": "L290",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_baserobotactuator",
+      "target": "abc",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_ros2actuatorstub",
+      "target": "backend_services_robot_actuator_baserobotactuator",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L38",
       "weight": 1.0
     },
     {
@@ -17696,6 +18111,105 @@
       "confidence_score": 1.0,
       "source_file": "backend/services/groq_manager.py",
       "source_location": "L269",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_baserobotactuator",
+      "target": "backend_services_robot_actuator_baserobotactuator_connect",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_baserobotactuator",
+      "target": "backend_services_robot_actuator_baserobotactuator_disconnect",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_baserobotactuator",
+      "target": "backend_services_robot_actuator_baserobotactuator_send_angles",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_baserobotactuator",
+      "target": "backend_services_robot_actuator_baserobotactuator_sign_letter",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_ros2actuatorstub",
+      "target": "backend_services_robot_actuator_ros2actuatorstub_init",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_ros2actuatorstub",
+      "target": "backend_services_robot_actuator_ros2actuatorstub_connect",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_ros2actuatorstub",
+      "target": "backend_services_robot_actuator_ros2actuatorstub_disconnect",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_ros2actuatorstub",
+      "target": "backend_services_robot_actuator_ros2actuatorstub_send_angles",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_ros2actuatorstub",
+      "target": "backend_services_robot_actuator_ros2actuatorstub_sign_letter",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L72",
       "weight": 1.0
     },
     {
@@ -18293,168 +18807,179 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_192",
+      "source": "backend_app_rationale_188",
       "target": "backend_app_clean_llm_text",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L192",
+      "source_location": "L188",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_238",
+      "source": "backend_app_rationale_204",
       "target": "backend_app_limit_to_human_length",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L238",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_262",
+      "source": "backend_app_rationale_228",
       "target": "backend_app_llm_refine",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L262",
+      "source_location": "L228",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_322",
+      "source": "backend_app_rationale_288",
       "target": "backend_app_llm_simplify",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L322",
+      "source_location": "L288",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_360",
+      "source": "backend_app_rationale_326",
       "target": "backend_app_llm_answer",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L360",
+      "source_location": "L326",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_449",
+      "source": "backend_app_rationale_415",
       "target": "backend_app_llm_status",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L449",
+      "source_location": "L415",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_459",
+      "source": "backend_app_rationale_425",
       "target": "backend_app_model_info",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L459",
+      "source_location": "L425",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_465",
+      "source": "backend_app_rationale_431",
       "target": "backend_app_words_info",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L465",
+      "source_location": "L431",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_471",
+      "source": "backend_app_rationale_437",
       "target": "backend_app_model_reload",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L471",
+      "source_location": "L437",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_487",
+      "source": "backend_app_rationale_453",
       "target": "backend_app_translate",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L487",
+      "source_location": "L453",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_545",
+      "source": "backend_app_rationale_511",
       "target": "backend_app_translate_batch",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L545",
+      "source_location": "L511",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_575",
+      "source": "backend_app_rationale_541",
       "target": "backend_app_translate_snapshot",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L575",
+      "source_location": "L541",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_631",
+      "source": "backend_app_rationale_597",
       "target": "backend_app_translate_word",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L631",
+      "source_location": "L597",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_688",
+      "source": "backend_app_rationale_654",
       "target": "backend_app_get_history",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L688",
+      "source_location": "L654",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_704",
+      "source": "backend_app_rationale_670",
       "target": "backend_app_collect_data",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L704",
+      "source_location": "L670",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_729",
+      "target": "backend_app_robot_status",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L729",
       "weight": 1.0
     },
     {
@@ -18469,58 +18994,47 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_763",
-      "target": "backend_app_robot_status",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L763",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_769",
+      "source": "backend_app_rationale_735",
       "target": "backend_app_robot_connect",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L769",
+      "source_location": "L735",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_795",
+      "source": "backend_app_rationale_761",
       "target": "backend_app_robot_disconnect",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L795",
+      "source_location": "L761",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_802",
+      "source": "backend_app_rationale_768",
       "target": "backend_app_robot_sign",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L802",
+      "source_location": "L768",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_859",
+      "source": "backend_app_rationale_825",
       "target": "backend_app_robot_sign_letter",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L859",
+      "source_location": "L825",
       "weight": 1.0
     },
     {
@@ -18678,58 +19192,69 @@
       "weight": 1.0
     },
     {
-      "source": "backend_extract_video_landmarks_rationale_103",
-      "target": "backend_extract_video_landmarks_augment_raw_sequence",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L103",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_extract_video_landmarks_rationale_186",
-      "target": "backend_extract_video_landmarks_process_video",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L186",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_extract_video_landmarks_rationale_38",
-      "target": "backend_extract_video_landmarks_clean_word_label",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L38",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_extract_video_landmarks_rationale_54",
-      "target": "backend_extract_video_landmarks_get_landmark_vector_from_result",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L54",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_extract_video_landmarks_rationale_90",
+      "source": "backend_extract_video_landmarks_rationale_128",
       "target": "backend_extract_video_landmarks_sample_or_interpolate",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L90",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_extract_video_landmarks_rationale_141",
+      "target": "backend_extract_video_landmarks_augment_raw_sequence",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_extract_video_landmarks_rationale_224",
+      "target": "backend_extract_video_landmarks_process_video",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L224",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_extract_video_landmarks_rationale_39",
+      "target": "backend_extract_video_landmarks_normalize_word_str",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_extract_video_landmarks_rationale_76",
+      "target": "backend_extract_video_landmarks_clean_word_label",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_extract_video_landmarks_rationale_92",
+      "target": "backend_extract_video_landmarks_get_landmark_vector_from_result",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/extract_video_landmarks.py",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -19503,6 +20028,83 @@
       "weight": 1.0
     },
     {
+      "source": "backend_services_robot_actuator_rationale_1",
+      "target": "backend_services_robot_actuator",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_rationale_15",
+      "target": "backend_services_robot_actuator_baserobotactuator",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_rationale_19",
+      "target": "backend_services_robot_actuator_baserobotactuator_connect",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_rationale_24",
+      "target": "backend_services_robot_actuator_baserobotactuator_disconnect",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_rationale_29",
+      "target": "backend_services_robot_actuator_baserobotactuator_send_angles",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_rationale_34",
+      "target": "backend_services_robot_actuator_baserobotactuator_sign_letter",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_robot_actuator_rationale_39",
+      "target": "backend_services_robot_actuator_ros2actuatorstub",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/robot_actuator.py",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
       "source": "backend_services_translator_model_rationale_1",
       "target": "backend_services_translator_model",
       "relation": "rationale_for",
@@ -19819,6 +20421,17 @@
       "confidence_score": 1.0,
       "source_file": "backend/stream_and_extract_hf.py",
       "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_test_word_model_rationale_1",
+      "target": "backend_test_word_model",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/test_word_model.py",
+      "source_location": "L1",
       "weight": 1.0
     },
     {
@@ -20149,7 +20762,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "backend/extract_video_landmarks.py",
-      "source_location": "L39",
+      "source_location": "L77",
       "weight": 1.0
     },
     {
@@ -20333,5 +20946,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "26d75a8e3b2e66ab69cd37b880790daeca085de2"
+  "built_at_commit": "c36490bd263cfe3651964ff8931f6b7b05298380"
 }

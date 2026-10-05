@@ -1,7 +1,8 @@
 {
-  "name": "signbridge",
+  "name": "signbridge-kiosk",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Two-Way Indian Sign Language (ISL) Translation & Robotic Actuation Kiosk",
   "type": "module",
   "scripts": {
     "dev": "vite",

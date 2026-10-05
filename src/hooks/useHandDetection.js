@@ -313,6 +313,15 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
 
     return () => {
       cancelled = true;
+      if (trackerRef.current && typeof trackerRef.current.close === 'function') {
+        try {
+          trackerRef.current.close();
+        } catch {
+          // ignore cleanup errors on unmount
+        }
+        trackerRef.current = null;
+        scriptLoadedRef.current = false;
+      }
     };
   }, [enabled, loadScript, onLandmarks, throttleMs]);
 

@@ -557,6 +557,16 @@ def train_word_model():
                 noise_scale = _rng.uniform(0.003, 0.010)
                 aug_sample = base_sample + _rng.normal(0, noise_scale, size=base_sample.shape).astype(np.float32)
 
+                # Random spatial scaling (simulate camera distance/hand size variations)
+                if _rng.random() < 0.4:
+                    scale = _rng.uniform(0.92, 1.08)
+                    aug_sample = aug_sample * scale
+
+                # Random spatial translation shift
+                if _rng.random() < 0.4:
+                    shift = _rng.uniform(-0.025, 0.025, size=(1, aug_sample.shape[1])).astype(np.float32)
+                    aug_sample = aug_sample + shift
+
                 # Random time warp / speed variation
                 if _rng.random() < 0.4:
                     speed = _rng.uniform(0.85, 1.15)
@@ -579,11 +589,12 @@ def train_word_model():
     X_train_aug, y_train_aug = balance_and_augment_sequences(X_train, y_train, target_per_class=250)
     logger.info(f"Class-balanced training: {len(X_train_aug)} sequences ({dict(Counter(y_train_aug))})")
 
-    # Compute inverse class frequencies for weighted loss
-    class_counts = np.bincount(y_train_aug, minlength=len(word_labels))
-    class_weights = np.where(class_counts > 0, 1.0 / class_counts, 0.0)
-    class_weights = class_weights / np.sum(class_weights) * len(word_labels)
-    class_weights_tensor = torch.tensor(class_weights, dtype=torch.float32)
+    # Compute inverse class frequencies from RAW training distribution to penalize dominant classes (e.g. THANK_YOU)
+    raw_counts = np.bincount(y_train, minlength=len(word_labels))
+    raw_counts_clamped = np.maximum(raw_counts, 1)
+    inv_weights = (len(y_train) / (len(word_labels) * raw_counts_clamped)) ** 0.5
+    inv_weights = inv_weights / np.mean(inv_weights)
+    class_weights_tensor = torch.tensor(inv_weights, dtype=torch.float32)
 
     # --- PyTorch Dataset ---
     class SeqDataset(Dataset):
@@ -630,7 +641,7 @@ def train_word_model():
             return self.classifier(pooled)
 
     model = CNNBiLSTMWordClassifier(num_classes=len(word_labels))
-    criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
+    criterion = nn.CrossEntropyLoss(weight=class_weights_tensor, label_smoothing=0.1)
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
 
@@ -750,8 +761,8 @@ def train_word_model():
         'word_labels': word_labels,
     }, str(model_path))
 
-    # Also train and save Random Forest word classifier as backup
-    logger.info("\nTraining Random Forest word classifier (backup)...")
+    # Optional compact Random Forest word classifier as lightweight backup (max_depth=12, n_estimators=60)
+    logger.info("\nTraining Compact Random Forest word classifier (lightweight backup)...")
     try:
         from sklearn.ensemble import RandomForestClassifier
 
@@ -759,10 +770,9 @@ def train_word_model():
         X_val_flat = X_val.reshape(len(X_val), -1)
 
         rf = RandomForestClassifier(
-            n_estimators=300,
-            max_depth=20,
-            min_samples_split=3,
-            min_samples_leaf=2,
+            n_estimators=60,
+            max_depth=12,
+            min_samples_split=4,
             random_state=42,
             n_jobs=-1,
         )
@@ -773,7 +783,7 @@ def train_word_model():
 
         rf_path = MODEL_DIR / 'isl_word_classifier.pkl'
         with open(rf_path, 'wb') as f:
-            pickle.dump(rf, f)
+            pickle.dump(rf, f, protocol=4)
 
         rf_meta = {
             'model_type': 'random_forest_sequence',

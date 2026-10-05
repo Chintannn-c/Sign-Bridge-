@@ -1,16 +1,16 @@
-# Graph Report - SignBridge  (2026-09-29)
+# Graph Report - SignBridge  (2026-10-05)
 
 ## Corpus Check
-- 675 files · ~7,209,016 words
+- 865 files · ~30,669,559 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 744 nodes · 1023 edges · 56 communities (46 shown, 7 thin omitted)
+- 769 nodes · 1052 edges · 58 communities (48 shown, 7 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `26d75a8e`
+- Built from commit: `c36490bd`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -31,7 +31,7 @@
 - groq_manager.py
 - WordRecognizer
 - SpatialGraphConv
-- OneEuroFilter
+- LandmarkSmoother
 - .generate
 - KeyInfo
 - KeyManager
@@ -43,13 +43,14 @@
 - 4. Detailed Implementation Plan
 - PROJECT_CONTEXT.md
 - Sign-Bridge_Software_Hardware_Build_Guide _9244e8e7.md
+- BaseRobotActuator
 - AI_MEMORY.md
 - graphify reference: extra exports and benchmark
 - Ponytail
 - Ponytail Help
 - ingest_dataset_2.py
 - ingest_zip_dataset.py
-- ISLTranslate/README.md
+- extract_video_landmarks.py
 - 2. Ponytail (Lazy Senior Dev Mode)
 - graphify reference: query, path, explain
 - ModelSelector
@@ -68,6 +69,7 @@
 - extraction-spec.md
 - workflows/graphify.md
 - GEMINI.md
+- SignBridge Architecture
 
 ## God Nodes (most connected - your core abstractions)
 1. `SignBridge: Dual-Communication Indian Sign Language (ISL) Translation & Robotic Actuation System` - 22 edges
@@ -79,7 +81,7 @@
 7. `KeyInfo` - 16 edges
 8. `ArduinoSerial` - 13 edges
 9. `lucide-react` - 12 edges
-10. `What You Must Do When Invoked` - 12 edges
+10. `useGestureRecognition()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `TestGeminiManager` --uses--> `GeminiKeyStatus`  [INFERRED]
@@ -96,15 +98,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (56 total, 7 thin omitted)
+## Communities (58 total, 7 thin omitted)
 
 ### Community 0 - "react"
 Cohesion: 0.06
-Nodes (44): framer-motion, lucide-react, react, App(), CameraView(), GestureReferenceSheet(), HumanPanel, RobotPanel (+36 more)
+Nodes (45): framer-motion, lucide-react, react, App(), CameraView(), GestureReferenceSheet(), HumanPanel, RobotPanel (+37 more)
 
 ### Community 1 - "TranslatorModel"
 Cohesion: 0.05
-Nodes (50): ST-GCN Classifier for Static / Frame-Level Dual-Hand ISL Gestures. Input:…, STGCNHandClassifier, get_file_sha256(), load_dataset_partitioned(), Any, Clean, Leak-Free Data Loader and Partition Manager for SignBridge ISL Alphabet…, Compute SHA-256 hash of a file., Load dataset strictly partitioned by origin without frame-level leakage.… (+42 more)
+Nodes (51): ST-GCN Classifier for Static / Frame-Level Dual-Hand ISL Gestures. Input:…, STGCNHandClassifier, get_file_sha256(), load_dataset_partitioned(), Any, Clean, Leak-Free Data Loader and Partition Manager for SignBridge ISL Alphabet…, Compute SHA-256 hash of a file., Load dataset strictly partitioned by origin without frame-level leakage.… (+43 more)
 
 ### Community 2 - "app.py"
 Cohesion: 0.05
@@ -112,15 +114,15 @@ Nodes (62): clean_llm_text(), collect_data(), generate_llm_response(), get_histo
 
 ### Community 3 - "package.json"
 Cohesion: 0.07
-Nodes (26): dependencies, framer-motion, lucide-react, react, react-dom, devDependencies, oxlint, @types/react (+18 more)
+Nodes (27): dependencies, framer-motion, lucide-react, react, react-dom, description, devDependencies, oxlint (+19 more)
 
 ### Community 4 - "extract_static_landmarks.py"
 Cohesion: 0.22
 Nodes (14): extract_mendeley_zip(), get_landmark_vector_from_result(), main(), process_mendeley_dataset(), process_realsign_dataset(), process_realsign_letters(), process_self_made_dataset(), SignBridge — Unified Batch Static Landmark Extractor (v2) Processes ALL… (+6 more)
 
 ### Community 5 - "stream_and_extract_hf.py"
-Cohesion: 0.10
-Nodes (27): augment_raw_sequence(), clean_word_label(), get_landmark_vector_from_result(), main(), process_video(), SignBridge — Batch Video Landmark Extractor (v2) + Heavy Augmentation Extracts…, Apply heavy augmentation to a raw sequence of frames before resampling.…, Processes a single video into raw landmark frames (variable length). (+19 more)
+Cohesion: 0.19
+Nodes (14): augment_raw_sequence(), clean_word_label(), extract_raw_frames_from_video_bytes(), get_landmark_vector_from_result(), init_mediapipe_detector(), main(), SignBridge — High-Speed Hugging Face ISL Zero-Disk Streaming Landmark Extractor…, Decodes video frames directly from memory bytes buffer and extracts 42 3D… (+6 more)
 
 ### Community 6 - "ArduinoSerial"
 Cohesion: 0.11
@@ -155,8 +157,8 @@ Cohesion: 0.20
 Nodes (11): ErrorClassifier, GroqErrorType, GroqKeyStatus, mask_key(), Enum, Exception, SignBridge Centralized Groq LPU API Management System. Features: - Dual API Key…, Classifies raw Groq SDK and HTTP exceptions into actionable error enums. (+3 more)
 
 ### Community 14 - "WordRecognizer"
-Cohesion: 0.18
-Nodes (7): Sign-Bridge Flask API — ISL Word Recognition Service Loads a trained model that…, Predict a word from a sequence of landmark frames with optional MediaPipe…, ISL whole-word gesture recognizer using temporal landmark sequences. Accepts a…, Ensure frames array is exactly SEQUENCE_LENGTH frames long., Return word recognizer metadata., Attempt to load the trained word model. Loading priority: 1. CNN-BiLSTM hybrid…, WordRecognizer
+Cohesion: 0.15
+Nodes (9): Sign-Bridge Flask API — ISL Word Recognition Service Loads a trained model that…, Predict a word from a sequence of landmark frames with optional MediaPipe…, ISL whole-word gesture recognizer using temporal landmark sequences. Accepts a…, Ensure frames array is exactly SEQUENCE_LENGTH frames long., Return word recognizer metadata., Attempt to load the trained word model. Loading priority: 1. CNN-BiLSTM hybrid…, WordRecognizer, SignBridge — Automated Word Model Self-Check & Validation Suite Evaluates… (+1 more)
 
 ### Community 15 - "SpatialGraphConv"
 Cohesion: 0.27
@@ -206,6 +208,10 @@ Nodes (19): 10. DevOps, Deployment & Verification, 11. Complete Project Change L
 Cohesion: 0.11
 Nodes (18): 1.1 Path 1 in code terms (ISL → text/speech), 1.2 Path 2 in code terms (text/speech → ISL hands), 1. Software Architecture — Where Everything Runs, 2. Display Interface (What the Browser Looks Like), 3. How the Webcam Captures and Interprets Signs, 4.1 Per-Hand Build Steps (repeat identically for left and right), 4.2 Wiring Both Hands to One Arduino Mega, 4.3 Hardware ↔ Software Integration (+10 more)
 
+### Community 30 - "BaseRobotActuator"
+Cohesion: 0.11
+Nodes (10): ABC, BaseRobotActuator, SignBridge — Robotics Actuation Interface & ROS2 Stub Provides a standardized…, Abstract base actuator for dual robotic hands / arms., Establish connection to actuator hardware or middleware., Cleanly close actuator connection., Send 10-element servo angle array [0..180]., Actuate robotic hands to form a specific ISL letter. (+2 more)
+
 ### Community 31 - "AI_MEMORY.md"
 Cohesion: 0.17
 Nodes (10): AI Notes, Architecture Decisions, Coding Conventions, Common Pitfalls, Constraints, Design Patterns, Frequently Edited Files, Important Assumptions (+2 more)
@@ -230,9 +236,9 @@ Nodes (6): augment_vector(), get_landmark_vector(), main(), SignBridge — Datas
 Cohesion: 0.38
 Nodes (6): augment_landmark_vector(), get_landmark_vector_from_result(), ingest_zip(), SignBridge — Custom Dataset.zip Ingestion & Feature Extraction Reads…, Standardizes MediaPipe HandLandmarker result into a 126-float array. Indices…, Generate subtle kinematic rotations and noise for a static landmark vector.
 
-### Community 37 - "ISLTranslate/README.md"
-Cohesion: 0.29
-Nodes (6): Citation, **Comparison Scores:**, Download Dataset, ISL-Signer Validation, ISLTranslate: Dataset for Translating Indian Sign Language, License
+### Community 37 - "extract_video_landmarks.py"
+Cohesion: 0.19
+Nodes (14): augment_raw_sequence(), clean_word_label(), get_landmark_vector_from_result(), main(), _normalize_word_str(), process_video(), SignBridge — Batch Video Landmark Extractor (v2) + Heavy Augmentation Extracts…, Resamples a list of landmark frames to exactly target_length frames. (+6 more)
 
 ### Community 38 - "2. Ponytail (Lazy Senior Dev Mode)"
 Cohesion: 0.33
@@ -282,25 +288,29 @@ Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphif
 Cohesion: 0.50
 Nodes (3): Boundaries, Output, Scan
 
+### Community 57 - "SignBridge Architecture"
+Cohesion: 0.40
+Nodes (4): 1. Perception Engine (`backend/services/`), 2. Presentation Layer (`src/components/`), 3. Actuation Layer (`backend/services/arduino_serial.py`), SignBridge Architecture
+
 ## Knowledge Gaps
-- **206 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+201 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 419 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **205 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+200 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 433 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `TranslatorModel` connect `TranslatorModel` to `app.py`?**
-  _High betweenness centrality (0.037) - this node is a cross-community bridge._
-- **Why does `load_dataset_partitioned()` connect `TranslatorModel` to `stream_and_extract_hf.py`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **Why does `normalize_landmarks()` connect `TranslatorModel` to `WordRecognizer`?**
   _High betweenness centrality (0.026) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `TestGeminiManager` (e.g. with `ErrorClassifier` and `GeminiErrorType`) actually correct?**
   _`TestGeminiManager` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
-  _206 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _205 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `react` be split into smaller, more focused modules?**
-  _Cohesion score 0.06316590563165905 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06219918548685672 - nodes in this community are weakly interconnected._
 - **Should `TranslatorModel` be split into smaller, more focused modules?**
-  _Cohesion score 0.051577152600170505 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05093167701863354 - nodes in this community are weakly interconnected._
+- **Should `app.py` be split into smaller, more focused modules?**
+  _Cohesion score 0.05357142857142857 - nodes in this community are weakly interconnected._

@@ -15,7 +15,7 @@
   "13": "groq_manager.py",
   "14": "WordRecognizer",
   "15": "SpatialGraphConv",
-  "16": "OneEuroFilter",
+  "16": "LandmarkSmoother",
   "17": ".generate",
   "18": "KeyInfo",
   "19": "KeyManager",
@@ -29,13 +29,14 @@
   "27": "4. Detailed Implementation Plan",
   "28": "PROJECT_CONTEXT.md",
   "29": "Sign-Bridge_Software_Hardware_Build_Guide _9244e8e7.md",
+  "30": "BaseRobotActuator",
   "31": "AI_MEMORY.md",
   "32": "graphify reference: extra exports and benchmark",
   "33": "Ponytail",
   "34": "Ponytail Help",
   "35": "ingest_dataset_2.py",
   "36": "ingest_zip_dataset.py",
-  "37": "ISLTranslate/README.md",
+  "37": "extract_video_landmarks.py",
   "38": "2. Ponytail (Lazy Senior Dev Mode)",
   "39": "graphify reference: query, path, explain",
   "40": "ModelSelector",
@@ -54,5 +55,6 @@
   "53": "extraction-spec.md",
   "54": "workflows/graphify.md",
   "55": "GEMINI.md",
-  "56": "Software Requirement Specification_f42c747e.md"
+  "56": "Software Requirement Specification_f42c747e.md",
+  "57": "SignBridge Architecture"
 }

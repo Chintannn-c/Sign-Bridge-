@@ -72,6 +72,12 @@ function captureVideoSnapshot(videoEl) {
   }
 }
 
+function formatWordForSentence(rawWord) {
+  if (!rawWord) return '';
+  // Convert compound names with underscores (e.g. 'GOOD_MORNING' -> 'GOOD MORNING') into natural words
+  return rawWord.replace(/_/g, ' ').trim();
+}
+
 export function useGestureRecognition({ enabled = false, initialMode = 'letter', videoElement = null, onSendMessage = null } = {}) {
   const [recognitionMode, setRecognitionMode] = useState(initialMode); // 'letter' | 'word'
   const [status, setStatus] = useState(STATES.IDLE);
@@ -84,9 +90,13 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const [guidance, setGuidance] = useState(null);
   const [wordBufferCount, setWordBufferCount] = useState(0);
   const [availableWords, setAvailableWords] = useState([
-    'AGAIN', 'BYE_BYE', 'DEAF', 'DOCTOR', 'FOOD', 'HEARING', 'HELLO', 'HELP', 'INDIA', 'LANGUAGE',
-    'MAN', 'ME', 'NAMASTE', 'PLEASE', 'SIGN', 'SORRY', 'THANK_YOU', 'WASHROOM', 'WATER', 'WELCOME',
-    'WHERE', 'WOMAN', 'YOU'
+    'AGAIN', 'BAD', 'BOY', 'BYE_BYE', 'CHILD', 'CORRECT', 'DAY', 'DEAF', 'DIFFICULT', 'DOCTOR',
+    'EASY', 'FEAR', 'FOOD', 'GIRL', 'GOOD', 'GOOD_AFTERNOON', 'GOOD_EVENING', 'GOOD_MORNING', 'GOOD_NIGHT',
+    'HE', 'HEARING', 'HELLO', 'HELP', 'HOW_ARE_YOU', 'IM_FINE', 'INDIA', 'I_DONT_UNDERSTAND',
+    'LANGUAGE', 'MAN', 'ME', 'MORNING', 'MY_NAME_IS', 'NAMASTE', 'NO', 'NO_FEAR', 'PEACE',
+    'PLEASE', 'PRACTICE', 'REMEMBER', 'SHE', 'SIGN', 'SORRY', 'STRONG', 'TEACHER', 'THANK_YOU',
+    'THANK_YOU_VERY_MUCH', 'THIN', 'UNDERSTAND', 'WASHROOM', 'WATER', 'WEAK', 'WELCOME', 'WHERE',
+    'WOMAN', 'WRONG', 'YES', 'YOU'
   ]);
 
   // Inactivity / Hand-Drop Auto-Send states
@@ -95,6 +105,28 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const [inactivityCountdown, setInactivityCountdown] = useState(null);
   const [lastAutoSpoken, setLastAutoSpoken] = useState(null);
   const [isAutoSending, setIsAutoSending] = useState(false);
+
+  // Auto-Space Between Words states & stable refs
+  const [autoSpaceWords, setAutoSpaceWords] = useState(true);
+  const [autoWordSpaceDelayMs, setAutoWordSpaceDelayMs] = useState(900);
+  const autoSpaceTimerRef = useRef(null);
+  const autoSpaceWordsRef = useRef(autoSpaceWords);
+  const autoWordSpaceDelayMsRef = useRef(autoWordSpaceDelayMs);
+
+  useEffect(() => {
+    autoSpaceWordsRef.current = autoSpaceWords;
+  }, [autoSpaceWords]);
+
+  useEffect(() => {
+    autoWordSpaceDelayMsRef.current = autoWordSpaceDelayMs;
+  }, [autoWordSpaceDelayMs]);
+
+  const clearAutoSpaceTimer = useCallback(() => {
+    if (autoSpaceTimerRef.current) {
+      clearTimeout(autoSpaceTimerRef.current);
+      autoSpaceTimerRef.current = null;
+    }
+  }, []);
 
   // Temporal smoothing & buffering refs
   const consecutiveLetterRef = useRef({ letter: null, count: 0 });
@@ -194,6 +226,19 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   }, [cancelInactivityCountdown, onSendMessage]);
 
   const handleHandsDropped = useCallback(() => {
+    // If auto-space is enabled, automatically insert space after the last completed word
+    if (autoSpaceWordsRef.current) {
+      clearAutoSpaceTimer();
+      setSentenceBuffer(prev => {
+        const trimmed = prev.trimEnd();
+        if (trimmed.length > 0 && !prev.endsWith(' ')) {
+          return trimmed + ' ';
+        }
+        return prev;
+      });
+      lastCommittedItemRef.current = null;
+    }
+
     if (!autoSendEnabled || !sentenceBufferRef.current.trim() || isAutoSendingRef.current) {
       return;
     }
@@ -220,7 +265,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         triggerAutoSend();
       }, autoSendTimeoutMs);
     }
-  }, [autoSendEnabled, autoSendTimeoutMs, triggerAutoSend]);
+  }, [autoSendEnabled, autoSendTimeoutMs, triggerAutoSend, clearAutoSpaceTimer]);
 
   // Fetch model information & available word classes
   useEffect(() => {
@@ -375,19 +420,23 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
             // Commit word after 2 consecutive frames or high confidence (>0.85)
             if (consecutiveWordRef.current.count >= 2 || prediction.confidence >= 0.85) {
-              if (now - lastCommitRef.current > 1200) { // 1.2s cooldown between words
-                if (lastCommittedItemRef.current !== prediction.word) {
-                  setStatus(STATES.STABLE);
-                  setSentenceBuffer(prev => {
-                    const clean = prev.trim();
-                    return clean.length > 0 ? `${clean} ${prediction.word}` : prediction.word;
-                  });
-                  lastCommitRef.current = now;
-                  lastCommittedItemRef.current = prediction.word;
-                  consecutiveWordRef.current = { word: null, count: 0 };
-                  frameBufferRef.current = []; // Clear buffer after successful word lock
-                  setWordBufferCount(0);
-                }
+              const formattedWord = formatWordForSentence(prediction.word);
+              const isDifferentWord = (lastCommittedItemRef.current !== prediction.word);
+              const canRepeatSameWord = (now - lastCommitRef.current > 1800);
+
+              if (now - lastCommitRef.current > 1100 && (isDifferentWord || canRepeatSameWord)) {
+                setStatus(STATES.STABLE);
+                clearAutoSpaceTimer();
+                setSentenceBuffer(prev => {
+                  const clean = prev.trim();
+                  // Automatically place space between words to form a word-level sentence
+                  return clean.length > 0 ? `${clean} ${formattedWord}` : formattedWord;
+                });
+                lastCommitRef.current = now;
+                lastCommittedItemRef.current = prediction.word;
+                consecutiveWordRef.current = { word: null, count: 0 };
+                frameBufferRef.current = []; // Clear buffer after successful word lock
+                setWordBufferCount(0);
               }
             }
           } else {
@@ -501,13 +550,28 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       // Commit letter after reaching stability threshold
       if (consecutiveLetterRef.current.count >= STABILITY_THRESHOLD) {
         const now = Date.now();
-        if (now - lastCommitRef.current > 450) {
+        if (now - lastCommitRef.current > 420) {
           if (lastCommittedItemRef.current !== prediction.letter) {
             setStatus(STATES.STABLE);
+            clearAutoSpaceTimer();
             setSentenceBuffer(prevBuf => prevBuf + prediction.letter);
             lastCommitRef.current = now;
             lastCommittedItemRef.current = prediction.letter;
             consecutiveLetterRef.current = { letter: null, count: 0 };
+
+            // Automatic word-spacing: when user pauses between words, automatically append space
+            if (autoSpaceWordsRef.current) {
+              autoSpaceTimerRef.current = setTimeout(() => {
+                setSentenceBuffer(prev => {
+                  const trimmed = prev.trimEnd();
+                  if (trimmed.length > 0 && !prev.endsWith(' ')) {
+                    return trimmed + ' ';
+                  }
+                  return prev;
+                });
+                lastCommittedItemRef.current = null;
+              }, autoWordSpaceDelayMsRef.current);
+            }
           }
         }
       }
@@ -519,7 +583,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     } finally {
       isRequestPendingRef.current = false;
     }
-  }, [enabled, recognitionMode, cancelInactivityCountdown, handleHandsDropped, videoElement]);
+  }, [enabled, recognitionMode, cancelInactivityCountdown, handleHandsDropped, videoElement, clearAutoSpaceTimer]);
 
   // Sentence buffer actions
   const undoLetter = useCallback(() => {
@@ -538,13 +602,14 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   }, []);
 
   const clearBuffer = useCallback(() => {
+    clearAutoSpaceTimer();
     setSentenceBuffer('');
     consecutiveLetterRef.current = { letter: null, count: 0 };
     consecutiveWordRef.current = { word: null, count: 0 };
     lastCommittedItemRef.current = null;
     frameBufferRef.current = [];
     setWordBufferCount(0);
-  }, []);
+  }, [clearAutoSpaceTimer]);
 
   const addSpace = useCallback(() => {
     setSentenceBuffer(prev => (prev.endsWith(' ') ? prev : prev + ' '));
@@ -631,6 +696,11 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     wordBufferCount,
     wordBufferMax: WORD_SEQUENCE_LENGTH,
     availableWords,
+    // Auto-Space Between Words states
+    autoSpaceWords,
+    setAutoSpaceWords,
+    autoWordSpaceDelayMs,
+    setAutoWordSpaceDelayMs,
     // Auto-Send / Inactivity states
     autoSendEnabled,
     setAutoSendEnabled,

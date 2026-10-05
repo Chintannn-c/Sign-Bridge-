@@ -177,15 +177,11 @@ def generate_llm_response(
 
 
 def safe_float(val: object, default: float = 0.0) -> float:
-    """Safely convert any raw value (float, int, str, or unknown) to float without type errors."""
-    if isinstance(val, (int, float)):
-        return float(val)
-    if isinstance(val, (str, bytes)):
-        try:
-            return float(val)
-        except (ValueError, TypeError):
-            return default
-    return default
+    """Safely convert any raw value to float without errors."""
+    try:
+        return float(val)  # type: ignore[arg-type]
+    except (ValueError, TypeError):
+        return default
 
 
 def clean_llm_text(text: str) -> str:
@@ -194,44 +190,14 @@ def clean_llm_text(text: str) -> str:
         return ""
 
     cleaned = text
-
-    # Normalize unicode spaces and fancy quotes/dashes
-    cleaned = cleaned.replace('\u202f', ' ').replace('\u00a0', ' ')
-    cleaned = cleaned.replace('\u2018', "'").replace('\u2019', "'")
-    cleaned = cleaned.replace('\u201c', '"').replace('\u201d', '"')
-    cleaned = cleaned.replace('\u2013', '-').replace('\u2014', '-')
-
-    # 1. Strip <think>...</think> tags and any unclosed <think> blocks
-    cleaned = re.sub(r'<think>[\s\S]*?</think>', '', cleaned, flags=re.IGNORECASE).strip()
-    cleaned = re.sub(r'<think>[\s\S]*$', '', cleaned, flags=re.IGNORECASE).strip()
-
-    # 2. Strip explicit thinking preambles (e.g., "Here's a thinking process:", "Thinking Process:")
-    cleaned = re.sub(r'^(?:Here\'?s (?:a )?(?:quick )?thinking process:?|Thinking Process:?|Thought Process:?|Thinking:?)[\s\S]*?(?=\n\n|\n[A-Z0-9]|$)', '', cleaned, flags=re.IGNORECASE).strip()
-
-    # 3. If numbered reasoning steps exist like "Final Answer: ...", extract the final sentence
-    if re.search(r'(?:Final Answer|Polished Sentence|Translation|Response):', cleaned, re.IGNORECASE):
-        parts = re.split(r'(?:Final Answer|Polished Sentence|Translation|Response):', cleaned, flags=re.IGNORECASE)
-        if len(parts) > 1 and parts[-1].strip():
-            cleaned = parts[-1].strip()
-
-    # 4. If code fence present, extract fence content
-    fences = re.findall(r'```(?:[a-zA-Z]*\n)?([\s\S]*?)```', cleaned)
-    if fences:
-        cleaned = fences[-1].strip()
-
-    # 5. Remove markdown bold/italic asterisks, hash headers, and quotes
-    cleaned = re.sub(r'#{1,6}\s*', '', cleaned)
-    cleaned = re.sub(r'\*{1,3}', '', cleaned).strip()
-    cleaned = cleaned.strip('"\'`').strip()
-
-    # 6. Safety check: never return leftover think strings
-    if '<think>' in cleaned.lower() or 'thinking process' in cleaned.lower():
-        cleaned = re.sub(r'<think>[\s\S]*', '', cleaned, flags=re.IGNORECASE).strip()
-
-    # 7. Normalize multi-line or excess whitespace into a single concise line
-    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-
-    return cleaned if cleaned else text.strip()
+    # Strip <think> tags, reasoning preambles, and code fences
+    cleaned = re.sub(r'<think>[\s\S]*?(?:<\/think>|$)', '', cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r'^(?:Here\'?s (?:a )?(?:quick )?thinking process:?|Thinking Process:?|Thought Process:?|Thinking:?)[\s\S]*?(?=\n\n|\n[A-Z0-9]|$)', '', cleaned, flags=re.IGNORECASE)
+    if match := re.search(r'(?:Final Answer|Polished Sentence|Translation|Response):\s*([^\n]+)', cleaned, re.IGNORECASE):
+        cleaned = match.group(1)
+    cleaned = re.sub(r'```(?:[a-zA-Z]*\n)?([\s\S]*?)```', r'\1', cleaned)
+    cleaned = re.sub(r'[#*`"\'\u2018\u2019\u201c\u201d]', '', cleaned)
+    return re.sub(r'\s+', ' ', cleaned).strip()
 
 
 def limit_to_human_length(text: str) -> str:
