@@ -595,7 +595,7 @@
       "file_type": "code",
       "norm_label": "analyzequality()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L716"
+      "source_location": "L736"
     },
     {
       "id": "src_hooks_usegesturerecognition_formatwordforsentence",
@@ -643,7 +643,7 @@
       "file_type": "code",
       "norm_label": "fetchmodelinfo()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L257"
+      "source_location": "L258"
     },
     {
       "id": "src_hooks_usehanddetection_usehanddetection",
@@ -10768,7 +10768,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L309",
+      "source_location": "L310",
       "weight": 1.0
     },
     {
@@ -10780,7 +10780,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L342",
+      "source_location": "L349",
       "weight": 1.0
     },
     {
@@ -10792,7 +10792,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L430",
+      "source_location": "L450",
       "weight": 1.0
     },
     {
@@ -10852,7 +10852,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L257",
+      "source_location": "L258",
       "weight": 1.0
     },
     {
@@ -17491,7 +17491,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L716",
+      "source_location": "L736",
       "weight": 1.0
     },
     {
@@ -21075,5 +21075,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "22bac9880821589499b0cd04c10c2f085516ac75"
+  "built_at_commit": "08083dc7e78fbe87fbf55ed2071fcc4d30908002"
 }

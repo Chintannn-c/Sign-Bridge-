@@ -123,6 +123,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const isRequestPendingRef = useRef(false);
   const prevLandmarksRef = useRef(null);
   const bodyAnchorsRef = useRef(null);
+  const handsMissingCountRef = useRef(0);
 
   // Inactivity auto-send refs
   const sentenceBufferRef = useRef('');
@@ -308,8 +309,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
     const hasActiveLandmarks = Boolean(handCount > 0 && isValidHandGeometry(landmarks));
 
-    // Update hand status
+    // Update hand status with tracking grace period
     if (handCount > 0 && hasActiveLandmarks) {
+      handsMissingCountRef.current = 0;
       cancelInactivityCountdown(); // Active signing: cancel any pending hand-drop auto-send
       setHandInfo({
         count: handCount,
@@ -317,6 +319,11 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       });
       setStatus(STATES.DETECTED);
     } else {
+      handsMissingCountRef.current += 1;
+      // Grace period: allow up to 6 dropped tracking frames (~250ms) without clearing the word buffer
+      if (handsMissingCountRef.current < 6 && frameBufferRef.current.length > 0) {
+        return null; // Retain buffer during momentary tracking flicker
+      }
       setHandInfo(null);
       setStatus(STATES.SEARCHING);
       setDetectedLetter(null);
@@ -356,17 +363,30 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       }
       setWordBufferCount(frameBufferRef.current.length);
 
-      // Only perform word inference when buffer is full and throttled (every ~100ms)
+      // Start inference as soon as minimum viable sequence (>= 15 frames, ~0.5s) is reached
       const now = Date.now();
-      if (frameBufferRef.current.length >= WORD_SEQUENCE_LENGTH && (now - wordInferenceCooldownRef.current >= 100)) {
+      const hasViableSequence = frameBufferRef.current.length >= 15;
+      const isCooldownOver = (now - wordInferenceCooldownRef.current >= 80);
+
+      if (hasViableSequence && isCooldownOver) {
         wordInferenceCooldownRef.current = now;
+
+        // If sequence has 15-29 frames, linearly resample to exactly 30 frames for the model
+        let framesToSend = frameBufferRef.current;
+        if (framesToSend.length < WORD_SEQUENCE_LENGTH) {
+          const N = framesToSend.length;
+          const indices = Array.from({ length: WORD_SEQUENCE_LENGTH }, (_, i) => 
+            Math.min(N - 1, Math.round(i * (N - 1) / (WORD_SEQUENCE_LENGTH - 1)))
+          );
+          framesToSend = indices.map(idx => framesToSend[idx]);
+        }
 
         try {
           const res = await fetch(`${API_BASE}/translate/word`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              frames: frameBufferRef.current,
+              frames: framesToSend,
               body_anchors: bodyAnchorsRef.current,
             }),
           });

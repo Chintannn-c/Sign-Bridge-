@@ -1,7 +1,7 @@
 # Graph Report - SignBridge  (2026-10-06)
 
 ## Corpus Check
-- 428 files · ~3,775,684 words
+- 428 files · ~3,775,804 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `22bac988`
+- Built from commit: `08083dc7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

@@ -84,12 +84,12 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
   // Recognition state machine with dual letter & word modes and automatic snapshot fallback
   const recognition = useGestureRecognition({ enabled: isLive && isCameraOn, videoElement, onSendMessage });
 
-  // MediaPipe hands integration (2-hand detection, 0.25 confidence)
+  // MediaPipe hands integration (2-hand detection, 0.25 confidence, 28 FPS responsive streaming)
   const detection = useHandDetection({
     videoElement: videoElement,
     enabled: isLive && isCameraOn && !!videoElement,
     onLandmarks: recognition.processLandmarks,
-    throttleMs: 80 // 12.5 FPS smooth real-time response without HTTP queue backlog
+    throttleMs: 35 // ~28 FPS real-time tracking for fluid 1.0s sequence buffering
   });
 
   // Notify parent of recognition updates

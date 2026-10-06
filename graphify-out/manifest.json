@@ -2142,9 +2142,9 @@
     "semantic_hash": "3a3144fed4f557bbf0dd329257656f2d"
   },
   "src/components/CameraView.jsx": {
-    "mtime": 1791300108.2233176,
-    "seen": 1791300174.0564868,
-    "ast_hash": "7e84f15bbc87cf98f3ba5f94e1b21b72",
+    "mtime": 1791300537.645435,
+    "seen": 1791300563.7193868,
+    "ast_hash": "a6f905348a5d7abfcc9a5df9afcdbbd2",
     "semantic_hash": ""
   },
   "src/components/GestureReferenceSheet.jsx": {
@@ -2238,9 +2238,9 @@
     "semantic_hash": "ece8bec5154fcc0a1da253745a7798e0"
   },
   "src/hooks/useGestureRecognition.js": {
-    "mtime": 1791298381.8852723,
-    "seen": 1791299393.9244153,
-    "ast_hash": "a534967922e41f0b36d7961cc106fc3f",
+    "mtime": 1791300522.7908278,
+    "seen": 1791300563.723386,
+    "ast_hash": "b52eb5a1d21f1443990e742f7c98bf9b",
     "semantic_hash": ""
   },
   "src/hooks/useHandDetection.js": {
