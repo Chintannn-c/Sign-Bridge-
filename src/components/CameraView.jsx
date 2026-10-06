@@ -447,9 +447,23 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
 
             <div className="fullscreen-hud-buffer">
               {recognition.sentenceBuffer && recognition.sentenceBuffer.trim().length > 0 ? (
-                <div className="fullscreen-hud-text">
+                <div className="fullscreen-hud-text" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                   <span>{recognition.sentenceBuffer}</span>
                   <span className="fullscreen-hud-cursor">|</span>
+                  {recognition.inactivityCountdown && (
+                    <span style={{
+                      fontSize: '0.72rem',
+                      color: '#a78bfa',
+                      background: 'rgba(167, 139, 250, 0.15)',
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      border: '1px solid rgba(167, 139, 250, 0.35)',
+                      fontWeight: 600,
+                      animation: 'pulse 1.5s infinite'
+                    }}>
+                      Auto-send in {recognition.inactivityCountdown}s
+                    </span>
+                  )}
                 </div>
               ) : (
                 <span className="fullscreen-hud-placeholder">

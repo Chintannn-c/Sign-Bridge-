@@ -108,6 +108,19 @@
       "source_location": "L22"
     },
     {
+      "id": "backend_services_groq_manager_modelselector",
+      "label": "ModelSelector",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "groq_manager.py",
+      "file_type": "code",
+      "norm_label": "modelselector",
+      "source_file": "backend/services/groq_manager.py",
+      "source_location": "L246"
+    },
+    {
       "id": "backend_services_word_recognizer_wordrecognizer",
       "label": "WordRecognizer",
       "_callable": true,
@@ -173,19 +186,6 @@
       "source_location": "L322"
     },
     {
-      "id": "backend_services_translator_model_landmarkvalidationerror",
-      "label": "LandmarkValidationError",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": ".generate",
-      "file_type": "code",
-      "norm_label": "landmarkvalidationerror",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L89"
-    },
-    {
       "id": "backend_services_groq_manager_keyinfo",
       "label": "KeyInfo",
       "_callable": true,
@@ -223,19 +223,6 @@
       "norm_label": "llmresponse",
       "source_file": "backend/app.py",
       "source_location": "L112"
-    },
-    {
-      "id": "backend_services_groq_manager_modelselector",
-      "label": "ModelSelector",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "ModelSelector",
-      "file_type": "code",
-      "norm_label": "modelselector",
-      "source_file": "backend/services/groq_manager.py",
-      "source_location": "L246"
     },
     {
       "id": "backend_services_robot_actuator_baserobotactuator",
@@ -303,6 +290,19 @@
       "source_location": "L70"
     },
     {
+      "id": "backend_services_gemini_manager_modelselector",
+      "label": "ModelSelector",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 63,
+      "community_name": "ModelSelector",
+      "file_type": "code",
+      "norm_label": "modelselector",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L267"
+    },
+    {
       "id": "backend_services_gemini_manager_geminimanager",
       "label": "GeminiManager",
       "_callable": true,
@@ -368,19 +368,6 @@
       "source_location": "L23"
     },
     {
-      "id": "backend_services_gemini_manager_modelselector",
-      "label": "ModelSelector",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "gemini_manager.py",
-      "file_type": "code",
-      "norm_label": "modelselector",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L267"
-    },
-    {
       "id": "backend_services_groq_manager_groqresult",
       "label": "GroqResult",
       "_callable": true,
@@ -392,6 +379,19 @@
       "norm_label": "groqresult",
       "source_file": "backend/services/groq_manager.py",
       "source_location": "L290"
+    },
+    {
+      "id": "backend_services_translator_model_landmarkvalidationerror",
+      "label": "LandmarkValidationError",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": ".generate",
+      "file_type": "code",
+      "norm_label": "landmarkvalidationerror",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L89"
     },
     {
       "id": "src_app_app",
@@ -428,6 +428,18 @@
       "norm_label": "gesturereferencesheet()",
       "source_file": "src/components/GestureReferenceSheet.jsx",
       "source_location": "L27"
+    },
+    {
+      "id": "src_components_humanpanel_getdynamicfontsize",
+      "label": "getDynamicFontSize()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "getdynamicfontsize()",
+      "source_file": "src/components/HumanPanel.jsx",
+      "source_location": "L10"
     },
     {
       "id": "src_components_signbridgekiosk_signbridgekiosk",
@@ -595,7 +607,7 @@
       "file_type": "code",
       "norm_label": "analyzequality()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L736"
+      "source_location": "L809"
     },
     {
       "id": "src_hooks_usegesturerecognition_formatwordforsentence",
@@ -643,7 +655,7 @@
       "file_type": "code",
       "norm_label": "fetchmodelinfo()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L258"
+      "source_location": "L287"
     },
     {
       "id": "src_hooks_usehanddetection_usehanddetection",
@@ -886,18 +898,6 @@
       "source_location": "L191"
     },
     {
-      "id": "backend_services_gemini_manager_keymanager_record_success",
-      "label": ".record_success()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "KeyManager",
-      "file_type": "code",
-      "norm_label": ".record_success()",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L183"
-    },
-    {
       "id": "backend_services_gemini_manager_keymanager_reset_health",
       "label": ".reset_health()",
       "_callable": true,
@@ -908,30 +908,6 @@
       "norm_label": ".reset_health()",
       "source_file": "backend/services/gemini_manager.py",
       "source_location": "L222"
-    },
-    {
-      "id": "backend_services_groq_manager_groqmanager_get_health_status",
-      "label": ".get_health_status()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "code",
-      "norm_label": ".get_health_status()",
-      "source_file": "backend/services/groq_manager.py",
-      "source_location": "L435"
-    },
-    {
-      "id": "backend_services_groq_manager_groqmanager_is_available",
-      "label": ".is_available()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "code",
-      "norm_label": ".is_available()",
-      "source_file": "backend/services/groq_manager.py",
-      "source_location": "L311"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_setup",
@@ -1078,28 +1054,16 @@
       "source_location": "L118"
     },
     {
-      "id": "backend_services_gemini_manager_modelselector_discover_models_for_key",
-      "label": ".discover_models_for_key()",
+      "id": "backend_services_gemini_manager_keymanager_record_success",
+      "label": ".record_success()",
       "_callable": true,
       "_origin": "ast",
       "community": 12,
       "community_name": "KeyInfo",
       "file_type": "code",
-      "norm_label": ".discover_models_for_key()",
+      "norm_label": ".record_success()",
       "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L294"
-    },
-    {
-      "id": "backend_services_gemini_manager_modelselector_get_candidate_models",
-      "label": ".get_candidate_models()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "KeyInfo",
-      "file_type": "code",
-      "norm_label": ".get_candidate_models()",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L271"
+      "source_location": "L183"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_8_latest_model_auto_discovery",
@@ -1124,30 +1088,6 @@
       "norm_label": ".classify()",
       "source_file": "backend/services/groq_manager.py",
       "source_location": "L212"
-    },
-    {
-      "id": "backend_services_groq_manager_mask_key",
-      "label": "mask_key()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "groq_manager.py",
-      "file_type": "code",
-      "norm_label": "mask_key()",
-      "source_file": "backend/services/groq_manager.py",
-      "source_location": "L58"
-    },
-    {
-      "id": "backend_tests_test_groq_manager_testgroqmanager_test_mask_key",
-      "label": ".test_mask_key()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "groq_manager.py",
-      "file_type": "code",
-      "norm_label": ".test_mask_key()",
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L50"
     },
     {
       "id": "backend_services_word_recognizer_wordrecognizer_get_info",
@@ -1414,16 +1354,28 @@
       "source_location": "L97"
     },
     {
-      "id": "backend_services_groq_manager_keyinfo_to_health_dict",
-      "label": ".to_health_dict()",
+      "id": "backend_services_groq_manager_modelselector_discover_models_for_key",
+      "label": ".discover_models_for_key()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
       "community_name": "KeyInfo",
       "file_type": "code",
-      "norm_label": ".to_health_dict()",
+      "norm_label": ".discover_models_for_key()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L112"
+      "source_location": "L269"
+    },
+    {
+      "id": "backend_services_groq_manager_modelselector_get_candidate_models",
+      "label": ".get_candidate_models()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "KeyInfo",
+      "file_type": "code",
+      "norm_label": ".get_candidate_models()",
+      "source_file": "backend/services/groq_manager.py",
+      "source_location": "L250"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_8_latest_model_auto_discovery",
@@ -1894,28 +1846,40 @@
       "source_location": "L133"
     },
     {
-      "id": "backend_services_groq_manager_modelselector_discover_models_for_key",
-      "label": ".discover_models_for_key()",
+      "id": "backend_services_groq_manager_groqmanager_get_health_status",
+      "label": ".get_health_status()",
       "_callable": true,
       "_origin": "ast",
       "community": 21,
-      "community_name": "ModelSelector",
+      "community_name": ".get_health_status",
       "file_type": "code",
-      "norm_label": ".discover_models_for_key()",
+      "norm_label": ".get_health_status()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L269"
+      "source_location": "L435"
     },
     {
-      "id": "backend_services_groq_manager_modelselector_get_candidate_models",
-      "label": ".get_candidate_models()",
+      "id": "backend_services_groq_manager_groqmanager_is_available",
+      "label": ".is_available()",
       "_callable": true,
       "_origin": "ast",
       "community": 21,
-      "community_name": "ModelSelector",
+      "community_name": ".get_health_status",
       "file_type": "code",
-      "norm_label": ".get_candidate_models()",
+      "norm_label": ".is_available()",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L250"
+      "source_location": "L311"
+    },
+    {
+      "id": "backend_services_groq_manager_keyinfo_to_health_dict",
+      "label": ".to_health_dict()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 21,
+      "community_name": ".get_health_status",
+      "file_type": "code",
+      "norm_label": ".to_health_dict()",
+      "source_file": "backend/services/groq_manager.py",
+      "source_location": "L112"
     },
     {
       "id": "vite_config_manualchunks",
@@ -2770,6 +2734,54 @@
       "source_location": "L783"
     },
     {
+      "id": "backend_services_gemini_manager_modelselector_discover_models_for_key",
+      "label": ".discover_models_for_key()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 63,
+      "community_name": "ModelSelector",
+      "file_type": "code",
+      "norm_label": ".discover_models_for_key()",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L294"
+    },
+    {
+      "id": "backend_services_gemini_manager_modelselector_get_candidate_models",
+      "label": ".get_candidate_models()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 63,
+      "community_name": "ModelSelector",
+      "file_type": "code",
+      "norm_label": ".get_candidate_models()",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L271"
+    },
+    {
+      "id": "backend_services_groq_manager_mask_key",
+      "label": "mask_key()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "mask_key",
+      "file_type": "code",
+      "norm_label": "mask_key()",
+      "source_file": "backend/services/groq_manager.py",
+      "source_location": "L58"
+    },
+    {
+      "id": "backend_tests_test_groq_manager_testgroqmanager_test_mask_key",
+      "label": ".test_mask_key()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "mask_key",
+      "file_type": "code",
+      "norm_label": ".test_mask_key()",
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L50"
+    },
+    {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_setup",
       "label": ".setUp()",
       "_callable": true,
@@ -2792,18 +2804,6 @@
       "norm_label": ".test_error_classifier()",
       "source_file": "backend/tests/test_gemini_manager.py",
       "source_location": "L56"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_testgeminimanager_test_mask_key",
-      "label": ".test_mask_key()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "TestGeminiManager",
-      "file_type": "code",
-      "norm_label": ".test_mask_key()",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L49"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_1_key1_works",
@@ -2914,6 +2914,18 @@
       "source_location": "L71"
     },
     {
+      "id": "backend_tests_test_gemini_manager_testgeminimanager_test_mask_key",
+      "label": ".test_mask_key()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "gemini_manager.py",
+      "file_type": "code",
+      "norm_label": ".test_mask_key()",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L49"
+    },
+    {
       "id": "backend_services_groq_manager_groqmanager_call_sdk",
       "label": "._call_sdk()",
       "_callable": true,
@@ -2990,7 +3002,7 @@
       "file_type": "code",
       "norm_label": "humanpanel",
       "source_file": "src/components/HumanPanel.jsx",
-      "source_location": "L12"
+      "source_location": "L24"
     },
     {
       "id": "src_components_robotpanel",
@@ -3554,17 +3566,6 @@
       "source_location": "L179"
     },
     {
-      "id": "backend_services_gemini_manager_rationale_184",
-      "label": "Record successful request for a key.",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "KeyManager",
-      "file_type": "rationale",
-      "norm_label": "record successful request for a key.",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L184"
-    },
-    {
       "id": "backend_services_gemini_manager_rationale_192",
       "label": "Record a failure and apply appropriate cooldown/backoff.",
       "_origin": "ast",
@@ -3596,28 +3597,6 @@
       "norm_label": "centralized, resilient groq lpu api manager. orchestrates: model selection ->...",
       "source_file": "backend/services/groq_manager.py",
       "source_location": "L300"
-    },
-    {
-      "id": "backend_services_groq_manager_rationale_312",
-      "label": "Check if at least one Groq API key is configured and not permanently invalid.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "rationale",
-      "norm_label": "check if at least one groq api key is configured and not permanently invalid.",
-      "source_file": "backend/services/groq_manager.py",
-      "source_location": "L312"
-    },
-    {
-      "id": "backend_services_groq_manager_rationale_436",
-      "label": "Comprehensive health status for telemetry and monitoring.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "rationale",
-      "norm_label": "comprehensive health status for telemetry and monitoring.",
-      "source_file": "backend/services/groq_manager.py",
-      "source_location": "L436"
     },
     {
       "id": "backend_tests_test_groq_manager_rationale_104",
@@ -3730,26 +3709,15 @@
       "source_location": "L119"
     },
     {
-      "id": "backend_services_gemini_manager_rationale_272",
-      "label": "Get ordered list of candidate models (latest -> fallback) suitable for task. If\u2026",
+      "id": "backend_services_gemini_manager_rationale_184",
+      "label": "Record successful request for a key.",
       "_origin": "ast",
       "community": 12,
       "community_name": "KeyInfo",
       "file_type": "rationale",
-      "norm_label": "get ordered list of candidate models (latest -> fallback) suitable for task. if...",
+      "norm_label": "record successful request for a key.",
       "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L272"
-    },
-    {
-      "id": "backend_services_gemini_manager_rationale_295",
-      "label": "Query the API to find which models this specific key has access to.",
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "KeyInfo",
-      "file_type": "rationale",
-      "norm_label": "query the api to find which models this specific key has access to.",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L295"
+      "source_location": "L184"
     },
     {
       "id": "backend_services_gemini_manager_rationale_81",
@@ -3840,15 +3808,15 @@
       "source_location": "L209"
     },
     {
-      "id": "backend_services_groq_manager_rationale_59",
-      "label": "Safely mask an API key for logs (e.g., 'gsk_...4X9Z'). Never logs full key.",
+      "id": "backend_services_groq_manager_rationale_247",
+      "label": "Task-aware Groq model selector with auto-discovery and capability sorting.",
       "_origin": "ast",
       "community": 13,
       "community_name": "groq_manager.py",
       "file_type": "rationale",
-      "norm_label": "safely mask an api key for logs (e.g., 'gsk_...4x9z'). never logs full key.",
+      "norm_label": "task-aware groq model selector with auto-discovery and capability sorting.",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L59"
+      "source_location": "L247"
     },
     {
       "id": "backend_tests_test_groq_manager_rationale_1",
@@ -3860,17 +3828,6 @@
       "norm_label": "unit and integration tests for signbridge groqmanager. tests all 10 required...",
       "source_file": "backend/tests/test_groq_manager.py",
       "source_location": "L1"
-    },
-    {
-      "id": "backend_tests_test_groq_manager_rationale_51",
-      "label": "Verify API keys are masked for logs.",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "groq_manager.py",
-      "file_type": "rationale",
-      "norm_label": "verify api keys are masked for logs.",
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L51"
     },
     {
       "id": "backend_test_word_model",
@@ -4005,17 +3962,6 @@
       "source_location": ""
     },
     {
-      "id": "valueerror",
-      "label": "ValueError",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": ".generate",
-      "file_type": "code",
-      "norm_label": "valueerror",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "backend_services_gemini_manager_rationale_355",
       "label": "Execute robust generation across (Model x Key) matrix. Algorithm: 1. Select\u2026",
       "_origin": "ast",
@@ -4038,37 +3984,26 @@
       "source_location": "L465"
     },
     {
-      "id": "backend_services_translator_model_rationale_90",
-      "label": "Raised when incoming landmark data doesn't match the expected shape.",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": ".generate",
-      "file_type": "rationale",
-      "norm_label": "raised when incoming landmark data doesn't match the expected shape.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L90"
-    },
-    {
-      "id": "backend_services_groq_manager_py_any",
-      "label": "Any",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "KeyInfo",
-      "file_type": "code",
-      "norm_label": "any",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_services_groq_manager_rationale_113",
-      "label": "Sanitized dictionary for status reporting (no plain-text keys).",
+      "id": "backend_services_groq_manager_rationale_251",
+      "label": "Get ordered list of candidate models (latest -> fallback). Prioritizes\u2026",
       "_origin": "ast",
       "community": 18,
       "community_name": "KeyInfo",
       "file_type": "rationale",
-      "norm_label": "sanitized dictionary for status reporting (no plain-text keys).",
+      "norm_label": "get ordered list of candidate models (latest -> fallback). prioritizes...",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L113"
+      "source_location": "L251"
+    },
+    {
+      "id": "backend_services_groq_manager_rationale_270",
+      "label": "Query Groq API to discover active models for this key.",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "KeyInfo",
+      "file_type": "rationale",
+      "norm_label": "query groq api to discover active models for this key.",
+      "source_file": "backend/services/groq_manager.py",
+      "source_location": "L270"
     },
     {
       "id": "backend_services_groq_manager_rationale_68",
@@ -4588,37 +4523,48 @@
       "source_location": "L495"
     },
     {
-      "id": "backend_services_groq_manager_rationale_247",
-      "label": "Task-aware Groq model selector with auto-discovery and capability sorting.",
+      "id": "backend_services_groq_manager_py_any",
+      "label": "Any",
       "_origin": "ast",
       "community": 21,
-      "community_name": "ModelSelector",
-      "file_type": "rationale",
-      "norm_label": "task-aware groq model selector with auto-discovery and capability sorting.",
-      "source_file": "backend/services/groq_manager.py",
-      "source_location": "L247"
+      "community_name": ".get_health_status",
+      "file_type": "code",
+      "norm_label": "any",
+      "source_file": "",
+      "source_location": ""
     },
     {
-      "id": "backend_services_groq_manager_rationale_251",
-      "label": "Get ordered list of candidate models (latest -> fallback). Prioritizes\u2026",
+      "id": "backend_services_groq_manager_rationale_113",
+      "label": "Sanitized dictionary for status reporting (no plain-text keys).",
       "_origin": "ast",
       "community": 21,
-      "community_name": "ModelSelector",
+      "community_name": ".get_health_status",
       "file_type": "rationale",
-      "norm_label": "get ordered list of candidate models (latest -> fallback). prioritizes...",
+      "norm_label": "sanitized dictionary for status reporting (no plain-text keys).",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L251"
+      "source_location": "L113"
     },
     {
-      "id": "backend_services_groq_manager_rationale_270",
-      "label": "Query Groq API to discover active models for this key.",
+      "id": "backend_services_groq_manager_rationale_312",
+      "label": "Check if at least one Groq API key is configured and not permanently invalid.",
       "_origin": "ast",
       "community": 21,
-      "community_name": "ModelSelector",
+      "community_name": ".get_health_status",
       "file_type": "rationale",
-      "norm_label": "query groq api to discover active models for this key.",
+      "norm_label": "check if at least one groq api key is configured and not permanently invalid.",
       "source_file": "backend/services/groq_manager.py",
-      "source_location": "L270"
+      "source_location": "L312"
+    },
+    {
+      "id": "backend_services_groq_manager_rationale_436",
+      "label": "Comprehensive health status for telemetry and monitoring.",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": ".get_health_status",
+      "file_type": "rationale",
+      "norm_label": "comprehensive health status for telemetry and monitoring.",
+      "source_file": "backend/services/groq_manager.py",
+      "source_location": "L436"
     },
     {
       "id": "oxlintrc",
@@ -8788,6 +8734,61 @@
       "source_location": "L784"
     },
     {
+      "id": "backend_services_gemini_manager_rationale_268",
+      "label": "Task-aware model selector with auto-discovery and capability matching.",
+      "_origin": "ast",
+      "community": 63,
+      "community_name": "ModelSelector",
+      "file_type": "rationale",
+      "norm_label": "task-aware model selector with auto-discovery and capability matching.",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L268"
+    },
+    {
+      "id": "backend_services_gemini_manager_rationale_272",
+      "label": "Get ordered list of candidate models (latest -> fallback) suitable for task. If\u2026",
+      "_origin": "ast",
+      "community": 63,
+      "community_name": "ModelSelector",
+      "file_type": "rationale",
+      "norm_label": "get ordered list of candidate models (latest -> fallback) suitable for task. if...",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L272"
+    },
+    {
+      "id": "backend_services_gemini_manager_rationale_295",
+      "label": "Query the API to find which models this specific key has access to.",
+      "_origin": "ast",
+      "community": 63,
+      "community_name": "ModelSelector",
+      "file_type": "rationale",
+      "norm_label": "query the api to find which models this specific key has access to.",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L295"
+    },
+    {
+      "id": "backend_services_groq_manager_rationale_59",
+      "label": "Safely mask an API key for logs (e.g., 'gsk_...4X9Z'). Never logs full key.",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "mask_key",
+      "file_type": "rationale",
+      "norm_label": "safely mask an api key for logs (e.g., 'gsk_...4x9z'). never logs full key.",
+      "source_file": "backend/services/groq_manager.py",
+      "source_location": "L59"
+    },
+    {
+      "id": "backend_tests_test_groq_manager_rationale_51",
+      "label": "Verify API keys are masked for logs.",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "mask_key",
+      "file_type": "rationale",
+      "norm_label": "verify api keys are masked for logs.",
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L51"
+    },
+    {
       "id": "backend_services_gemini_manager_rationale_332",
       "label": "Centralized, resilient Google Generative AI / Gemini API Manager. Orchestrates:\u2026",
       "_origin": "ast",
@@ -8852,17 +8853,6 @@
       "norm_label": "scenario 7: 400 invalid argument fails fast without wasting retries.",
       "source_file": "backend/tests/test_gemini_manager.py",
       "source_location": "L158"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_rationale_50",
-      "label": "Verify API keys are never logged in plain text.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "TestGeminiManager",
-      "file_type": "rationale",
-      "norm_label": "verify api keys are never logged in plain text.",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L50"
     },
     {
       "id": "backend_tests_test_gemini_manager_rationale_57",
@@ -8964,17 +8954,6 @@
       "source_location": "L232"
     },
     {
-      "id": "backend_services_gemini_manager_rationale_268",
-      "label": "Task-aware model selector with auto-discovery and capability matching.",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "gemini_manager.py",
-      "file_type": "rationale",
-      "norm_label": "task-aware model selector with auto-discovery and capability matching.",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L268"
-    },
-    {
       "id": "backend_services_gemini_manager_rationale_72",
       "label": "Safely mask an API key for logs (e.g., 'AIza...4X9Z'). Never logs full key.",
       "_origin": "ast",
@@ -8997,6 +8976,17 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_tests_test_gemini_manager_rationale_50",
+      "label": "Verify API keys are never logged in plain text.",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "gemini_manager.py",
+      "file_type": "rationale",
+      "norm_label": "verify api keys are never logged in plain text.",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L50"
+    },
+    {
       "id": "backend_services_groq_manager_py_typeddict",
       "label": "TypedDict",
       "_origin": "ast",
@@ -9004,6 +8994,17 @@
       "community_name": ".generate",
       "file_type": "code",
       "norm_label": "typeddict",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "valueerror",
+      "label": "ValueError",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": ".generate",
+      "file_type": "code",
+      "norm_label": "valueerror",
       "source_file": "",
       "source_location": ""
     },
@@ -9028,6 +9029,17 @@
       "norm_label": "low-level groq completions caller.",
       "source_file": "backend/services/groq_manager.py",
       "source_location": "L411"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_90",
+      "label": "Raised when incoming landmark data doesn't match the expected shape.",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": ".generate",
+      "file_type": "rationale",
+      "norm_label": "raised when incoming landmark data doesn't match the expected shape.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L90"
     }
   ],
   "links": [
@@ -10652,6 +10664,18 @@
       "weight": 1.0
     },
     {
+      "source": "src_components_humanpanel_humanpanel",
+      "target": "src_components_humanpanel_getdynamicfontsize",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/components/HumanPanel.jsx",
+      "source_location": "L193",
+      "weight": 1.0
+    },
+    {
       "source": "src_components_signbridgekiosk_signbridgekiosk",
       "target": "src_hooks_useisltranslation_useisltranslation",
       "relation": "calls",
@@ -10768,7 +10792,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L310",
+      "source_location": "L339",
       "weight": 1.0
     },
     {
@@ -10780,7 +10804,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L349",
+      "source_location": "L377",
       "weight": 1.0
     },
     {
@@ -10792,7 +10816,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L450",
+      "source_location": "L483",
       "weight": 1.0
     },
     {
@@ -10852,7 +10876,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L258",
+      "source_location": "L287",
       "weight": 1.0
     },
     {
@@ -17111,13 +17135,24 @@
     },
     {
       "source": "src_components_humanpanel",
+      "target": "src_components_humanpanel_getdynamicfontsize",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/HumanPanel.jsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_humanpanel",
       "target": "src_components_humanpanel_humanpanel",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/HumanPanel.jsx",
-      "source_location": "L12",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -17491,7 +17526,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L736",
+      "source_location": "L809",
       "weight": 1.0
     },
     {
@@ -21075,5 +21110,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "08083dc7e78fbe87fbf55ed2071fcc4d30908002"
+  "built_at_commit": "ab00f2eb78aafe544db1c87f849acced6913cebd"
 }

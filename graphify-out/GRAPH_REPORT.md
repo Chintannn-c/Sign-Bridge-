@@ -1,16 +1,16 @@
 # Graph Report - SignBridge  (2026-10-06)
 
 ## Corpus Check
-- 428 files · ~3,775,804 words
+- 428 files · ~3,776,244 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 771 nodes · 1061 edges · 63 communities (52 shown, 8 thin omitted)
+- 772 nodes · 1063 edges · 65 communities (54 shown, 8 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `08083dc7`
+- Built from commit: `ab00f2eb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -36,7 +36,7 @@
 - KeyInfo
 - KeyManager
 - .get_health_status
-- ModelSelector
+- .get_health_status
 - .oxlintrc.json
 - SignBridge: Dual-Communication Indian Sign Language (ISL) Kiosk & Robotic Actuation System
 - What You Must Do When Invoked
@@ -75,6 +75,8 @@
 - translator_model.py
 - load_dataset_partitioned
 - .get_info
+- ModelSelector
+- mask_key
 
 ## God Nodes (most connected - your core abstractions)
 1. `react` - 21 edges
@@ -103,11 +105,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (63 total, 8 thin omitted)
+## Communities (65 total, 8 thin omitted)
 
 ### Community 0 - "react"
 Cohesion: 0.06
-Nodes (44): framer-motion, lucide-react, react, App(), CameraView(), GestureReferenceSheet(), HumanPanel, RobotPanel (+36 more)
+Nodes (45): framer-motion, lucide-react, react, App(), CameraView(), GestureReferenceSheet(), getDynamicFontSize(), HumanPanel (+37 more)
 
 ### Community 1 - "train_unified.py"
 Cohesion: 0.18
@@ -134,32 +136,32 @@ Cohesion: 0.11
 Nodes (12): ArduinoSerial, Sign-Bridge Flask API — Arduino Serial Communication Service Manages PySerial…, Scan COM ports for an Arduino device., Open serial connection to Arduino., Close the serial connection., Send a 10-element servo angle array to the Arduino. Format sent: JSON string…, Look up the ISL servo angles for a single letter and send them. Holds the pose…, Internal synchronous text signing implementation. (+4 more)
 
 ### Community 7 - "TestGeminiManager"
-Cohesion: 0.10
-Nodes (12): GeminiManager, Centralized, resilient Google Generative AI / Gemini API Manager. Orchestrates:…, Scenario 3: Both keys fail on Model A -> Model B succeeds on Key 1., Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2., Scenario 5: All keys/models fail -> Raises clean application error, no crash., Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2., Scenario 7: 400 Invalid Argument fails fast without wasting retries., Verify API keys are never logged in plain text. (+4 more)
+Cohesion: 0.11
+Nodes (11): GeminiManager, Centralized, resilient Google Generative AI / Gemini API Manager. Orchestrates:…, Scenario 3: Both keys fail on Model A -> Model B succeeds on Key 1., Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2., Scenario 5: All keys/models fail -> Raises clean application error, no crash., Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2., Scenario 7: 400 Invalid Argument fails fast without wasting retries., Verify proper classification of SDK exceptions. (+3 more)
 
 ### Community 8 - "gemini_manager.py"
-Cohesion: 0.21
-Nodes (12): ErrorClassifier, GeminiErrorType, GeminiKeyStatus, mask_key(), ModelSelector, Enum, Exception, SignBridge Centralized Google Generative AI / Gemini API Management System.… (+4 more)
+Cohesion: 0.20
+Nodes (11): ErrorClassifier, GeminiErrorType, GeminiKeyStatus, mask_key(), Enum, Exception, SignBridge Centralized Google Generative AI / Gemini API Management System.…, Classifies raw SDK and HTTP exceptions into actionable error enums. (+3 more)
 
 ### Community 9 - ".generate"
-Cohesion: 0.33
-Nodes (4): GroqResult, TypedDict, Execute robust generation across Groq (Model x Key) matrix., Low-level Groq completions caller.
+Cohesion: 0.22
+Nodes (7): GroqResult, TypedDict, Execute robust generation across Groq (Model x Key) matrix., Low-level Groq completions caller., LandmarkValidationError, Raised when incoming landmark data doesn't match the expected shape., ValueError
 
 ### Community 10 - "KeyManager"
-Cohesion: 0.15
-Nodes (7): KeyManager, Manages collection of API keys, state tracking, and health-aware rotation., Discover and load keys from environment variables., Return all currently usable keys, sorted by priority (KEY_1 -> KEY_2)., Record successful request for a key., Record a failure and apply appropriate cooldown/backoff., Reset all cooldowns and failures.
+Cohesion: 0.18
+Nodes (6): KeyManager, Manages collection of API keys, state tracking, and health-aware rotation., Discover and load keys from environment variables., Return all currently usable keys, sorted by priority (KEY_1 -> KEY_2)., Record a failure and apply appropriate cooldown/backoff., Reset all cooldowns and failures.
 
 ### Community 11 - "TestGroqManager"
-Cohesion: 0.09
-Nodes (13): GroqManager, Centralized, resilient Groq LPU API Manager. Orchestrates: Model Selection ->…, Check if at least one Groq API key is configured and not permanently invalid., Comprehensive health status for telemetry and monitoring., Scenario 3: Both keys fail on Model A -> Model B succeeds on Key 1., Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2., Scenario 5: All keys/models fail -> Raises clean runtime error., Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2. (+5 more)
+Cohesion: 0.11
+Nodes (11): GroqManager, Centralized, resilient Groq LPU API Manager. Orchestrates: Model Selection ->…, Scenario 3: Both keys fail on Model A -> Model B succeeds on Key 1., Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2., Scenario 5: All keys/models fail -> Raises clean runtime error., Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2., Scenario 7: 400 Invalid Argument fails fast without wasting retries., Verify proper classification of Groq exceptions. (+3 more)
 
 ### Community 12 - "KeyInfo"
-Cohesion: 0.17
-Nodes (7): KeyInfo, Initialize modern or legacy SDK client for this key., Check if key is ready for requests., Get ordered list of candidate models (latest -> fallback) suitable for task. If…, Query the API to find which models this specific key has access to., Runtime health and state tracker for an individual API key., Scenario 8: Model auto-discovery dynamically sorts granted models.
+Cohesion: 0.20
+Nodes (6): KeyInfo, Initialize modern or legacy SDK client for this key., Check if key is ready for requests., Record successful request for a key., Runtime health and state tracker for an individual API key., Scenario 8: Model auto-discovery dynamically sorts granted models.
 
 ### Community 13 - "groq_manager.py"
-Cohesion: 0.20
-Nodes (11): ErrorClassifier, GroqErrorType, GroqKeyStatus, mask_key(), Enum, Exception, SignBridge Centralized Groq LPU API Management System. Features: - Dual API Key…, Classifies raw Groq SDK and HTTP exceptions into actionable error enums. (+3 more)
+Cohesion: 0.24
+Nodes (10): ErrorClassifier, GroqErrorType, GroqKeyStatus, ModelSelector, Enum, Exception, SignBridge Centralized Groq LPU API Management System. Features: - Dual API Key…, Classifies raw Groq SDK and HTTP exceptions into actionable error enums. (+2 more)
 
 ### Community 14 - "WordRecognizer"
 Cohesion: 0.20
@@ -170,12 +172,12 @@ Cohesion: 0.27
 Nodes (6): build_dual_hand_adjacency(), SignBridge — Spatial-Temporal Graph Convolutional Network (ST-GCN) for ISL…, Builds the 42x42 normalized adjacency matrix with self-loops for dual hands., Spatial Graph Convolution layer. Transforms node features using the adjacency…, SpatialGraphConv, Tensor
 
 ### Community 17 - ".generate"
-Cohesion: 0.22
-Nodes (7): GeminiResult, TypedDict, Execute robust generation across (Model x Key) matrix. Algorithm: 1. Select…, Low-level SDK caller handling both modern genai and legacy SDKs., LandmarkValidationError, Raised when incoming landmark data doesn't match the expected shape., ValueError
+Cohesion: 0.33
+Nodes (4): GeminiResult, TypedDict, Execute robust generation across (Model x Key) matrix. Algorithm: 1. Select…, Low-level SDK caller handling both modern genai and legacy SDKs.
 
 ### Community 18 - "KeyInfo"
-Cohesion: 0.18
-Nodes (7): KeyInfo, Any, Sanitized dictionary for status reporting (no plain-text keys)., Runtime health and state tracker for an individual Groq API key., Initialize Groq client for this key., Check if key is ready for requests., Scenario 8: Model auto-discovery dynamically sorts granted models.
+Cohesion: 0.17
+Nodes (7): KeyInfo, Get ordered list of candidate models (latest -> fallback). Prioritizes…, Query Groq API to discover active models for this key., Runtime health and state tracker for an individual Groq API key., Initialize Groq client for this key., Check if key is ready for requests., Scenario 8: Model auto-discovery dynamically sorts granted models.
 
 ### Community 19 - "KeyManager"
 Cohesion: 0.15
@@ -185,9 +187,9 @@ Nodes (7): KeyManager, Manages collection of Groq API keys, state tracking, and 
 Cohesion: 0.29
 Nodes (4): Any, Sanitized dictionary for status reporting (no plain-text keys)., Check if at least one API key is configured and not permanently invalid., Comprehensive health status for telemetry and monitoring.
 
-### Community 21 - "ModelSelector"
-Cohesion: 0.33
-Nodes (4): ModelSelector, Task-aware Groq model selector with auto-discovery and capability sorting., Get ordered list of candidate models (latest -> fallback). Prioritizes…, Query Groq API to discover active models for this key.
+### Community 21 - ".get_health_status"
+Cohesion: 0.29
+Nodes (4): Any, Sanitized dictionary for status reporting (no plain-text keys)., Check if at least one Groq API key is configured and not permanently invalid., Comprehensive health status for telemetry and monitoring.
 
 ### Community 22 - ".oxlintrc.json"
 Cohesion: 0.33
@@ -313,6 +315,14 @@ Nodes (8): _compute_angle_cos(), extract_features(), extract_holistic_features()
 Cohesion: 0.25
 Nodes (9): SignBridge — Benchmark Standalone XGBoost, Standalone ST-GCN, and Calibrated…, run_benchmark(), get_file_sha256(), load_dataset_partitioned(), Any, Clean, Leak-Free Data Loader and Partition Manager for SignBridge ISL Alphabet…, Compute SHA-256 hash of a file., Load dataset strictly partitioned by origin without frame-level leakage.… (+1 more)
 
+### Community 63 - "ModelSelector"
+Cohesion: 0.33
+Nodes (4): ModelSelector, Task-aware model selector with auto-discovery and capability matching., Get ordered list of candidate models (latest -> fallback) suitable for task. If…, Query the API to find which models this specific key has access to.
+
+### Community 64 - "mask_key"
+Cohesion: 0.50
+Nodes (3): mask_key(), Safely mask an API key for logs (e.g., 'gsk_...4X9Z'). Never logs full key., Verify API keys are masked for logs.
+
 ## Knowledge Gaps
 - **204 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+199 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 433 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
@@ -334,4 +344,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
   _204 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `react` be split into smaller, more focused modules?**
-  _Cohesion score 0.06354642313546423 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0625694187338023 - nodes in this community are weakly interconnected._

@@ -66,7 +66,7 @@ export const SentenceBuilder = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <Clock size={14} className="animate-spin text-indigo-500" />
             <span>
-              Hands dropped: Auto-sending in <strong>{inactivityCountdown}s</strong>... (keep signing to continue)
+              No gesture detected: Auto-sending in <strong>{inactivityCountdown}s</strong>... (sign to pause)
             </span>
           </div>
           {onCancelCountdown && (

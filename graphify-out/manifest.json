@@ -2142,9 +2142,9 @@
     "semantic_hash": "3a3144fed4f557bbf0dd329257656f2d"
   },
   "src/components/CameraView.jsx": {
-    "mtime": 1791300537.645435,
-    "seen": 1791300563.7193868,
-    "ast_hash": "a6f905348a5d7abfcc9a5df9afcdbbd2",
+    "mtime": 1791301464.1485906,
+    "seen": 1791301509.0423298,
+    "ast_hash": "28f2c09b9b507b1adaaee6603f5ca977",
     "semantic_hash": ""
   },
   "src/components/GestureReferenceSheet.jsx": {
@@ -2154,9 +2154,9 @@
     "semantic_hash": "ce0a23cfdef4f278ea5fb954c85e0bde"
   },
   "src/components/HumanPanel.jsx": {
-    "mtime": 1791300123.3467786,
-    "seen": 1791300174.0564868,
-    "ast_hash": "9b56948aa63ca0414e37961b395bc7da",
+    "mtime": 1791301403.7094939,
+    "seen": 1791301509.0423298,
+    "ast_hash": "8624290b5417ffea413bc1a2a9df95c2",
     "semantic_hash": ""
   },
   "src/components/RobotPanel.jsx": {
@@ -2184,10 +2184,10 @@
     "semantic_hash": ""
   },
   "src/components/SignLanguageAssistant/SentenceBuilder.jsx": {
-    "mtime": 1787560209.811957,
-    "seen": 1790572451.7572732,
-    "ast_hash": "02bf92453e4dcc5c9083e119bb4f1b00",
-    "semantic_hash": "02bf92453e4dcc5c9083e119bb4f1b00"
+    "mtime": 1791301446.504789,
+    "seen": 1791301509.043335,
+    "ast_hash": "615d523eb61cdcc179b3c180450c20dc",
+    "semantic_hash": ""
   },
   "src/components/SignLanguageAssistant/tabs/DataCollectionTab.jsx": {
     "mtime": 1787220185.1978312,
@@ -2238,9 +2238,9 @@
     "semantic_hash": "ece8bec5154fcc0a1da253745a7798e0"
   },
   "src/hooks/useGestureRecognition.js": {
-    "mtime": 1791300522.7908278,
-    "seen": 1791300563.723386,
-    "ast_hash": "b52eb5a1d21f1443990e742f7c98bf9b",
+    "mtime": 1791301253.291059,
+    "seen": 1791301509.0453348,
+    "ast_hash": "8d54cdd57de0376cdb39830f72fcf5a3",
     "semantic_hash": ""
   },
   "src/hooks/useHandDetection.js": {

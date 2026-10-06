@@ -1,8 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Keyboard, Send, X, Trash2, Sparkles } from 'lucide-react';
 import { CameraView } from './CameraView';
 import { SentenceBuilder } from './SignLanguageAssistant/SentenceBuilder';
+
+/**
+ * Dynamically scale font size down as message length grows so full text stays completely visible.
+ */
+function getDynamicFontSize(textLength) {
+  if (textLength > 65) return 'clamp(0.85rem, 1.0vw, 1.05rem)';
+  if (textLength > 45) return 'clamp(0.95rem, 1.2vw, 1.2rem)';
+  if (textLength > 28) return 'clamp(1.1rem, 1.5vw, 1.4rem)';
+  if (textLength > 16) return 'clamp(1.3rem, 1.9vw, 1.75rem)';
+  if (textLength > 8) return 'clamp(1.55rem, 2.3vw, 2.1rem)';
+  return 'clamp(1.8rem, 2.8vw, 2.5rem)';
+}
 
 /**
  * HumanPanel Component - Left Panel Card ("YOU")
@@ -19,6 +31,7 @@ export const HumanPanel = React.memo(({
   const [recognitionState, setRecognitionState] = useState(null);
   const [showTextbox, setShowTextbox] = useState(false);
   const [tempInput, setTempInput] = useState('');
+  const textScrollContainerRef = useRef(null);
 
   // Camera & recognition state logic
   const isCameraOn = Boolean(recognitionState?.isCameraOn);
@@ -33,6 +46,13 @@ export const HumanPanel = React.memo(({
     : (hasLiveSentence
         ? sentenceBuffer
         : (isCameraOn ? 'Start signing or type below...' : (fullText || 'Start signing or type below...')));
+
+  // Auto-scroll to ensure latest incoming characters and words are always visible
+  useEffect(() => {
+    if (textScrollContainerRef.current) {
+      textScrollContainerRef.current.scrollTop = textScrollContainerRef.current.scrollHeight;
+    }
+  }, [sentenceBuffer, displayText]);
 
   const handleSubmit = (e) => {
     if (e) {
@@ -92,8 +112,21 @@ export const HumanPanel = React.memo(({
           onSendMessage={onSendMessage}
         />
 
-        {/* Text Feed below the Horizontal Webcam */}
-        <div className="card-text-wrapper human-text-wrapper" style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
+        {/* Text Feed below the Horizontal Webcam with Responsive Dynamic Typography */}
+        <div 
+          className="card-text-wrapper human-text-wrapper" 
+          ref={textScrollContainerRef}
+          style={{ 
+            flexDirection: 'column', 
+            alignItems: 'flex-start', 
+            justifyContent: 'flex-start',
+            maxHeight: '135px',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            width: '100%',
+            paddingRight: '6px'
+          }}
+        >
           
           {/* Animated Text Processing Header Bar (appears after letters appear in section) */}
           <AnimatePresence>
@@ -152,7 +185,18 @@ export const HumanPanel = React.memo(({
 
           {!showTextbox && (
             <div style={{ width: '100%', position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}>
-              <h2 className={`card-text ${isCameraOn && !hasLiveSentence ? 'text-slate-400 italic' : ''}`} style={{ flex: 1, margin: 0 }}>
+              <h2 
+                className={`card-text ${isCameraOn && !hasLiveSentence ? 'text-slate-400 italic' : ''}`} 
+                style={{ 
+                  flex: 1, 
+                  margin: 0,
+                  fontSize: hasLiveSentence ? getDynamicFontSize(sentenceBuffer.length) : (displayText ? getDynamicFontSize(displayText.length) : undefined),
+                  lineHeight: 1.25,
+                  wordBreak: 'normal',
+                  overflowWrap: 'break-word',
+                  transition: 'font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}
+              >
                 {hasLiveSentence ? (
                   <>
                     <AnimatePresence mode="popLayout">

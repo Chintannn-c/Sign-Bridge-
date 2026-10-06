@@ -84,12 +84,23 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     'WOMAN', 'WRONG', 'YES', 'YOU'
   ]);
 
-  // Inactivity / Hand-Drop Auto-Send states
+  // Inactivity / Hand-Drop Auto-Send states (5-second countdown timer)
   const [autoSendEnabled, setAutoSendEnabled] = useState(true);
-  const [autoSendTimeoutMs, setAutoSendTimeoutMs] = useState(2200);
+  const [autoSendTimeoutMs, setAutoSendTimeoutMs] = useState(5000);
   const [inactivityCountdown, setInactivityCountdown] = useState(null);
   const [lastAutoSpoken, setLastAutoSpoken] = useState(null);
   const [isAutoSending, setIsAutoSending] = useState(false);
+
+  // Synchronous Sentence Buffer & Ref
+  const sentenceBufferRef = useRef('');
+  sentenceBufferRef.current = sentenceBuffer;
+  const setSentenceBufferSync = useCallback((updater) => {
+    setSentenceBuffer(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      sentenceBufferRef.current = next;
+      return next;
+    });
+  }, []);
 
   // Auto-Space Between Words states & stable refs
   const [autoSpaceWords, setAutoSpaceWords] = useState(true);
@@ -125,9 +136,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const bodyAnchorsRef = useRef(null);
   const handsMissingCountRef = useRef(0);
 
-  // Inactivity auto-send refs
-  const sentenceBufferRef = useRef('');
-  sentenceBufferRef.current = sentenceBuffer;
+  // Inactivity auto-send timers & refs
   const autoSendTimerRef = useRef(null);
   const countdownIntervalRef = useRef(null);
   const isAutoSendingRef = useRef(false);
@@ -147,12 +156,6 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const triggerAutoSend = useCallback(async () => {
     const rawText = sentenceBufferRef.current.trim();
     if (!rawText || isAutoSendingRef.current) {
-      cancelInactivityCountdown();
-      return;
-    }
-
-    // Guard: ignore single-character noise (except 'A' or 'I') to prevent stray gesture triggers
-    if (rawText.length < 2 && !['A', 'I'].includes(rawText.toUpperCase())) {
       cancelInactivityCountdown();
       return;
     }
@@ -199,9 +202,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         onSendMessage(speechText, 'human');
       }
 
-      // 4. Update feedback and clear buffer
+      // 4. Update feedback and clear draft buffer
       setLastAutoSpoken(speechText);
-      setSentenceBuffer('');
+      setSentenceBufferSync('');
     } catch (e) {
       console.warn('Auto-send execution error:', e);
     } finally {
@@ -209,13 +212,63 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       setIsAutoSending(false);
       cancelInactivityCountdown();
     }
-  }, [cancelInactivityCountdown, onSendMessage]);
+  }, [cancelInactivityCountdown, onSendMessage, setSentenceBufferSync]);
+
+  /**
+   * Start or maintain the 5-second countdown timer when no gesture is detected.
+   * If forceRestart is true, restarts the timer at 5.0s.
+   * If already running and forceRestart is false, lets the timer continue counting down.
+   */
+  const startOrResetInactivityTimer = useCallback((forceRestart = false) => {
+    const rawText = sentenceBufferRef.current.trim();
+    if (!autoSendEnabled || !rawText || isAutoSendingRef.current) {
+      return;
+    }
+
+    // If timer is already running and forceRestart is false, do not disrupt the countdown
+    if (autoSendTimerRef.current && !forceRestart) {
+      return;
+    }
+
+    // Reset any existing timer & interval
+    if (autoSendTimerRef.current) {
+      clearTimeout(autoSendTimerRef.current);
+      autoSendTimerRef.current = null;
+    }
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
+    }
+
+    const startTime = Date.now();
+    const targetTime = startTime + autoSendTimeoutMs;
+
+    setInactivityCountdown((autoSendTimeoutMs / 1000).toFixed(1));
+
+    countdownIntervalRef.current = setInterval(() => {
+      const remainingMs = targetTime - Date.now();
+      if (remainingMs <= 0) {
+        if (countdownIntervalRef.current) {
+          clearInterval(countdownIntervalRef.current);
+          countdownIntervalRef.current = null;
+        }
+        setInactivityCountdown('0.0');
+      } else {
+        setInactivityCountdown((remainingMs / 1000).toFixed(1));
+      }
+    }, 100);
+
+    autoSendTimerRef.current = setTimeout(() => {
+      autoSendTimerRef.current = null;
+      triggerAutoSend();
+    }, autoSendTimeoutMs);
+  }, [autoSendEnabled, autoSendTimeoutMs, triggerAutoSend]);
 
   const handleHandsDropped = useCallback(() => {
     // If auto-space is enabled, automatically insert space after the last completed word
     if (autoSpaceWordsRef.current) {
       clearAutoSpaceTimer();
-      setSentenceBuffer(prev => {
+      setSentenceBufferSync(prev => {
         const trimmed = prev.trimEnd();
         if (trimmed.length > 0 && !prev.endsWith(' ')) {
           return trimmed + ' ';
@@ -225,33 +278,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       lastCommittedItemRef.current = null;
     }
 
-    if (!autoSendEnabled || !sentenceBufferRef.current.trim() || isAutoSendingRef.current) {
-      return;
-    }
-
-    // Start countdown if not already started
-    if (!autoSendTimerRef.current) {
-      const startTime = Date.now();
-      const targetTime = startTime + autoSendTimeoutMs;
-
-      setInactivityCountdown((autoSendTimeoutMs / 1000).toFixed(1));
-
-      countdownIntervalRef.current = setInterval(() => {
-        const remainingMs = targetTime - Date.now();
-        if (remainingMs <= 0) {
-          if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-          countdownIntervalRef.current = null;
-        } else {
-          setInactivityCountdown((remainingMs / 1000).toFixed(1));
-        }
-      }, 100);
-
-      autoSendTimerRef.current = setTimeout(() => {
-        autoSendTimerRef.current = null;
-        triggerAutoSend();
-      }, autoSendTimeoutMs);
-    }
-  }, [autoSendEnabled, autoSendTimeoutMs, triggerAutoSend, clearAutoSpaceTimer]);
+    // No gesture detected (hands dropped): start or continue 5-second countdown
+    startOrResetInactivityTimer(false);
+  }, [startOrResetInactivityTimer, clearAutoSpaceTimer, setSentenceBufferSync]);
 
   // Fetch model information & available word classes
   useEffect(() => {
@@ -312,7 +341,6 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     // Update hand status with tracking grace period
     if (handCount > 0 && hasActiveLandmarks) {
       handsMissingCountRef.current = 0;
-      cancelInactivityCountdown(); // Active signing: cancel any pending hand-drop auto-send
       setHandInfo({
         count: handCount,
         label: handedness || (handCount >= 2 ? 'Both Hands (ISL)' : 'Single Hand'),
@@ -391,23 +419,28 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
             }),
           });
 
-          if (!res.ok) return null;
+          if (!res.ok) {
+            startOrResetInactivityTimer(false);
+            return null;
+          }
 
           const prediction = await res.json();
 
           // Handle confidence rejection from backend
-          if (prediction.rejected) {
+          if (prediction.rejected || !prediction.word || prediction.word === '?' || prediction.confidence < CONFIDENCE_THRESHOLD_WORD) {
             setStatus(STATES.TRACKING);
             setDetectedWord(null);
             setDetectedLetter(null);
             setConfidence(prediction.confidence || 0);
             setGuidance('Low confidence — adjust your hand position.');
             consecutiveWordRef.current = { word: null, count: 0 };
+            // No gesture detected: start or maintain 5-second countdown
+            startOrResetInactivityTimer(false);
             return prediction;
           }
 
-          if (!prediction || !prediction.word || prediction.word === '?') return null;
-
+          // Active gesture detected: pause/cancel countdown
+          cancelInactivityCountdown();
           setStatus(STATES.RECOGNISING);
           setDetectedWord(prediction.word);
           setDetectedLetter(null);
@@ -454,7 +487,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
               if (now - lastCommitRef.current > 1100 && (isDifferentWord || canRepeatSameWord)) {
                 setStatus(STATES.STABLE);
                 clearAutoSpaceTimer();
-                setSentenceBuffer(prev => {
+                setSentenceBufferSync(prev => {
                   const clean = prev.trim();
                   // Automatically place space between words to form a word-level sentence
                   return clean.length > 0 ? `${clean} ${formattedWord}` : formattedWord;
@@ -464,6 +497,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
                 consecutiveWordRef.current = { word: null, count: 0 };
                 frameBufferRef.current = []; // Clear buffer after successful word lock
                 setWordBufferCount(0);
+                // Word locked: start 5-second countdown to automatically send draft message
+                startOrResetInactivityTimer(true);
               }
             }
           } else {
@@ -473,7 +508,13 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           return prediction;
         } catch (e) {
           console.warn('Word recognition error:', e);
+          startOrResetInactivityTimer(false);
           return null;
+        }
+      } else {
+        // Viable sequence not reached or cooldown active: check if waiting
+        if (!detectedWord && !detectedLetter) {
+          startOrResetInactivityTimer(false);
         }
       }
       return null;
@@ -518,7 +559,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         }),
       });
 
-      if (!res.ok) return null;
+      if (!res.ok) {
+        startOrResetInactivityTimer(false);
+        return null;
+      }
 
       let prediction = await res.json();
 
@@ -531,8 +575,13 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         setAllScores(prediction.all_scores || {});
         setGuidance(prediction.confidence > 0 ? 'Hold sign steady...' : 'Show hands clearly');
         consecutiveLetterRef.current = { letter: null, count: 0 };
+        // No gesture detected: start or maintain 5-second countdown
+        startOrResetInactivityTimer(false);
         return prediction;
       }
+
+      // Valid gesture detected: pause/cancel countdown
+      cancelInactivityCountdown();
 
       // Temporal smoothing & stability check
       const prev = consecutiveLetterRef.current;
@@ -559,15 +608,18 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           if (lastCommittedItemRef.current !== prediction.letter) {
             setStatus(STATES.STABLE);
             clearAutoSpaceTimer();
-            setSentenceBuffer(prevBuf => prevBuf + prediction.letter);
+            setSentenceBufferSync(prevBuf => prevBuf + prediction.letter);
             lastCommitRef.current = now;
             lastCommittedItemRef.current = prediction.letter;
             consecutiveLetterRef.current = { letter: null, count: 0 };
 
+            // Letter locked: start 5-second countdown to automatically send draft message
+            startOrResetInactivityTimer(true);
+
             // Automatic word-spacing: when user pauses between words, automatically append space
             if (autoSpaceWordsRef.current) {
               autoSpaceTimerRef.current = setTimeout(() => {
-                setSentenceBuffer(prev => {
+                setSentenceBufferSync(prev => {
                   const trimmed = prev.trimEnd();
                   if (trimmed.length > 0 && !prev.endsWith(' ')) {
                     return trimmed + ' ';
@@ -584,58 +636,78 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       return prediction;
     } catch (e) {
       console.warn('Letter recognition API error:', e);
+      startOrResetInactivityTimer(false);
       return null;
     } finally {
       isRequestPendingRef.current = false;
     }
-  }, [enabled, recognitionMode, cancelInactivityCountdown, handleHandsDropped, clearAutoSpaceTimer]);
+  }, [enabled, recognitionMode, cancelInactivityCountdown, startOrResetInactivityTimer, handleHandsDropped, clearAutoSpaceTimer, setSentenceBufferSync, detectedWord, detectedLetter]);
 
   // Sentence buffer actions
   const undoLetter = useCallback(() => {
-    setSentenceBuffer(prev => {
+    setSentenceBufferSync(prev => {
       const trimmed = prev.trimEnd();
       const lastSpaceIdx = trimmed.lastIndexOf(' ');
-      if (lastSpaceIdx !== -1) {
-        return trimmed.substring(0, lastSpaceIdx + 1);
+      const next = lastSpaceIdx !== -1 ? trimmed.substring(0, lastSpaceIdx + 1) : prev.slice(0, -1);
+      if (!next.trim()) {
+        cancelInactivityCountdown();
+      } else {
+        startOrResetInactivityTimer(true);
       }
-      return prev.slice(0, -1);
+      return next;
     });
-  }, []);
+  }, [setSentenceBufferSync, cancelInactivityCountdown, startOrResetInactivityTimer]);
 
   const deleteLetter = useCallback(() => {
-    setSentenceBuffer(prev => prev.slice(0, -1));
-  }, []);
+    setSentenceBufferSync(prev => {
+      const next = prev.slice(0, -1);
+      if (!next.trim()) {
+        cancelInactivityCountdown();
+      } else {
+        startOrResetInactivityTimer(true);
+      }
+      return next;
+    });
+  }, [setSentenceBufferSync, cancelInactivityCountdown, startOrResetInactivityTimer]);
 
   const clearBuffer = useCallback(() => {
     clearAutoSpaceTimer();
-    setSentenceBuffer('');
+    cancelInactivityCountdown();
+    setSentenceBufferSync('');
     consecutiveLetterRef.current = { letter: null, count: 0 };
     consecutiveWordRef.current = { word: null, count: 0 };
     lastCommittedItemRef.current = null;
     frameBufferRef.current = [];
     setWordBufferCount(0);
-  }, [clearAutoSpaceTimer]);
+  }, [clearAutoSpaceTimer, cancelInactivityCountdown, setSentenceBufferSync]);
 
   const addSpace = useCallback(() => {
-    setSentenceBuffer(prev => (prev.endsWith(' ') ? prev : prev + ' '));
-  }, []);
+    setSentenceBufferSync(prev => (prev.endsWith(' ') ? prev : prev + ' '));
+  }, [setSentenceBufferSync]);
 
   const updateSentence = useCallback((newText) => {
-    setSentenceBuffer(newText);
-  }, []);
+    setSentenceBufferSync(newText);
+    if (!newText.trim()) {
+      cancelInactivityCountdown();
+    } else {
+      startOrResetInactivityTimer(true);
+    }
+  }, [setSentenceBufferSync, cancelInactivityCountdown, startOrResetInactivityTimer]);
 
   const refineSentence = useCallback(async () => {
-    if (!sentenceBuffer.trim()) return null;
+    const rawText = sentenceBufferRef.current.trim();
+    if (!rawText) return null;
     try {
       const res = await fetch(`${API_BASE}/llm/refine`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: sentenceBuffer.trim() })
+        body: JSON.stringify({ text: rawText })
       });
       if (res.ok) {
         const data = await res.json();
         if (data.refined_sentence) {
-          setSentenceBuffer(data.refined_sentence);
+          setSentenceBufferSync(data.refined_sentence);
+          startOrResetInactivityTimer(true);
           return data;
         }
       }
@@ -643,13 +715,14 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       console.warn('Refine LLM error:', e);
     }
     return null;
-  }, [sentenceBuffer]);
+  }, [setSentenceBufferSync, startOrResetInactivityTimer]);
 
   const commitSentence = useCallback(() => {
-    const text = sentenceBuffer.trim();
-    setSentenceBuffer('');
+    const text = sentenceBufferRef.current.trim();
+    cancelInactivityCountdown();
+    setSentenceBufferSync('');
     return text;
-  }, [sentenceBuffer]);
+  }, [cancelInactivityCountdown, setSentenceBufferSync]);
 
   const sendSentence = useCallback(async () => {
     const rawText = sentenceBufferRef.current.trim();
@@ -679,8 +752,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       onSendMessage(textToSend, 'human');
     }
     setLastAutoSpoken(textToSend);
-    setSentenceBuffer('');
-  }, [cancelInactivityCountdown, onSendMessage]);
+    setSentenceBufferSync('');
+  }, [cancelInactivityCountdown, onSendMessage, setSentenceBufferSync]);
 
   return {
     // Mode
