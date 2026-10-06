@@ -1,7 +1,7 @@
-# Graph Report - SignBridge  (2026-10-05)
+# Graph Report - SignBridge  (2026-10-06)
 
 ## Corpus Check
-- 865 files · ~30,669,559 words
+- 676 files · ~8,156,700 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c36490bd`
+- Built from commit: `63b3e7fe`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -38,7 +38,7 @@
 - .get_health_status
 - ModelSelector
 - .oxlintrc.json
-- SignBridge: Dual-Communication Indian Sign Language (ISL) Translation & Robotic Actuation System
+- SignBridge: Dual-Communication Indian Sign Language (ISL) Kiosk & Robotic Actuation System
 - What You Must Do When Invoked
 - 4. Detailed Implementation Plan
 - PROJECT_CONTEXT.md
@@ -72,11 +72,11 @@
 - SignBridge Architecture
 
 ## God Nodes (most connected - your core abstractions)
-1. `SignBridge: Dual-Communication Indian Sign Language (ISL) Translation & Robotic Actuation System` - 22 edges
-2. `react` - 21 edges
-3. `TranslatorModel` - 18 edges
-4. `TestGeminiManager` - 18 edges
-5. `TestGroqManager` - 18 edges
+1. `react` - 21 edges
+2. `TranslatorModel` - 18 edges
+3. `TestGeminiManager` - 18 edges
+4. `TestGroqManager` - 18 edges
+5. `SignBridge: Dual-Communication Indian Sign Language (ISL) Kiosk & Robotic Actuation System` - 18 edges
 6. `KeyInfo` - 16 edges
 7. `KeyInfo` - 16 edges
 8. `ArduinoSerial` - 13 edges
@@ -188,9 +188,9 @@ Nodes (4): ModelSelector, Task-aware Groq model selector with auto-discovery and
 Cohesion: 0.33
 Nodes (5): plugins, rules, react/only-export-components, react/rules-of-hooks, $schema
 
-### Community 23 - "SignBridge: Dual-Communication Indian Sign Language (ISL) Translation & Robotic Actuation System"
+### Community 23 - "SignBridge: Dual-Communication Indian Sign Language (ISL) Kiosk & Robotic Actuation System"
 Cohesion: 0.06
-Nodes (33): 1. Alphabet Recognition (Tier 1), 1. Clone the Repository, 2. Backend Setup, 2. Temporal Word Recognition (Tier 2), 3. Frontend Setup, 4. Running the Application, Acknowledgements, AI/ML Model Details (+25 more)
+Nodes (33): 1. Clone the Repository, 1. Hardware Specifications, 1. Running Backend Unit Tests, 1. Static Alphabet Recognition (Tier 1), 2. Backend Setup, 2. Dynamic Temporal Word Recognition (Tier 2), 2. Software Architecture (`robot_actuator.py`), 2. Verifying Word Model Inference (+25 more)
 
 ### Community 24 - "What You Must Do When Invoked"
 Cohesion: 0.08
@@ -293,8 +293,8 @@ Cohesion: 0.40
 Nodes (4): 1. Perception Engine (`backend/services/`), 2. Presentation Layer (`src/components/`), 3. Actuation Layer (`backend/services/arduino_serial.py`), SignBridge Architecture
 
 ## Knowledge Gaps
-- **205 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+200 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 433 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **204 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+199 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 432 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
@@ -306,11 +306,11 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.026) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `TestGeminiManager` (e.g. with `ErrorClassifier` and `GeminiErrorType`) actually correct?**
   _`TestGeminiManager` has 6 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 6 inferred relationships involving `TestGroqManager` (e.g. with `ErrorClassifier` and `GroqErrorType`) actually correct?**
+  _`TestGroqManager` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
-  _205 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _204 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `react` be split into smaller, more focused modules?**
   _Cohesion score 0.06219918548685672 - nodes in this community are weakly interconnected._
 - **Should `TranslatorModel` be split into smaller, more focused modules?**
   _Cohesion score 0.05093167701863354 - nodes in this community are weakly interconnected._
-- **Should `app.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.05357142857142857 - nodes in this community are weakly interconnected._

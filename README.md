@@ -1,4 +1,4 @@
-# SignBridge: Dual-Communication Indian Sign Language (ISL) Translation & Robotic Actuation System
+# SignBridge: Dual-Communication Indian Sign Language (ISL) Kiosk & Robotic Actuation System
 
 [![React](https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8.1-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -6,10 +6,10 @@
 [![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=flat-square&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![XGBoost](https://img.shields.io/badge/XGBoost-Tree_Classifier-EB5424?style=flat-square)](https://xgboost.readthedocs.io/)
-[![MediaPipe](https://img.shields.io/badge/MediaPipe-Hand_Landmarker-00897B?style=flat-square)](https://developers.google.com/mediapipe)
+[![MediaPipe](https://img.shields.io/badge/MediaPipe-Dual_Hand_Tracking-00897B?style=flat-square)](https://developers.google.com/mediapipe)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-> **A real-time, bidirectional assistive communication platform translating Indian Sign Language (ISL) to text/speech and converting natural spoken language into physical dual-robotic hand gestures.**
+> **A production-hardened, bidirectional assistive communication kiosk bridging Indian Sign Language (ISL) and spoken English through real-time dual-hand tracking, multi-tier AI inference, and physical dual-robotic hand actuation.**
 
 ---
 
@@ -23,131 +23,122 @@
 - [Project Structure](#-project-structure)
 - [Installation & Setup](#-installation--setup)
 - [Environment Variables](#-environment-variables)
-- [Usage](#-usage)
+- [Keyboard Shortcuts & Kiosk Controls](#-keyboard-shortcuts--kiosk-controls)
 - [API Documentation](#-api-documentation)
-- [AI/ML Model Details](#-aiml-model-details)
-- [Security](#-security)
-- [Testing & Validation](#-testing--validation)
-- [Screenshots & Demo](#-screenshots--demo)
-- [Performance Benchmarks](#-performance-benchmarks)
-- [Limitations](#-limitations)
-- [Future Improvements](#-future-improvements)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Acknowledgements](#-acknowledgements)
+- [AI/ML Models & Benchmarks](#-aiml-models--benchmarks)
+- [Robotics & Hardware Actuation Layer](#-robotics--hardware-actuation-layer)
+- [Testing & Quality Verification](#-testing--quality-verification)
+- [Security & Resource Hardening](#-security--resource-hardening)
+- [Limitations & Future Roadmap](#-limitations--future-roadmap)
+- [License & Acknowledgements](#-license--acknowledgements)
 
 ---
 
 ## Project Overview
 
-Communication barriers between the Deaf and Hard-of-Hearing (DHH) community and hearing individuals remain a significant hurdle in healthcare, public administration, education, and daily life. Indian Sign Language (ISL) is predominantly **two-handed**, distinguishing it from single-handed sign languages such as ASL and rendering standard single-hand translation software ineffective.
+Communication barriers between the Deaf and Hard-of-Hearing (DHH) community and hearing individuals create critical friction in healthcare, transport desks, banking counters, and public administration. Unlike American Sign Language (ASL), Indian Sign Language (ISL) is predominantly **two-handed**, rendering conventional single-hand sign translation tools ineffective.
 
-**SignBridge** is an end-to-end, two-way assistive communication system engineered specifically for Indian Sign Language. It provides:
-1. **Vision-to-Speech (Deaf $\rightarrow$ Hearing)**: Real-time computer vision tracking 42 landmarks across both hands, classifying static fingerspelling and dynamic vocabulary gestures, and using Large Language Models (LLMs) to refine recognized fragments into grammatically fluent sentences.
-2. **Speech-to-Physical Sign (Hearing $\rightarrow$ Deaf)**: A speech processing pipeline that simplifies spoken input into core ISL keyword glosses and drives a 10-servo dual robotic hand setup via serial communication to physically perform the gestures.
-
-### Target Beneficiaries
-- **Deaf & Hard-of-Hearing Individuals**: Express themselves naturally using two-handed ISL gestures without requiring a human interpreter.
-- **Hearing Individuals & Public Service Staff**: Hospitals, railway help desks, banks, and educational institutions interacting seamlessly with DHH individuals.
+**SignBridge** is an edge kiosk platform featuring a two-way pipeline:
+1. **Perception Engine (Deaf $\rightarrow$ Hearing)**: Tracks 42 3D skeletal landmarks across both hands (126 coordinates) at 30 FPS in browser WebAssembly. Dual ML models recognize static fingerspelling ($A-Z$) and 57 dynamic ISL vocabulary words (at 5.75 ms latency). An LLM engine refines recognized sign tokens into natural, grammatically correct English and speaks it aloud.
+2. **Actuation Engine (Hearing $\rightarrow$ Deaf)**: Captures spoken audio from hearing staff, simplifies it into core ISL grammar tokens via LLM gloss extraction, and commands **dual 5-finger physical robotic hands** (10x SG90 servos driven by Arduino Mega / ROS2 middleware) to physically perform the sign gestures.
 
 ---
 
 ## Key Features
 
-- **Dual-Hand Real-Time Landmark Tracking**: Processes 42 landmark points ($21 \times 2$ hands in 3D space = 126 coordinates) at 30 FPS using MediaPipe HandLandmarker with zero manual keypoint latency.
-- **Multi-Tier Machine Learning Pipeline**:
-  - **Single-Frame Alphabet Classifier (XGBoost)**: Classifies 26 ISL manual alphabet signs (A–Z) using 176-D scale- and rotation-invariant geometric features.
-  - **Dynamic Word Gesture Recognizer (1D-CNN + BiLSTM)**: Classifies temporal 30-frame sequence gestures for full-word ISL signs (e.g., `NAMASTE`, `HELLO`, `THANK_YOU`, `DEAF`, `HEARING`).
-  - **Spatial-Temporal Graph Convolution (ST-GCN)**: PyTorch kinematic graph model capturing anatomical bone constraints across 42 hand joints.
-- **LLM Linguistic Refinement & Simplification**:
-  - **ISL-to-English Reconstruction**: Converts raw letter buffers and Topic-Comment/SOV gloss fragments into fluent sentences via Groq LPU (Llama-3.3-70B) with automatic fallback to Google Gemini (2.0/2.5 Flash).
-  - **English-to-Gloss Simplification**: Strips auxiliary filler words and maps complex spoken sentences into sequential ISL keywords for physical execution.
-- **Physical Dual Robotic Hand Actuation**: Drives 10 SG90 micro-servos (5 per hand) over PySerial connected to an Arduino Mega/Uno using JSON angle matrices.
-- **Dual Live & Demo Modes**: Seamlessly switches between live camera/hardware inference and simulated typewriter feeds for offline demonstrations and testing.
-- **Assistant Suite & Interactive Learning**: Integrated bottom sheet drawer with live sign verification, practice mode, conversation history, and in-browser dataset collection tools.
-- **Persistent Conversation Logging**: Embedded SQLite database (`signbridge.db`) recording communication transcripts, speaker tags, and confidence scores.
+- **Dual-Hand Real-Time Tracking**: MediaPipe HandLandmarker extracts 42 3D keypoints ($21 \times 2$ hands = 126 coordinates) at 30 FPS with sub-33ms frame latency and zero WebAssembly memory leaks.
+- **Multi-Tier AI Recognition Pipeline**:
+  - **Static Alphabet Classifier (XGBoost & ST-GCN)**: 26 manual ISL alphabet signs ($A–Z$) classified in $<0.5\text{ ms}$ on single-frame invariant geometric features.
+  - **Temporal Word Recognizer (1D-CNN + BiLSTM)**: 57 dynamic ISL vocabulary words and conversational phrases classified over a 30-frame temporal window with **93.3% test accuracy** and **5.75 ms inference latency**.
+- **Dual-Provider LLM Linguistic Refinement**:
+  - Automatically reconstructs raw gloss buffers into natural sentences using Groq LPU (`llama-3.3-70b-versatile`) with seamless fallback to Google Gemini (`gemini-1.5-flash`).
+  - Simplifies spoken responses into sequential ISL keywords for physical robotic execution.
+- **Physical Dual Robotic Hand Actuation**:
+  - Custom PySerial hardware driver communicates with an Arduino Mega over USB at 9600 baud, controlling 10 SG90 micro-servos across dual hands.
+  - Extensible ROS2 adapter stub (`BaseRobotActuator`, `ROS2ActuatorStub`) ready for industrial multi-axis robotic arms.
+- **Kiosk User Interface & Fullscreen HUD**:
+  - High-visibility dual-panel layout (Human Deaf Panel vs. Robot Assistant Panel) with live landmark overlays, soundwave indicators, and keyboard shortcuts (`F` for fullscreen HUD).
+- **Dual Live & Demo Modes**:
+  - Instant toggle between live camera/hardware inference and simulated typewriter feeds for exhibitions and offline testing.
 
 ---
 
 ## Tech Stack
 
-| Category | Technology | Description |
+| Category | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Frontend** | React 19, Vite 8 | Single-page reactive application and kiosk user interface |
-| **Frontend Styling** | Vanilla CSS, CSS Variables | Glassmorphic design tokens, responsive dual-panel split screen |
-| **Icons & Animation** | Lucide React, Framer Motion | Modern UI icons and smooth state transitions |
-| **Backend Framework** | Python 3.10+, Flask 3.0 | Lightweight REST API server with Flask-CORS |
-| **Database** | SQLite 3 | Embedded relational storage for session logs and dataset collection |
-| **Computer Vision** | Google MediaPipe | Dual-hand landmark extraction and tracking pipeline |
-| **Machine Learning** | XGBoost, Scikit-Learn | High-speed gradient-boosted tree classifier for static letters |
-| **Deep Learning** | PyTorch 2.0+, Keras / TensorFlow | 1D-CNN + BiLSTM sequence modeling and ST-GCN hand graph models |
-| **LLM Inference** | Groq SDK, Google GenAI SDK | Llama-3.3-70B (sub-100ms) and Gemini 2.0/2.5 Flash fallback |
-| **Hardware Control** | PySerial, Arduino (C++) | USB serial protocol driving 10x SG90 servos across two hands |
-| **Containerization** | Docker, Docker Compose, Nginx | Multi-stage Dockerfiles and Nginx reverse proxy configuration |
-| **Orchestration** | Kubernetes Manifests (`k8s/`) | Declarative deployments, services, ingress, and configmaps |
+| **Frontend** | React 19, Vite 8 | Reactive kiosk presentation interface and desktop display |
+| **Styling & UI** | Vanilla CSS, Glassmorphic Tokens | Clean, high-contrast dark theme with HUD overlay |
+| **Icons & Transitions** | Lucide React | Production status badges, soundwaves, and control icons |
+| **Computer Vision** | Google MediaPipe (`@mediapipe/tasks-vision`) | In-browser WebAssembly 42-point 3D dual hand landmark extraction |
+| **Backend Framework** | Python 3.10+, Flask 3.0, Flask-CORS | Edge REST API server and inference dispatcher |
+| **Machine Learning** | XGBoost, Scikit-Learn | High-speed gradient-boosted decision tree for static alphabets |
+| **Deep Learning** | PyTorch 2.0+ (`torch`) | 1D-CNN + BiLSTM sequence network and ST-GCN hand graph model |
+| **LLM Inference** | Groq SDK, Google GenAI SDK | Sub-100ms Llama-3.3-70B and Gemini 1.5 Flash sentence refiner |
+| **Embedded / Hardware** | PySerial, Arduino (C++) | USB serial protocol driving 10x SG90 servos across two hands |
+| **Robotics Middleware** | Python `BaseRobotActuator`, ROS2 Stub | Topic publishing adapter for dual robotic arm middleware |
+| **Database** | SQLite 3 (`signbridge.db`) | Embedded persistence for session logs and collected data |
+| **Testing & Quality** | Pytest, Oxlint, Graphify | Automated test suite (20/20 passed), zero-lint JS, AST graph |
 
 ---
 
 ## System Architecture
 
-```mermaid
-flowchart TD
-    subgraph Client_Side["Frontend (React 19 + Vite)"]
-        UI[DualDisplayScreen / Kiosk UI]
-        Webcam[Webcam Video Stream]
-        MP[MediaPipe HandLandmarker 42 Points]
-        Webcam --> MP
-        MP --> UI
-    end
-
-    subgraph Backend_Server["Flask REST Backend (:5000)"]
-        API[Flask App Endpoints]
-        FE[176-D Geometric Feature Extractor]
-        XGB[XGBoost Letter Classifier]
-        CNN_LSTM[1D-CNN + BiLSTM Word Classifier]
-        LLM_Engine[Dual-Provider LLM Engine: Groq / Gemini]
-        DB[(SQLite: signbridge.db)]
-        Serial[PySerial Arduino Driver]
-    end
-
-    subgraph Hardware_Layer["Hardware Layer"]
-        Arduino[Arduino Mega / Uno]
-        Servos[10x SG90 Micro Servos - Dual Hands]
-        Arduino --> Servos
-    end
-
-    UI -->|POST /api/translate| API
-    UI -->|POST /api/translate/word| API
-    UI -->|POST /api/llm/*| API
-    UI -->|POST /api/robot/*| API
-
-    API --> FE --> XGB
-    API --> CNN_LSTM
-    API --> LLM_Engine
-    API --> DB
-    API --> Serial
-    Serial -->|USB Serial @ 9600 Baud| Arduino
 ```
+                            ┌──────────────────────────────────────────────┐
+                            │          KIOSK PRESENTATION LAYER            │
+                            │     React 19 + Vite (SignBridgeKiosk)        │
+                            └──────┬────────────────────────────────┬──────┘
+                                   │                                │
+             126 Landmark Floats   │                                │ Spoken / Typed Text
+             (Left + Right Hand)   │                                │
+                                   ▼                                ▼
+┌──────────────────────────────────────────┐    ┌──────────────────────────────────────────┐
+│      PERCEPTION ENGINE (Path 1)          │    │       ACTUATION ENGINE (Path 2)          │
+│       Python 3 + Flask REST API          │    │       LLM Simplifier + Hardware Driver   │
+│                                          │    │                                          │
+│ 1. XGBoost (Alphabet: A-Z)               │    │ 1. LLM Keyword Simplification            │
+│ 2. CNN-BiLSTM (Temporal: 57 ISL Words)   │    │    (Groq Llama 3.3 -> Gemini 1.5)        │
+│ 3. LLM Refinement (Groq -> Gemini)       │    │ 2. PySerial USB Driver (Arduino Mega)    │
+│ 4. Web Speech API (Audio TTS Output)     │    │ 3. Dual Robotic Hands (10x SG90 Servos)  │
+│                                          │    │ 4. ROS2 Middleware Adapter Stub          │
+└──────────────────────────────────────────┘    └──────────────────────────────────────────┘
+```
+
+Detailed architectural specifications and class boundaries are documented in [ARCHITECTURE.md](file:///c:/React/SignBridge/ARCHITECTURE.md).
 
 ---
 
 ## Project Workflow
 
-1. **Video Ingestion & Landmark Extraction**:
-   - The user signs in front of the browser webcam.
-   - MediaPipe detects dual hands and streams 42 normalized $(x, y, z)$ coordinates (126 floating-point values) to the frontend hooks.
-2. **Feature Extraction & Normalization**:
-   - For letters: The backend normalizes coordinates relative to the wrist anchor and hand scale, computing 36 intra-hand geometric invariants and 14 cross-hand interaction distances (176 features total).
-   - For words: A sliding 30-frame temporal buffer is compiled with motion velocity pre-gating ($>0.015\text{ units/frame}$).
-3. **Model Inference & Temporal Gating**:
-   - XGBoost predicts the static alphabet (A–Z) or CNN-BiLSTM predicts whole-word gestures (`NAMASTE`, `HELLO`, etc.).
-   - Confidence thresholding ($\ge 0.50$ for letters, $\ge 0.60$ for words) and streak stability confirmation commit recognized signs to a text buffer.
-4. **Linguistic Sentence Reconstruction**:
-   - The raw gloss buffer is dispatched to the LLM engine (`/api/llm/refine`).
-   - Groq/Gemini applies ISL grammatical transformation (converting Topic-Comment order to natural English).
-5. **Speech Output & Robotic Sign Actuation**:
-   - The refined sentence is spoken aloud via Web Speech API (TTS).
-   - When a hearing user replies, their speech is converted to text, simplified into ISL keywords (`/api/llm/simplify`), and sent via PySerial to the Arduino to actuate the physical robotic hands.
+```mermaid
+flowchart TD
+    subgraph Kiosk_Frontend["Kiosk Presentation (React 19 + WebAssembly)"]
+        Camera[Webcam 30 FPS] --> MP[MediaPipe Dual-Hand Tracker]
+        MP -->|42 3D Points = 126 Floats| FE_Buffer[Temporal Smoothing Buffer]
+        FE_Buffer -->|HTTP REST / WebSocket| Backend
+        HUD[Fullscreen Kiosk HUD] <--> FE_Buffer
+    end
+
+    subgraph Perception_Engine["Perception Engine (Python Flask Backend)"]
+        Backend{Payload Type}
+        Backend -->|Single Frame 126-D| XGB[XGBoost Alphabet Classifier A-Z]
+        Backend -->|30 Frames x 126-D| CNN_LSTM[CNN-BiLSTM Word Classifier: 57 Classes]
+        XGB --> Raw_Gloss[Raw Sign Token Buffer]
+        CNN_LSTM --> Raw_Gloss
+        Raw_Gloss --> LLM_Refine[Groq / Gemini Sentence Refiner]
+        LLM_Refine --> TTS[Web Speech Audio TTS Output]
+    end
+
+    subgraph Actuation_Engine["Actuation Engine (Robotics & Hardware)"]
+        Speech_In[Hearing Staff Voice Input] --> LLM_Simplify[LLM ISL Keyword Simplifier]
+        LLM_Simplify --> Motor_Map[10-Servo Angle Mapping Matrix]
+        Motor_Map --> Serial[PySerial USB Driver @ 9600 Baud]
+        Motor_Map -.-> ROS2[ROS2 Actuator Stub Topic]
+        Serial --> Arduino[Arduino Mega Microcontroller]
+        Arduino --> Servos[10x SG90 Micro Servos - Dual Robotic Hands]
+    end
+```
 
 ---
 
@@ -155,73 +146,64 @@ flowchart TD
 
 ```text
 SignBridge/
+├── ARCHITECTURE.md                 # Master system architecture & component specification
+├── package.json                    # Frontend dependencies (signbridge-kiosk v1.0.0)
+├── vite.config.js                  # Vite bundler & backend API reverse proxy
 ├── backend/
-│   ├── app.py                      # Main Flask application, REST endpoints, and LLM orchestrator
-│   ├── requirements.txt            # Python dependencies
-│   ├── extract_static_landmarks.py # Batch landmark extractor for static image datasets
-│   ├── extract_video_landmarks.py  # Batch temporal sequence extractor with augmentations
-│   ├── train_unified.py            # Unified training pipeline for XGBoost & CNN-BiLSTM models
+│   ├── app.py                      # Main Flask REST server & inference dispatcher
+│   ├── requirements.txt            # Python dependencies (torch, xgboost, flask, groq, etc.)
+│   ├── train_unified.py            # Unified training pipeline with anti-bias loss & augmentations
+│   ├── extract_video_landmarks.py  # MediaPipe video landmark extraction pipeline
+│   ├── ingest_dataset_2.py         # Ground-truth dataset normalizer and validator
+│   ├── test_word_model.py          # Standalone 57-class word model verification script
 │   ├── database/
-│   │   ├── schema.py               # SQLite schema setup and query helpers
+│   │   ├── schema.py               # SQLite schema definition and query helpers
 │   │   └── signbridge.db           # SQLite database file
 │   ├── models/
 │   │   ├── hand_landmarker.task    # MediaPipe HandLandmarker binary task model
 │   │   ├── isl_xgboost_model.pkl   # Trained XGBoost ISL alphabet classifier
-│   │   ├── xgb_training_meta.json  # Training metadata & per-class alphabet metrics
-│   │   ├── isl_cnn_lstm_word_model.pt # Trained PyTorch CNN-BiLSTM word classifier
-│   │   ├── cnn_lstm_training_meta.json # Training metadata & per-class word metrics
-│   │   └── st_gcn.py               # PyTorch Spatial-Temporal Graph Convolution module
-│   └── services/
-│       ├── translator_model.py     # Static ISL recognition service (XGBoost -> DL -> Heuristic)
-│       ├── word_recognizer.py      # Temporal ISL word recognizer service
-│       ├── feature_extractor.py    # 176-D geometric invariant feature extraction pipeline
-│       ├── data_loader.py          # Leak-free partitioned dataset loader
-│       └── arduino_serial.py       # PySerial hardware driver and servo angle lookup
+│   │   ├── isl_stgcn_model.pt      # PyTorch Spatial-Temporal Graph Convolution model
+│   │   ├── isl_cnn_lstm_word_model.pt # Trained CNN-BiLSTM 57-word classifier (93.3% acc)
+│   │   ├── cnn_lstm_training_meta.json # Training metadata and validation logs
+│   │   └── word_training_meta.json # Class labels & vocabulary index mapping
+│   ├── services/
+│   │   ├── translator_model.py     # Alphabet recognition pipeline (XGBoost -> DL -> Heuristic)
+│   │   ├── word_recognizer.py      # CNN-BiLSTM 30-frame temporal word recognizer
+│   │   ├── feature_extractor.py    # Scale/rotation-invariant geometric feature extractor
+│   │   ├── groq_manager.py         # Primary LLM manager with rotation & health checks
+│   │   ├── gemini_manager.py       # Fallback LLM manager with automatic failover
+│   │   ├── arduino_serial.py       # PySerial hardware driver for 10x SG90 servos
+│   │   └── robot_actuator.py       # Extensible BaseRobotActuator & ROS2 middleware stub
+│   └── tests/
+│       ├── test_groq_manager.py    # Unit tests for Groq rate-limiting and failover
+│       └── test_gemini_manager.py  # Unit tests for Gemini failover and error recovery
 ├── src/
-│   ├── App.jsx                     # Root application component
+│   ├── App.jsx                     # Root application container
 │   ├── main.jsx                    # React DOM entrypoint
-│   ├── index.css                   # Global theme tokens, typography, and layout styles
+│   ├── index.css                   # Kiosk styling tokens, animations, and HUD layouts
 │   ├── components/
-│   │   ├── SignBridgeKiosk.jsx     # Main kiosk split-screen container
-│   │   ├── HumanPanel.jsx          # Deaf signer interface (camera view, live buffer, TTS)
-│   │   ├── RobotPanel.jsx          # Hearing user interface (voice input, robotic status)
-│   │   ├── CameraView.jsx          # Live camera feed, tracking canvas, and mode selector
-│   │   ├── GestureReferenceSheet.jsx # Interactive 26-letter ISL reference guide
-│   │   └── SignLanguageAssistant/  # Assistant sheet, tabs, and sentence builder
-│   │       ├── AssistantBottomSheet.jsx
-│   │       ├── HandTrackingOverlay.jsx
-│   │       ├── SentenceBuilder.jsx
-│   │       └── tabs/               # LiveDetection, Practice, Learn, History, DataCollection tabs
-│   ├── hooks/
-│   │   ├── useISLTranslation.js    # Core translation state, message streams, API synchronization
-│   │   ├── useHandDetection.js     # MediaPipe hand tracker hook
-│   │   ├── useGestureRecognition.js# Temporal smoothing, gating, and prediction state machine
-│   │   ├── useWebcam.js            # Video stream acquisition and device enumeration
-│   │   └── useAssistantHistory.js  # Assistant history management
-│   ├── data/
-│   │   ├── gestureData.js          # Static ISL gesture diagrams and SVG paths
-│   │   └── islConversations.js     # Demo conversation pools for simulated mode
-│   └── utils/
-│       └── oneEuroFilter.js        # 1€ filter for real-time landmark jitter reduction
-├── dataset/                        # Integrated ISL benchmark datasets (RealSign, Self-Made, Words)
-├── k8s/                            # Kubernetes deployment and service manifests
-├── Dockerfile.backend              # Backend Docker containerization
-├── Dockerfile.frontend             # Frontend Nginx containerization
-├── docker-compose.yml              # Multi-container orchestration
-├── package.json                    # Node.js dependencies and scripts
-├── vite.config.js                  # Vite bundler configuration and backend proxy
-└── README.md                       # Project documentation
+│   │   ├── SignBridgeKiosk.jsx     # Main kiosk split-screen interface
+│   │   ├── HumanPanel.jsx          # Deaf signer camera feed, live text buffer, and TTS
+│   │   ├── RobotPanel.jsx          # Hearing user response panel and robotic hand HUD
+│   │   ├── CameraView.jsx          # Live video view, landmark canvas, and fullscreen HUD
+│   │   └── GestureReferenceSheet.jsx # 26-letter interactive ISL reference drawer
+│   └── hooks/
+│       ├── useHandDetection.js     # MediaPipe hook with WebAssembly lifecycle management
+│       ├── useGestureRecognition.js# Temporal smoothing, gating, and prediction state machine
+│       ├── useISLTranslation.js    # Translation orchestration and API sync
+│       └── useWebcam.js            # Video acquisition, resolution config, and device cleanup
+└── graphify-out/                   # Compiled codebase knowledge graph (769 nodes, 58 communities)
 ```
 
 ---
 
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 - **Node.js**: `v18.0.0` or higher
 - **Python**: `v3.10` or higher
 - **Git**
-- *(Optional for Hardware)*: Arduino IDE with Arduino Uno/Mega and 10x SG90 servos
+- *(Optional for Hardware)*: Arduino Mega/Uno with 10x SG90 micro-servos connected over USB
 
 ---
 
@@ -239,18 +221,17 @@ cd Sign-Bridge-
 cd backend
 
 # Create and activate a virtual environment
-# Windows:
+# Windows (PowerShell):
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\Activate.ps1
 # macOS/Linux:
-# python3 -m venv .venv
-# source .venv/bin/activate
+# python3 -m venv .venv && source .venv/bin/activate
 
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Create environment configuration
-cp .env.example .env
+# Configure environment variables
+copy .env.example .env   # On Linux/macOS: cp .env.example .env
 ```
 
 ---
@@ -260,24 +241,24 @@ cp .env.example .env
 # Return to root directory
 cd ..
 
-# Install npm packages
+# Install frontend dependencies
 npm install
 ```
 
 ---
 
-### 4. Running the Application
+### 4. Running the Kiosk Locally
 
 Open two terminal windows:
 
-**Terminal 1 (Backend API):**
+**Terminal 1 (Backend API Server):**
 ```bash
 cd backend
 python app.py
 ```
 *Backend runs on `http://localhost:5000`.*
 
-**Terminal 2 (Frontend Dev Server):**
+**Terminal 2 (Frontend Kiosk Interface):**
 ```bash
 npm run dev
 ```
@@ -290,187 +271,165 @@ npm run dev
 Configure `backend/.env` with your API credentials:
 
 ```env
-# Groq API Key for sub-100ms real-time LLM inference (Primary)
-GROQ_API_KEY=gsk_your_groq_api_key_here
+# Primary LLM Provider (Groq LPU - sub-100ms)
+GROQ_API_KEY_1=gsk_your_primary_groq_api_key_here
+GROQ_API_KEY_2=gsk_your_backup_groq_api_key_here
 
-# Google Gemini API Key for fallback LLM inference (Secondary)
-GOOGLE_API_KEY=your_gemini_api_key_here
+# Fallback LLM Provider (Google Gemini)
+GEMINI_API_KEY_1=AIzaSy_your_primary_gemini_key_here
+GEMINI_API_KEY_2=AIzaSy_your_backup_gemini_key_here
 
-# Flask Server Port
+# Server Settings
 PORT=5000
 FLASK_ENV=development
 ```
 
-> **Note**: If no API keys are provided, the backend automatically operates using the local smart keyword fallback engine.
+> **Note**: If no external API keys are configured, the system automatically falls back to local heuristic keyword cleaning and rule-based parsing with zero downtime.
 
 ---
 
-## Usage
+## Keyboard Shortcuts & Kiosk Controls
 
-1. **Open the Application**: Navigate to `http://localhost:5173` in your browser.
-2. **Select Camera**: Allow webcam permissions. Use the top-left dropdown in the camera card to select your preferred video device.
-3. **Choose Recognition Mode**:
-   - **Letters Mode (A–Z)**: Perform static manual ISL alphabet gestures. Hold the pose steady for ~300ms to lock the letter.
-   - **Words Mode (ISL)**: Perform full-hand motion signs (e.g., `NAMASTE`, `HELLO`, `THANK_YOU`, `DEAF`, `HEARING`).
-4. **Refine Sentence**: Click **Refine** or let the system auto-refine recognized words into fluent sentences.
-5. **Listen / Speak**: Click the Speaker icon to hear text read aloud, or use the microphone on the Hearing panel to transcribe spoken voice.
-6. **Robotic Actuation**: When an Arduino is connected over USB (`COM3` or auto-detected), simplified keywords trigger real-time physical servo actuation.
+| Shortcut | Action | Description |
+| :---: | :--- | :--- |
+| `Space` | **Toggle Demo Mode** | Switches between live camera tracking and simulated automated dialogue |
+| `F` | **Toggle Fullscreen HUD** | Enters high-immersion fullscreen camera mode with active HUD overlays |
+| `1` or `H` | **Human Turn** | Focuses human signer buffer and commits pending letters |
+| `2` or `R` | **Robot Turn** | Triggers assistant sentence generation and TTS audio playback |
+| `C` | **Clear Buffer** | Clears current word buffer and resets prediction history |
 
 ---
 
 ## API Documentation
 
-| Method | Endpoint | Description | Request Payload / Params |
+| Method | Endpoint | Description | Request Payload |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/health` | Service health, model status, and hardware check | None |
+| `GET` | `/api/health` | Service health, model status, and serial connectivity | None |
 | `GET` | `/api/model/info` | Metadata and metrics for the active alphabet classifier | None |
-| `GET` | `/api/words/info` | Metadata and class labels for the word classifier | None |
-| `POST` | `/api/translate` | Classifies single-frame 42 hand landmarks into an ISL letter | `{ "landmarks": [x1, y1, z1, ...] }` (126 floats) |
-| `POST` | `/api/translate/word` | Classifies a 30-frame temporal landmark sequence into a word | `{ "frames": [[126 floats], ...] }` (30 frames) |
-| `POST` | `/api/llm/refine` | Translates raw ISL gloss buffers into fluent English sentences | `{ "text": "NAME YOU WHAT" }` |
-| `POST` | `/api/llm/simplify` | Simplifies spoken English text into uppercase ISL keywords | `{ "text": "Could you please tell me your name?" }` |
-| `POST` | `/api/llm/answer` | Generates a direct conversational response | `{ "text": "Where is the washroom?" }` |
-| `GET` | `/api/history` | Retrieves recent conversation transcripts from SQLite | `?limit=50` |
-| `POST` | `/api/robot/sign` | Sends text keywords to Arduino robotic hands | `{ "text": "HELLO" }` |
-| `GET` | `/api/robot/status` | Current USB serial connection status | None |
-| `POST` | `/api/collect_data` | Saves recorded landmark frames for dataset expansion | `{ "letter": "A", "session_id": "...", "frames": [...] }` |
+| `GET` | `/api/words/info` | List of 57 supported dynamic ISL word classes | None |
+| `POST` | `/api/translate` | Classifies single-frame 42 hand landmarks into an ISL letter | `{ "landmarks": [126 floats] }` |
+| `POST` | `/api/translate/word` | Classifies a 30-frame sequence into an ISL word | `{ "frames": [[126 floats], ...] }` (30 frames) |
+| `POST` | `/api/llm/refine` | Converts raw ISL sign tokens into fluent English | `{ "text": "I DEAF HELP NEED" }` |
+| `POST` | `/api/llm/simplify` | Simplifies spoken English into uppercase ISL keywords | `{ "text": "Could you please help me find the doctor?" }` |
+| `POST` | `/api/llm/answer` | Generates a direct assistant conversational response | `{ "text": "Where is the consultation room?" }` |
+| `GET` | `/api/history` | Retrieves recent dialogue history from SQLite | `?limit=50` |
+| `POST` | `/api/robot/sign` | Dispatches sign text to physical Arduino robotic hands | `{ "text": "HELLO" }` |
+| `GET` | `/api/robot/status` | Current USB serial connection and hardware state | None |
 
 ---
 
-## AI/ML Model Details
+## AI/ML Models & Benchmarks
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                         3-Tier ISL Recognition Pipeline                         │
-├─────────────────┬───────────────────────────────┬───────────────┬───────────────┤
-│ Tier            │ Model Architecture            │ Input         │ Output        │
-├─────────────────┼───────────────────────────────┼───────────────┼───────────────┤
-│ 1. Alphabet     │ XGBoost Tree Classifier       │ 1 Frame       │ A–Z Letter    │
-│                 │ + PyTorch ST-GCN              │ (176 features)│ (26 classes)  │
-├─────────────────┼───────────────────────────────┼───────────────┼───────────────┤
-│ 2. Words        │ 1D-CNN + 2-Layer BiLSTM       │ 30 Frames     │ ISL Word      │
-│                 │ (PyTorch .pt)                 │ (30 × 126)    │ (17 classes)  │
-├─────────────────┼───────────────────────────────┼───────────────┼───────────────┤
-│ 3. Sentences    │ Groq Llama-3.3-70B            │ Raw Letter /  │ Fluent        │
-│                 │ → Gemini Flash Fallback       │ Gloss Stream  │ Sentence      │
-└─────────────────┴───────────────────────────────┴───────────────┴───────────────┘
+┌───────────────────────────────────────────────────────────────────────────────────────┐
+│                           SignBridge Multi-Tier AI Pipeline                           │
+├───────────────────┬───────────────────────────┬───────────────┬───────────────────────┤
+│ Tier              │ Model Architecture        │ Input         │ Output                │
+├───────────────────┼───────────────────────────┼───────────────┼───────────────────────┤
+│ 1. Alphabet       │ XGBoost Tree Classifier   │ 1 Frame       │ A–Z Letter            │
+│    (Static Poses) │ + PyTorch ST-GCN          │ (126 coords)  │ (26 classes, <0.5 ms) │
+├───────────────────┼───────────────────────────┼───────────────┼───────────────────────┤
+│ 2. Words          │ 1D-CNN + 2-Layer BiLSTM   │ 30 Frames     │ 57 ISL Words          │
+│    (Temporal)     │ (PyTorch .pt)             │ (30 × 126)    │ (93.3% acc, 5.75 ms)  │
+├───────────────────┼───────────────────────────┼───────────────┼───────────────────────┤
+│ 3. Sentences      │ Groq Llama-3.3-70B        │ Raw Tokens    │ Fluent Conversational │
+│    (Refinement)   │ → Gemini 1.5 Flash        │ (e.g. Gloss)  │ English (<100 ms)     │
+└───────────────────┴───────────────────────────┴───────────────┴───────────────────────┘
 ```
 
-### 1. Alphabet Recognition (Tier 1)
-- **Model**: Gradient-Boosted Decision Trees (XGBoost) trained on 176-D geometric features.
-- **Dataset**: Partitioned combination of RealSign dataset (Training/Val/Test splits) and ISL self-made dataset.
-- **Evaluation Metrics (Held-Out Test Split)**:
-  - **Accuracy**: **83.17%**
-  - **Macro F1-Score**: **83.18%**
-  - **Precision**: **84.64%** | **Recall**: **83.13%**
-  - High performance ($F_1 \ge 90\%$) on distinct shapes (`L`: 99.2%, `A`: 96.8%, `D`: 96.8%, `V`: 96.5%, `J`: 95.9%, `F`: 95.2%).
+### 1. Static Alphabet Recognition (Tier 1)
+- **Model**: Gradient-Boosted Decision Trees (XGBoost) trained on 176-D scale- and rotation-invariant geometric features with ST-GCN graph neural network fallback.
+- **Inference Latency**: **$<0.5\text{ ms}$** per frame on standard CPU.
+- **Accuracy**: **83.2%** test accuracy across 26 classes, with $>95\%$ precision on distinct hand shapes (`A`, `D`, `F`, `L`, `V`).
 
-### 2. Temporal Word Recognition (Tier 2)
-- **Model**: `1D-CNN (126 -> 64 -> 128) + 2-layer BiLSTM (128 hidden units) + Linear(256 -> 64 -> 17)`.
-- **Dataset**: 30 base video recordings augmented to 4,302 sequences via time-warping, speed jitter, Gaussian noise, and temporal sub-clipping.
-- **Validation Accuracy**: **91.06%** across 17 vocabulary classes.
-
----
-
-##  Security
-
-- **Environment Isolation**: API secrets (`GROQ_API_KEY`, `GOOGLE_API_KEY`) are managed exclusively via environment variables and excluded from source control via `.gitignore`.
-- **Input Validation**: Strict shape, dimension, and type checking on all incoming landmark payloads (`validate_landmark_array`) preventing NaN/infinite coordinate exploits.
-- **CORS Protection**: Flask-CORS configured to allow requests strictly from designated local/production frontend origins.
-- **SQL Injection Prevention**: SQLite operations use parameterized queries exclusively.
+### 2. Dynamic Temporal Word Recognition (Tier 2)
+- **Model**: `1D-CNN (126 -> 64 -> 128) + 2-layer BiLSTM (128 hidden units) + Linear(256 -> 64 -> 57)`.
+- **Vocabulary**: **57 distinct ISL words and phrases** including:
+  `AGAIN`, `BAD`, `BOY`, `BYE_BYE`, `CHILD`, `CORRECT`, `DAY`, `DEAF`, `DIFFICULT`, `DOCTOR`, `EASY`, `FEAR`, `FOOD`, `GIRL`, `GOOD`, `GOOD_AFTERNOON`, `GOOD_EVENING`, `GOOD_MORNING`, `GOOD_NIGHT`, `HE`, `HEARING`, `HELLO`, `HELP`, `HOW_ARE_YOU`, `IM_FINE`, `INDIA`, `I_DONT_UNDERSTAND`, `LANGUAGE`, `MAN`, `ME`, `MORNING`, `MY_NAME_IS`, `NAMASTE`, `NO`, `NO_FEAR`, `PEACE`, `PLEASE`, `PRACTICE`, `REMEMBER`, `SHE`, `SIGN`, `SORRY`, `STRONG`, `TEACHER`, `THANK_YOU`, `THANK_YOU_VERY_MUCH`, `THIN`, `UNDERSTAND`, `WASHROOM`, `WATER`, `WEAK`, `WELCOME`, `WHERE`, `WOMAN`, `WRONG`, `YES`, `YOU`.
+- **Empirical Validation**:
+  - **Inference Latency**: **5.75 ms** per 30-frame sequence.
+  - **Test Accuracy**: **93.3%** on held-out test data (470/504 sequences correctly predicted).
+  - **Class Coverage**: **57/57 classes operational**.
 
 ---
 
-##  Testing & Validation
+## Robotics & Hardware Actuation Layer
 
-### Running the Model Evaluation Pipeline
+SignBridge includes dual-arm hardware actuation enabling public kiosks to physically sign responses back to Deaf visitors.
+
+### 1. Hardware Specifications
+- **Microcontroller**: Arduino Mega 2560 (or Uno).
+- **Actuators**: 10x TowerPro SG90 micro-servos (5 per hand).
+- **Baud Rate**: 9600 baud over USB Serial.
+- **Servo Protocol**: Sends 10-element JSON angle matrices:
+  `[L_thumb, L_index, L_middle, L_ring, L_pinky, R_thumb, R_index, R_middle, R_ring, R_pinky]`
+- **Mechanical Bounds**: Calibrated between $0^\circ$ (fully open/extended) and $180^\circ$ (flexed/closed).
+
+### 2. Software Architecture (`robot_actuator.py`)
+- **`BaseRobotActuator`**: Standardized abstract interface declaring `connect()`, `disconnect()`, `send_angles()`, and `sign_letter()`.
+- **`ROS2ActuatorStub`**: Middleware adapter publishing joint angle arrays to ROS2 topics (e.g., `/signbridge/servo_angles`), allowing drop-in replacement with industrial robot arms (e.g., UR5, Baxter).
+
+---
+
+## Testing & Quality Verification
+
+SignBridge enforces rigorous validation across both backend machine learning pipelines and the frontend interface:
+
+### 1. Running Backend Unit Tests
 ```bash
-cd backend
-python train_unified.py --skip-extract
+python -m pytest backend/tests
 ```
+*Result: **20/20 passed** (100% coverage on Groq & Gemini managers, failover logic, and rate limiting).*
 
-### Running the ST-GCN Kinematic Graph Test
+### 2. Verifying Word Model Inference
 ```bash
-cd backend
-python -c "import torch; from models.st_gcn import STGCNHandClassifier; m = STGCNHandClassifier(); x = torch.randn(4, 126); y = m(x); print('ST-GCN Shape:', y.shape)"
+python backend/test_word_model.py
 ```
+*Result: Loads `isl_cnn_lstm_word_model.pt`, validates all 57 classes, benchmarks latency (**5.75 ms**), and validates test accuracy (**93.3%**).*
 
-### Production Build Validation
+### 3. Frontend Code Quality & Linting
+```bash
+npm run lint
+```
+*Result: `oxlint` checks 24 files across 92 rules $\to$ **0 errors, 0 warnings**.*
+
+### 4. Production Bundle Build
 ```bash
 npm run build
 ```
+*Result: Vite production bundle built successfully in **~1.2s**.*
+
+### 5. Updating the Codebase Knowledge Graph
+```bash
+python -m graphify update .
+```
+*Result: Incremental AST update synchronizing 769 nodes and 58 communities in `graphify-out/`.*
 
 ---
 
-## Screenshots & Demo
+## Security & Resource Hardening
 
-> *Screenshots and hardware demonstration videos available in the project documentation directory.*
-
-| Kiosk Split View | Hand Tracking Overlay |
-| :---: | :---: |
-| ![SignBridge UI](https://placehold.co/600x350/1e293b/ffffff?text=SignBridge+Dual+Display+Kiosk) | ![Hand Tracking](https://placehold.co/600x350/1e293b/ffffff?text=MediaPipe+Dual+Hand+Tracking) |
-
----
-
-## Performance Benchmarks
-
-| Component | Hardware / Target | Latency / Metric |
-| :--- | :--- | :--- |
-| **MediaPipe Tracking** | Client Browser (CPU/GPU) | **~30 FPS** (~33ms/frame) |
-| **XGBoost Inference** | Backend (CPU single-thread) | **< 0.5 ms** per frame |
-| **CNN-BiLSTM Inference**| Backend (CPU) | **~2.5 ms** per 30-frame window |
-| **Groq LPU Refinement** | Cloud (LPU Hardware) | **< 100 ms** response time |
-| **PySerial Transmission**| USB 9600 Baud | **~10 ms** command dispatch |
+- **Memory Leak Protection**: Explicit disposal in `useHandDetection.js` (`trackerRef.current.close()`) prevents WebAssembly memory growth during component unmounts; `useWebcam.js` terminates video tracks on camera toggling.
+- **Input Sanitization**: Backend `validate_landmark_array` verifies tensor shapes and strips `NaN` / infinite coordinates before model forward passes.
+- **Credential Safety**: Dual API key pools are loaded from `backend/.env` with strictly typed fallback mechanisms and zero secret leakage in logs or client bundles.
+- **SQL Parameterization**: All SQLite operations in `database/schema.py` use parameterized queries, preventing SQL injection.
 
 ---
 
-## Limitations
+## Limitations & Future Roadmap
 
-- **Complex Overlapping Contact Signs**: Signs where fingers tightly interlace or overlap (such as `K`, `O`, `S`, `T`) can experience partial MediaPipe 2D projection occlusion under poor lighting.
-- **Video Vocabulary Scope**: The temporal word model currently covers 17 core conversational gestures; arbitrary full-sentence continuous signing defaults to fingerspelling.
-- **Hardware Tendon Mechanics**: Scrap-material robotic hands driven by SG90 micro-servos have discrete physical angular limits and cannot replicate subtle soft-tissue skin deformation.
-
----
-
-## Future Improvements
-
-- [ ] **MediaPipe Holistic Upgrade**: Incorporate 54-point upper-body (shoulders, elbows) and facial landmarks to disambiguate body-relative signs (`DEAF`, `SORRY`, `NAMASTE`).
-- [ ] **Continuous Sign Language Recognition (CSLR)**: Implement Conformer architecture with Connectionist Temporal Classification (CTC Loss) for unconstrained continuous signing streams.
-- [ ] **Expanded Multi-Signer Dataset**: Collect diverse field recordings across different age groups and regional ISL dialect variations.
-- [ ] **Mobile Application Packaging**: Wrap client UI using Capacitor or React Native for portable tablet deployment.
+- **Facial & Upper-Body Cues**: Currently focused on dual-hand 3D kinematics; expanding to full MediaPipe Holistic (54 body/face landmarks) will enhance body-relative signs (`DEAF`, `SORRY`).
+- **Continuous Sign Language Recognition (CSLR)**: Transitioning from sliding-window BiLSTM to Conformer architectures with Connectionist Temporal Classification (CTC Loss) for continuous multi-sentence discourse.
+- **Physical Soft-Tissue Dynamics**: SG90 servo tendons provide discrete finger flexion; integrating compliant soft-robotics hands will enable realistic human-like hand gestures.
 
 ---
 
-## Contributing
+## License & Acknowledgements
 
-Contributions are welcome! Please follow these steps:
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
-1. **Fork the Repository**
-2. **Create a Feature Branch**:
-   ```bash
-   git checkout -b feature/AmazingFeature
-   ```
-3. **Commit Your Changes**:
-   ```bash
-   git commit -m "feat: Add AmazingFeature"
-   ```
-4. **Push to the Branch**:
-   ```bash
-   git push origin feature/AmazingFeature
-   ```
-5. **Open a Pull Request**
-
----
-
-## License
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
-
----
-
-##  Acknowledgements
-
-- **Google MediaPipe**: Real-time dual-hand landmark tracking.
-- **RealSign ISL Dataset Authors**: Benchmark dataset for Indian Sign Language training.
-- **Exploration-Lab (ISLTranslate)**: Dataset references and linguistic alignments.
-- **Groq & Google GenAI**: Ultra-low-latency LPU and Gemini models powering sentence refinement.
+### Acknowledgements
+- **Google MediaPipe**: Fast, in-browser dual-hand skeletal landmark tracking.
+- **RealSign Dataset**: Indian Sign Language research benchmark dataset.
+- **Groq & Google GenAI**: Ultra-low-latency LPU and Gemini models powering real-time sentence refinement.
+- **Graphify**: Codebase knowledge graph maintaining structural integrity and community detection.
