@@ -39,7 +39,7 @@
   "37": "extract_video_landmarks.py",
   "38": "2. Ponytail (Lazy Senior Dev Mode)",
   "39": "graphify reference: query, path, explain",
-  "40": "ModelSelector",
+  "40": "normalize_landmarks",
   "41": "ponytail-audit/SKILL.md",
   "42": "Ponytail Gain",
   "43": "ponytail-review/SKILL.md",
@@ -57,8 +57,9 @@
   "55": "GEMINI.md",
   "56": "Software Requirement Specification_f42c747e.md",
   "57": "SignBridge Architecture",
-  "58": "TranslatorModel",
-  "59": "normalize_landmarks",
+  "58": "STGCNHandClassifier",
+  "59": "TranslatorModel",
   "60": "translator_model.py",
-  "61": "load_dataset_partitioned"
+  "61": "load_dataset_partitioned",
+  "62": ".get_info"
 }

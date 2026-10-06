@@ -204,3 +204,39 @@ def extract_holistic_features(raw_landmarks, body_anchors=None):
         tiled = np.tile(holistic_vec, (len(base_features), 1))
         return np.concatenate([base_features, tiled], axis=1)
 
+
+def transform_to_kinetic_invariants(sequences):
+    """
+    Transforms temporal landmark sequences of shape (30, 126) or (N, 30, 126)
+    into a 252-D kinetic invariant feature representation:
+      1. Wrist-centered coordinates (position invariant across camera/signer)
+      2. Palm-scale normalized (distance & hand-size invariant)
+      3. Inter-frame velocity deltas dP/dt (trajectory & gesture speed aware)
+    """
+    arr = np.asarray(sequences, dtype=np.float32)
+    single = (arr.ndim == 2)
+    if single:
+        arr = arr[None, ...]
+
+    N, T, _ = arr.shape
+    pts = arr.reshape(N, T, 2, 21, 3)
+    normed_pts = np.zeros_like(pts)
+
+    for i in range(N):
+        for t in range(T):
+            for h in range(2):
+                hand = pts[i, t, h]
+                if np.any(hand != 0):
+                    wrist = hand[0]
+                    scale = float(np.linalg.norm(hand[9] - wrist))
+                    if scale < 1e-4 or not np.isfinite(scale):
+                        scale = 1.0
+                    normed_pts[i, t, h] = (hand - wrist) / scale
+
+    normed_flat = normed_pts.reshape(N, T, 126)
+    velocities = np.zeros_like(normed_flat)
+    velocities[:, 1:, :] = normed_flat[:, 1:, :] - normed_flat[:, :-1, :]
+
+    out = np.concatenate([normed_flat, velocities], axis=-1).astype(np.float32)
+    return out[0] if single else out
+

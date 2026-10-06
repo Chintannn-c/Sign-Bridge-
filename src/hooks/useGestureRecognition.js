@@ -394,7 +394,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           setConfidence(prediction.confidence);
           setAllScores(prediction.all_scores || {});
 
-          // Temporal smoothing for whole words
+          // Temporal smoothing & kinetic stroke completion gating for whole words
           if (prediction.confidence >= CONFIDENCE_THRESHOLD_WORD) {
             const prev = consecutiveWordRef.current;
             if (prev.word === prediction.word) {
@@ -403,8 +403,30 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
               consecutiveWordRef.current = { word: prediction.word, count: 1 };
             }
 
-            // Commit word after 2 consecutive frames or high confidence (>0.85)
-            if (consecutiveWordRef.current.count >= 2 || prediction.confidence >= 0.85) {
+            // Measure recent kinetic velocity to detect gesture stroke completion / deceleration
+            const buf = frameBufferRef.current;
+            let strokeEnergy = 0;
+            if (buf.length >= 2) {
+              const currF = buf[buf.length - 1];
+              const prevF = buf[buf.length - 2];
+              let diffSum = 0;
+              let validPts = 0;
+              for (let p = 0; p < Math.min(currF.length, prevF.length); p += 3) {
+                if (currF[p] !== 0 || prevF[p] !== 0) {
+                  const dx = currF[p] - prevF[p];
+                  const dy = currF[p + 1] - prevF[p + 1];
+                  const dz = currF[p + 2] - prevF[p + 2];
+                  diffSum += Math.sqrt(dx * dx + dy * dy + dz * dz);
+                  validPts++;
+                }
+              }
+              strokeEnergy = validPts > 0 ? diffSum / validPts : 0;
+            }
+
+            // Commit word when gesture decelerates (stroke completion) or has overwhelming confidence / stability
+            const isStrokeComplete = strokeEnergy < 0.040 || prediction.confidence >= 0.88 || consecutiveWordRef.current.count >= 3;
+
+            if (isStrokeComplete && (consecutiveWordRef.current.count >= 2 || prediction.confidence >= 0.85)) {
               const formattedWord = formatWordForSentence(prediction.word);
               const isDifferentWord = (lastCommittedItemRef.current !== prediction.word);
               const canRepeatSameWord = (now - lastCommitRef.current > 1800);

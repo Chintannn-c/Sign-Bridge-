@@ -71,12 +71,16 @@ class WordRecognizer:
                     num_classes = len(self.labels)
                     cnn_channels = checkpoint.get('cnn_channels', 128)
                     hidden_dim = checkpoint.get('hidden_dim', 128)
+                    input_dim = checkpoint.get('input_dim', 126)
+                    state_dict = checkpoint.get('model_state_dict', {})
+                    use_attn = checkpoint.get('has_attention', False) or ('attn.0.weight' in state_dict)
 
                     class CNNBiLSTMWordClassifier(nn.Module):
-                        def __init__(self, input_dim=126, cnn_ch=128, hid=128, nc=17, nl=2, dp=0.3):
+                        def __init__(self, in_dim=126, cnn_ch=128, hid=128, nc=17, nl=2, dp=0.3, attn_enabled=False):
                             super().__init__()
+                            self.attn_enabled = attn_enabled
                             self.cnn = nn.Sequential(
-                                nn.Conv1d(input_dim, 64, kernel_size=3, padding=1),
+                                nn.Conv1d(in_dim, 64, kernel_size=3, padding=1),
                                 nn.BatchNorm1d(64),
                                 nn.ReLU(),
                                 nn.Conv1d(64, cnn_ch, kernel_size=3, padding=1),
@@ -89,6 +93,12 @@ class WordRecognizer:
                                 batch_first=True, bidirectional=True,
                                 dropout=dp if nl > 1 else 0.0
                             )
+                            if self.attn_enabled:
+                                self.attn = nn.Sequential(
+                                    nn.Linear(hid * 2, 64),
+                                    nn.Tanh(),
+                                    nn.Linear(64, 1),
+                                )
                             self.classifier = nn.Sequential(
                                 nn.BatchNorm1d(hid * 2),
                                 nn.Linear(hid * 2, 64), nn.ReLU(), nn.Dropout(dp),
@@ -98,18 +108,24 @@ class WordRecognizer:
                         def forward(self, x):
                             x_cnn = self.cnn(x.permute(0, 2, 1))
                             lstm_out, _ = self.lstm(x_cnn.permute(0, 2, 1))
-                            pooled = torch.mean(lstm_out, dim=1)
+                            if self.attn_enabled:
+                                w = torch.softmax(self.attn(lstm_out), dim=1)
+                                pooled = torch.sum(lstm_out * w, dim=1)
+                            else:
+                                pooled = torch.mean(lstm_out, dim=1)
                             return self.classifier(pooled)
 
                     model = CNNBiLSTMWordClassifier(
-                        cnn_ch=cnn_channels, hid=hidden_dim, nc=num_classes
+                        in_dim=input_dim, cnn_ch=cnn_channels, hid=hidden_dim,
+                        nc=num_classes, attn_enabled=use_attn
                     )
-                    model.load_state_dict(checkpoint['model_state_dict'])
+                    model.load_state_dict(state_dict)
                     model.eval()
                     self.model = model
                     self.mode = 'cnn_lstm'
+                    self.input_dim = input_dim
                     self.is_available = True
-                    logger.info(f"Loaded CNN-BiLSTM word model from {CNN_LSTM_MODEL_PATH} ({num_classes} classes)")
+                    logger.info(f"Loaded CNN-BiLSTM word model from {CNN_LSTM_MODEL_PATH} ({num_classes} classes, in_dim={input_dim}, attn={use_attn})")
                     return
             except Exception as e:
                 logger.warning(f"Failed to load CNN-BiLSTM word model: {e}")
@@ -280,7 +296,12 @@ class WordRecognizer:
                 probs = model.predict_proba(flat_in)[0]
             elif self.mode in ('pytorch', 'cnn_lstm'):
                 import torch
-                input_data = norm_arr.reshape(1, SEQUENCE_LENGTH, NUM_FEATURES)
+                if getattr(self, 'input_dim', NUM_FEATURES) == 252:
+                    from services.feature_extractor import transform_to_kinetic_invariants
+                    kinetic_seq = transform_to_kinetic_invariants(arr)
+                    input_data = kinetic_seq.reshape(1, SEQUENCE_LENGTH, 252)
+                else:
+                    input_data = norm_arr.reshape(1, SEQUENCE_LENGTH, NUM_FEATURES)
                 tensor_in = torch.tensor(input_data, dtype=torch.float32)
                 with torch.no_grad():
                     logits = model(tensor_in)

@@ -589,6 +589,12 @@ def train_word_model():
     X_train_aug, y_train_aug = balance_and_augment_sequences(X_train, y_train, target_per_class=250)
     logger.info(f"Class-balanced training: {len(X_train_aug)} sequences ({dict(Counter(y_train_aug))})")
 
+    from services.feature_extractor import transform_to_kinetic_invariants
+    logger.info("Extracting kinetic invariant features (wrist-centering + palm scale + velocities)...")
+    X_train_kinetic = transform_to_kinetic_invariants(X_train_aug)
+    X_val_kinetic = transform_to_kinetic_invariants(X_val)
+    logger.info(f"Transformed kinetic shapes: train={X_train_kinetic.shape}, val={X_val_kinetic.shape}")
+
     # Compute inverse class frequencies from RAW training distribution to penalize dominant classes (e.g. THANK_YOU)
     raw_counts = np.bincount(y_train, minlength=len(word_labels))
     raw_counts_clamped = np.maximum(raw_counts, 1)
@@ -606,16 +612,16 @@ def train_word_model():
         def __getitem__(self, index):
             return self.X[index], self.y[index]
 
-    train_loader = DataLoader(SeqDataset(X_train_aug, y_train_aug), batch_size=32, shuffle=True)
-    val_loader = DataLoader(SeqDataset(X_val, y_val), batch_size=32, shuffle=False)
+    train_loader = DataLoader(SeqDataset(X_train_kinetic, y_train_aug), batch_size=32, shuffle=True)
+    val_loader = DataLoader(SeqDataset(X_val_kinetic, y_val), batch_size=32, shuffle=False)
 
     # --- Model Architecture ---
     class CNNBiLSTMWordClassifier(nn.Module):
-        def __init__(self, input_dim=126, cnn_channels=128, hidden_dim=128,
+        def __init__(self, in_dim=252, cnn_channels=128, hidden_dim=128,
                      num_classes=17, num_layers=2, dropout=0.3):
             super().__init__()
             self.cnn = nn.Sequential(
-                nn.Conv1d(input_dim, 64, kernel_size=3, padding=1),
+                nn.Conv1d(in_dim, 64, kernel_size=3, padding=1),
                 nn.BatchNorm1d(64),
                 nn.ReLU(),
                 nn.Conv1d(64, cnn_channels, kernel_size=3, padding=1),
@@ -628,6 +634,11 @@ def train_word_model():
                 num_layers=num_layers, batch_first=True, bidirectional=True,
                 dropout=dropout if num_layers > 1 else 0.0
             )
+            self.attn = nn.Sequential(
+                nn.Linear(hidden_dim * 2, 64),
+                nn.Tanh(),
+                nn.Linear(64, 1),
+            )
             self.classifier = nn.Sequential(
                 nn.BatchNorm1d(hidden_dim * 2),
                 nn.Linear(hidden_dim * 2, 64), nn.ReLU(), nn.Dropout(dropout),
@@ -637,10 +648,11 @@ def train_word_model():
         def forward(self, x):
             x_cnn = self.cnn(x.permute(0, 2, 1))
             lstm_out, _ = self.lstm(x_cnn.permute(0, 2, 1))
-            pooled = torch.mean(lstm_out, dim=1)
+            w = torch.softmax(self.attn(lstm_out), dim=1)
+            pooled = torch.sum(lstm_out * w, dim=1)
             return self.classifier(pooled)
 
-    model = CNNBiLSTMWordClassifier(num_classes=len(word_labels))
+    model = CNNBiLSTMWordClassifier(in_dim=252, num_classes=len(word_labels))
     criterion = nn.CrossEntropyLoss(weight=class_weights_tensor, label_smoothing=0.1)
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
@@ -753,7 +765,8 @@ def train_word_model():
     torch.save({
         'model_type': 'cnn_bilstm',
         'model_state_dict': model.state_dict(),
-        'input_dim': NUM_FEATURES,
+        'input_dim': 252,
+        'has_attention': True,
         'cnn_channels': 128,
         'hidden_dim': 128,
         'sequence_length': SEQUENCE_LENGTH,
@@ -766,8 +779,8 @@ def train_word_model():
     try:
         from sklearn.ensemble import RandomForestClassifier
 
-        X_train_flat = X_train_aug.reshape(len(X_train_aug), -1)
-        X_val_flat = X_val.reshape(len(X_val), -1)
+        X_train_flat = X_train_kinetic.reshape(len(X_train_kinetic), -1)
+        X_val_flat = X_val_kinetic.reshape(len(X_val_kinetic), -1)
 
         rf = RandomForestClassifier(
             n_estimators=60,
@@ -787,13 +800,13 @@ def train_word_model():
 
         rf_meta = {
             'model_type': 'random_forest_sequence',
-            'train_samples': int(len(X_train_aug)),
-            'val_samples': int(len(X_val)),
+            'train_samples': int(len(X_train_kinetic)),
+            'val_samples': int(len(X_val_kinetic)),
             'validation_accuracy_evaluable': float(rf_acc),
             'num_classes': len(word_labels),
             'labels': word_labels,
             'sequence_length': SEQUENCE_LENGTH,
-            'input_features': SEQUENCE_LENGTH * NUM_FEATURES,
+            'input_features': SEQUENCE_LENGTH * 252,
         }
         rf_meta_path = MODEL_DIR / 'word_training_meta.json'
         rf_meta_path.write_text(json.dumps(rf_meta, indent=2), encoding='utf-8')
@@ -804,16 +817,17 @@ def train_word_model():
     # Save CNN-BiLSTM metadata
     meta = {
         'model_type': 'cnn_bilstm',
-        'train_samples': int(len(X_train_aug)),
-        'val_samples': int(len(X_val)),
+        'train_samples': int(len(X_train_kinetic)),
+        'val_samples': int(len(X_val_kinetic)),
         'val_accuracy': best_acc,
         'num_classes': len(word_labels),
         'labels': word_labels,
         'sequence_length': SEQUENCE_LENGTH,
-        'input_features': NUM_FEATURES,
+        'input_features': 252,
         'epochs_trained': epoch,
         'training_time_seconds': round(train_time, 2),
-        'architecture': '1D-CNN(126->64->128) + BiLSTM(128, 2-layers) + FC(256->64->N)',
+        'architecture': '1D-CNN(252->64->128) + BiLSTM(128, 2-layers) + TemporalAttention + FC(256->64->N)',
+        'features_type': 'kinetic_invariants_252d',
         'per_class': per_class,
         'trained_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
     }

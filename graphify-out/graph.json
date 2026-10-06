@@ -173,6 +173,19 @@
       "source_location": "L322"
     },
     {
+      "id": "backend_services_translator_model_landmarkvalidationerror",
+      "label": "LandmarkValidationError",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": ".generate",
+      "file_type": "code",
+      "norm_label": "landmarkvalidationerror",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L89"
+    },
+    {
       "id": "backend_services_groq_manager_keyinfo",
       "label": "KeyInfo",
       "_callable": true,
@@ -251,26 +264,13 @@
       "source_location": "L38"
     },
     {
-      "id": "backend_services_gemini_manager_modelselector",
-      "label": "ModelSelector",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 40,
-      "community_name": "ModelSelector",
-      "file_type": "code",
-      "norm_label": "modelselector",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L267"
-    },
-    {
       "id": "backend_models_st_gcn_stgcnhandclassifier",
       "label": "STGCNHandClassifier",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 58,
-      "community_name": "TranslatorModel",
+      "community_name": "STGCNHandClassifier",
       "file_type": "code",
       "norm_label": "stgcnhandclassifier",
       "source_file": "backend/models/st_gcn.py",
@@ -282,7 +282,7 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 58,
+      "community": 59,
       "community_name": "TranslatorModel",
       "file_type": "code",
       "norm_label": "translatormodel",
@@ -301,19 +301,6 @@
       "norm_label": "arduinoserial",
       "source_file": "backend/services/arduino_serial.py",
       "source_location": "L70"
-    },
-    {
-      "id": "backend_services_translator_model_landmarkvalidationerror",
-      "label": "LandmarkValidationError",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "translator_model.py",
-      "file_type": "code",
-      "norm_label": "landmarkvalidationerror",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L89"
     },
     {
       "id": "backend_services_gemini_manager_geminimanager",
@@ -379,6 +366,19 @@
       "norm_label": "geminikeystatus",
       "source_file": "backend/services/gemini_manager.py",
       "source_location": "L23"
+    },
+    {
+      "id": "backend_services_gemini_manager_modelselector",
+      "label": "ModelSelector",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "gemini_manager.py",
+      "file_type": "code",
+      "norm_label": "modelselector",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L267"
     },
     {
       "id": "backend_services_groq_manager_groqresult",
@@ -595,7 +595,7 @@
       "file_type": "code",
       "norm_label": "analyzequality()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L694"
+      "source_location": "L716"
     },
     {
       "id": "src_hooks_usegesturerecognition_formatwordforsentence",
@@ -730,6 +730,18 @@
       "source_location": "L93"
     },
     {
+      "id": "backend_services_feature_extractor_transform_to_kinetic_invariants",
+      "label": "transform_to_kinetic_invariants()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "train_unified.py",
+      "file_type": "code",
+      "norm_label": "transform_to_kinetic_invariants()",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L208"
+    },
+    {
       "id": "backend_train_unified_augment_landmarks",
       "label": "augment_landmarks()",
       "_callable": true,
@@ -763,7 +775,7 @@
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "backend/train_unified.py",
-      "source_location": "L832"
+      "source_location": "L846"
     },
     {
       "id": "backend_train_unified_run_extraction",
@@ -872,6 +884,18 @@
       "norm_label": ".record_failure()",
       "source_file": "backend/services/gemini_manager.py",
       "source_location": "L191"
+    },
+    {
+      "id": "backend_services_gemini_manager_keymanager_record_success",
+      "label": ".record_success()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "KeyManager",
+      "file_type": "code",
+      "norm_label": ".record_success()",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L183"
     },
     {
       "id": "backend_services_gemini_manager_keymanager_reset_health",
@@ -1054,16 +1078,28 @@
       "source_location": "L118"
     },
     {
-      "id": "backend_services_gemini_manager_keymanager_record_success",
-      "label": ".record_success()",
+      "id": "backend_services_gemini_manager_modelselector_discover_models_for_key",
+      "label": ".discover_models_for_key()",
       "_callable": true,
       "_origin": "ast",
       "community": 12,
       "community_name": "KeyInfo",
       "file_type": "code",
-      "norm_label": ".record_success()",
+      "norm_label": ".discover_models_for_key()",
       "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L183"
+      "source_location": "L294"
+    },
+    {
+      "id": "backend_services_gemini_manager_modelselector_get_candidate_models",
+      "label": ".get_candidate_models()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "KeyInfo",
+      "file_type": "code",
+      "norm_label": ".get_candidate_models()",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L271"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_8_latest_model_auto_discovery",
@@ -1123,7 +1159,7 @@
       "file_type": "code",
       "norm_label": ".get_info()",
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L383"
+      "source_location": "L404"
     },
     {
       "id": "backend_services_word_recognizer_wordrecognizer_init",
@@ -1159,19 +1195,7 @@
       "file_type": "code",
       "norm_label": "._pad_or_trim()",
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L373"
-    },
-    {
-      "id": "backend_services_word_recognizer_wordrecognizer_predict",
-      "label": ".predict()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "WordRecognizer",
-      "file_type": "code",
-      "norm_label": ".predict()",
-      "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L203"
+      "source_location": "L394"
     },
     {
       "id": "backend_test_word_model_run_checks",
@@ -1519,7 +1543,7 @@
       "file_type": "code",
       "norm_label": "collect_data()",
       "source_file": "backend/app.py",
-      "source_location": "L613"
+      "source_location": "L619"
     },
     {
       "id": "backend_app_generate_llm_response",
@@ -1543,7 +1567,7 @@
       "file_type": "code",
       "norm_label": "get_history()",
       "source_file": "backend/app.py",
-      "source_location": "L597"
+      "source_location": "L603"
     },
     {
       "id": "backend_app_get_smart_fallback_response",
@@ -1567,7 +1591,7 @@
       "file_type": "code",
       "norm_label": "health()",
       "source_file": "backend/app.py",
-      "source_location": "L398"
+      "source_location": "L404"
     },
     {
       "id": "backend_app_limit_to_human_length",
@@ -1591,7 +1615,7 @@
       "file_type": "code",
       "norm_label": "llm_answer()",
       "source_file": "backend/app.py",
-      "source_location": "L325"
+      "source_location": "L331"
     },
     {
       "id": "backend_app_llm_refine",
@@ -1615,7 +1639,7 @@
       "file_type": "code",
       "norm_label": "llm_simplify()",
       "source_file": "backend/app.py",
-      "source_location": "L287"
+      "source_location": "L293"
     },
     {
       "id": "backend_app_llm_status",
@@ -1627,7 +1651,7 @@
       "file_type": "code",
       "norm_label": "llm_status()",
       "source_file": "backend/app.py",
-      "source_location": "L414"
+      "source_location": "L420"
     },
     {
       "id": "backend_app_model_info",
@@ -1639,7 +1663,7 @@
       "file_type": "code",
       "norm_label": "model_info()",
       "source_file": "backend/app.py",
-      "source_location": "L424"
+      "source_location": "L430"
     },
     {
       "id": "backend_app_model_reload",
@@ -1651,7 +1675,7 @@
       "file_type": "code",
       "norm_label": "model_reload()",
       "source_file": "backend/app.py",
-      "source_location": "L436"
+      "source_location": "L442"
     },
     {
       "id": "backend_app_robot_connect",
@@ -1663,7 +1687,7 @@
       "file_type": "code",
       "norm_label": "robot_connect()",
       "source_file": "backend/app.py",
-      "source_location": "L678"
+      "source_location": "L684"
     },
     {
       "id": "backend_app_robot_disconnect",
@@ -1675,7 +1699,7 @@
       "file_type": "code",
       "norm_label": "robot_disconnect()",
       "source_file": "backend/app.py",
-      "source_location": "L704"
+      "source_location": "L710"
     },
     {
       "id": "backend_app_robot_sign",
@@ -1687,7 +1711,7 @@
       "file_type": "code",
       "norm_label": "robot_sign()",
       "source_file": "backend/app.py",
-      "source_location": "L711"
+      "source_location": "L717"
     },
     {
       "id": "backend_app_robot_sign_letter",
@@ -1699,7 +1723,7 @@
       "file_type": "code",
       "norm_label": "robot_sign_letter()",
       "source_file": "backend/app.py",
-      "source_location": "L768"
+      "source_location": "L774"
     },
     {
       "id": "backend_app_robot_status",
@@ -1711,7 +1735,7 @@
       "file_type": "code",
       "norm_label": "robot_status()",
       "source_file": "backend/app.py",
-      "source_location": "L672"
+      "source_location": "L678"
     },
     {
       "id": "backend_app_safe_float",
@@ -1735,7 +1759,7 @@
       "file_type": "code",
       "norm_label": "translate()",
       "source_file": "backend/app.py",
-      "source_location": "L452"
+      "source_location": "L458"
     },
     {
       "id": "backend_app_translate_batch",
@@ -1747,7 +1771,7 @@
       "file_type": "code",
       "norm_label": "translate_batch()",
       "source_file": "backend/app.py",
-      "source_location": "L510"
+      "source_location": "L516"
     },
     {
       "id": "backend_app_translate_word",
@@ -1759,7 +1783,7 @@
       "file_type": "code",
       "norm_label": "translate_word()",
       "source_file": "backend/app.py",
-      "source_location": "L540"
+      "source_location": "L546"
     },
     {
       "id": "backend_app_words_info",
@@ -1771,7 +1795,7 @@
       "file_type": "code",
       "norm_label": "words_info()",
       "source_file": "backend/app.py",
-      "source_location": "L430"
+      "source_location": "L436"
     },
     {
       "id": "backend_database_schema_get_db_connection",
@@ -2254,28 +2278,28 @@
       "source_location": "L178"
     },
     {
-      "id": "backend_services_gemini_manager_modelselector_discover_models_for_key",
-      "label": ".discover_models_for_key()",
+      "id": "backend_services_translator_model_normalize_landmarks",
+      "label": "normalize_landmarks()",
       "_callable": true,
       "_origin": "ast",
       "community": 40,
-      "community_name": "ModelSelector",
+      "community_name": "normalize_landmarks",
       "file_type": "code",
-      "norm_label": ".discover_models_for_key()",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L294"
+      "norm_label": "normalize_landmarks()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L70"
     },
     {
-      "id": "backend_services_gemini_manager_modelselector_get_candidate_models",
-      "label": ".get_candidate_models()",
+      "id": "backend_services_word_recognizer_wordrecognizer_predict",
+      "label": ".predict()",
       "_callable": true,
       "_origin": "ast",
       "community": 40,
-      "community_name": "ModelSelector",
+      "community_name": "normalize_landmarks",
       "file_type": "code",
-      "norm_label": ".get_candidate_models()",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L271"
+      "norm_label": ".predict()",
+      "source_file": "backend/services/word_recognizer.py",
+      "source_location": "L219"
     },
     {
       "id": "backend_stream_and_extract_hf_augment_raw_sequence",
@@ -2367,35 +2391,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 58,
-      "community_name": "TranslatorModel",
+      "community_name": "STGCNHandClassifier",
       "file_type": "code",
       "norm_label": ".forward()",
       "source_file": "backend/models/st_gcn.py",
       "source_location": "L98"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_extract_features",
-      "label": "._extract_features()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._extract_features()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L651"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_get_info",
-      "label": ".get_info()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": ".get_info()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L783"
     },
     {
       "id": "backend_services_translator_model_translatormodel_init",
@@ -2403,7 +2403,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 58,
-      "community_name": "TranslatorModel",
+      "community_name": "STGCNHandClassifier",
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "backend/services/translator_model.py",
@@ -2415,7 +2415,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 58,
-      "community_name": "TranslatorModel",
+      "community_name": "STGCNHandClassifier",
       "file_type": "code",
       "norm_label": "._load()",
       "source_file": "backend/services/translator_model.py",
@@ -2427,59 +2427,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 58,
-      "community_name": "TranslatorModel",
+      "community_name": "STGCNHandClassifier",
       "file_type": "code",
       "norm_label": "._load_mendeley_ref()",
       "source_file": "backend/services/translator_model.py",
       "source_location": "L232"
     },
     {
-      "id": "backend_services_translator_model_translatormodel_parse_landmarks",
-      "label": "._parse_landmarks()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._parse_landmarks()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L626"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_predict_heuristic",
-      "label": "._predict_heuristic()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._predict_heuristic()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L574"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_score_letter",
-      "label": "._score_letter()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._score_letter()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L731"
-    },
-    {
-      "id": "backend_services_translator_model_normalize_landmarks",
-      "label": "normalize_landmarks()",
+      "id": "backend_services_translator_model_translatormodel_extract_features",
+      "label": "._extract_features()",
       "_callable": true,
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "code",
-      "norm_label": "normalize_landmarks()",
+      "norm_label": "._extract_features()",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L70"
+      "source_location": "L651"
     },
     {
       "id": "backend_services_translator_model_translatormodel_invalid_input_result",
@@ -2487,11 +2451,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "code",
       "norm_label": "._invalid_input_result()",
       "source_file": "backend/services/translator_model.py",
       "source_location": "L571"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_parse_landmarks",
+      "label": "._parse_landmarks()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "._parse_landmarks()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L626"
     },
     {
       "id": "backend_services_translator_model_translatormodel_predict",
@@ -2499,7 +2475,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "code",
       "norm_label": ".predict()",
       "source_file": "backend/services/translator_model.py",
@@ -2511,11 +2487,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "code",
       "norm_label": "._predict_dl()",
       "source_file": "backend/services/translator_model.py",
       "source_location": "L515"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_predict_heuristic",
+      "label": "._predict_heuristic()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "._predict_heuristic()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L574"
     },
     {
       "id": "backend_services_translator_model_translatormodel_predict_hybrid_ensemble",
@@ -2523,7 +2511,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "code",
       "norm_label": "._predict_hybrid_ensemble()",
       "source_file": "backend/services/translator_model.py",
@@ -2535,7 +2523,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "code",
       "norm_label": "._predict_stgcn()",
       "source_file": "backend/services/translator_model.py",
@@ -2547,11 +2535,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "code",
       "norm_label": "._predict_xgb()",
       "source_file": "backend/services/translator_model.py",
       "source_location": "L422"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_score_letter",
+      "label": "._score_letter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "._score_letter()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L731"
     },
     {
       "id": "backend_services_translator_model_validate_landmark_array",
@@ -2559,7 +2559,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "code",
       "norm_label": "validate_landmark_array()",
       "source_file": "backend/services/translator_model.py",
@@ -2758,6 +2758,18 @@
       "source_location": "L41"
     },
     {
+      "id": "backend_services_translator_model_translatormodel_get_info",
+      "label": ".get_info()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 62,
+      "community_name": ".get_info",
+      "file_type": "code",
+      "norm_label": ".get_info()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L783"
+    },
+    {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_setup",
       "label": ".setUp()",
       "_callable": true,
@@ -2780,6 +2792,18 @@
       "norm_label": ".test_error_classifier()",
       "source_file": "backend/tests/test_gemini_manager.py",
       "source_location": "L56"
+    },
+    {
+      "id": "backend_tests_test_gemini_manager_testgeminimanager_test_mask_key",
+      "label": ".test_mask_key()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "TestGeminiManager",
+      "file_type": "code",
+      "norm_label": ".test_mask_key()",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L49"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_1_key1_works",
@@ -2888,18 +2912,6 @@
       "norm_label": "mask_key()",
       "source_file": "backend/services/gemini_manager.py",
       "source_location": "L71"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_testgeminimanager_test_mask_key",
-      "label": ".test_mask_key()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "gemini_manager.py",
-      "file_type": "code",
-      "norm_label": ".test_mask_key()",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L49"
     },
     {
       "id": "backend_services_groq_manager_groqmanager_call_sdk",
@@ -3421,6 +3433,17 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_services_feature_extractor_rationale_209",
+      "label": "Transforms temporal landmark sequences of shape (30, 126) or (N, 30, 126) into\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "train_unified.py",
+      "file_type": "rationale",
+      "norm_label": "transforms temporal landmark sequences of shape (30, 126) or (n, 30, 126) into...",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L209"
+    },
+    {
       "id": "backend_train_unified_rationale_1",
       "label": "SignBridge \u2014 Unified Training Pipeline (v2) One script to rule them all: 1.\u2026",
       "_origin": "ast",
@@ -3529,6 +3552,17 @@
       "norm_label": "return all currently usable keys, sorted by priority (key_1 -> key_2).",
       "source_file": "backend/services/gemini_manager.py",
       "source_location": "L179"
+    },
+    {
+      "id": "backend_services_gemini_manager_rationale_184",
+      "label": "Record successful request for a key.",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "KeyManager",
+      "file_type": "rationale",
+      "norm_label": "record successful request for a key.",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L184"
     },
     {
       "id": "backend_services_gemini_manager_rationale_192",
@@ -3696,15 +3730,26 @@
       "source_location": "L119"
     },
     {
-      "id": "backend_services_gemini_manager_rationale_184",
-      "label": "Record successful request for a key.",
+      "id": "backend_services_gemini_manager_rationale_272",
+      "label": "Get ordered list of candidate models (latest -> fallback) suitable for task. If\u2026",
       "_origin": "ast",
       "community": 12,
       "community_name": "KeyInfo",
       "file_type": "rationale",
-      "norm_label": "record successful request for a key.",
+      "norm_label": "get ordered list of candidate models (latest -> fallback) suitable for task. if...",
       "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L184"
+      "source_location": "L272"
+    },
+    {
+      "id": "backend_services_gemini_manager_rationale_295",
+      "label": "Query the API to find which models this specific key has access to.",
+      "_origin": "ast",
+      "community": 12,
+      "community_name": "KeyInfo",
+      "file_type": "rationale",
+      "norm_label": "query the api to find which models this specific key has access to.",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L295"
     },
     {
       "id": "backend_services_gemini_manager_rationale_81",
@@ -3839,17 +3884,6 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_services_word_recognizer_rationale_204",
-      "label": "Predict a word from a sequence of landmark frames with optional MediaPipe\u2026",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "WordRecognizer",
-      "file_type": "rationale",
-      "norm_label": "predict a word from a sequence of landmark frames with optional mediapipe...",
-      "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L204"
-    },
-    {
       "id": "backend_services_word_recognizer_rationale_33",
       "label": "ISL whole-word gesture recognizer using temporal landmark sequences. Accepts a\u2026",
       "_origin": "ast",
@@ -3861,7 +3895,7 @@
       "source_location": "L33"
     },
     {
-      "id": "backend_services_word_recognizer_rationale_374",
+      "id": "backend_services_word_recognizer_rationale_395",
       "label": "Ensure frames array is exactly SEQUENCE_LENGTH frames long.",
       "_origin": "ast",
       "community": 14,
@@ -3869,10 +3903,10 @@
       "file_type": "rationale",
       "norm_label": "ensure frames array is exactly sequence_length frames long.",
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L374"
+      "source_location": "L395"
     },
     {
-      "id": "backend_services_word_recognizer_rationale_384",
+      "id": "backend_services_word_recognizer_rationale_405",
       "label": "Return word recognizer metadata.",
       "_origin": "ast",
       "community": 14,
@@ -3880,7 +3914,7 @@
       "file_type": "rationale",
       "norm_label": "return word recognizer metadata.",
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L384"
+      "source_location": "L405"
     },
     {
       "id": "backend_services_word_recognizer_rationale_49",
@@ -3971,6 +4005,17 @@
       "source_location": ""
     },
     {
+      "id": "valueerror",
+      "label": "ValueError",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": ".generate",
+      "file_type": "code",
+      "norm_label": "valueerror",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "backend_services_gemini_manager_rationale_355",
       "label": "Execute robust generation across (Model x Key) matrix. Algorithm: 1. Select\u2026",
       "_origin": "ast",
@@ -3991,6 +4036,17 @@
       "norm_label": "low-level sdk caller handling both modern genai and legacy sdks.",
       "source_file": "backend/services/gemini_manager.py",
       "source_location": "L465"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_90",
+      "label": "Raised when incoming landmark data doesn't match the expected shape.",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": ".generate",
+      "file_type": "rationale",
+      "norm_label": "raised when incoming landmark data doesn't match the expected shape.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L90"
     },
     {
       "id": "backend_services_groq_manager_py_any",
@@ -4235,7 +4291,7 @@
       "source_location": "L228"
     },
     {
-      "id": "backend_app_rationale_288",
+      "id": "backend_app_rationale_294",
       "label": "Simplify complex spoken text into essential keywords for robotic hands. Uses\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4243,10 +4299,10 @@
       "file_type": "rationale",
       "norm_label": "simplify complex spoken text into essential keywords for robotic hands. uses...",
       "source_file": "backend/app.py",
-      "source_location": "L288"
+      "source_location": "L294"
     },
     {
-      "id": "backend_app_rationale_326",
+      "id": "backend_app_rationale_332",
       "label": "Generate a small, warm, human-like AI response to what the user signed/said.\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4254,10 +4310,10 @@
       "file_type": "rationale",
       "norm_label": "generate a small, warm, human-like ai response to what the user signed/said....",
       "source_file": "backend/app.py",
-      "source_location": "L326"
+      "source_location": "L332"
     },
     {
-      "id": "backend_app_rationale_415",
+      "id": "backend_app_rationale_421",
       "label": "Return real-time status of Groq, Gemini multi-key management, and Local LLM\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4265,10 +4321,10 @@
       "file_type": "rationale",
       "norm_label": "return real-time status of groq, gemini multi-key management, and local llm...",
       "source_file": "backend/app.py",
-      "source_location": "L415"
+      "source_location": "L421"
     },
     {
-      "id": "backend_app_rationale_425",
+      "id": "backend_app_rationale_431",
       "label": "Return alphabet model metadata.",
       "_origin": "ast",
       "community": 2,
@@ -4276,10 +4332,10 @@
       "file_type": "rationale",
       "norm_label": "return alphabet model metadata.",
       "source_file": "backend/app.py",
-      "source_location": "L425"
+      "source_location": "L431"
     },
     {
-      "id": "backend_app_rationale_431",
+      "id": "backend_app_rationale_437",
       "label": "Return word recognizer metadata.",
       "_origin": "ast",
       "community": 2,
@@ -4287,10 +4343,10 @@
       "file_type": "rationale",
       "norm_label": "return word recognizer metadata.",
       "source_file": "backend/app.py",
-      "source_location": "L431"
+      "source_location": "L437"
     },
     {
-      "id": "backend_app_rationale_437",
+      "id": "backend_app_rationale_443",
       "label": "Reload model weights and metadata from disk.",
       "_origin": "ast",
       "community": 2,
@@ -4298,10 +4354,10 @@
       "file_type": "rationale",
       "norm_label": "reload model weights and metadata from disk.",
       "source_file": "backend/app.py",
-      "source_location": "L437"
+      "source_location": "L443"
     },
     {
-      "id": "backend_app_rationale_453",
+      "id": "backend_app_rationale_459",
       "label": "Translate hand landmarks to an ISL letter/word.",
       "_origin": "ast",
       "community": 2,
@@ -4309,10 +4365,10 @@
       "file_type": "rationale",
       "norm_label": "translate hand landmarks to an isl letter/word.",
       "source_file": "backend/app.py",
-      "source_location": "L453"
+      "source_location": "L459"
     },
     {
-      "id": "backend_app_rationale_511",
+      "id": "backend_app_rationale_517",
       "label": "Translate a batch of landmark frames (for sentence-level recognition).",
       "_origin": "ast",
       "community": 2,
@@ -4320,10 +4376,10 @@
       "file_type": "rationale",
       "norm_label": "translate a batch of landmark frames (for sentence-level recognition).",
       "source_file": "backend/app.py",
-      "source_location": "L511"
+      "source_location": "L517"
     },
     {
-      "id": "backend_app_rationale_541",
+      "id": "backend_app_rationale_547",
       "label": "Translate a sequence of landmark frames to an ISL word. Uses the CNN-BiLSTM\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4331,10 +4387,10 @@
       "file_type": "rationale",
       "norm_label": "translate a sequence of landmark frames to an isl word. uses the cnn-bilstm...",
       "source_file": "backend/app.py",
-      "source_location": "L541"
+      "source_location": "L547"
     },
     {
-      "id": "backend_app_rationale_598",
+      "id": "backend_app_rationale_604",
       "label": "Returns recent conversation history from SQLite database.",
       "_origin": "ast",
       "community": 2,
@@ -4342,10 +4398,10 @@
       "file_type": "rationale",
       "norm_label": "returns recent conversation history from sqlite database.",
       "source_file": "backend/app.py",
-      "source_location": "L598"
+      "source_location": "L604"
     },
     {
-      "id": "backend_app_rationale_614",
+      "id": "backend_app_rationale_620",
       "label": "Saves recorded landmark frames for a specific ISL letter to build a dataset.\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4353,10 +4409,10 @@
       "file_type": "rationale",
       "norm_label": "saves recorded landmark frames for a specific isl letter to build a dataset....",
       "source_file": "backend/app.py",
-      "source_location": "L614"
+      "source_location": "L620"
     },
     {
-      "id": "backend_app_rationale_673",
+      "id": "backend_app_rationale_679",
       "label": "Return Arduino connection status.",
       "_origin": "ast",
       "community": 2,
@@ -4364,10 +4420,10 @@
       "file_type": "rationale",
       "norm_label": "return arduino connection status.",
       "source_file": "backend/app.py",
-      "source_location": "L673"
+      "source_location": "L679"
     },
     {
-      "id": "backend_app_rationale_679",
+      "id": "backend_app_rationale_685",
       "label": "Connect to Arduino. Optional JSON body: { \"port\": \"COM3\", // Optional, auto-\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4375,10 +4431,10 @@
       "file_type": "rationale",
       "norm_label": "connect to arduino. optional json body: { \"port\": \"com3\", // optional, auto-...",
       "source_file": "backend/app.py",
-      "source_location": "L679"
+      "source_location": "L685"
     },
     {
-      "id": "backend_app_rationale_705",
+      "id": "backend_app_rationale_711",
       "label": "Disconnect from Arduino.",
       "_origin": "ast",
       "community": 2,
@@ -4386,10 +4442,10 @@
       "file_type": "rationale",
       "norm_label": "disconnect from arduino.",
       "source_file": "backend/app.py",
-      "source_location": "L705"
+      "source_location": "L711"
     },
     {
-      "id": "backend_app_rationale_712",
+      "id": "backend_app_rationale_718",
       "label": "Send text to the robotic hands for ISL fingerspelling. Request JSON body: {\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4397,7 +4453,7 @@
       "file_type": "rationale",
       "norm_label": "send text to the robotic hands for isl fingerspelling. request json body: {...",
       "source_file": "backend/app.py",
-      "source_location": "L712"
+      "source_location": "L718"
     },
     {
       "id": "backend_app_rationale_73",
@@ -4411,7 +4467,7 @@
       "source_location": "L73"
     },
     {
-      "id": "backend_app_rationale_769",
+      "id": "backend_app_rationale_775",
       "label": "Sign a single letter on the robotic hands. Request JSON body: { \"letter\": \"A\",\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4419,7 +4475,7 @@
       "file_type": "rationale",
       "norm_label": "sign a single letter on the robotic hands. request json body: { \"letter\": \"a\",...",
       "source_file": "backend/app.py",
-      "source_location": "L769"
+      "source_location": "L775"
     },
     {
       "id": "backend_database_schema_rationale_1",
@@ -7401,37 +7457,37 @@
       "source_location": "L73"
     },
     {
-      "id": "backend_services_gemini_manager_rationale_268",
-      "label": "Task-aware model selector with auto-discovery and capability matching.",
+      "id": "backend_services_word_recognizer",
+      "label": "word_recognizer.py",
       "_origin": "ast",
       "community": 40,
-      "community_name": "ModelSelector",
-      "file_type": "rationale",
-      "norm_label": "task-aware model selector with auto-discovery and capability matching.",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L268"
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": "word_recognizer.py",
+      "source_file": "backend/services/word_recognizer.py",
+      "source_location": "L1"
     },
     {
-      "id": "backend_services_gemini_manager_rationale_272",
-      "label": "Get ordered list of candidate models (latest -> fallback) suitable for task. If\u2026",
+      "id": "backend_services_word_recognizer_rationale_1",
+      "label": "Sign-Bridge Flask API \u2014 ISL Word Recognition Service Loads a trained model that\u2026",
       "_origin": "ast",
       "community": 40,
-      "community_name": "ModelSelector",
+      "community_name": "normalize_landmarks",
       "file_type": "rationale",
-      "norm_label": "get ordered list of candidate models (latest -> fallback) suitable for task. if...",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L272"
+      "norm_label": "sign-bridge flask api \u2014 isl word recognition service loads a trained model that...",
+      "source_file": "backend/services/word_recognizer.py",
+      "source_location": "L1"
     },
     {
-      "id": "backend_services_gemini_manager_rationale_295",
-      "label": "Query the API to find which models this specific key has access to.",
+      "id": "backend_services_word_recognizer_rationale_220",
+      "label": "Predict a word from a sequence of landmark frames with optional MediaPipe\u2026",
       "_origin": "ast",
       "community": 40,
-      "community_name": "ModelSelector",
+      "community_name": "normalize_landmarks",
       "file_type": "rationale",
-      "norm_label": "query the api to find which models this specific key has access to.",
-      "source_file": "backend/services/gemini_manager.py",
-      "source_location": "L295"
+      "norm_label": "predict a word from a sequence of landmark frames with optional mediapipe...",
+      "source_file": "backend/services/word_recognizer.py",
+      "source_location": "L220"
     },
     {
       "id": "agents_skills_ponytail_audit_skill",
@@ -8274,29 +8330,18 @@
       "label": "ST-GCN Classifier for Static / Frame-Level Dual-Hand ISL Gestures. Input:\u2026",
       "_origin": "ast",
       "community": 58,
-      "community_name": "TranslatorModel",
+      "community_name": "STGCNHandClassifier",
       "file_type": "rationale",
       "norm_label": "st-gcn classifier for static / frame-level dual-hand isl gestures. input:...",
       "source_file": "backend/models/st_gcn.py",
       "source_location": "L82"
     },
     {
-      "id": "backend_services_translator_model_rationale_119",
-      "label": "ISL Gesture-to-Text translation model. Supports four ML modes: 1. Hybrid\u2026",
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "isl gesture-to-text translation model. supports four ml modes: 1. hybrid...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L119"
-    },
-    {
       "id": "backend_services_translator_model_rationale_140",
       "label": "Attempt to load trained models; fall back to heuristic. Loading priority: 1.\u2026",
       "_origin": "ast",
       "community": 58,
-      "community_name": "TranslatorModel",
+      "community_name": "STGCNHandClassifier",
       "file_type": "rationale",
       "norm_label": "attempt to load trained models; fall back to heuristic. loading priority: 1....",
       "source_file": "backend/services/translator_model.py",
@@ -8307,84 +8352,29 @@
       "label": "Parse the Mendeley CSV into a lookup dictionary.",
       "_origin": "ast",
       "community": 58,
-      "community_name": "TranslatorModel",
+      "community_name": "STGCNHandClassifier",
       "file_type": "rationale",
       "norm_label": "parse the mendeley csv into a lookup dictionary.",
       "source_file": "backend/services/translator_model.py",
       "source_location": "L233"
     },
     {
-      "id": "backend_services_translator_model_rationale_575",
-      "label": "Rule-based heuristic prediction using geometric features extracted from 42 hand\u2026",
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "rule-based heuristic prediction using geometric features extracted from 42 hand...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L575"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_627",
-      "label": "Parse landmarks into a list of 42 {x, y, z} dicts. Handles both flat arrays and\u2026",
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "parse landmarks into a list of 42 {x, y, z} dicts. handles both flat arrays and...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L627"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_652",
-      "label": "Extract geometric features from 42 landmark points. Points 0-20: Left hand,\u2026",
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "extract geometric features from 42 landmark points. points 0-20: left hand,...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L652"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_732",
-      "label": "Score how well the extracted features match a given ISL letter. Higher score =\u2026",
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "score how well the extracted features match a given isl letter. higher score =...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L732"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_784",
-      "label": "Return truthful model metadata derived directly from active configuration.",
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "return truthful model metadata derived directly from active configuration.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L784"
-    },
-    {
-      "id": "backend_services_word_recognizer",
-      "label": "word_recognizer.py",
+      "id": "backend_services_translator_model_rationale_119",
+      "label": "ISL Gesture-to-Text translation model. Supports four ML modes: 1. Hybrid\u2026",
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
-      "file_type": "code",
-      "norm_label": "word_recognizer.py",
-      "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L1"
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "isl gesture-to-text translation model. supports four ml modes: 1. hybrid...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L119"
     },
     {
       "id": "backend_services_translator_model_rationale_255",
       "label": "Predict the ISL letter from a set of hand landmarks with optional Holistic body\u2026",
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "rationale",
       "norm_label": "predict the isl letter from a set of hand landmarks with optional holistic body...",
       "source_file": "backend/services/translator_model.py",
@@ -8395,7 +8385,7 @@
       "label": "Run inference through the calibrated ST-GCN + XGBoost Hybrid Ensemble.",
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "rationale",
       "norm_label": "run inference through the calibrated st-gcn + xgboost hybrid ensemble.",
       "source_file": "backend/services/translator_model.py",
@@ -8406,7 +8396,7 @@
       "label": "Run inference through the trained PyTorch ST-GCN model.",
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "rationale",
       "norm_label": "run inference through the trained pytorch st-gcn model.",
       "source_file": "backend/services/translator_model.py",
@@ -8417,7 +8407,7 @@
       "label": "Run inference through the trained XGBoost model.",
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "rationale",
       "norm_label": "run inference through the trained xgboost model.",
       "source_file": "backend/services/translator_model.py",
@@ -8428,33 +8418,66 @@
       "label": "Run inference through the trained Keras model.",
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "rationale",
       "norm_label": "run inference through the trained keras model.",
       "source_file": "backend/services/translator_model.py",
       "source_location": "L516"
     },
     {
+      "id": "backend_services_translator_model_rationale_575",
+      "label": "Rule-based heuristic prediction using geometric features extracted from 42 hand\u2026",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "rule-based heuristic prediction using geometric features extracted from 42 hand...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L575"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_627",
+      "label": "Parse landmarks into a list of 42 {x, y, z} dicts. Handles both flat arrays and\u2026",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "parse landmarks into a list of 42 {x, y, z} dicts. handles both flat arrays and...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L627"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_652",
+      "label": "Extract geometric features from 42 landmark points. Points 0-20: Left hand,\u2026",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "extract geometric features from 42 landmark points. points 0-20: left hand,...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L652"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_732",
+      "label": "Score how well the extracted features match a given ISL letter. Higher score =\u2026",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "score how well the extracted features match a given isl letter. higher score =...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L732"
+    },
+    {
       "id": "backend_services_translator_model_rationale_94",
       "label": "Coerce landmarks to a (126,) or (N, 126) float array, or raise.",
       "_origin": "ast",
       "community": 59,
-      "community_name": "normalize_landmarks",
+      "community_name": "TranslatorModel",
       "file_type": "rationale",
       "norm_label": "coerce landmarks to a (126,) or (n, 126) float array, or raise.",
       "source_file": "backend/services/translator_model.py",
       "source_location": "L94"
-    },
-    {
-      "id": "backend_services_word_recognizer_rationale_1",
-      "label": "Sign-Bridge Flask API \u2014 ISL Word Recognition Service Loads a trained model that\u2026",
-      "_origin": "ast",
-      "community": 59,
-      "community_name": "normalize_landmarks",
-      "file_type": "rationale",
-      "norm_label": "sign-bridge flask api \u2014 isl word recognition service loads a trained model that...",
-      "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L1"
     },
     {
       "id": "backend_services_arduino_serial",
@@ -8611,17 +8634,6 @@
       "source_location": "L1"
     },
     {
-      "id": "valueerror",
-      "label": "ValueError",
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "translator_model.py",
-      "file_type": "code",
-      "norm_label": "valueerror",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "backend_services_feature_extractor_rationale_1",
       "label": "Enriched Feature extraction for Indian Sign Language (ISL) alphabet\u2026",
       "_origin": "ast",
@@ -8675,17 +8687,6 @@
       "norm_label": "sign-bridge flask api \u2014 isl gesture translation model service loads trained...",
       "source_file": "backend/services/translator_model.py",
       "source_location": "L1"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_90",
-      "label": "Raised when incoming landmark data doesn't match the expected shape.",
-      "_origin": "ast",
-      "community": 60,
-      "community_name": "translator_model.py",
-      "file_type": "rationale",
-      "norm_label": "raised when incoming landmark data doesn't match the expected shape.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L90"
     },
     {
       "id": "backend_benchmark_alphabet_models",
@@ -8776,6 +8777,17 @@
       "source_location": "L46"
     },
     {
+      "id": "backend_services_translator_model_rationale_784",
+      "label": "Return truthful model metadata derived directly from active configuration.",
+      "_origin": "ast",
+      "community": 62,
+      "community_name": ".get_info",
+      "file_type": "rationale",
+      "norm_label": "return truthful model metadata derived directly from active configuration.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L784"
+    },
+    {
       "id": "backend_services_gemini_manager_rationale_332",
       "label": "Centralized, resilient Google Generative AI / Gemini API Manager. Orchestrates:\u2026",
       "_origin": "ast",
@@ -8840,6 +8852,17 @@
       "norm_label": "scenario 7: 400 invalid argument fails fast without wasting retries.",
       "source_file": "backend/tests/test_gemini_manager.py",
       "source_location": "L158"
+    },
+    {
+      "id": "backend_tests_test_gemini_manager_rationale_50",
+      "label": "Verify API keys are never logged in plain text.",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "TestGeminiManager",
+      "file_type": "rationale",
+      "norm_label": "verify api keys are never logged in plain text.",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L50"
     },
     {
       "id": "backend_tests_test_gemini_manager_rationale_57",
@@ -8941,6 +8964,17 @@
       "source_location": "L232"
     },
     {
+      "id": "backend_services_gemini_manager_rationale_268",
+      "label": "Task-aware model selector with auto-discovery and capability matching.",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "gemini_manager.py",
+      "file_type": "rationale",
+      "norm_label": "task-aware model selector with auto-discovery and capability matching.",
+      "source_file": "backend/services/gemini_manager.py",
+      "source_location": "L268"
+    },
+    {
       "id": "backend_services_gemini_manager_rationale_72",
       "label": "Safely mask an API key for logs (e.g., 'AIza...4X9Z'). Never logs full key.",
       "_origin": "ast",
@@ -8961,17 +8995,6 @@
       "norm_label": "unit and integration tests for signbridge geminimanager. tests all 8 required...",
       "source_file": "backend/tests/test_gemini_manager.py",
       "source_location": "L1"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_rationale_50",
-      "label": "Verify API keys are never logged in plain text.",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "gemini_manager.py",
-      "file_type": "rationale",
-      "norm_label": "verify api keys are never logged in plain text.",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L50"
     },
     {
       "id": "backend_services_groq_manager_py_typeddict",
@@ -9017,7 +9040,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L652",
+      "source_location": "L658",
       "weight": 1.0
     },
     {
@@ -9041,7 +9064,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L600",
+      "source_location": "L606",
       "weight": 1.0
     },
     {
@@ -9053,7 +9076,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L359",
+      "source_location": "L365",
       "weight": 1.0
     },
     {
@@ -9065,7 +9088,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L360",
+      "source_location": "L366",
       "weight": 1.0
     },
     {
@@ -9077,7 +9100,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L360",
+      "source_location": "L366",
       "weight": 1.0
     },
     {
@@ -9089,7 +9112,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L362",
+      "source_location": "L368",
       "weight": 1.0
     },
     {
@@ -9101,7 +9124,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L377",
+      "source_location": "L383",
       "weight": 1.0
     },
     {
@@ -9113,7 +9136,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L265",
+      "source_location": "L271",
       "weight": 1.0
     },
     {
@@ -9125,7 +9148,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L266",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -9137,7 +9160,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L266",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -9149,7 +9172,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L268",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -9161,7 +9184,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L308",
+      "source_location": "L314",
       "weight": 1.0
     },
     {
@@ -9173,7 +9196,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L309",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -9185,7 +9208,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L492",
+      "source_location": "L498",
       "weight": 1.0
     },
     {
@@ -9197,7 +9220,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L526",
+      "source_location": "L532",
       "weight": 1.0
     },
     {
@@ -9209,7 +9232,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L580",
+      "source_location": "L586",
       "weight": 1.0
     },
     {
@@ -10253,7 +10276,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L224",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -10265,7 +10288,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L243",
+      "source_location": "L259",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_word_recognizer_wordrecognizer_predict",
+      "target": "backend_services_feature_extractor_transform_to_kinetic_invariants",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/services/word_recognizer.py",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -10445,7 +10480,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/train_unified.py",
-      "source_location": "L852",
+      "source_location": "L866",
       "weight": 1.0
     },
     {
@@ -10457,7 +10492,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/train_unified.py",
-      "source_location": "L861",
+      "source_location": "L875",
       "weight": 1.0
     },
     {
@@ -10469,7 +10504,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/train_unified.py",
-      "source_location": "L868",
+      "source_location": "L882",
       "weight": 1.0
     },
     {
@@ -10481,7 +10516,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/train_unified.py",
-      "source_location": "L875",
+      "source_location": "L889",
       "weight": 1.0
     },
     {
@@ -10566,6 +10601,18 @@
       "context": "call",
       "source_file": "backend/train_unified.py",
       "source_location": "L481",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_train_unified_train_word_model",
+      "target": "backend_services_feature_extractor_transform_to_kinetic_invariants",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/train_unified.py",
+      "source_location": "L594",
       "weight": 1.0
     },
     {
@@ -10745,7 +10792,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L408",
+      "source_location": "L430",
       "weight": 1.0
     },
     {
@@ -10841,7 +10888,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L612",
+      "source_location": "L618",
       "weight": 1.0
     },
     {
@@ -10853,7 +10900,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L596",
+      "source_location": "L602",
       "weight": 1.0
     },
     {
@@ -10865,7 +10912,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L397",
+      "source_location": "L403",
       "weight": 1.0
     },
     {
@@ -10877,7 +10924,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L324",
+      "source_location": "L330",
       "weight": 1.0
     },
     {
@@ -10901,7 +10948,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L286",
+      "source_location": "L292",
       "weight": 1.0
     },
     {
@@ -10913,7 +10960,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L413",
+      "source_location": "L419",
       "weight": 1.0
     },
     {
@@ -10925,7 +10972,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L423",
+      "source_location": "L429",
       "weight": 1.0
     },
     {
@@ -10937,7 +10984,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L435",
+      "source_location": "L441",
       "weight": 1.0
     },
     {
@@ -10949,7 +10996,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L677",
+      "source_location": "L683",
       "weight": 1.0
     },
     {
@@ -10961,7 +11008,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L703",
+      "source_location": "L709",
       "weight": 1.0
     },
     {
@@ -10973,7 +11020,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L710",
+      "source_location": "L716",
       "weight": 1.0
     },
     {
@@ -10985,7 +11032,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L767",
+      "source_location": "L773",
       "weight": 1.0
     },
     {
@@ -10997,7 +11044,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L671",
+      "source_location": "L677",
       "weight": 1.0
     },
     {
@@ -11009,7 +11056,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L451",
+      "source_location": "L457",
       "weight": 1.0
     },
     {
@@ -11021,7 +11068,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L509",
+      "source_location": "L515",
       "weight": 1.0
     },
     {
@@ -11033,7 +11080,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L539",
+      "source_location": "L545",
       "weight": 1.0
     },
     {
@@ -11045,7 +11092,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L429",
+      "source_location": "L435",
       "weight": 1.0
     },
     {
@@ -11309,7 +11356,19 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L216",
+      "source_location": "L232",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_word_recognizer",
+      "target": "backend_services_feature_extractor_transform_to_kinetic_invariants",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/services/word_recognizer.py",
+      "source_location": "L300",
       "weight": 1.0
     },
     {
@@ -11562,6 +11621,18 @@
       "context": "import",
       "source_file": "backend/train_unified.py",
       "source_location": "L433",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_train_unified",
+      "target": "backend_services_feature_extractor_transform_to_kinetic_invariants",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/train_unified.py",
+      "source_location": "L592",
       "weight": 1.0
     },
     {
@@ -14592,7 +14663,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L287",
+      "source_location": "L293",
       "weight": 1.0
     },
     {
@@ -14603,7 +14674,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L325",
+      "source_location": "L331",
       "weight": 1.0
     },
     {
@@ -14614,7 +14685,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L398",
+      "source_location": "L404",
       "weight": 1.0
     },
     {
@@ -14625,7 +14696,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L414",
+      "source_location": "L420",
       "weight": 1.0
     },
     {
@@ -14636,7 +14707,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L424",
+      "source_location": "L430",
       "weight": 1.0
     },
     {
@@ -14647,7 +14718,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L430",
+      "source_location": "L436",
       "weight": 1.0
     },
     {
@@ -14658,7 +14729,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L436",
+      "source_location": "L442",
       "weight": 1.0
     },
     {
@@ -14669,7 +14740,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L452",
+      "source_location": "L458",
       "weight": 1.0
     },
     {
@@ -14680,7 +14751,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L510",
+      "source_location": "L516",
       "weight": 1.0
     },
     {
@@ -14691,7 +14762,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L540",
+      "source_location": "L546",
       "weight": 1.0
     },
     {
@@ -14702,7 +14773,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L597",
+      "source_location": "L603",
       "weight": 1.0
     },
     {
@@ -14713,7 +14784,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L613",
+      "source_location": "L619",
       "weight": 1.0
     },
     {
@@ -14724,7 +14795,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L672",
+      "source_location": "L678",
       "weight": 1.0
     },
     {
@@ -14735,7 +14806,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L678",
+      "source_location": "L684",
       "weight": 1.0
     },
     {
@@ -14746,7 +14817,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L704",
+      "source_location": "L710",
       "weight": 1.0
     },
     {
@@ -14757,7 +14828,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L711",
+      "source_location": "L717",
       "weight": 1.0
     },
     {
@@ -14779,7 +14850,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L768",
+      "source_location": "L774",
       "weight": 1.0
     },
     {
@@ -15187,6 +15258,17 @@
       "confidence_score": 1.0,
       "source_file": "backend/services/feature_extractor.py",
       "source_location": "L170",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_feature_extractor",
+      "target": "backend_services_feature_extractor_transform_to_kinetic_invariants",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -15659,7 +15741,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/train_unified.py",
-      "source_location": "L832",
+      "source_location": "L846",
       "weight": 1.0
     },
     {
@@ -17397,7 +17479,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L694",
+      "source_location": "L716",
       "weight": 1.0
     },
     {
@@ -18398,7 +18480,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L203",
+      "source_location": "L219",
       "weight": 1.0
     },
     {
@@ -18409,18 +18491,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L373",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_services_word_recognizer_wordrecognizer",
-      "target": "backend_services_word_recognizer_wordrecognizer_get_info",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L383",
+      "source_location": "L394",
       "weight": 1.0
     },
     {
@@ -18432,6 +18503,17 @@
       "confidence_score": 1.0,
       "source_file": "backend/services/word_recognizer.py",
       "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_word_recognizer_wordrecognizer",
+      "target": "backend_services_word_recognizer_wordrecognizer_get_info",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/word_recognizer.py",
+      "source_location": "L404",
       "weight": 1.0
     },
     {
@@ -18864,52 +18946,41 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_288",
+      "source": "backend_app_rationale_294",
       "target": "backend_app_llm_simplify",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L288",
+      "source_location": "L294",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_326",
+      "source": "backend_app_rationale_332",
       "target": "backend_app_llm_answer",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L326",
+      "source_location": "L332",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_415",
+      "source": "backend_app_rationale_421",
       "target": "backend_app_llm_status",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L415",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_425",
-      "target": "backend_app_model_info",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L425",
+      "source_location": "L421",
       "weight": 1.0
     },
     {
       "source": "backend_app_rationale_431",
-      "target": "backend_app_words_info",
+      "target": "backend_app_model_info",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18920,7 +18991,7 @@
     },
     {
       "source": "backend_app_rationale_437",
-      "target": "backend_app_model_reload",
+      "target": "backend_app_words_info",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18930,74 +19001,74 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_453",
+      "source": "backend_app_rationale_443",
+      "target": "backend_app_model_reload",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L443",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_459",
       "target": "backend_app_translate",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L453",
+      "source_location": "L459",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_511",
+      "source": "backend_app_rationale_517",
       "target": "backend_app_translate_batch",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L511",
+      "source_location": "L517",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_541",
+      "source": "backend_app_rationale_547",
       "target": "backend_app_translate_word",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L541",
+      "source_location": "L547",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_598",
+      "source": "backend_app_rationale_604",
       "target": "backend_app_get_history",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L598",
+      "source_location": "L604",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_614",
+      "source": "backend_app_rationale_620",
       "target": "backend_app_collect_data",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L614",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_673",
-      "target": "backend_app_robot_status",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L673",
+      "source_location": "L620",
       "weight": 1.0
     },
     {
       "source": "backend_app_rationale_679",
-      "target": "backend_app_robot_connect",
+      "target": "backend_app_robot_status",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19007,25 +19078,36 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_705",
+      "source": "backend_app_rationale_685",
+      "target": "backend_app_robot_connect",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L685",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_711",
       "target": "backend_app_robot_disconnect",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L705",
+      "source_location": "L711",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_712",
+      "source": "backend_app_rationale_718",
       "target": "backend_app_robot_sign",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L712",
+      "source_location": "L718",
       "weight": 1.0
     },
     {
@@ -19040,14 +19122,14 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_769",
+      "source": "backend_app_rationale_775",
       "target": "backend_app_robot_sign_letter",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L769",
+      "source_location": "L775",
       "weight": 1.0
     },
     {
@@ -19565,6 +19647,17 @@
       "confidence_score": 1.0,
       "source_file": "backend/services/feature_extractor.py",
       "source_location": "L171",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_feature_extractor_rationale_209",
+      "target": "backend_services_feature_extractor_transform_to_kinetic_invariants",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L209",
       "weight": 1.0
     },
     {
@@ -20316,14 +20409,14 @@
       "weight": 1.0
     },
     {
-      "source": "backend_services_word_recognizer_rationale_204",
+      "source": "backend_services_word_recognizer_rationale_220",
       "target": "backend_services_word_recognizer_wordrecognizer_predict",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L204",
+      "source_location": "L220",
       "weight": 1.0
     },
     {
@@ -20338,25 +20431,25 @@
       "weight": 1.0
     },
     {
-      "source": "backend_services_word_recognizer_rationale_374",
+      "source": "backend_services_word_recognizer_rationale_395",
       "target": "backend_services_word_recognizer_wordrecognizer_pad_or_trim",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L374",
+      "source_location": "L395",
       "weight": 1.0
     },
     {
-      "source": "backend_services_word_recognizer_rationale_384",
+      "source": "backend_services_word_recognizer_rationale_405",
       "target": "backend_services_word_recognizer_wordrecognizer_get_info",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L384",
+      "source_location": "L405",
       "weight": 1.0
     },
     {
@@ -20970,5 +21063,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c57919cc25d6c70242f65c66e507931b8c452c85"
+  "built_at_commit": "3a1cdddff14ad755d1cc9ebf71fe1a8773f35349"
 }
