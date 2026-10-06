@@ -1,16 +1,16 @@
 # Graph Report - SignBridge  (2026-10-06)
 
 ## Corpus Check
-- 428 files · ~3,775,143 words
+- 428 files · ~3,775,684 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 771 nodes · 1060 edges · 63 communities (52 shown, 8 thin omitted)
+- 771 nodes · 1061 edges · 63 communities (52 shown, 8 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3a1cdddf`
+- Built from commit: `22bac988`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -334,4 +334,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
   _204 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `react` be split into smaller, more focused modules?**
-  _Cohesion score 0.06316590563165905 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06354642313546423 - nodes in this community are weakly interconnected._

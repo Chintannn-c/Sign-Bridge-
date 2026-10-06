@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWebcam } from '../hooks/useWebcam';
 import { useHandDetection } from '../hooks/useHandDetection';
 import { useGestureRecognition } from '../hooks/useGestureRecognition';
@@ -255,27 +256,28 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
                 width={videoElement?.videoWidth || 640}
                 height={videoElement?.videoHeight || 480}
                 isMirrored={isMirrored}
+                activeSign={activeSign}
               />
             )}
 
-            {/* Word Mode Sequence Buffer Progress Bar */}
+            {/* Word Mode Sequence Buffer Progress Bar & Kinetic Pulse Equalizer */}
             {isWordMode && (
               <div style={{
                 position: 'absolute',
                 top: '3.3rem',
                 left: '0.875rem',
                 zIndex: 32,
-                background: 'rgba(28, 25, 23, 0.85)',
+                background: 'rgba(28, 25, 23, 0.88)',
                 color: '#fff',
                 padding: '0.35rem 0.75rem',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.6rem',
+                gap: '0.65rem',
                 fontSize: '0.72rem',
-                backdropFilter: 'blur(6px)',
-                border: '1px solid rgba(200, 173, 147, 0.4)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(200, 173, 147, 0.45)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.35)'
               }}>
                 <span style={{ fontWeight: 600, color: 'var(--accent-camel)' }}>Sequence:</span>
                 <div style={{
@@ -285,89 +287,114 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
                   borderRadius: '3px',
                   overflow: 'hidden'
                 }}>
-                  <div style={{
-                    width: `${Math.min(100, (recognition.wordBufferCount / recognition.wordBufferMax) * 100)}%`,
-                    height: '100%',
-                    background: recognition.wordBufferCount >= recognition.wordBufferMax ? '#10b981' : 'var(--accent-sage)',
-                    transition: 'width 0.1s ease'
-                  }} />
+                  <div 
+                    className="kinetic-energy-glow"
+                    style={{
+                      width: `${Math.min(100, (recognition.wordBufferCount / recognition.wordBufferMax) * 100)}%`,
+                      height: '100%',
+                      background: recognition.wordBufferCount >= recognition.wordBufferMax ? '#10b981' : 'var(--accent-sage)',
+                    }} 
+                  />
                 </div>
                 <span style={{ fontFamily: 'monospace', opacity: 0.9 }}>
                   {recognition.wordBufferCount}/{recognition.wordBufferMax}
                 </span>
-              </div>
-            )}
-            
-            {/* Live Guidance Feedback */}
-            {recognition.guidance && (
-              <div style={{ position: 'absolute', bottom: '3.2rem', left: '0.875rem', zIndex: 30, background: 'rgba(0,0,0,0.75)', color: '#fff', padding: '0.45rem 0.85rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', backdropFilter: 'blur(8px)', pointerEvents: 'none', maxWidth: 'calc(100% - 2rem)', boxSizing: 'border-box' }}>
-                <AlertCircle size={14} className="text-amber-400" style={{ flexShrink: 0 }} />
-                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{recognition.guidance}</span>
-              </div>
-            )}
-            
-            {/* Detected Sign/Word Popup — or Low Confidence Indicator */}
-            {activeSign ? (
-              <div style={{
-                position: 'absolute',
-                bottom: '1rem',
-                right: '1rem',
-                zIndex: 35,
-                background: 'rgba(13,148,136,0.92)',
-                color: 'white',
-                padding: activeSign.length > 2 ? '8px 14px' : '10px 16px',
-                borderRadius: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.35)',
-                backdropFilter: 'blur(8px)',
-                pointerEvents: 'none',
-                maxWidth: '180px'
-              }}>
-                <div style={{ 
-                  fontSize: activeSign.length > 4 ? '1.15rem' : (activeSign.length > 2 ? '1.4rem' : '2.5rem'), 
-                  fontWeight: 'bold', 
-                  lineHeight: 1.1,
-                  textAlign: 'center',
-                  letterSpacing: activeSign.length > 2 ? '0.04em' : 'normal'
-                }}>
-                  {activeSign}
+
+                {/* Animated Live Kinetic Equalizer Waveform */}
+                <div className="live-waveform-equalizer" title="Kinetic Energy Motion Stream">
+                  <span className="waveform-bar" style={{ animationDuration: '0.8s' }} />
+                  <span className="waveform-bar" style={{ animationDuration: '1.2s' }} />
+                  <span className="waveform-bar" style={{ animationDuration: '0.9s' }} />
+                  <span className="waveform-bar" style={{ animationDuration: '1.1s' }} />
                 </div>
-                {recognition.confidence > 0 && (
-                  <div style={{ fontSize: '0.7rem', opacity: 0.95, marginTop: '3px', fontFamily: 'monospace' }}>
-                    {Math.round(recognition.confidence * 100)}% {isWordMode ? 'Word' : 'Letter'}
+              </div>
+            )}
+            
+            {/* Live Guidance Feedback with Smooth Slide Spring */}
+            <AnimatePresence>
+              {recognition.guidance && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                  style={{ position: 'absolute', bottom: '3.2rem', left: '0.875rem', zIndex: 30, background: 'rgba(0,0,0,0.82)', color: '#fff', padding: '0.45rem 0.85rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', backdropFilter: 'blur(8px)', pointerEvents: 'none', maxWidth: 'calc(100% - 2rem)', boxSizing: 'border-box', border: '1px solid rgba(255,255,255,0.15)' }}
+                >
+                  <AlertCircle size={14} className="text-amber-400" style={{ flexShrink: 0 }} />
+                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{recognition.guidance}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {/* Detected Sign/Word Popup with Spring Bounce & Neon Breathing Halo */}
+            <AnimatePresence mode="wait">
+              {activeSign ? (
+                <motion.div
+                  key={`sign-${activeSign}`}
+                  initial={{ scale: 0.6, opacity: 0, y: 15 }}
+                  animate={{ scale: [0.6, 1.08, 1.0], opacity: 1, y: 0 }}
+                  exit={{ scale: 0.8, opacity: 0, y: -10 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 22 }}
+                  className="detected-sign-hud-badge"
+                  style={{
+                    padding: activeSign.length > 2 ? '8px 14px' : '10px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    maxWidth: '180px'
+                  }}
+                >
+                  <div style={{ 
+                    fontSize: activeSign.length > 4 ? '1.15rem' : (activeSign.length > 2 ? '1.4rem' : '2.5rem'), 
+                    fontWeight: 'bold', 
+                    lineHeight: 1.1,
+                    textAlign: 'center',
+                    letterSpacing: activeSign.length > 2 ? '0.04em' : 'normal'
+                  }}>
+                    {activeSign}
                   </div>
-                )}
-              </div>
-            ) : (recognition.confidence > 0 && recognition.confidence < 0.55 && recognition.status === 'tracking') ? (
-              <div style={{
-                position: 'absolute',
-                bottom: '1rem',
-                right: '1rem',
-                zIndex: 35,
-                background: 'rgba(217, 119, 6, 0.85)',
-                color: 'white',
-                padding: '8px 14px',
-                borderRadius: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.35)',
-                backdropFilter: 'blur(8px)',
-                pointerEvents: 'none',
-                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                maxWidth: '180px'
-              }}>
-                <AlertCircle size={20} style={{ marginBottom: '4px', opacity: 0.9 }} />
-                <div style={{ fontSize: '0.78rem', fontWeight: 600, textAlign: 'center' }}>
-                  Low Confidence
-                </div>
-                <div style={{ fontSize: '0.65rem', opacity: 0.85, marginTop: '2px', fontFamily: 'monospace' }}>
-                  {Math.round(recognition.confidence * 100)}% — adjust hand
-                </div>
-              </div>
-            ) : null}
+                  {recognition.confidence > 0 && (
+                    <div style={{ fontSize: '0.7rem', opacity: 0.95, marginTop: '3px', fontFamily: 'monospace' }}>
+                      {Math.round(recognition.confidence * 100)}% {isWordMode ? 'Word' : 'Letter'}
+                    </div>
+                  )}
+                </motion.div>
+              ) : (recognition.confidence > 0 && recognition.confidence < 0.55 && recognition.status === 'tracking') ? (
+                <motion.div
+                  key="low-conf"
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  style={{
+                    position: 'absolute',
+                    bottom: '1rem',
+                    right: '1rem',
+                    zIndex: 35,
+                    background: 'rgba(217, 119, 6, 0.88)',
+                    color: 'white',
+                    padding: '8px 14px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.35)',
+                    backdropFilter: 'blur(8px)',
+                    pointerEvents: 'none',
+                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    maxWidth: '180px',
+                    border: '1px solid rgba(255,255,255,0.2)'
+                  }}
+                >
+                  <AlertCircle size={20} style={{ marginBottom: '4px', opacity: 0.9 }} />
+                  <div style={{ fontSize: '0.78rem', fontWeight: 600, textAlign: 'center' }}>
+                    Low Confidence
+                  </div>
+                  <div style={{ fontSize: '0.65rem', opacity: 0.85, marginTop: '2px', fontFamily: 'monospace' }}>
+                    {Math.round(recognition.confidence * 100)}% — adjust hand
+                  </div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
           </>
         ) : (
           <div className="camera-sim-fallback">

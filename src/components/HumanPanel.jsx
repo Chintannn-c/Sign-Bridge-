@@ -129,6 +129,13 @@ export const HumanPanel = React.memo(({
                 </div>
 
                 <div className="live-processing-meta">
+                  <div className="live-waveform-equalizer" title="Live Gesture Input Stream">
+                    <span className="waveform-bar" />
+                    <span className="waveform-bar" />
+                    <span className="waveform-bar" />
+                    <span className="waveform-bar" />
+                    <span className="waveform-bar" />
+                  </div>
                   {detectedSign && (
                     <span className="live-detected-tag">
                       <span className="live-pulse-dot" />

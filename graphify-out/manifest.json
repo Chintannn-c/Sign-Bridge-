@@ -2142,9 +2142,9 @@
     "semantic_hash": "3a3144fed4f557bbf0dd329257656f2d"
   },
   "src/components/CameraView.jsx": {
-    "mtime": 1790658538.0948935,
-    "seen": 1790658632.0697618,
-    "ast_hash": "a700e0275c26648b0efb4fe835475cce",
+    "mtime": 1791300108.2233176,
+    "seen": 1791300174.0564868,
+    "ast_hash": "7e84f15bbc87cf98f3ba5f94e1b21b72",
     "semantic_hash": ""
   },
   "src/components/GestureReferenceSheet.jsx": {
@@ -2154,15 +2154,15 @@
     "semantic_hash": "ce0a23cfdef4f278ea5fb954c85e0bde"
   },
   "src/components/HumanPanel.jsx": {
-    "mtime": 1790656956.6834629,
-    "seen": 1790657072.8001792,
-    "ast_hash": "85563cd05fa2ec6f2595816e58d9f7be",
+    "mtime": 1791300123.3467786,
+    "seen": 1791300174.0564868,
+    "ast_hash": "9b56948aa63ca0414e37961b395bc7da",
     "semantic_hash": ""
   },
   "src/components/RobotPanel.jsx": {
-    "mtime": 1790576439.7810993,
-    "seen": 1790576688.5622962,
-    "ast_hash": "b3fd892ebb3857ac892b1b0cc0f976e4",
+    "mtime": 1791300145.7284954,
+    "seen": 1791300174.0564868,
+    "ast_hash": "102c70aead96c8cd0d160d51ebdbfbb8",
     "semantic_hash": ""
   },
   "src/components/SignBridgeKiosk.jsx": {
@@ -2178,9 +2178,9 @@
     "semantic_hash": "3cc46d46a9ad89b5165069646ac48081"
   },
   "src/components/SignLanguageAssistant/HandTrackingOverlay.jsx": {
-    "mtime": 1790578620.0045516,
-    "seen": 1790579095.8086102,
-    "ast_hash": "a9b4e54809f4519b1a4a5e19ac705468",
+    "mtime": 1791300049.4663267,
+    "seen": 1791300174.0575008,
+    "ast_hash": "b9564962c8805880184eeee012c0f401",
     "semantic_hash": ""
   },
   "src/components/SignLanguageAssistant/SentenceBuilder.jsx": {

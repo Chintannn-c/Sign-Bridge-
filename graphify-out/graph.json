@@ -415,7 +415,7 @@
       "file_type": "code",
       "norm_label": "cameraview()",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L15"
+      "source_location": "L16"
     },
     {
       "id": "src_components_gesturereferencesheet_gesturereferencesheet",
@@ -10624,7 +10624,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -10636,7 +10636,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L84",
+      "source_location": "L85",
       "weight": 1.0
     },
     {
@@ -10648,7 +10648,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L87",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -11764,7 +11764,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -11776,7 +11776,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L3",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -11788,7 +11788,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -11800,7 +11800,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -12405,7 +12405,7 @@
     },
     {
       "source": "src_components_cameraview",
-      "target": "src_hooks_usewebcam",
+      "target": "ref_framer_motion",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12417,7 +12417,7 @@
     },
     {
       "source": "src_components_cameraview",
-      "target": "src_hooks_usehanddetection",
+      "target": "src_hooks_usewebcam",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12429,7 +12429,7 @@
     },
     {
       "source": "src_components_cameraview",
-      "target": "src_hooks_usegesturerecognition",
+      "target": "src_hooks_usehanddetection",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12441,7 +12441,7 @@
     },
     {
       "source": "src_components_cameraview",
-      "target": "src_components_signlanguageassistant_handtrackingoverlay",
+      "target": "src_hooks_usegesturerecognition",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12453,7 +12453,7 @@
     },
     {
       "source": "src_components_cameraview",
-      "target": "ref_lucide_react",
+      "target": "src_components_signlanguageassistant_handtrackingoverlay",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12461,6 +12461,18 @@
       "context": "import",
       "source_file": "src/components/CameraView.jsx",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_cameraview",
+      "target": "ref_lucide_react",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/CameraView.jsx",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -17083,7 +17095,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/CameraView.jsx",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -21063,5 +21075,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "3a1cdddff14ad755d1cc9ebf71fe1a8773f35349"
+  "built_at_commit": "22bac9880821589499b0cd04c10c2f085516ac75"
 }

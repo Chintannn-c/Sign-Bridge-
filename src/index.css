@@ -2103,3 +2103,88 @@ html, body, #root {
   0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(13, 148, 136, 0.7); }
   50% { opacity: 0.15; box-shadow: none; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   RICH MICRO-ANIMATIONS: Waveforms, HUD Badges, and Shockwave FX
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Animated Live Waveform Bars (Human signing / speech active) */
+.live-waveform-equalizer {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  padding: 0 4px;
+}
+
+.waveform-bar {
+  width: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #10b981 0%, #0d9488 100%);
+  animation: waveform-pulse 1.1s ease-in-out infinite alternate;
+}
+
+.waveform-bar:nth-child(1) { height: 6px; animation-delay: 0.0s; }
+.waveform-bar:nth-child(2) { height: 14px; animation-delay: 0.2s; }
+.waveform-bar:nth-child(3) { height: 18px; animation-delay: 0.4s; }
+.waveform-bar:nth-child(4) { height: 12px; animation-delay: 0.15s; }
+.waveform-bar:nth-child(5) { height: 7px; animation-delay: 0.35s; }
+
+@keyframes waveform-pulse {
+  0% { transform: scaleY(0.3); opacity: 0.6; }
+  50% { transform: scaleY(1.0); opacity: 1.0; }
+  100% { transform: scaleY(0.45); opacity: 0.75; }
+}
+
+/* Robot Speaking Waveform (Indigo/Blue digital voice pulse) */
+.robot-waveform-equalizer {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 16px;
+  padding: 0 3px;
+}
+
+.robot-wave-bar {
+  width: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #6366f1 0%, #3b82f6 100%);
+  animation: robot-wave-pulse 0.9s ease-in-out infinite alternate;
+}
+
+.robot-wave-bar:nth-child(1) { height: 5px; animation-delay: 0.05s; }
+.robot-wave-bar:nth-child(2) { height: 13px; animation-delay: 0.25s; }
+.robot-wave-bar:nth-child(3) { height: 16px; animation-delay: 0.1s; }
+.robot-wave-bar:nth-child(4) { height: 8px; animation-delay: 0.3s; }
+
+@keyframes robot-wave-pulse {
+  0% { transform: scaleY(0.25); opacity: 0.5; }
+  100% { transform: scaleY(1.1); opacity: 1.0; }
+}
+
+/* Camera HUD Badge Neon Glow Animation */
+.detected-sign-hud-badge {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 35;
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.95) 0%, rgba(15, 118, 110, 0.98) 100%);
+  color: #FFFFFF;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.45), 0 0 16px rgba(20, 184, 166, 0.35);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  animation: badge-breathe 2s ease-in-out infinite alternate;
+}
+
+@keyframes badge-breathe {
+  0% { box-shadow: 0 8px 24px rgba(13, 148, 136, 0.4), 0 0 12px rgba(20, 184, 166, 0.3); }
+  100% { box-shadow: 0 10px 32px rgba(13, 148, 136, 0.65), 0 0 24px rgba(45, 212, 191, 0.6); }
+}
+
+/* Kinetic Energy HUD Bar Glow */
+.kinetic-energy-glow {
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  transition: width 0.08s ease-out, background 0.15s ease;
+}

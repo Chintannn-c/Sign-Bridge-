@@ -120,7 +120,16 @@ export const RobotPanel = React.memo(({
         <div className="card-label robot-label">
           <Bot size={16} style={{ color: '#6E7F6B' }} />
           <span>SIGN-BRIDGE CHAT UI</span>
-          {isActive && <span className="listening-dot" />}
+          {isStreaming ? (
+            <div className="robot-waveform-equalizer" title="AI Voice/Signing Stream">
+              <span className="robot-wave-bar" />
+              <span className="robot-wave-bar" />
+              <span className="robot-wave-bar" />
+              <span className="robot-wave-bar" />
+            </div>
+          ) : (
+            isActive && <span className="listening-dot" />
+          )}
         </div>
         <div className="chat-header-actions" onClick={e => e.stopPropagation()}>
           <AnimatePresence mode="wait">
