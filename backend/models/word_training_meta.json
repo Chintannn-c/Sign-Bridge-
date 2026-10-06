@@ -1,9 +1,9 @@
 {
   "model_type": "random_forest_sequence",
-  "train_samples": 14318,
-  "val_samples": 1377,
-  "validation_accuracy_evaluable": 0.6390704429920117,
-  "num_classes": 57,
+  "train_samples": 14000,
+  "val_samples": 1166,
+  "validation_accuracy_evaluable": 0.2332761578044597,
+  "num_classes": 56,
   "labels": [
     "AGAIN",
     "BAD",
@@ -19,7 +19,6 @@
     "FEAR",
     "FOOD",
     "GIRL",
-    "GOOD",
     "GOOD_AFTERNOON",
     "GOOD_EVENING",
     "GOOD_MORNING",
