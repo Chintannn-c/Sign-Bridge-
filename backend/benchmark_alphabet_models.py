@@ -70,9 +70,10 @@ def run_benchmark():
         )
         avg_lat = float(np.median(latencies))
 
-        report_dict = classification_report(
+        report_raw = classification_report(
             y_true, y_pred, labels=labels, output_dict=True, zero_division=0
         )
+        report_dict: dict = report_raw if isinstance(report_raw, dict) else {}
 
         benchmark_results[name] = {
             'accuracy': float(acc),
@@ -87,7 +88,7 @@ def run_benchmark():
                     'f1-score': round(report_dict[lbl]['f1-score'], 4),
                     'support': int(report_dict[lbl]['support']),
                 }
-                for lbl in labels if lbl in report_dict
+                for lbl in labels if isinstance(report_dict.get(lbl), dict)
             }
         }
 
