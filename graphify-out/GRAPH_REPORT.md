@@ -1,22 +1,22 @@
 # Graph Report - SignBridge  (2026-10-06)
 
 ## Corpus Check
-- 676 files · ~8,156,700 words
+- 678 files · ~8,157,363 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 769 nodes · 1052 edges · 58 communities (48 shown, 7 thin omitted)
+- 769 nodes · 1054 edges · 62 communities (52 shown, 7 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `63b3e7fe`
+- Built from commit: `c57919cc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - react
-- TranslatorModel
+- train_unified.py
 - app.py
 - package.json
 - extract_static_landmarks.py
@@ -70,10 +70,14 @@
 - workflows/graphify.md
 - GEMINI.md
 - SignBridge Architecture
+- TranslatorModel
+- normalize_landmarks
+- translator_model.py
+- load_dataset_partitioned
 
 ## God Nodes (most connected - your core abstractions)
 1. `react` - 21 edges
-2. `TranslatorModel` - 18 edges
+2. `TranslatorModel` - 20 edges
 3. `TestGeminiManager` - 18 edges
 4. `TestGroqManager` - 18 edges
 5. `SignBridge: Dual-Communication Indian Sign Language (ISL) Kiosk & Robotic Actuation System` - 18 edges
@@ -81,7 +85,7 @@
 7. `KeyInfo` - 16 edges
 8. `ArduinoSerial` - 13 edges
 9. `lucide-react` - 12 edges
-10. `useGestureRecognition()` - 12 edges
+10. `What You Must Do When Invoked` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `TestGeminiManager` --uses--> `GeminiKeyStatus`  [INFERRED]
@@ -98,19 +102,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (58 total, 7 thin omitted)
+## Communities (62 total, 7 thin omitted)
 
 ### Community 0 - "react"
 Cohesion: 0.06
-Nodes (45): framer-motion, lucide-react, react, App(), CameraView(), GestureReferenceSheet(), HumanPanel, RobotPanel (+37 more)
+Nodes (44): framer-motion, lucide-react, react, App(), CameraView(), GestureReferenceSheet(), HumanPanel, RobotPanel (+36 more)
 
-### Community 1 - "TranslatorModel"
-Cohesion: 0.05
-Nodes (51): ST-GCN Classifier for Static / Frame-Level Dual-Hand ISL Gestures. Input:…, STGCNHandClassifier, get_file_sha256(), load_dataset_partitioned(), Any, Clean, Leak-Free Data Loader and Partition Manager for SignBridge ISL Alphabet…, Compute SHA-256 hash of a file., Load dataset strictly partitioned by origin without frame-level leakage.… (+43 more)
+### Community 1 - "train_unified.py"
+Cohesion: 0.20
+Nodes (14): augment_landmarks(), augment_training_partition(), main(), SignBridge — Unified Training Pipeline (v2) One script to rule them all: 1.…, Train XGBoost letter classifier with all combined data., Train PyTorch ST-GCN kinematic hand graph classifier., Run both static and video landmark extraction., Train CNN-BiLSTM word classifier with augmented video data. (+6 more)
 
 ### Community 2 - "app.py"
 Cohesion: 0.05
-Nodes (62): clean_llm_text(), collect_data(), generate_llm_response(), get_history(), get_smart_fallback_response(), health(), limit_to_human_length(), llm_answer() (+54 more)
+Nodes (60): clean_llm_text(), collect_data(), generate_llm_response(), get_history(), get_smart_fallback_response(), health(), limit_to_human_length(), llm_answer() (+52 more)
 
 ### Community 3 - "package.json"
 Cohesion: 0.07
@@ -130,7 +134,7 @@ Nodes (12): ArduinoSerial, Sign-Bridge Flask API — Arduino Serial Communicatio
 
 ### Community 7 - "TestGeminiManager"
 Cohesion: 0.11
-Nodes (11): GeminiManager, Centralized, resilient Google Generative AI / Gemini API Manager. Orchestrates:…, Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2., Scenario 5: All keys/models fail -> Raises clean application error, no crash., Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2., Scenario 7: 400 Invalid Argument fails fast without wasting retries., Verify proper classification of SDK exceptions., Scenario 1: Key 1 works normally -> Returns response immediately. (+3 more)
+Nodes (11): GeminiManager, Centralized, resilient Google Generative AI / Gemini API Manager. Orchestrates:…, Scenario 3: Both keys fail on Model A -> Model B succeeds on Key 1., Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2., Scenario 5: All keys/models fail -> Raises clean application error, no crash., Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2., Scenario 7: 400 Invalid Argument fails fast without wasting retries., Verify proper classification of SDK exceptions. (+3 more)
 
 ### Community 8 - "gemini_manager.py"
 Cohesion: 0.20
@@ -146,7 +150,7 @@ Nodes (6): KeyManager, Manages collection of API keys, state tracking, and healt
 
 ### Community 11 - "TestGroqManager"
 Cohesion: 0.09
-Nodes (13): GroqManager, Centralized, resilient Groq LPU API Manager. Orchestrates: Model Selection ->…, Check if at least one Groq API key is configured and not permanently invalid., Comprehensive health status for telemetry and monitoring., Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2., Scenario 5: All keys/models fail -> Raises clean runtime error., Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2., Scenario 7: 400 Invalid Argument fails fast without wasting retries. (+5 more)
+Nodes (13): GroqManager, Centralized, resilient Groq LPU API Manager. Orchestrates: Model Selection ->…, Check if at least one Groq API key is configured and not permanently invalid., Comprehensive health status for telemetry and monitoring., Scenario 3: Both keys fail on Model A -> Model B succeeds on Key 1., Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2., Scenario 5: All keys/models fail -> Raises clean runtime error., Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2. (+5 more)
 
 ### Community 12 - "KeyInfo"
 Cohesion: 0.20
@@ -157,8 +161,8 @@ Cohesion: 0.20
 Nodes (11): ErrorClassifier, GroqErrorType, GroqKeyStatus, mask_key(), Enum, Exception, SignBridge Centralized Groq LPU API Management System. Features: - Dual API Key…, Classifies raw Groq SDK and HTTP exceptions into actionable error enums. (+3 more)
 
 ### Community 14 - "WordRecognizer"
-Cohesion: 0.15
-Nodes (9): Sign-Bridge Flask API — ISL Word Recognition Service Loads a trained model that…, Predict a word from a sequence of landmark frames with optional MediaPipe…, ISL whole-word gesture recognizer using temporal landmark sequences. Accepts a…, Ensure frames array is exactly SEQUENCE_LENGTH frames long., Return word recognizer metadata., Attempt to load the trained word model. Loading priority: 1. CNN-BiLSTM hybrid…, WordRecognizer, SignBridge — Automated Word Model Self-Check & Validation Suite Evaluates… (+1 more)
+Cohesion: 0.18
+Nodes (8): Predict a word from a sequence of landmark frames with optional MediaPipe…, ISL whole-word gesture recognizer using temporal landmark sequences. Accepts a…, Ensure frames array is exactly SEQUENCE_LENGTH frames long., Return word recognizer metadata., Attempt to load the trained word model. Loading priority: 1. CNN-BiLSTM hybrid…, WordRecognizer, SignBridge — Automated Word Model Self-Check & Validation Suite Evaluates…, run_checks()
 
 ### Community 15 - "SpatialGraphConv"
 Cohesion: 0.27
@@ -292,6 +296,22 @@ Nodes (3): Boundaries, Output, Scan
 Cohesion: 0.40
 Nodes (4): 1. Perception Engine (`backend/services/`), 2. Presentation Layer (`src/components/`), 3. Actuation Layer (`backend/services/arduino_serial.py`), SignBridge Architecture
 
+### Community 58 - "TranslatorModel"
+Cohesion: 0.13
+Nodes (11): ST-GCN Classifier for Static / Frame-Level Dual-Hand ISL Gestures. Input:…, STGCNHandClassifier, ISL Gesture-to-Text translation model. Supports four ML modes: 1. Hybrid…, Attempt to load trained models; fall back to heuristic. Loading priority: 1.…, Parse the Mendeley CSV into a lookup dictionary., Rule-based heuristic prediction using geometric features extracted from 42 hand…, Parse landmarks into a list of 42 {x, y, z} dicts. Handles both flat arrays and…, Extract geometric features from 42 landmark points. Points 0-20: Left hand,… (+3 more)
+
+### Community 59 - "normalize_landmarks"
+Cohesion: 0.23
+Nodes (9): normalize_landmarks(), Predict the ISL letter from a set of hand landmarks with optional Holistic body…, Run inference through the calibrated ST-GCN + XGBoost Hybrid Ensemble., Run inference through the trained PyTorch ST-GCN model., Run inference through the trained XGBoost model., Run inference through the trained Keras model., Coerce landmarks to a (126,) or (N, 126) float array, or raise., validate_landmark_array() (+1 more)
+
+### Community 60 - "translator_model.py"
+Cohesion: 0.19
+Nodes (11): _compute_angle_cos(), extract_features(), extract_holistic_features(), Enriched Feature extraction for Indian Sign Language (ISL) alphabet…, Extracts geometric feature vector enriched with upper-body anchor metrics. If…, Compute cosine of the 3D angle at vertex p_b between vectors (p_a - p_b) and…, Extract a 208-D normalized geometric feature vector from 126 raw landmark…, LandmarkValidationError (+3 more)
+
+### Community 61 - "load_dataset_partitioned"
+Cohesion: 0.25
+Nodes (9): SignBridge — Benchmark Standalone XGBoost, Standalone ST-GCN, and Calibrated…, run_benchmark(), get_file_sha256(), load_dataset_partitioned(), Any, Clean, Leak-Free Data Loader and Partition Manager for SignBridge ISL Alphabet…, Compute SHA-256 hash of a file., Load dataset strictly partitioned by origin without frame-level leakage.… (+1 more)
+
 ## Knowledge Gaps
 - **204 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+199 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 432 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
@@ -300,10 +320,12 @@ Nodes (4): 1. Perception Engine (`backend/services/`), 2. Presentation Layer (`s
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `TranslatorModel` connect `TranslatorModel` to `app.py`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
-- **Why does `normalize_landmarks()` connect `TranslatorModel` to `WordRecognizer`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `TranslatorModel` connect `TranslatorModel` to `app.py`, `normalize_landmarks`, `translator_model.py`, `load_dataset_partitioned`?**
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Why does `load_dataset_partitioned()` connect `load_dataset_partitioned` to `train_unified.py`, `normalize_landmarks`?**
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Why does `ArduinoSerial` connect `ArduinoSerial` to `app.py`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `TestGeminiManager` (e.g. with `ErrorClassifier` and `GeminiErrorType`) actually correct?**
   _`TestGeminiManager` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 6 inferred relationships involving `TestGroqManager` (e.g. with `ErrorClassifier` and `GroqErrorType`) actually correct?**
@@ -311,6 +333,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
   _204 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `react` be split into smaller, more focused modules?**
-  _Cohesion score 0.06219918548685672 - nodes in this community are weakly interconnected._
-- **Should `TranslatorModel` be split into smaller, more focused modules?**
-  _Cohesion score 0.05093167701863354 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06316590563165905 - nodes in this community are weakly interconnected._

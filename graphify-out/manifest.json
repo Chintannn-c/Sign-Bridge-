@@ -6,9 +6,9 @@
     "semantic_hash": "5e6e3cea3e89137071c142dd7835b0ef"
   },
   "backend/app.py": {
-    "mtime": 1791186191.0206144,
-    "seen": 1791187986.2781324,
-    "ast_hash": "e339ec06784ba99b61673e35fb3db04d",
+    "mtime": 1791292186.2799277,
+    "seen": 1791292993.5009344,
+    "ast_hash": "977830c564e67fccad3d8b52f797ee48",
     "semantic_hash": ""
   },
   "backend/database/schema.py": {
@@ -2904,9 +2904,9 @@
     "semantic_hash": "cc4b9f71eb51c7b725400236d2c85e5e"
   },
   "backend/services/arduino_serial.py": {
-    "mtime": 1790576496.4467804,
-    "seen": 1790576688.5267708,
-    "ast_hash": "dfc986a67b8271c3a14c08d14512484e",
+    "mtime": 1791292825.621189,
+    "seen": 1791292993.6855152,
+    "ast_hash": "8fcb3371662dc083c4703d3ba8b7ec1a",
     "semantic_hash": ""
   },
   "backend/services/data_loader.py": {
@@ -2916,9 +2916,9 @@
     "semantic_hash": "0959169586b471e7089c742e7bb268cb"
   },
   "backend/services/feature_extractor.py": {
-    "mtime": 1790578851.037485,
-    "seen": 1790579095.7876065,
-    "ast_hash": "6f00d6780cd0b1fc207668156244c627",
+    "mtime": 1791292296.3343806,
+    "seen": 1791292993.6865227,
+    "ast_hash": "a69d3a666741287350e502ffeed18c28",
     "semantic_hash": ""
   },
   "backend/services/gemini_manager.py": {
@@ -2934,9 +2934,9 @@
     "semantic_hash": ""
   },
   "backend/services/translator_model.py": {
-    "mtime": 1790578942.485729,
-    "seen": 1790579095.7886066,
-    "ast_hash": "34653e25ce53ec45ff50e9dedee1bf5e",
+    "mtime": 1791292574.6534793,
+    "seen": 1791292993.6885192,
+    "ast_hash": "c144e13af69e691c6254fe7012ca79eb",
     "semantic_hash": ""
   },
   "backend/services/word_recognizer.py": {
@@ -2958,16 +2958,16 @@
     "semantic_hash": "8d771d95e254e5e632c1dcfdef3bd38a"
   },
   "backend/tests/test_gemini_manager.py": {
-    "mtime": 1787554036.8264897,
-    "seen": 1790572451.7572732,
-    "ast_hash": "d3692358bdc9acd055a36af4e62e9f2f",
-    "semantic_hash": "d3692358bdc9acd055a36af4e62e9f2f"
+    "mtime": 1791292119.3481898,
+    "seen": 1791292993.691522,
+    "ast_hash": "46c2ff594c9861ad88fd476e00f1ecdb",
+    "semantic_hash": ""
   },
   "backend/tests/test_groq_manager.py": {
-    "mtime": 1787556070.8057659,
-    "seen": 1790572451.7572732,
-    "ast_hash": "d53f699de0634e699a72a1ea74b93bc9",
-    "semantic_hash": "d53f699de0634e699a72a1ea74b93bc9"
+    "mtime": 1791292111.536628,
+    "seen": 1791292993.691522,
+    "ast_hash": "28c3643f2cbc890e475cf443c0639fb0",
+    "semantic_hash": ""
   },
   "backend/train_unified.py": {
     "mtime": 1791186221.354773,
@@ -3558,9 +3558,9 @@
     "semantic_hash": "ece8bec5154fcc0a1da253745a7798e0"
   },
   "src/hooks/useGestureRecognition.js": {
-    "mtime": 1791185590.35059,
-    "seen": 1791187986.4368758,
-    "ast_hash": "b63d0f9ca7ccbd88d76f66c2b5436de3",
+    "mtime": 1791292248.4345808,
+    "seen": 1791292993.7640803,
+    "ast_hash": "ab46cda62349c9c5bcae36c208999cdd",
     "semantic_hash": ""
   },
   "src/hooks/useHandDetection.js": {
@@ -3843,6 +3843,996 @@
     "mtime": 1791185697.5643983,
     "seen": 1791187986.4438798,
     "ast_hash": "decfcd5454898d014ca8913430ce91be",
+    "semantic_hash": ""
+  },
+  "backend/benchmark_alphabet_models.py": {
+    "mtime": 1791292503.8946736,
+    "seen": 1791292993.5009344,
+    "ast_hash": "29dab45a82b9273b8dd36ebbbf13bfca",
+    "semantic_hash": ""
+  },
+  "backend/models/hybrid_training_meta.json": {
+    "mtime": 1791292865.5812294,
+    "seen": 1791292993.6815176,
+    "ast_hash": "f4426731a7d3f4513e22fbb09d1bd441",
+    "semantic_hash": ""
+  },
+  "Words/AGAIN/Again_1.mp4": {
+    "mtime": 1791292475.2823699,
+    "seen": 1791292993.8090844,
+    "ast_hash": "ac50aed905184918273235f77d03618f",
+    "semantic_hash": ""
+  },
+  "Words/AGAIN/Again_2.mp4": {
+    "mtime": 1791292475.3073893,
+    "seen": 1791292993.8090844,
+    "ast_hash": "e42b58b654c496ef6804bd207c623493",
+    "semantic_hash": ""
+  },
+  "Words/AGAIN/Again_3.mp4": {
+    "mtime": 1791292475.336082,
+    "seen": 1791292993.8090844,
+    "ast_hash": "7cdee049e9e83672e093e5b8bbb359df",
+    "semantic_hash": ""
+  },
+  "Words/AGAIN/Again_4.MOV": {
+    "mtime": 1791292475.3976066,
+    "seen": 1791292993.8090844,
+    "ast_hash": "f17b2a6a3b697bc5a579ebaa3789980a",
+    "semantic_hash": ""
+  },
+  "Words/BAD/Bad_1.MOV": {
+    "mtime": 1791292475.4571278,
+    "seen": 1791292993.8090844,
+    "ast_hash": "f978f1d89a97edaf8120439f73cdb72d",
+    "semantic_hash": ""
+  },
+  "Words/BAD/Bad_2.mp4": {
+    "mtime": 1791292475.485125,
+    "seen": 1791292993.8090844,
+    "ast_hash": "e9723586514f58c5fcf21edff4bad6a3",
+    "semantic_hash": ""
+  },
+  "Words/BOY/Boy_1.mp4": {
+    "mtime": 1791292475.797206,
+    "seen": 1791292993.8090844,
+    "ast_hash": "18046fefd32b669cea159415f7008110",
+    "semantic_hash": ""
+  },
+  "Words/BOY/Boy_2.mp4": {
+    "mtime": 1791292475.6257222,
+    "seen": 1791292993.8090844,
+    "ast_hash": "832f11caed941cc2cacc5fe7d8c65bac",
+    "semantic_hash": ""
+  },
+  "Words/BOY/Boy_3.mp4": {
+    "mtime": 1791292475.8253324,
+    "seen": 1791292993.8090844,
+    "ast_hash": "6d759edb3d5f19e219e40781043ee89f",
+    "semantic_hash": ""
+  },
+  "Words/BOY/Boy_4.MOV": {
+    "mtime": 1791292475.8973024,
+    "seen": 1791292993.8090844,
+    "ast_hash": "efd3c371c91563668441b958b94e5a71",
+    "semantic_hash": ""
+  },
+  "Words/BYE_BYE/Bye-Bye_1.mp4": {
+    "mtime": 1791292476.0613525,
+    "seen": 1791292993.8090844,
+    "ast_hash": "ed8a8762074210c94f6c5a2c1ff6347d",
+    "semantic_hash": ""
+  },
+  "Words/BYE_BYE/Bye-Bye_2.mp4": {
+    "mtime": 1791292475.9218197,
+    "seen": 1791292993.8090844,
+    "ast_hash": "4522b02001786c754d86caca12324047",
+    "semantic_hash": ""
+  },
+  "Words/BYE_BYE/Bye-Bye_3.mp4": {
+    "mtime": 1791292476.0823581,
+    "seen": 1791292993.8090844,
+    "ast_hash": "d8f00c4444f3c8e444b23a1af593fcb9",
+    "semantic_hash": ""
+  },
+  "Words/BYE_BYE/Bye-Bye_4.MOV": {
+    "mtime": 1791292476.1280794,
+    "seen": 1791292993.8090844,
+    "ast_hash": "8ad03160cacfddf211f7ef236bdccbef",
+    "semantic_hash": ""
+  },
+  "Words/CHILD/Child_1.MOV": {
+    "mtime": 1791292476.204501,
+    "seen": 1791292993.8090844,
+    "ast_hash": "ee0cce8926d6207eda4394c1afc92f77",
+    "semantic_hash": ""
+  },
+  "Words/CHILD/Child_2.mp4": {
+    "mtime": 1791292476.2265642,
+    "seen": 1791292993.8090844,
+    "ast_hash": "1e99335af2851065cf22b34afbf938ef",
+    "semantic_hash": ""
+  },
+  "Words/CORRECT/Correct_1.MOV": {
+    "mtime": 1791292476.2885685,
+    "seen": 1791292993.8090844,
+    "ast_hash": "bcd239fafeb306f6a247f55eab69c3f0",
+    "semantic_hash": ""
+  },
+  "Words/CORRECT/Correct_2.mp4": {
+    "mtime": 1791292476.3159235,
+    "seen": 1791292993.8090844,
+    "ast_hash": "18a5269c8c7fc5c798353363c234b580",
+    "semantic_hash": ""
+  },
+  "Words/DAY/Day_1.mp4": {
+    "mtime": 1791292476.6892855,
+    "seen": 1791292993.8090844,
+    "ast_hash": "c87299f62cddc17e8357c96971264e0e",
+    "semantic_hash": ""
+  },
+  "Words/DAY/Day_2.mp4": {
+    "mtime": 1791292476.781402,
+    "seen": 1791292993.8090844,
+    "ast_hash": "e86cb9a2b02c2d4528432854019ed47c",
+    "semantic_hash": ""
+  },
+  "Words/DAY/Day_3.mp4": {
+    "mtime": 1791292476.5147538,
+    "seen": 1791292993.8090844,
+    "ast_hash": "89597f1774e1bff8856a988ec6847f43",
+    "semantic_hash": ""
+  },
+  "Words/DAY/Day_4.mp4": {
+    "mtime": 1791292476.8170915,
+    "seen": 1791292993.8090844,
+    "ast_hash": "a90b39c7e3d3d5ccce02f38e66479e24",
+    "semantic_hash": ""
+  },
+  "Words/DAY/Day_5.MOV": {
+    "mtime": 1791292476.9073122,
+    "seen": 1791292993.8090844,
+    "ast_hash": "7e3c0958246438095c8e77118504752f",
+    "semantic_hash": ""
+  },
+  "Words/DEAF/Deaf_1.mp4": {
+    "mtime": 1791292476.9385927,
+    "seen": 1791292993.8090844,
+    "ast_hash": "ca1501a8c4166f33cd98ff4b3e1f3146",
+    "semantic_hash": ""
+  },
+  "Words/DEAF/Deaf_2.mp4": {
+    "mtime": 1791292476.9657667,
+    "seen": 1791292993.8090844,
+    "ast_hash": "6bbdc860dd522b1b87e2868140477fca",
+    "semantic_hash": ""
+  },
+  "Words/DEAF/Deaf_3.MOV": {
+    "mtime": 1791292477.2981713,
+    "seen": 1791292993.8090844,
+    "ast_hash": "2016da40d2e1aaf120012a7368b709b5",
+    "semantic_hash": ""
+  },
+  "Words/DEAF/Deaf_4.mp4": {
+    "mtime": 1791292477.091169,
+    "seen": 1791292993.8090844,
+    "ast_hash": "c95db8a5e2886e118f31c3c46003b8d2",
+    "semantic_hash": ""
+  },
+  "Words/DEAF/Deaf_5.mp4": {
+    "mtime": 1791292477.2304025,
+    "seen": 1791292993.8090844,
+    "ast_hash": "d20694791e47102ce1a8a3af994c0781",
+    "semantic_hash": ""
+  },
+  "Words/DEAF/Deaf_6.mp4": {
+    "mtime": 1791292477.3309329,
+    "seen": 1791292993.8090844,
+    "ast_hash": "df9fa044c8493c8af650817ccb35a555",
+    "semantic_hash": ""
+  },
+  "Words/DEAF/Deaf_7.MOV": {
+    "mtime": 1791292477.405088,
+    "seen": 1791292993.8090844,
+    "ast_hash": "2ef4f66ac15385bc145344ae49fe9f2b",
+    "semantic_hash": ""
+  },
+  "Words/DIFFICULT/Difficult_1.mp4": {
+    "mtime": 1791292477.446609,
+    "seen": 1791292993.8090844,
+    "ast_hash": "ad15c1689d31acb2cfb5004a65fad822",
+    "semantic_hash": ""
+  },
+  "Words/DIFFICULT/Difficult_2.MOV": {
+    "mtime": 1791292477.5056164,
+    "seen": 1791292993.8090844,
+    "ast_hash": "6573205e4edeec61f0b9d2624b38acdb",
+    "semantic_hash": ""
+  },
+  "Words/EASY/Easy_1.MOV": {
+    "mtime": 1791292477.5631473,
+    "seen": 1791292993.8090844,
+    "ast_hash": "7fed46c63570e4f5b675411aa40d4313",
+    "semantic_hash": ""
+  },
+  "Words/EASY/Easy_2.mp4": {
+    "mtime": 1791292477.5881455,
+    "seen": 1791292993.8090844,
+    "ast_hash": "f6e155f275dd7c5a4d4cbb29085e726a",
+    "semantic_hash": ""
+  },
+  "Words/FEAR/Fear_1.mp4": {
+    "mtime": 1791292477.630797,
+    "seen": 1791292993.8090844,
+    "ast_hash": "f6c52dc8a35a989a34b2996097ba3ddb",
+    "semantic_hash": ""
+  },
+  "Words/FEAR/Fear_2.MOV": {
+    "mtime": 1791292477.7049017,
+    "seen": 1791292993.8090844,
+    "ast_hash": "5cd0c8d3edd4120fd7757a54fcef1ad3",
+    "semantic_hash": ""
+  },
+  "Words/FOOD/Food_1.mp4": {
+    "mtime": 1791292477.7546437,
+    "seen": 1791292993.8090844,
+    "ast_hash": "c6ac9626110ad9eb065da86db6f9008b",
+    "semantic_hash": ""
+  },
+  "Words/FOOD/Food_2.MOV": {
+    "mtime": 1791292477.8818321,
+    "seen": 1791292993.8090844,
+    "ast_hash": "210e8be96ad007ce874a40d1341e4eb9",
+    "semantic_hash": ""
+  },
+  "Words/FOOD/Food_3.MOV": {
+    "mtime": 1791292477.812887,
+    "seen": 1791292993.8090844,
+    "ast_hash": "ee2918797f7ac1e521c02d5677739946",
+    "semantic_hash": ""
+  },
+  "Words/GIRL/Girl_1.mp4": {
+    "mtime": 1791292477.9231167,
+    "seen": 1791292993.8090844,
+    "ast_hash": "b2412be71ecca7901f20b0c69795f821",
+    "semantic_hash": ""
+  },
+  "Words/GIRL/Girl_2.MOV": {
+    "mtime": 1791292478.008587,
+    "seen": 1791292993.8090844,
+    "ast_hash": "0745b9dd885839a0c6bf208da9466f1f",
+    "semantic_hash": ""
+  },
+  "Words/GOOD/Good_1.mp4": {
+    "mtime": 1791292478.0485198,
+    "seen": 1791292993.8090844,
+    "ast_hash": "1305eba1a700c91225671689e29ffc39",
+    "semantic_hash": ""
+  },
+  "Words/GOOD/Good_2.MOV": {
+    "mtime": 1791292478.1214657,
+    "seen": 1791292993.8090844,
+    "ast_hash": "2413a5b8ce3c08e9afad1d9c7fc9a14c",
+    "semantic_hash": ""
+  },
+  "Words/GOOD_AFTERNOON/Good-Afternoon_1.mp4": {
+    "mtime": 1791292478.28508,
+    "seen": 1791292993.8090844,
+    "ast_hash": "3d563c8523d281901f061b34adf502d3",
+    "semantic_hash": ""
+  },
+  "Words/GOOD_AFTERNOON/Good-Afternoon_2.MOV": {
+    "mtime": 1791292478.2432828,
+    "seen": 1791292993.8090844,
+    "ast_hash": "79ca55280050372d7b3cec0a5d79c981",
+    "semantic_hash": ""
+  },
+  "Words/GOOD_EVENING/Good-Evening_1.mp4": {
+    "mtime": 1791292478.4028938,
+    "seen": 1791292993.8090844,
+    "ast_hash": "df8e0740a13475c2c9eb9234d03053ad",
+    "semantic_hash": ""
+  },
+  "Words/GOOD_EVENING/Good-Evening_2.MOV": {
+    "mtime": 1791292478.3685863,
+    "seen": 1791292993.8090844,
+    "ast_hash": "460b76343014568ad799750d6c42c3dc",
+    "semantic_hash": ""
+  },
+  "Words/GOOD_MORNING/Good-Morning_1.mp4": {
+    "mtime": 1791292478.5268662,
+    "seen": 1791292993.8090844,
+    "ast_hash": "99fda0607d57dc28b041e369bd72f716",
+    "semantic_hash": ""
+  },
+  "Words/GOOD_MORNING/Good_Morning_2.MOV": {
+    "mtime": 1791292478.4926338,
+    "seen": 1791292993.8090844,
+    "ast_hash": "64c53417b6311638c98c663c28a36df1",
+    "semantic_hash": ""
+  },
+  "Words/GOOD_NIGHT/Good-Night_1.mp4": {
+    "mtime": 1791292478.6790066,
+    "seen": 1791292993.8090844,
+    "ast_hash": "3be40b60d4ac8518bd4f72503047b803",
+    "semantic_hash": ""
+  },
+  "Words/GOOD_NIGHT/Good-Night_2.MOV": {
+    "mtime": 1791292478.6334882,
+    "seen": 1791292993.8090844,
+    "ast_hash": "1e7846045f9223218956a2c21188f244",
+    "semantic_hash": ""
+  },
+  "Words/HEARING/Hearing_1.mp4": {
+    "mtime": 1791292479.1999054,
+    "seen": 1791292993.8090844,
+    "ast_hash": "6e3b56f3cfb13ef2e9852b66a922c592",
+    "semantic_hash": ""
+  },
+  "Words/HEARING/Hearing_2.mp4": {
+    "mtime": 1791292479.229678,
+    "seen": 1791292993.8090844,
+    "ast_hash": "576c17bc169586407a66cb1ec3c38b73",
+    "semantic_hash": ""
+  },
+  "Words/HEARING/Hearing_3.mp4": {
+    "mtime": 1791292479.3734305,
+    "seen": 1791292993.8090844,
+    "ast_hash": "d13b35ce9378a1a3c3a73c54aa4c8372",
+    "semantic_hash": ""
+  },
+  "Words/HEARING/Hearing_4.mp4": {
+    "mtime": 1791292479.528255,
+    "seen": 1791292993.8090844,
+    "ast_hash": "9837b07250f2643712d5b111bbbdad64",
+    "semantic_hash": ""
+  },
+  "Words/HEARING/Hearing_5.mp4": {
+    "mtime": 1791292479.5594473,
+    "seen": 1791292993.8090844,
+    "ast_hash": "29064d15f6a679a9bb10560517cd6387",
+    "semantic_hash": ""
+  },
+  "Words/HEARING/Hearing_6.MOV": {
+    "mtime": 1791292479.6358395,
+    "seen": 1791292993.8090844,
+    "ast_hash": "dd8405b2dd5b4e250aa4621d0a0adfd1",
+    "semantic_hash": ""
+  },
+  "Words/HELLO/Hello_1.mp4": {
+    "mtime": 1791292479.7307408,
+    "seen": 1791292993.8090844,
+    "ast_hash": "d8a1a98b8aecfdc31d69bb9add45c375",
+    "semantic_hash": ""
+  },
+  "Words/HELLO/Hello_2.MOV": {
+    "mtime": 1791292479.8175683,
+    "seen": 1791292993.8090844,
+    "ast_hash": "47992723f0681c925049f599ce2d7a09",
+    "semantic_hash": ""
+  },
+  "Words/HELLO/Hello_3.mp4": {
+    "mtime": 1791292479.763087,
+    "seen": 1791292993.8090844,
+    "ast_hash": "c41b0371f79aee73bd94b678aec0acea",
+    "semantic_hash": ""
+  },
+  "Words/HELLO/Hello_4.mp4": {
+    "mtime": 1791292479.8352292,
+    "seen": 1791292993.8090844,
+    "ast_hash": "a0548605861c8011482ad3552f61770e",
+    "semantic_hash": ""
+  },
+  "Words/HE/He_1.mp4": {
+    "mtime": 1791292479.019622,
+    "seen": 1791292993.8090844,
+    "ast_hash": "7c8b188c1d331ac585069cba8aa63082",
+    "semantic_hash": ""
+  },
+  "Words/HE/He_2.mp4": {
+    "mtime": 1791292478.8799055,
+    "seen": 1791292993.8090844,
+    "ast_hash": "0fb503dd7c404645397cd7bc5022fcbe",
+    "semantic_hash": ""
+  },
+  "Words/HE/He_3.mp4": {
+    "mtime": 1791292479.0528588,
+    "seen": 1791292993.8090844,
+    "ast_hash": "a45436520d58919d50ffcf4b71e59734",
+    "semantic_hash": ""
+  },
+  "Words/HE/He_4.MOV": {
+    "mtime": 1791292479.1601589,
+    "seen": 1791292993.8090844,
+    "ast_hash": "94612568c7a0305af4fec7fad7efc6ed",
+    "semantic_hash": ""
+  },
+  "Words/HOW_ARE_YOU/How-Are-You_1.mp4": {
+    "mtime": 1791292480.088201,
+    "seen": 1791292993.8090844,
+    "ast_hash": "c7ec5f718a11fcdbfc6f533333dd5d09",
+    "semantic_hash": ""
+  },
+  "Words/HOW_ARE_YOU/How-Are-You_2.mp4": {
+    "mtime": 1791292479.9610388,
+    "seen": 1791292993.8090844,
+    "ast_hash": "9b1a6975ca32191f82932ff9363d44cc",
+    "semantic_hash": ""
+  },
+  "Words/HOW_ARE_YOU/How-Are-You_3.MOV": {
+    "mtime": 1791292479.9335053,
+    "seen": 1791292993.8090844,
+    "ast_hash": "d49b61851581225b113e1c2b664ee61a",
+    "semantic_hash": ""
+  },
+  "Words/IM_FINE/I-Am-Fine_1.mp4": {
+    "mtime": 1791292480.3868158,
+    "seen": 1791292993.8090844,
+    "ast_hash": "39955eb700ff9c8a247bf864fec3e118",
+    "semantic_hash": ""
+  },
+  "Words/IM_FINE/I-Am-Fine_2.mp4": {
+    "mtime": 1791292480.5292892,
+    "seen": 1791292993.8090844,
+    "ast_hash": "8c506cf7396e91fb98b23153dbc34849",
+    "semantic_hash": ""
+  },
+  "Words/IM_FINE/I-Am-Fine_3.mp4": {
+    "mtime": 1791292480.6493385,
+    "seen": 1791292993.8090844,
+    "ast_hash": "9f84f613b034570dd20637aef547f6ab",
+    "semantic_hash": ""
+  },
+  "Words/IM_FINE/I-Am-Fine_4.mp4": {
+    "mtime": 1791292480.672941,
+    "seen": 1791292993.8090844,
+    "ast_hash": "34971697cfa4fbaac815df8ddd02beda",
+    "semantic_hash": ""
+  },
+  "Words/IM_FINE/I-Am-Fine_5.MOV": {
+    "mtime": 1791292480.742506,
+    "seen": 1791292993.8090844,
+    "ast_hash": "f869e15982a4d34d0092273caa7b1708",
+    "semantic_hash": ""
+  },
+  "Words/INDIA/Indian_1.mp4": {
+    "mtime": 1791292480.7957754,
+    "seen": 1791292993.8090844,
+    "ast_hash": "17cfd764546575c0b16a5504e5471512",
+    "semantic_hash": ""
+  },
+  "Words/INDIA/Indian_2.mp4": {
+    "mtime": 1791292480.7766187,
+    "seen": 1791292993.8090844,
+    "ast_hash": "0b80019c710e06ad73100ea067c1e07e",
+    "semantic_hash": ""
+  },
+  "Words/INDIA/Indian_3.MOV": {
+    "mtime": 1791292480.8453093,
+    "seen": 1791292993.8090844,
+    "ast_hash": "f3c41c5768104fbeb2bbb5fc24f12cc4",
+    "semantic_hash": ""
+  },
+  "Words/I_DONT_UNDERSTAND/I-Dont-Understand_1.mp4": {
+    "mtime": 1791292480.2503786,
+    "seen": 1791292993.8090844,
+    "ast_hash": "36eb2c4cae8f4c1335088ec9023515f5",
+    "semantic_hash": ""
+  },
+  "Words/I_DONT_UNDERSTAND/I-Dont-Understand_2.MOV": {
+    "mtime": 1791292480.196642,
+    "seen": 1791292993.8090844,
+    "ast_hash": "2f3476faa4ce37b33839601992cb9ec0",
+    "semantic_hash": ""
+  },
+  "Words/LANGUAGE/Language_1.mp4": {
+    "mtime": 1791292480.8712842,
+    "seen": 1791292993.8090844,
+    "ast_hash": "5b632494d7a0464f65ad976fffffcb9a",
+    "semantic_hash": ""
+  },
+  "Words/LANGUAGE/Language_2.MOV": {
+    "mtime": 1791292480.9319184,
+    "seen": 1791292993.8090844,
+    "ast_hash": "3eaffd1a2a98c2827f3505ef5fc4cecd",
+    "semantic_hash": ""
+  },
+  "Words/MAN/Man_1.mp4": {
+    "mtime": 1791292480.9623165,
+    "seen": 1791292993.8090844,
+    "ast_hash": "59159ee15c245c090a4b3e6bb8593010",
+    "semantic_hash": ""
+  },
+  "Words/MAN/Man_2.mp4": {
+    "mtime": 1791292480.984084,
+    "seen": 1791292993.8090844,
+    "ast_hash": "4aaed9c525e23b8b13b4bb310a75c14e",
+    "semantic_hash": ""
+  },
+  "Words/MAN/Man_3.mp4": {
+    "mtime": 1791292481.0071924,
+    "seen": 1791292993.8090844,
+    "ast_hash": "a4b7f5d27731bea9e284effd24b9c5a5",
+    "semantic_hash": ""
+  },
+  "Words/MAN/Man_4.MOV": {
+    "mtime": 1791292481.0826707,
+    "seen": 1791292993.8090844,
+    "ast_hash": "b1b8ee1feceaae2ef6e3be09812ba139",
+    "semantic_hash": ""
+  },
+  "Words/ME/ME,I_3.MOV": {
+    "mtime": 1791292481.1896489,
+    "seen": 1791292993.8090844,
+    "ast_hash": "0024015fa712bb9ec22e1789ee5f0b0b",
+    "semantic_hash": ""
+  },
+  "Words/ME/Me,I_1.mp4": {
+    "mtime": 1791292481.2546983,
+    "seen": 1791292993.8090844,
+    "ast_hash": "fc6e5d75e85161903e91bb1ded4f5444",
+    "semantic_hash": ""
+  },
+  "Words/ME/Me,I_2.mp4": {
+    "mtime": 1791292481.226771,
+    "seen": 1791292993.8090844,
+    "ast_hash": "f022f0163671adef253828a7ac79ef9a",
+    "semantic_hash": ""
+  },
+  "Words/MORNING/Morning_1.mp4": {
+    "mtime": 1791292481.305005,
+    "seen": 1791292993.8090844,
+    "ast_hash": "e66b12d8326c4a7bb12f543720434979",
+    "semantic_hash": ""
+  },
+  "Words/MORNING/Morning_2.MOV": {
+    "mtime": 1791292481.3819296,
+    "seen": 1791292993.8090844,
+    "ast_hash": "193acbd0f44cc6bfd593ae7dca49159a",
+    "semantic_hash": ""
+  },
+  "Words/MY_NAME_IS/My-Name-Is_1.mp4": {
+    "mtime": 1791292481.514861,
+    "seen": 1791292993.8090844,
+    "ast_hash": "2c8d7ab701e03ec2b83540b5f3f67fc9",
+    "semantic_hash": ""
+  },
+  "Words/MY_NAME_IS/My-Name-Is_2.MOV": {
+    "mtime": 1791292481.4781125,
+    "seen": 1791292993.8090844,
+    "ast_hash": "528d10dd8b8d080de1a4c372938f2ac8",
+    "semantic_hash": ""
+  },
+  "Words/NAMASTE/Namaste_1.mp4": {
+    "mtime": 1791292481.5721898,
+    "seen": 1791292993.8090844,
+    "ast_hash": "adf11f31e2bec4d4163926cc5d1b9a84",
+    "semantic_hash": ""
+  },
+  "Words/NAMASTE/Namaste_2.MOV": {
+    "mtime": 1791292481.6665716,
+    "seen": 1791292993.8090844,
+    "ast_hash": "7b174f808667c6b683be7ec6485a1d97",
+    "semantic_hash": ""
+  },
+  "Words/NAMASTE/Namaste_3.mp4": {
+    "mtime": 1791292481.5506506,
+    "seen": 1791292993.8090844,
+    "ast_hash": "fff37909e38837b5a427ec7791b44361",
+    "semantic_hash": ""
+  },
+  "Words/NAMASTE/Namaste_4.mp4": {
+    "mtime": 1791292481.5958183,
+    "seen": 1791292993.8090844,
+    "ast_hash": "341005414dc3bef7e13f390cd1c8aaa2",
+    "semantic_hash": ""
+  },
+  "Words/NO/No_1.mp4": {
+    "mtime": 1791292481.7088623,
+    "seen": 1791292993.8090844,
+    "ast_hash": "314eb5e46c93eab6376e522119212648",
+    "semantic_hash": ""
+  },
+  "Words/NO/No_2.MOV": {
+    "mtime": 1791292481.7735856,
+    "seen": 1791292993.8090844,
+    "ast_hash": "83112a4fd9b76fce4d6a9f00c6886ed9",
+    "semantic_hash": ""
+  },
+  "Words/NO_FEAR/No-Fear_1.mp4": {
+    "mtime": 1791292481.816604,
+    "seen": 1791292993.8090844,
+    "ast_hash": "44b88727e8eddd6c74606b36cbb75634",
+    "semantic_hash": ""
+  },
+  "Words/NO_FEAR/No-Fear_2.MOV": {
+    "mtime": 1791292481.9062378,
+    "seen": 1791292993.8090844,
+    "ast_hash": "ec7f6b3c2ec29c6b88bba536c9e5cc28",
+    "semantic_hash": ""
+  },
+  "Words/PEACE/Peace_1.MOV": {
+    "mtime": 1791292482.129563,
+    "seen": 1791292993.8090844,
+    "ast_hash": "dd7b25ac38d2c76c09d59f2a845c1a45",
+    "semantic_hash": ""
+  },
+  "Words/PEACE/Peace_2.mp4": {
+    "mtime": 1791292481.9559083,
+    "seen": 1791292993.8090844,
+    "ast_hash": "4a93e3aa8d6882616f3531fa3d2c9558",
+    "semantic_hash": ""
+  },
+  "Words/PEACE/Peace_3.MOV": {
+    "mtime": 1791292482.03231,
+    "seen": 1791292993.8090844,
+    "ast_hash": "d70dd3d48be5d17ca15d9b9d5e1f5186",
+    "semantic_hash": ""
+  },
+  "Words/PLEASE/Please_1.mp4": {
+    "mtime": 1791292482.155726,
+    "seen": 1791292993.8090844,
+    "ast_hash": "5bc96ec1f1eccea6d4733de2315f9076",
+    "semantic_hash": ""
+  },
+  "Words/PLEASE/Please_2.mp4": {
+    "mtime": 1791292482.1774502,
+    "seen": 1791292993.8090844,
+    "ast_hash": "e0e306a76938339ace20d6f66eb311bb",
+    "semantic_hash": ""
+  },
+  "Words/PLEASE/Please_3.MOV": {
+    "mtime": 1791292482.2347674,
+    "seen": 1791292993.8090844,
+    "ast_hash": "89bb805d87d09f7937c5f77184711a9a",
+    "semantic_hash": ""
+  },
+  "Words/PLEASE/Please_4.mp4": {
+    "mtime": 1791292482.2679777,
+    "seen": 1791292993.8090844,
+    "ast_hash": "6d2adf56475c2913bad2969df4cdd896",
+    "semantic_hash": ""
+  },
+  "Words/PLEASE/Please_5.MOV": {
+    "mtime": 1791292482.3405068,
+    "seen": 1791292993.8090844,
+    "ast_hash": "ab2263f8db0410f3c3dc2e024048bc7f",
+    "semantic_hash": ""
+  },
+  "Words/PRACTICE/Practice_1.mp4": {
+    "mtime": 1791292482.3817494,
+    "seen": 1791292993.8090844,
+    "ast_hash": "dfcff895aef45f5a8b71e9b4523a15fe",
+    "semantic_hash": ""
+  },
+  "Words/PRACTICE/Practice_2.MOV": {
+    "mtime": 1791292482.466658,
+    "seen": 1791292993.8090844,
+    "ast_hash": "2aec9d47331d0c168f176db4274970bc",
+    "semantic_hash": ""
+  },
+  "Words/REMEMBER/Remember_1.mp4": {
+    "mtime": 1791292482.8008368,
+    "seen": 1791292993.8090844,
+    "ast_hash": "ca3e013039c7e2fdc71a1d04a90fec2f",
+    "semantic_hash": ""
+  },
+  "Words/REMEMBER/Remember_2.mp4": {
+    "mtime": 1791292482.9283147,
+    "seen": 1791292993.8090844,
+    "ast_hash": "5522d2f1bcb2181a1e5cf4e4f58747cc",
+    "semantic_hash": ""
+  },
+  "Words/REMEMBER/Remember_3.mp4": {
+    "mtime": 1791292482.6722264,
+    "seen": 1791292993.8090844,
+    "ast_hash": "797e345cccc5e955149aaa2c5e6ece64",
+    "semantic_hash": ""
+  },
+  "Words/REMEMBER/Remember_4.MOV": {
+    "mtime": 1791292482.5598667,
+    "seen": 1791292993.8090844,
+    "ast_hash": "b3f1d4628499bf63a96c88af01de9264",
+    "semantic_hash": ""
+  },
+  "Words/REMEMBER/Remember_5.mp4": {
+    "mtime": 1791292482.960595,
+    "seen": 1791292993.8090844,
+    "ast_hash": "58bc5dd4f7c917f5e37b988ae2eaafdb",
+    "semantic_hash": ""
+  },
+  "Words/REMEMBER/Remember_6.MOV": {
+    "mtime": 1791292483.027219,
+    "seen": 1791292993.8090844,
+    "ast_hash": "39b849699ac48d86c3d30180fe965a0b",
+    "semantic_hash": ""
+  },
+  "Words/SHE/She_1.mp4": {
+    "mtime": 1791292483.0604236,
+    "seen": 1791292993.8090844,
+    "ast_hash": "8d4f7a74b9bf8e1971a49d31ed05b5c5",
+    "semantic_hash": ""
+  },
+  "Words/SHE/She_2.MOV": {
+    "mtime": 1791292483.1176784,
+    "seen": 1791292993.8090844,
+    "ast_hash": "5dc929dab738eef3fa214f303e1f9c9a",
+    "semantic_hash": ""
+  },
+  "Words/SIGN/Sign_1.mp4": {
+    "mtime": 1791292483.1426249,
+    "seen": 1791292993.8090844,
+    "ast_hash": "6f6d10ad279112084724e9cd66fd0d88",
+    "semantic_hash": ""
+  },
+  "Words/SIGN/Sign_2.MOV": {
+    "mtime": 1791292483.2141325,
+    "seen": 1791292993.8090844,
+    "ast_hash": "b937bb279c5eb318d06d6897cef654be",
+    "semantic_hash": ""
+  },
+  "Words/SORRY/Sorry_1.mp4": {
+    "mtime": 1791292483.2483542,
+    "seen": 1791292993.8090844,
+    "ast_hash": "49c382b51fb433f57802cd8777efcf2e",
+    "semantic_hash": ""
+  },
+  "Words/SORRY/Sorry_2.mp4": {
+    "mtime": 1791292483.2760096,
+    "seen": 1791292993.8090844,
+    "ast_hash": "9ab65b78a9b2f6ff0cfabb5a6770261a",
+    "semantic_hash": ""
+  },
+  "Words/SORRY/Sorry_3.mp4": {
+    "mtime": 1791292483.3072367,
+    "seen": 1791292993.8090844,
+    "ast_hash": "768b3c413fa0039e8a5b048ae25841c2",
+    "semantic_hash": ""
+  },
+  "Words/SORRY/Sorry_4.MOV": {
+    "mtime": 1791292483.4007583,
+    "seen": 1791292993.8090844,
+    "ast_hash": "d6b79b7747d4667aa490e2a0f5f522fa",
+    "semantic_hash": ""
+  },
+  "Words/STRONG/Strong_1.mp4": {
+    "mtime": 1791292483.4601521,
+    "seen": 1791292993.8090844,
+    "ast_hash": "51775e2c0c99ff51cdfde75b4c6f0398",
+    "semantic_hash": ""
+  },
+  "Words/STRONG/Strong_2.MOV": {
+    "mtime": 1791292483.5404148,
+    "seen": 1791292993.8090844,
+    "ast_hash": "9616d7300697dc005e01113ecad7851d",
+    "semantic_hash": ""
+  },
+  "Words/TEACHER/Teacher_1.mp4": {
+    "mtime": 1791292483.578146,
+    "seen": 1791292993.8090844,
+    "ast_hash": "7f3454de6456d51ce1238f7f3df6c60d",
+    "semantic_hash": ""
+  },
+  "Words/TEACHER/Teacher_2.MOV": {
+    "mtime": 1791292483.7088764,
+    "seen": 1791292993.8090844,
+    "ast_hash": "0587b15e50df65370e375df9407b1761",
+    "semantic_hash": ""
+  },
+  "Words/THANK_YOU/Thank-You_3.MOV": {
+    "mtime": 1791292483.884469,
+    "seen": 1791292993.8090844,
+    "ast_hash": "bfdc21f57e72cbb80dd4709782f6a486",
+    "semantic_hash": ""
+  },
+  "Words/THANK_YOU/Thank-You_4.mp4": {
+    "mtime": 1791292483.9134705,
+    "seen": 1791292993.8090844,
+    "ast_hash": "35f286585f3365b9efb40c1bf8302e4f",
+    "semantic_hash": ""
+  },
+  "Words/THANK_YOU/Thank-You_5.MOV": {
+    "mtime": 1791292483.7819252,
+    "seen": 1791292993.8090844,
+    "ast_hash": "8e81220d783c4bff40abdd081b9a0197",
+    "semantic_hash": ""
+  },
+  "Words/THANK_YOU/Thank_You_1.mp4": {
+    "mtime": 1791292483.800931,
+    "seen": 1791292993.8090844,
+    "ast_hash": "b05809c919e73ffd95f91a270a3c0ee1",
+    "semantic_hash": ""
+  },
+  "Words/THANK_YOU/Thank_You_2.mp4": {
+    "mtime": 1791292483.820462,
+    "seen": 1791292993.8090844,
+    "ast_hash": "5ebb057aa866ab7351422e9dd7d40e3f",
+    "semantic_hash": ""
+  },
+  "Words/THANK_YOU_VERY_MUCH/Thank-You-Very-Much_2.mp4": {
+    "mtime": 1791292484.0587952,
+    "seen": 1791292993.8090844,
+    "ast_hash": "0cf02d6e73b588d78c789c1c6d42c8bd",
+    "semantic_hash": ""
+  },
+  "Words/THANK_YOU_VERY_MUCH/Thank-You-Very-Much_3.MOV": {
+    "mtime": 1791292484.0181904,
+    "seen": 1791292993.8090844,
+    "ast_hash": "64f9b702b55c0cd8de017177fce648b3",
+    "semantic_hash": ""
+  },
+  "Words/THANK_YOU_VERY_MUCH/Thank_You_Very_Much_4.mp4": {
+    "mtime": 1791292484.1132944,
+    "seen": 1791292993.8090844,
+    "ast_hash": "a2cd2c2330d817df927e9875d594f30e",
+    "semantic_hash": ""
+  },
+  "Words/THANK_YOU_VERY_MUCH/Thank_You_Very_much_1.mp4": {
+    "mtime": 1791292484.0857015,
+    "seen": 1791292993.8090844,
+    "ast_hash": "bb33da7cc23f10ba9b3e03a6c7accbd1",
+    "semantic_hash": ""
+  },
+  "Words/THIN/Thin_1.mp4": {
+    "mtime": 1791292484.1581984,
+    "seen": 1791292993.8090844,
+    "ast_hash": "af199417e4d98d1c01f47e88ca6cd6af",
+    "semantic_hash": ""
+  },
+  "Words/THIN/Thin_2.MOV": {
+    "mtime": 1791292484.2274873,
+    "seen": 1791292993.8090844,
+    "ast_hash": "c50d6d2cb999fa61c5603e8009453602",
+    "semantic_hash": ""
+  },
+  "Words/UNDERSTAND/Understand_1.mp4": {
+    "mtime": 1791292484.5480013,
+    "seen": 1791292993.8090844,
+    "ast_hash": "8ccd56ed2760a7f79128a75b370384a8",
+    "semantic_hash": ""
+  },
+  "Words/UNDERSTAND/Understand_2.mp4": {
+    "mtime": 1791292484.6804335,
+    "seen": 1791292993.8090844,
+    "ast_hash": "5b5757a18472345b8c7b9ada9a51e5f9",
+    "semantic_hash": ""
+  },
+  "Words/UNDERSTAND/Understand_3.MOV": {
+    "mtime": 1791292484.4453948,
+    "seen": 1791292993.8090844,
+    "ast_hash": "da3cde65fd226f0e76d614049ec97cfe",
+    "semantic_hash": ""
+  },
+  "Words/UNDERSTAND/Understand_4.mp4": {
+    "mtime": 1791292484.3565829,
+    "seen": 1791292993.8090844,
+    "ast_hash": "4884f2202e9d83c0915e8be74fa15f89",
+    "semantic_hash": ""
+  },
+  "Words/UNDERSTAND/Understand_5.MOV": {
+    "mtime": 1791292484.3283508,
+    "seen": 1791292993.8090844,
+    "ast_hash": "6cde1c96266ccceea127cf0d977874a8",
+    "semantic_hash": ""
+  },
+  "Words/WEAK/Weak_1.mp4": {
+    "mtime": 1791292484.731014,
+    "seen": 1791292993.8090844,
+    "ast_hash": "f8b978206a68e391fd4fd4b32fd800ff",
+    "semantic_hash": ""
+  },
+  "Words/WEAK/Weak_2.MOV": {
+    "mtime": 1791292484.7977607,
+    "seen": 1791292993.8090844,
+    "ast_hash": "037445e15b74847370f96dad91073345",
+    "semantic_hash": ""
+  },
+  "Words/WELCOME/Welcome_1.mp4": {
+    "mtime": 1791292484.826475,
+    "seen": 1791292993.8090844,
+    "ast_hash": "5de0d40f3e313a4d74f285d72d5bb12c",
+    "semantic_hash": ""
+  },
+  "Words/WELCOME/Welcome_2.mp4": {
+    "mtime": 1791292484.847852,
+    "seen": 1791292993.8090844,
+    "ast_hash": "15c7aad19ed9e755f540fb86520c5238",
+    "semantic_hash": ""
+  },
+  "Words/WELCOME/Welcome_3.mp4": {
+    "mtime": 1791292484.8717053,
+    "seen": 1791292993.8090844,
+    "ast_hash": "a07e67c17318e695686250db43811e8e",
+    "semantic_hash": ""
+  },
+  "Words/WELCOME/Welcome_4.mp4": {
+    "mtime": 1791292484.909285,
+    "seen": 1791292993.8090844,
+    "ast_hash": "569cc18b7c96c4a57be3501c9c42ce79",
+    "semantic_hash": ""
+  },
+  "Words/WELCOME/Welcome_5.MOV": {
+    "mtime": 1791292484.9961007,
+    "seen": 1791292993.8090844,
+    "ast_hash": "645e913917c72e5e8c6780c2d011eae7",
+    "semantic_hash": ""
+  },
+  "Words/WOMAN/Woman_1.mp4": {
+    "mtime": 1791292485.0299838,
+    "seen": 1791292993.8090844,
+    "ast_hash": "b74587d6596bee4816f1e0d381681d24",
+    "semantic_hash": ""
+  },
+  "Words/WOMAN/Woman_2.mp4": {
+    "mtime": 1791292485.0549548,
+    "seen": 1791292993.8090844,
+    "ast_hash": "6a8bbe282a9f8a869fcdbc976c947879",
+    "semantic_hash": ""
+  },
+  "Words/WOMAN/Woman_3.mp4": {
+    "mtime": 1791292485.083667,
+    "seen": 1791292993.8090844,
+    "ast_hash": "d980c777647ee31fd898e57e3c1ff6e4",
+    "semantic_hash": ""
+  },
+  "Words/WOMAN/Woman_4.MOV": {
+    "mtime": 1791292485.154938,
+    "seen": 1791292993.8090844,
+    "ast_hash": "e6ea56de6b213ccb36c97bd8cf503d65",
+    "semantic_hash": ""
+  },
+  "Words/WRONG/Wrong_1.mp4": {
+    "mtime": 1791292485.1939807,
+    "seen": 1791292993.8090844,
+    "ast_hash": "7500ab91b0db64fc2c9abda3354e24e0",
+    "semantic_hash": ""
+  },
+  "Words/WRONG/Wrong_2.MOV": {
+    "mtime": 1791292485.2883375,
+    "seen": 1791292993.8090844,
+    "ast_hash": "31ae94d0ffcd252bda909acdbd1aa6e4",
+    "semantic_hash": ""
+  },
+  "Words/YES/Yes_1.MOV": {
+    "mtime": 1791292485.3823984,
+    "seen": 1791292993.8090844,
+    "ast_hash": "a4a4f6bab2bb45e9a5792998ea252886",
+    "semantic_hash": ""
+  },
+  "Words/YES/Yes_2.mp4": {
+    "mtime": 1791292485.424972,
+    "seen": 1791292993.8090844,
+    "ast_hash": "9623ea024f0c1a45990d8a755296f3dc",
+    "semantic_hash": ""
+  },
+  "Words/YES/Yes_3.MOV": {
+    "mtime": 1791292485.4973724,
+    "seen": 1791292993.8090844,
+    "ast_hash": "5e0f8517ccf21b8b2c9a13007e8ed96e",
+    "semantic_hash": ""
+  },
+  "Words/YOU/You_1.mp4": {
+    "mtime": 1791292485.5189104,
+    "seen": 1791292993.8090844,
+    "ast_hash": "0a57cab11a3a1dddcf889b41a73afd75",
+    "semantic_hash": ""
+  },
+  "Words/YOU/You_2.MOV": {
+    "mtime": 1791292485.643665,
+    "seen": 1791292993.8090844,
+    "ast_hash": "1fa798491406d2ec371c607d744ddcca",
+    "semantic_hash": ""
+  },
+  "Words/YOU/You_3.MOV": {
+    "mtime": 1791292485.5900593,
+    "seen": 1791292993.8090844,
+    "ast_hash": "676e9c49071b67cfdcabd66f35fe0278",
+    "semantic_hash": ""
+  },
+  "Words/YOU/You_4.mp4": {
+    "mtime": 1791292485.5390124,
+    "seen": 1791292993.8090844,
+    "ast_hash": "e41e30b18bb6ca938e25330b51fb89da",
     "semantic_hash": ""
   }
 }

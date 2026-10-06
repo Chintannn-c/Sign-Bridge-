@@ -26,9 +26,9 @@ import pickle
 import numpy as np
 
 try:
-    from .feature_extractor import extract_features, NUM_EXTRACTED_FEATURES
+    from .feature_extractor import extract_features, NUM_EXTRACTED_FEATURES, NUM_RAW_FEATURES
 except ImportError:
-    from services.feature_extractor import extract_features, NUM_EXTRACTED_FEATURES
+    from services.feature_extractor import extract_features, NUM_EXTRACTED_FEATURES, NUM_RAW_FEATURES
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,9 @@ STGCN_META_PATH = os.path.join(MODEL_DIR, 'stgcn_training_meta.json')
 # XGBoost model (created by train_model_xgb.py) — Priority 2
 XGB_MODEL_PATH = os.path.join(MODEL_DIR, 'isl_xgboost_model.pkl')
 XGB_META_PATH = os.path.join(MODEL_DIR, 'xgb_training_meta.json')
+
+# Calibrated Hybrid Ensemble metadata
+HYBRID_META_PATH = os.path.join(MODEL_DIR, 'hybrid_training_meta.json')
 
 # Keras model (created by train_model.py) — Priority 3
 MODEL_PATH = os.path.join(MODEL_DIR, 'isl_gesture_model.h5')
@@ -178,20 +181,32 @@ class TranslatorModel:
             except Exception as e:
                 logger.warning(f"Failed to load XGBoost model: {e}")
 
-        # Determine best operating mode
+        # Determine best operating mode and bind truthful metadata
         if self.stgcn_model is not None and self.xgb_model is not None:
             self.mode = 'hybrid_ensemble'
             self.model = self.stgcn_model
+            if os.path.exists(HYBRID_META_PATH):
+                with open(HYBRID_META_PATH, 'r', encoding='utf-8') as f:
+                    self.metadata = json.load(f)
+            elif os.path.exists(XGB_META_PATH):
+                with open(XGB_META_PATH, 'r', encoding='utf-8') as f:
+                    self.metadata = json.load(f)
             logger.info("Sign-Bridge Alphabet Engine initialized in CALIBRATED HYBRID ENSEMBLE mode (ST-GCN + XGBoost).")
             return
         elif self.stgcn_model is not None:
             self.mode = 'stgcn'
             self.model = self.stgcn_model
+            if os.path.exists(STGCN_META_PATH):
+                with open(STGCN_META_PATH, 'r', encoding='utf-8') as f:
+                    self.metadata = json.load(f)
             logger.info("Sign-Bridge Alphabet Engine initialized in ST-GCN mode.")
             return
         elif self.xgb_model is not None:
             self.mode = 'xgboost'
             self.model = self.xgb_model
+            if os.path.exists(XGB_META_PATH):
+                with open(XGB_META_PATH, 'r', encoding='utf-8') as f:
+                    self.metadata = json.load(f)
             logger.info("Sign-Bridge Alphabet Engine initialized in XGBoost mode.")
             return
 
@@ -335,7 +350,8 @@ class TranslatorModel:
 
     def _predict_stgcn(self, landmarks):
         """Run inference through the trained PyTorch ST-GCN model."""
-        if self.model is None:
+        model = self.stgcn_model or self.model
+        if model is None or not hasattr(model, '__call__'):
             return self._predict_xgb(landmarks)
 
         try:
@@ -356,7 +372,7 @@ class TranslatorModel:
             # 1. Primary orientation pass
             tensor_in = torch.tensor(arr, dtype=torch.float32)
             with torch.no_grad():
-                logits = self.model(tensor_in)
+                logits = model(tensor_in)
                 probs = torch.softmax(logits, dim=1).numpy()[0]
 
             # 2. Hand-swapped orientation pass (enforce hand invariance)
@@ -365,7 +381,7 @@ class TranslatorModel:
             swapped[:, 63:] = arr[:, :63]
             tensor_swapped = torch.tensor(swapped, dtype=torch.float32)
             with torch.no_grad():
-                logits_swapped = self.model(tensor_swapped)
+                logits_swapped = model(tensor_swapped)
                 probs_swapped = torch.softmax(logits_swapped, dim=1).numpy()[0]
 
             if np.max(probs_swapped) > np.max(probs):
@@ -405,10 +421,9 @@ class TranslatorModel:
 
     def _predict_xgb(self, landmarks):
         """Run inference through the trained XGBoost model."""
-        if self.model is None:
+        model = self.xgb_model or self.model
+        if model is None or not hasattr(model, 'predict_proba'):
             return self._predict_heuristic(landmarks)
-
-        model = self.model
 
         try:
             arr = validate_landmark_array(landmarks)
@@ -766,9 +781,17 @@ class TranslatorModel:
         return score
 
     def get_info(self):
-        """Return truthful model metadata."""
-        model_path = str(XGB_MODEL_PATH) if self.mode == 'xgboost' else str(MODEL_PATH)
-        labels = [c for c in ISL_LABELS if c.isalpha()] if self.mode == 'xgboost' else ISL_LABELS
+        """Return truthful model metadata derived directly from active configuration."""
+        if self.mode == 'hybrid_ensemble':
+            model_path = f"{XGB_MODEL_PATH} + {STGCN_MODEL_PATH}"
+        elif self.mode == 'xgboost':
+            model_path = str(XGB_MODEL_PATH)
+        elif self.mode == 'stgcn':
+            model_path = str(STGCN_MODEL_PATH)
+        else:
+            model_path = str(MODEL_PATH)
+
+        labels = [c for c in ISL_LABELS if c.isalpha()] if self.mode in ('xgboost', 'hybrid_ensemble', 'stgcn') else ISL_LABELS
         metrics = self.metadata.get('metrics', {})
 
         return {
@@ -776,9 +799,9 @@ class TranslatorModel:
             'model_path': model_path,
             'labels': labels,
             'num_classes': len(labels),
-            'input_features': 126,
-            'estimator_features': 176 if self.mode == 'xgboost' else 126,
-            'feature_name': 'geometric_invariants_176d' if self.mode == 'xgboost' else 'wrist_center_scale_v1',
+            'input_features': NUM_RAW_FEATURES,
+            'estimator_features': NUM_EXTRACTED_FEATURES if self.mode in ('xgboost', 'hybrid_ensemble') else NUM_RAW_FEATURES,
+            'feature_name': f'geometric_invariants_{NUM_EXTRACTED_FEATURES}d' if self.mode in ('xgboost', 'hybrid_ensemble') else 'wrist_center_scale_v1',
             'validation_accuracy': metrics.get('val_accuracy', self.metadata.get('val_accuracy')),
             'test_accuracy': metrics.get('test_accuracy'),
             'test_macro_f1': metrics.get('test_macro_f1'),

@@ -22,6 +22,12 @@ import queue
 
 logger = logging.getLogger(__name__)
 
+# SG90 micro-servo physical safety bounds (0=extended, 180=curled)
+MIN_SERVO_ANGLE = 0
+MAX_SERVO_ANGLE = 180
+NUM_SERVOS = 10
+
+
 # ─── ISL Alphabet → Servo Angle Lookup Table ───────────────────────────────
 # Each entry: [L_thumb, L_index, L_middle, L_ring, L_pinky,
 #              R_thumb, R_index, R_middle, R_ring, R_pinky]
@@ -163,17 +169,28 @@ class ArduinoSerial:
         """
         Send a 10-element servo angle array to the Arduino.
         Format sent: JSON string e.g. '[0,180,180,180,180,180,0,180,180,180]\n'
+        All angles are clamped to [MIN_SERVO_ANGLE, MAX_SERVO_ANGLE] to prevent servo gear stripping.
         """
         if not self.is_connected or not self.connection:
             logger.warning("Cannot send: Arduino not connected.")
             return False
 
+        if not isinstance(angles, (list, tuple)) or len(angles) != NUM_SERVOS:
+            logger.error(f"Invalid servo angle payload: expected {NUM_SERVOS} values, got {angles}")
+            return False
+
+        # Hardware safety clamp: prevent mechanical stall and nylon gear strip
+        clamped_angles = [
+            int(max(MIN_SERVO_ANGLE, min(MAX_SERVO_ANGLE, round(float(a)))))
+            for a in angles
+        ]
+
         with self._lock:
             try:
-                payload = json.dumps(angles) + '\n'
+                payload = json.dumps(clamped_angles) + '\n'
                 self.connection.write(payload.encode('utf-8'))
                 self.connection.flush()
-                logger.debug(f"Sent angles: {angles}")
+                logger.debug(f"Sent angles: {clamped_angles}")
                 return True
             except serial.SerialException as e:
                 logger.error(f"Failed to send angles: {e}")

@@ -14,8 +14,13 @@ Tests all 10 required failure, fallback, and rotation scenarios:
 """
 
 import os
+import sys
+from pathlib import Path
 import unittest
 from unittest.mock import patch, MagicMock
+
+# Ensure backend root is on sys.path for direct repository-root test discovery
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 # Set mock env before importing
 os.environ["GROQ_API_KEY_1"] = "gsk_MockTestKey1_Testing1234567890"

@@ -1,6 +1,6 @@
 """
 Enriched Feature extraction for Indian Sign Language (ISL) alphabet recognition.
-Converts 126-D MediaPipe landmark coordinates into a 202-D geometric invariant feature vector:
+Converts 126-D MediaPipe landmark coordinates into a 208-D geometric invariant feature vector:
   - 126 normalized Cartesian coordinates (wrist-centered and hand-span scaled)
   - 18 Left-hand geometric invariants (tip-wrist, tip-thumb, adjacent tip spans, finger curls, pinch ratio)
   - 18 Right-hand geometric invariants
@@ -8,6 +8,7 @@ Converts 126-D MediaPipe landmark coordinates into a 202-D geometric invariant f
   - 10 Right-hand knuckle joint bending angles
   - 3 Left-hand palm surface normal orientation coordinates (wrist roll & tilt)
   - 3 Right-hand palm surface normal orientation coordinates
+  - 6 Specialized finger posture invariants (ring extension ratios, O-ring variance, thumb crossing)
   - 14 Inter-hand cross-interaction distances (critical for contact signs like M, N, T, K, P, R, S)
 """
 

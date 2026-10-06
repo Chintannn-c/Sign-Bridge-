@@ -17,45 +17,6 @@
       "source_location": "L82"
     },
     {
-      "id": "backend_models_st_gcn_stgcnhandclassifier",
-      "label": "STGCNHandClassifier",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "stgcnhandclassifier",
-      "source_file": "backend/models/st_gcn.py",
-      "source_location": "L81"
-    },
-    {
-      "id": "backend_services_translator_model_landmarkvalidationerror",
-      "label": "LandmarkValidationError",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "landmarkvalidationerror",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L86"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel",
-      "label": "TranslatorModel",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "translatormodel",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L115"
-    },
-    {
       "id": "backend_services_gemini_manager_keymanager",
       "label": "KeyManager",
       "_callable": true,
@@ -92,7 +53,7 @@
       "file_type": "code",
       "norm_label": "testgroqmanager",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L39"
+      "source_location": "L44"
     },
     {
       "id": "backend_services_gemini_manager_keyinfo",
@@ -303,6 +264,32 @@
       "source_location": "L267"
     },
     {
+      "id": "backend_models_st_gcn_stgcnhandclassifier",
+      "label": "STGCNHandClassifier",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "stgcnhandclassifier",
+      "source_file": "backend/models/st_gcn.py",
+      "source_location": "L81"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel",
+      "label": "TranslatorModel",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "translatormodel",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L118"
+    },
+    {
       "id": "backend_services_arduino_serial_arduinoserial",
       "label": "ArduinoSerial",
       "_callable": true,
@@ -313,7 +300,20 @@
       "file_type": "code",
       "norm_label": "arduinoserial",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L64"
+      "source_location": "L70"
+    },
+    {
+      "id": "backend_services_translator_model_landmarkvalidationerror",
+      "label": "LandmarkValidationError",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "code",
+      "norm_label": "landmarkvalidationerror",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L89"
     },
     {
       "id": "backend_services_gemini_manager_geminimanager",
@@ -339,7 +339,7 @@
       "file_type": "code",
       "norm_label": "testgeminimanager",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L37"
+      "source_location": "L42"
     },
     {
       "id": "backend_services_gemini_manager_errorclassifier",
@@ -595,19 +595,7 @@
       "file_type": "code",
       "norm_label": "analyzequality()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L731"
-    },
-    {
-      "id": "src_hooks_usegesturerecognition_capturevideosnapshot",
-      "label": "captureVideoSnapshot()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "capturevideosnapshot()",
-      "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L60"
+      "source_location": "L694"
     },
     {
       "id": "src_hooks_usegesturerecognition_formatwordforsentence",
@@ -619,7 +607,7 @@
       "file_type": "code",
       "norm_label": "formatwordforsentence()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L75"
+      "source_location": "L60"
     },
     {
       "id": "src_hooks_usegesturerecognition_isvalidhandgeometry",
@@ -643,7 +631,7 @@
       "file_type": "code",
       "norm_label": "usegesturerecognition()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L81"
+      "source_location": "L66"
     },
     {
       "id": "src_hooks_usegesturerecognition_usegesturerecognition_fetchmodelinfo",
@@ -655,7 +643,7 @@
       "file_type": "code",
       "norm_label": "fetchmodelinfo()",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L272"
+      "source_location": "L257"
     },
     {
       "id": "src_hooks_usehanddetection_usehanddetection",
@@ -742,276 +730,12 @@
       "source_location": "L93"
     },
     {
-      "id": "backend_models_st_gcn_stgcnhandclassifier_forward",
-      "label": ".forward()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": ".forward()",
-      "source_file": "backend/models/st_gcn.py",
-      "source_location": "L98"
-    },
-    {
-      "id": "backend_services_data_loader_get_file_sha256",
-      "label": "get_file_sha256()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "get_file_sha256()",
-      "source_file": "backend/services/data_loader.py",
-      "source_location": "L34"
-    },
-    {
-      "id": "backend_services_data_loader_load_dataset_partitioned",
-      "label": "load_dataset_partitioned()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "load_dataset_partitioned()",
-      "source_file": "backend/services/data_loader.py",
-      "source_location": "L41"
-    },
-    {
-      "id": "backend_services_feature_extractor_compute_angle_cos",
-      "label": "_compute_angle_cos()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "_compute_angle_cos()",
-      "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L29"
-    },
-    {
-      "id": "backend_services_feature_extractor_extract_features",
-      "label": "extract_features()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "extract_features()",
-      "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L41"
-    },
-    {
-      "id": "backend_services_feature_extractor_extract_holistic_features",
-      "label": "extract_holistic_features()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "extract_holistic_features()",
-      "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L169"
-    },
-    {
-      "id": "backend_services_translator_model_normalize_landmarks",
-      "label": "normalize_landmarks()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "normalize_landmarks()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L67"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_extract_features",
-      "label": "._extract_features()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._extract_features()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L636"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_get_info",
-      "label": ".get_info()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": ".get_info()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L768"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_init",
-      "label": ".__init__()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L127"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_invalid_input_result",
-      "label": "._invalid_input_result()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._invalid_input_result()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L556"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_load",
-      "label": "._load()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._load()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L136"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_load_mendeley_ref",
-      "label": "._load_mendeley_ref()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._load_mendeley_ref()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L217"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_parse_landmarks",
-      "label": "._parse_landmarks()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._parse_landmarks()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L611"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_predict",
-      "label": ".predict()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": ".predict()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L239"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_predict_dl",
-      "label": "._predict_dl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._predict_dl()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L500"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_predict_heuristic",
-      "label": "._predict_heuristic()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._predict_heuristic()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L559"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_predict_hybrid_ensemble",
-      "label": "._predict_hybrid_ensemble()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._predict_hybrid_ensemble()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L258"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_predict_stgcn",
-      "label": "._predict_stgcn()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._predict_stgcn()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L336"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_predict_xgb",
-      "label": "._predict_xgb()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._predict_xgb()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L406"
-    },
-    {
-      "id": "backend_services_translator_model_translatormodel_score_letter",
-      "label": "._score_letter()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "._score_letter()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L716"
-    },
-    {
-      "id": "backend_services_translator_model_validate_landmark_array",
-      "label": "validate_landmark_array()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "validate_landmark_array()",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L90"
-    },
-    {
       "id": "backend_train_unified_augment_landmarks",
       "label": "augment_landmarks()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "code",
       "norm_label": "augment_landmarks()",
       "source_file": "backend/train_unified.py",
@@ -1023,7 +747,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "code",
       "norm_label": "augment_training_partition()",
       "source_file": "backend/train_unified.py",
@@ -1035,7 +759,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "backend/train_unified.py",
@@ -1047,7 +771,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "code",
       "norm_label": "run_extraction()",
       "source_file": "backend/train_unified.py",
@@ -1059,7 +783,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "code",
       "norm_label": "train_letter_model()",
       "source_file": "backend/train_unified.py",
@@ -1071,7 +795,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "code",
       "norm_label": "train_stgcn_model()",
       "source_file": "backend/train_unified.py",
@@ -1083,7 +807,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "code",
       "norm_label": "train_word_model()",
       "source_file": "backend/train_unified.py",
@@ -1195,7 +919,7 @@
       "file_type": "code",
       "norm_label": ".setup()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L41"
+      "source_location": "L46"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_test_error_classifier",
@@ -1207,7 +931,7 @@
       "file_type": "code",
       "norm_label": ".test_error_classifier()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L52"
+      "source_location": "L57"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_1_key1_works",
@@ -1219,7 +943,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_1_key1_works()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L72"
+      "source_location": "L77"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_2_key1_rate_limited_switch_to_key2",
@@ -1231,7 +955,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_2_key1_rate_limited_switch_to_key2()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L81"
+      "source_location": "L86"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_3_both_keys_fail_model_a_fallback_to_model_b",
@@ -1243,7 +967,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_3_both_keys_fail_model_a_fallback_to_model_b()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L98"
+      "source_location": "L103"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_4_key1_invalid_credentials",
@@ -1255,7 +979,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_4_key1_invalid_credentials()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L112"
+      "source_location": "L117"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_5_all_keys_and_models_fail_gracefully",
@@ -1267,7 +991,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_5_all_keys_and_models_fail_gracefully()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L128"
+      "source_location": "L133"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_6_transient_server_error_retry_backoff",
@@ -1279,7 +1003,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_6_transient_server_error_retry_backoff()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L135"
+      "source_location": "L140"
     },
     {
       "id": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_7_invalid_request_fast_fails",
@@ -1291,7 +1015,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_7_invalid_request_fast_fails()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L151"
+      "source_location": "L156"
     },
     {
       "id": "backend_services_gemini_manager_keyinfo_init",
@@ -1351,7 +1075,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_8_latest_model_auto_discovery()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L159"
+      "source_location": "L164"
     },
     {
       "id": "backend_services_groq_manager_errorclassifier_classify",
@@ -1387,7 +1111,7 @@
       "file_type": "code",
       "norm_label": ".test_mask_key()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L45"
+      "source_location": "L50"
     },
     {
       "id": "backend_services_word_recognizer_wordrecognizer_get_info",
@@ -1687,7 +1411,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_8_latest_model_auto_discovery()",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L158"
+      "source_location": "L163"
     },
     {
       "id": "backend_services_groq_manager_groqmanager_init",
@@ -1795,7 +1519,7 @@
       "file_type": "code",
       "norm_label": "collect_data()",
       "source_file": "backend/app.py",
-      "source_location": "L669"
+      "source_location": "L613"
     },
     {
       "id": "backend_app_generate_llm_response",
@@ -1819,7 +1543,7 @@
       "file_type": "code",
       "norm_label": "get_history()",
       "source_file": "backend/app.py",
-      "source_location": "L653"
+      "source_location": "L597"
     },
     {
       "id": "backend_app_get_smart_fallback_response",
@@ -1939,7 +1663,7 @@
       "file_type": "code",
       "norm_label": "robot_connect()",
       "source_file": "backend/app.py",
-      "source_location": "L734"
+      "source_location": "L678"
     },
     {
       "id": "backend_app_robot_disconnect",
@@ -1951,7 +1675,7 @@
       "file_type": "code",
       "norm_label": "robot_disconnect()",
       "source_file": "backend/app.py",
-      "source_location": "L760"
+      "source_location": "L704"
     },
     {
       "id": "backend_app_robot_sign",
@@ -1963,7 +1687,7 @@
       "file_type": "code",
       "norm_label": "robot_sign()",
       "source_file": "backend/app.py",
-      "source_location": "L767"
+      "source_location": "L711"
     },
     {
       "id": "backend_app_robot_sign_letter",
@@ -1975,7 +1699,7 @@
       "file_type": "code",
       "norm_label": "robot_sign_letter()",
       "source_file": "backend/app.py",
-      "source_location": "L824"
+      "source_location": "L768"
     },
     {
       "id": "backend_app_robot_status",
@@ -1987,7 +1711,7 @@
       "file_type": "code",
       "norm_label": "robot_status()",
       "source_file": "backend/app.py",
-      "source_location": "L728"
+      "source_location": "L672"
     },
     {
       "id": "backend_app_safe_float",
@@ -2026,18 +1750,6 @@
       "source_location": "L510"
     },
     {
-      "id": "backend_app_translate_snapshot",
-      "label": "translate_snapshot()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "app.py",
-      "file_type": "code",
-      "norm_label": "translate_snapshot()",
-      "source_file": "backend/app.py",
-      "source_location": "L540"
-    },
-    {
       "id": "backend_app_translate_word",
       "label": "translate_word()",
       "_callable": true,
@@ -2047,7 +1759,7 @@
       "file_type": "code",
       "norm_label": "translate_word()",
       "source_file": "backend/app.py",
-      "source_location": "L596"
+      "source_location": "L540"
     },
     {
       "id": "backend_app_words_info",
@@ -2650,6 +2362,210 @@
       "source_location": "L146"
     },
     {
+      "id": "backend_models_st_gcn_stgcnhandclassifier_forward",
+      "label": ".forward()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": ".forward()",
+      "source_file": "backend/models/st_gcn.py",
+      "source_location": "L98"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_extract_features",
+      "label": "._extract_features()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "._extract_features()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L651"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_get_info",
+      "label": ".get_info()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": ".get_info()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L783"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L130"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_load",
+      "label": "._load()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "._load()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L139"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_load_mendeley_ref",
+      "label": "._load_mendeley_ref()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "._load_mendeley_ref()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L232"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_parse_landmarks",
+      "label": "._parse_landmarks()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "._parse_landmarks()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L626"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_predict_heuristic",
+      "label": "._predict_heuristic()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "._predict_heuristic()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L574"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_score_letter",
+      "label": "._score_letter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "code",
+      "norm_label": "._score_letter()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L731"
+    },
+    {
+      "id": "backend_services_translator_model_normalize_landmarks",
+      "label": "normalize_landmarks()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": "normalize_landmarks()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L70"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_invalid_input_result",
+      "label": "._invalid_input_result()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": "._invalid_input_result()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L571"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_predict",
+      "label": ".predict()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": ".predict()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L254"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_predict_dl",
+      "label": "._predict_dl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": "._predict_dl()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L515"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_predict_hybrid_ensemble",
+      "label": "._predict_hybrid_ensemble()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": "._predict_hybrid_ensemble()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L273"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_predict_stgcn",
+      "label": "._predict_stgcn()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": "._predict_stgcn()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L351"
+    },
+    {
+      "id": "backend_services_translator_model_translatormodel_predict_xgb",
+      "label": "._predict_xgb()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": "._predict_xgb()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L422"
+    },
+    {
+      "id": "backend_services_translator_model_validate_landmark_array",
+      "label": "validate_landmark_array()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": "validate_landmark_array()",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L93"
+    },
+    {
       "id": "backend_services_arduino_serial_arduinoserial_auto_detect_port",
       "label": ".auto_detect_port()",
       "_callable": true,
@@ -2659,7 +2575,7 @@
       "file_type": "code",
       "norm_label": ".auto_detect_port()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L111"
+      "source_location": "L117"
     },
     {
       "id": "backend_services_arduino_serial_arduinoserial_connect",
@@ -2671,7 +2587,7 @@
       "file_type": "code",
       "norm_label": ".connect()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L123"
+      "source_location": "L129"
     },
     {
       "id": "backend_services_arduino_serial_arduinoserial_disconnect",
@@ -2683,7 +2599,7 @@
       "file_type": "code",
       "norm_label": ".disconnect()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L154"
+      "source_location": "L160"
     },
     {
       "id": "backend_services_arduino_serial_arduinoserial_get_status",
@@ -2695,7 +2611,7 @@
       "file_type": "code",
       "norm_label": ".get_status()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L223"
+      "source_location": "L240"
     },
     {
       "id": "backend_services_arduino_serial_arduinoserial_init",
@@ -2707,7 +2623,7 @@
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L70"
+      "source_location": "L76"
     },
     {
       "id": "backend_services_arduino_serial_arduinoserial_process_sign_queue",
@@ -2719,7 +2635,7 @@
       "file_type": "code",
       "norm_label": "._process_sign_queue()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L84"
+      "source_location": "L90"
     },
     {
       "id": "backend_services_arduino_serial_arduinoserial_send_angles",
@@ -2731,7 +2647,7 @@
       "file_type": "code",
       "norm_label": ".send_angles()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L162"
+      "source_location": "L168"
     },
     {
       "id": "backend_services_arduino_serial_arduinoserial_sign_letter",
@@ -2743,7 +2659,7 @@
       "file_type": "code",
       "norm_label": ".sign_letter()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L183"
+      "source_location": "L200"
     },
     {
       "id": "backend_services_arduino_serial_arduinoserial_sign_text",
@@ -2755,7 +2671,7 @@
       "file_type": "code",
       "norm_label": ".sign_text()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L212"
+      "source_location": "L229"
     },
     {
       "id": "backend_services_arduino_serial_arduinoserial_sign_text_sync",
@@ -2767,7 +2683,79 @@
       "file_type": "code",
       "norm_label": "._sign_text_sync()",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L195"
+      "source_location": "L212"
+    },
+    {
+      "id": "backend_services_feature_extractor_compute_angle_cos",
+      "label": "_compute_angle_cos()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "code",
+      "norm_label": "_compute_angle_cos()",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L30"
+    },
+    {
+      "id": "backend_services_feature_extractor_extract_features",
+      "label": "extract_features()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "code",
+      "norm_label": "extract_features()",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L42"
+    },
+    {
+      "id": "backend_services_feature_extractor_extract_holistic_features",
+      "label": "extract_holistic_features()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "code",
+      "norm_label": "extract_holistic_features()",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L170"
+    },
+    {
+      "id": "backend_benchmark_alphabet_models_run_benchmark",
+      "label": "run_benchmark()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "code",
+      "norm_label": "run_benchmark()",
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L22"
+    },
+    {
+      "id": "backend_services_data_loader_get_file_sha256",
+      "label": "get_file_sha256()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "code",
+      "norm_label": "get_file_sha256()",
+      "source_file": "backend/services/data_loader.py",
+      "source_location": "L34"
+    },
+    {
+      "id": "backend_services_data_loader_load_dataset_partitioned",
+      "label": "load_dataset_partitioned()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "code",
+      "norm_label": "load_dataset_partitioned()",
+      "source_file": "backend/services/data_loader.py",
+      "source_location": "L41"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_setup",
@@ -2779,7 +2767,7 @@
       "file_type": "code",
       "norm_label": ".setup()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L39"
+      "source_location": "L44"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_error_classifier",
@@ -2791,7 +2779,7 @@
       "file_type": "code",
       "norm_label": ".test_error_classifier()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L51"
+      "source_location": "L56"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_1_key1_works",
@@ -2803,7 +2791,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_1_key1_works()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L71"
+      "source_location": "L76"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_2_key1_rate_limited_switch_to_key2",
@@ -2815,7 +2803,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_2_key1_rate_limited_switch_to_key2()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L80"
+      "source_location": "L85"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_3_both_keys_fail_model_a_fallback_to_model_b",
@@ -2827,7 +2815,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_3_both_keys_fail_model_a_fallback_to_model_b()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L98"
+      "source_location": "L103"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_4_key1_invalid_credentials",
@@ -2839,7 +2827,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_4_key1_invalid_credentials()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L112"
+      "source_location": "L117"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_5_all_keys_and_models_fail_gracefully",
@@ -2851,7 +2839,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_5_all_keys_and_models_fail_gracefully()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L129"
+      "source_location": "L134"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_6_transient_server_error_retry_backoff",
@@ -2863,7 +2851,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_6_transient_server_error_retry_backoff()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L136"
+      "source_location": "L141"
     },
     {
       "id": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_7_invalid_request_fast_fails",
@@ -2875,7 +2863,7 @@
       "file_type": "code",
       "norm_label": ".test_scenario_7_invalid_request_fast_fails()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L152"
+      "source_location": "L157"
     },
     {
       "id": "backend_services_gemini_manager_errorclassifier_classify",
@@ -2911,7 +2899,7 @@
       "file_type": "code",
       "norm_label": ".test_mask_key()",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L44"
+      "source_location": "L49"
     },
     {
       "id": "backend_services_groq_manager_groqmanager_call_sdk",
@@ -3422,352 +3410,22 @@
       "source_location": "L16"
     },
     {
-      "id": "backend_services_data_loader",
-      "label": "data_loader.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "data_loader.py",
-      "source_file": "backend/services/data_loader.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_services_data_loader_py_any",
-      "label": "Any",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "any",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_services_feature_extractor",
-      "label": "feature_extractor.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "feature_extractor.py",
-      "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_services_translator_model",
-      "label": "translator_model.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "translator_model.py",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_train_unified",
       "label": "train_unified.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "code",
       "norm_label": "train_unified.py",
       "source_file": "backend/train_unified.py",
       "source_location": "L1"
     },
     {
-      "id": "path",
-      "label": "Path",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "valueerror",
-      "label": "ValueError",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "code",
-      "norm_label": "valueerror",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_models_st_gcn_rationale_82",
-      "label": "ST-GCN Classifier for Static / Frame-Level Dual-Hand ISL Gestures. Input:\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "st-gcn classifier for static / frame-level dual-hand isl gestures. input:...",
-      "source_file": "backend/models/st_gcn.py",
-      "source_location": "L82"
-    },
-    {
-      "id": "backend_services_data_loader_rationale_1",
-      "label": "Clean, Leak-Free Data Loader and Partition Manager for SignBridge ISL Alphabet\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "clean, leak-free data loader and partition manager for signbridge isl alphabet...",
-      "source_file": "backend/services/data_loader.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_services_data_loader_rationale_35",
-      "label": "Compute SHA-256 hash of a file.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "compute sha-256 hash of a file.",
-      "source_file": "backend/services/data_loader.py",
-      "source_location": "L35"
-    },
-    {
-      "id": "backend_services_data_loader_rationale_46",
-      "label": "Load dataset strictly partitioned by origin without frame-level leakage.\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "load dataset strictly partitioned by origin without frame-level leakage....",
-      "source_file": "backend/services/data_loader.py",
-      "source_location": "L46"
-    },
-    {
-      "id": "backend_services_feature_extractor_rationale_1",
-      "label": "Enriched Feature extraction for Indian Sign Language (ISL) alphabet\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "enriched feature extraction for indian sign language (isl) alphabet...",
-      "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_services_feature_extractor_rationale_170",
-      "label": "Extracts geometric feature vector enriched with upper-body anchor metrics. If\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "extracts geometric feature vector enriched with upper-body anchor metrics. if...",
-      "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L170"
-    },
-    {
-      "id": "backend_services_feature_extractor_rationale_30",
-      "label": "Compute cosine of the 3D angle at vertex p_b between vectors (p_a - p_b) and\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "compute cosine of the 3d angle at vertex p_b between vectors (p_a - p_b) and...",
-      "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L30"
-    },
-    {
-      "id": "backend_services_feature_extractor_rationale_42",
-      "label": "Extract a 208-D normalized geometric feature vector from 126 raw landmark\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "extract a 208-d normalized geometric feature vector from 126 raw landmark...",
-      "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L42"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_1",
-      "label": "Sign-Bridge Flask API \u2014 ISL Gesture Translation Model Service Loads trained\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "sign-bridge flask api \u2014 isl gesture translation model service loads trained...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_116",
-      "label": "ISL Gesture-to-Text translation model. Supports four ML modes: 1. Hybrid\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "isl gesture-to-text translation model. supports four ml modes: 1. hybrid...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L116"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_137",
-      "label": "Attempt to load trained models; fall back to heuristic. Loading priority: 1.\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "attempt to load trained models; fall back to heuristic. loading priority: 1....",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L137"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_218",
-      "label": "Parse the Mendeley CSV into a lookup dictionary.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "parse the mendeley csv into a lookup dictionary.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L218"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_240",
-      "label": "Predict the ISL letter from a set of hand landmarks with optional Holistic body\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "predict the isl letter from a set of hand landmarks with optional holistic body...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L240"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_259",
-      "label": "Run inference through the calibrated ST-GCN + XGBoost Hybrid Ensemble.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "run inference through the calibrated st-gcn + xgboost hybrid ensemble.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L259"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_337",
-      "label": "Run inference through the trained PyTorch ST-GCN model.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "run inference through the trained pytorch st-gcn model.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L337"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_407",
-      "label": "Run inference through the trained XGBoost model.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "run inference through the trained xgboost model.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L407"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_501",
-      "label": "Run inference through the trained Keras model.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "run inference through the trained keras model.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L501"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_560",
-      "label": "Rule-based heuristic prediction using geometric features extracted from 42 hand\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "rule-based heuristic prediction using geometric features extracted from 42 hand...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L560"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_612",
-      "label": "Parse landmarks into a list of 42 {x, y, z} dicts. Handles both flat arrays and\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "parse landmarks into a list of 42 {x, y, z} dicts. handles both flat arrays and...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L612"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_637",
-      "label": "Extract geometric features from 42 landmark points. Points 0-20: Left hand,\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "extract geometric features from 42 landmark points. points 0-20: left hand,...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L637"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_717",
-      "label": "Score how well the extracted features match a given ISL letter. Higher score =\u2026",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "score how well the extracted features match a given isl letter. higher score =...",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L717"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_769",
-      "label": "Return truthful model metadata.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "return truthful model metadata.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L769"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_87",
-      "label": "Raised when incoming landmark data doesn't match the expected shape.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "raised when incoming landmark data doesn't match the expected shape.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L87"
-    },
-    {
-      "id": "backend_services_translator_model_rationale_91",
-      "label": "Coerce landmarks to a (126,) or (N, 126) float array, or raise.",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "TranslatorModel",
-      "file_type": "rationale",
-      "norm_label": "coerce landmarks to a (126,) or (n, 126) float array, or raise.",
-      "source_file": "backend/services/translator_model.py",
-      "source_location": "L91"
-    },
-    {
       "id": "backend_train_unified_rationale_1",
       "label": "SignBridge \u2014 Unified Training Pipeline (v2) One script to rule them all: 1.\u2026",
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "rationale",
       "norm_label": "signbridge \u2014 unified training pipeline (v2) one script to rule them all: 1....",
       "source_file": "backend/train_unified.py",
@@ -3778,7 +3436,7 @@
       "label": "Train XGBoost letter classifier with all combined data.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "rationale",
       "norm_label": "train xgboost letter classifier with all combined data.",
       "source_file": "backend/train_unified.py",
@@ -3789,7 +3447,7 @@
       "label": "Train PyTorch ST-GCN kinematic hand graph classifier.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "rationale",
       "norm_label": "train pytorch st-gcn kinematic hand graph classifier.",
       "source_file": "backend/train_unified.py",
@@ -3800,7 +3458,7 @@
       "label": "Run both static and video landmark extraction.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "rationale",
       "norm_label": "run both static and video landmark extraction.",
       "source_file": "backend/train_unified.py",
@@ -3811,7 +3469,7 @@
       "label": "Train CNN-BiLSTM word classifier with augmented video data.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "rationale",
       "norm_label": "train cnn-bilstm word classifier with augmented video data.",
       "source_file": "backend/train_unified.py",
@@ -3822,7 +3480,7 @@
       "label": "Augment raw landmark coordinates with rotation + noise.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "rationale",
       "norm_label": "augment raw landmark coordinates with rotation + noise.",
       "source_file": "backend/train_unified.py",
@@ -3833,7 +3491,7 @@
       "label": "Full augmentation for training: jitter, swap, inter-hand noise.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "TranslatorModel",
+      "community_name": "train_unified.py",
       "file_type": "rationale",
       "norm_label": "full augmentation for training: jitter, swap, inter-hand noise.",
       "source_file": "backend/train_unified.py",
@@ -3928,84 +3586,7 @@
       "source_location": "L436"
     },
     {
-      "id": "backend_tests_test_groq_manager_rationale_113",
-      "label": "Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 4: key 1 invalid (401/403) -> permanently disabled, switches to key 2.",
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L113"
-    },
-    {
-      "id": "backend_tests_test_groq_manager_rationale_129",
-      "label": "Scenario 5: All keys/models fail -> Raises clean runtime error.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 5: all keys/models fail -> raises clean runtime error.",
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L129"
-    },
-    {
-      "id": "backend_tests_test_groq_manager_rationale_136",
-      "label": "Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 6: transient 500 error on attempt 1, succeeds on attempt 2.",
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L136"
-    },
-    {
-      "id": "backend_tests_test_groq_manager_rationale_152",
-      "label": "Scenario 7: 400 Invalid Argument fails fast without wasting retries.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 7: 400 invalid argument fails fast without wasting retries.",
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L152"
-    },
-    {
-      "id": "backend_tests_test_groq_manager_rationale_53",
-      "label": "Verify proper classification of Groq exceptions.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "rationale",
-      "norm_label": "verify proper classification of groq exceptions.",
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L53"
-    },
-    {
-      "id": "backend_tests_test_groq_manager_rationale_73",
-      "label": "Scenario 1: Key 1 works normally -> Returns response immediately.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 1: key 1 works normally -> returns response immediately.",
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L73"
-    },
-    {
-      "id": "backend_tests_test_groq_manager_rationale_82",
-      "label": "Scenario 2: Key 1 hits 429 rate limit -> Automatically switches to Key 2.",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "TestGroqManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 2: key 1 hits 429 rate limit -> automatically switches to key 2.",
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L82"
-    },
-    {
-      "id": "backend_tests_test_groq_manager_rationale_99",
+      "id": "backend_tests_test_groq_manager_rationale_104",
       "label": "Scenario 3: Both keys fail on Model A -> Model B succeeds on Key 1.",
       "_origin": "ast",
       "community": 11,
@@ -4013,7 +3594,84 @@
       "file_type": "rationale",
       "norm_label": "scenario 3: both keys fail on model a -> model b succeeds on key 1.",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L99"
+      "source_location": "L104"
+    },
+    {
+      "id": "backend_tests_test_groq_manager_rationale_118",
+      "label": "Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2.",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "TestGroqManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 4: key 1 invalid (401/403) -> permanently disabled, switches to key 2.",
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L118"
+    },
+    {
+      "id": "backend_tests_test_groq_manager_rationale_134",
+      "label": "Scenario 5: All keys/models fail -> Raises clean runtime error.",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "TestGroqManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 5: all keys/models fail -> raises clean runtime error.",
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L134"
+    },
+    {
+      "id": "backend_tests_test_groq_manager_rationale_141",
+      "label": "Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2.",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "TestGroqManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 6: transient 500 error on attempt 1, succeeds on attempt 2.",
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L141"
+    },
+    {
+      "id": "backend_tests_test_groq_manager_rationale_157",
+      "label": "Scenario 7: 400 Invalid Argument fails fast without wasting retries.",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "TestGroqManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 7: 400 invalid argument fails fast without wasting retries.",
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L157"
+    },
+    {
+      "id": "backend_tests_test_groq_manager_rationale_58",
+      "label": "Verify proper classification of Groq exceptions.",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "TestGroqManager",
+      "file_type": "rationale",
+      "norm_label": "verify proper classification of groq exceptions.",
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L58"
+    },
+    {
+      "id": "backend_tests_test_groq_manager_rationale_78",
+      "label": "Scenario 1: Key 1 works normally -> Returns response immediately.",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "TestGroqManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 1: key 1 works normally -> returns response immediately.",
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L78"
+    },
+    {
+      "id": "backend_tests_test_groq_manager_rationale_87",
+      "label": "Scenario 2: Key 1 hits 429 rate limit -> Automatically switches to Key 2.",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "TestGroqManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 2: key 1 hits 429 rate limit -> automatically switches to key 2.",
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L87"
     },
     {
       "id": "backend_services_gemini_manager_rationale_103",
@@ -4060,7 +3718,7 @@
       "source_location": "L81"
     },
     {
-      "id": "backend_tests_test_gemini_manager_rationale_160",
+      "id": "backend_tests_test_gemini_manager_rationale_165",
       "label": "Scenario 8: Model auto-discovery dynamically sorts granted models.",
       "_origin": "ast",
       "community": 12,
@@ -4068,7 +3726,7 @@
       "file_type": "rationale",
       "norm_label": "scenario 8: model auto-discovery dynamically sorts granted models.",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L160"
+      "source_location": "L165"
     },
     {
       "id": "backend_services_groq_manager",
@@ -4159,7 +3817,7 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_tests_test_groq_manager_rationale_46",
+      "id": "backend_tests_test_groq_manager_rationale_51",
       "label": "Verify API keys are masked for logs.",
       "_origin": "ast",
       "community": 13,
@@ -4167,18 +3825,7 @@
       "file_type": "rationale",
       "norm_label": "verify api keys are masked for logs.",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L46"
-    },
-    {
-      "id": "backend_services_word_recognizer",
-      "label": "word_recognizer.py",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "WordRecognizer",
-      "file_type": "code",
-      "norm_label": "word_recognizer.py",
-      "source_file": "backend/services/word_recognizer.py",
-      "source_location": "L1"
+      "source_location": "L51"
     },
     {
       "id": "backend_test_word_model",
@@ -4189,17 +3836,6 @@
       "file_type": "code",
       "norm_label": "test_word_model.py",
       "source_file": "backend/test_word_model.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_services_word_recognizer_rationale_1",
-      "label": "Sign-Bridge Flask API \u2014 ISL Word Recognition Service Loads a trained model that\u2026",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "WordRecognizer",
-      "file_type": "rationale",
-      "norm_label": "sign-bridge flask api \u2014 isl word recognition service loads a trained model that...",
-      "source_file": "backend/services/word_recognizer.py",
       "source_location": "L1"
     },
     {
@@ -4412,7 +4048,7 @@
       "source_location": "L98"
     },
     {
-      "id": "backend_tests_test_groq_manager_rationale_159",
+      "id": "backend_tests_test_groq_manager_rationale_164",
       "label": "Scenario 8: Model auto-discovery dynamically sorts granted models.",
       "_origin": "ast",
       "community": 18,
@@ -4420,7 +4056,7 @@
       "file_type": "rationale",
       "norm_label": "scenario 8: model auto-discovery dynamically sorts granted models.",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L159"
+      "source_location": "L164"
     },
     {
       "id": "backend_services_groq_manager_rationale_130",
@@ -4688,17 +4324,6 @@
     },
     {
       "id": "backend_app_rationale_541",
-      "label": "On-Demand visual silhouette disambiguation for difficult overlapping contact\u2026",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "app.py",
-      "file_type": "rationale",
-      "norm_label": "on-demand visual silhouette disambiguation for difficult overlapping contact...",
-      "source_file": "backend/app.py",
-      "source_location": "L541"
-    },
-    {
-      "id": "backend_app_rationale_597",
       "label": "Translate a sequence of landmark frames to an ISL word. Uses the CNN-BiLSTM\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4706,10 +4331,10 @@
       "file_type": "rationale",
       "norm_label": "translate a sequence of landmark frames to an isl word. uses the cnn-bilstm...",
       "source_file": "backend/app.py",
-      "source_location": "L597"
+      "source_location": "L541"
     },
     {
-      "id": "backend_app_rationale_654",
+      "id": "backend_app_rationale_598",
       "label": "Returns recent conversation history from SQLite database.",
       "_origin": "ast",
       "community": 2,
@@ -4717,10 +4342,10 @@
       "file_type": "rationale",
       "norm_label": "returns recent conversation history from sqlite database.",
       "source_file": "backend/app.py",
-      "source_location": "L654"
+      "source_location": "L598"
     },
     {
-      "id": "backend_app_rationale_670",
+      "id": "backend_app_rationale_614",
       "label": "Saves recorded landmark frames for a specific ISL letter to build a dataset.\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4728,10 +4353,10 @@
       "file_type": "rationale",
       "norm_label": "saves recorded landmark frames for a specific isl letter to build a dataset....",
       "source_file": "backend/app.py",
-      "source_location": "L670"
+      "source_location": "L614"
     },
     {
-      "id": "backend_app_rationale_729",
+      "id": "backend_app_rationale_673",
       "label": "Return Arduino connection status.",
       "_origin": "ast",
       "community": 2,
@@ -4739,7 +4364,40 @@
       "file_type": "rationale",
       "norm_label": "return arduino connection status.",
       "source_file": "backend/app.py",
-      "source_location": "L729"
+      "source_location": "L673"
+    },
+    {
+      "id": "backend_app_rationale_679",
+      "label": "Connect to Arduino. Optional JSON body: { \"port\": \"COM3\", // Optional, auto-\u2026",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "app.py",
+      "file_type": "rationale",
+      "norm_label": "connect to arduino. optional json body: { \"port\": \"com3\", // optional, auto-...",
+      "source_file": "backend/app.py",
+      "source_location": "L679"
+    },
+    {
+      "id": "backend_app_rationale_705",
+      "label": "Disconnect from Arduino.",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "app.py",
+      "file_type": "rationale",
+      "norm_label": "disconnect from arduino.",
+      "source_file": "backend/app.py",
+      "source_location": "L705"
+    },
+    {
+      "id": "backend_app_rationale_712",
+      "label": "Send text to the robotic hands for ISL fingerspelling. Request JSON body: {\u2026",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "app.py",
+      "file_type": "rationale",
+      "norm_label": "send text to the robotic hands for isl fingerspelling. request json body: {...",
+      "source_file": "backend/app.py",
+      "source_location": "L712"
     },
     {
       "id": "backend_app_rationale_73",
@@ -4753,40 +4411,7 @@
       "source_location": "L73"
     },
     {
-      "id": "backend_app_rationale_735",
-      "label": "Connect to Arduino. Optional JSON body: { \"port\": \"COM3\", // Optional, auto-\u2026",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "app.py",
-      "file_type": "rationale",
-      "norm_label": "connect to arduino. optional json body: { \"port\": \"com3\", // optional, auto-...",
-      "source_file": "backend/app.py",
-      "source_location": "L735"
-    },
-    {
-      "id": "backend_app_rationale_761",
-      "label": "Disconnect from Arduino.",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "app.py",
-      "file_type": "rationale",
-      "norm_label": "disconnect from arduino.",
-      "source_file": "backend/app.py",
-      "source_location": "L761"
-    },
-    {
-      "id": "backend_app_rationale_768",
-      "label": "Send text to the robotic hands for ISL fingerspelling. Request JSON body: {\u2026",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "app.py",
-      "file_type": "rationale",
-      "norm_label": "send text to the robotic hands for isl fingerspelling. request json body: {...",
-      "source_file": "backend/app.py",
-      "source_location": "L768"
-    },
-    {
-      "id": "backend_app_rationale_825",
+      "id": "backend_app_rationale_769",
       "label": "Sign a single letter on the robotic hands. Request JSON body: { \"letter\": \"A\",\u2026",
       "_origin": "ast",
       "community": 2,
@@ -4794,7 +4419,7 @@
       "file_type": "rationale",
       "norm_label": "sign a single letter on the robotic hands. request json body: { \"letter\": \"a\",...",
       "source_file": "backend/app.py",
-      "source_location": "L825"
+      "source_location": "L769"
     },
     {
       "id": "backend_database_schema_rationale_1",
@@ -8645,6 +8270,193 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_models_st_gcn_rationale_82",
+      "label": "ST-GCN Classifier for Static / Frame-Level Dual-Hand ISL Gestures. Input:\u2026",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "st-gcn classifier for static / frame-level dual-hand isl gestures. input:...",
+      "source_file": "backend/models/st_gcn.py",
+      "source_location": "L82"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_119",
+      "label": "ISL Gesture-to-Text translation model. Supports four ML modes: 1. Hybrid\u2026",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "isl gesture-to-text translation model. supports four ml modes: 1. hybrid...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L119"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_140",
+      "label": "Attempt to load trained models; fall back to heuristic. Loading priority: 1.\u2026",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "attempt to load trained models; fall back to heuristic. loading priority: 1....",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L140"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_233",
+      "label": "Parse the Mendeley CSV into a lookup dictionary.",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "parse the mendeley csv into a lookup dictionary.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L233"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_575",
+      "label": "Rule-based heuristic prediction using geometric features extracted from 42 hand\u2026",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "rule-based heuristic prediction using geometric features extracted from 42 hand...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L575"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_627",
+      "label": "Parse landmarks into a list of 42 {x, y, z} dicts. Handles both flat arrays and\u2026",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "parse landmarks into a list of 42 {x, y, z} dicts. handles both flat arrays and...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L627"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_652",
+      "label": "Extract geometric features from 42 landmark points. Points 0-20: Left hand,\u2026",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "extract geometric features from 42 landmark points. points 0-20: left hand,...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L652"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_732",
+      "label": "Score how well the extracted features match a given ISL letter. Higher score =\u2026",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "score how well the extracted features match a given isl letter. higher score =...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L732"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_784",
+      "label": "Return truthful model metadata derived directly from active configuration.",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "TranslatorModel",
+      "file_type": "rationale",
+      "norm_label": "return truthful model metadata derived directly from active configuration.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L784"
+    },
+    {
+      "id": "backend_services_word_recognizer",
+      "label": "word_recognizer.py",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "code",
+      "norm_label": "word_recognizer.py",
+      "source_file": "backend/services/word_recognizer.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_255",
+      "label": "Predict the ISL letter from a set of hand landmarks with optional Holistic body\u2026",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "rationale",
+      "norm_label": "predict the isl letter from a set of hand landmarks with optional holistic body...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L255"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_274",
+      "label": "Run inference through the calibrated ST-GCN + XGBoost Hybrid Ensemble.",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "rationale",
+      "norm_label": "run inference through the calibrated st-gcn + xgboost hybrid ensemble.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L274"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_352",
+      "label": "Run inference through the trained PyTorch ST-GCN model.",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "rationale",
+      "norm_label": "run inference through the trained pytorch st-gcn model.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L352"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_423",
+      "label": "Run inference through the trained XGBoost model.",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "rationale",
+      "norm_label": "run inference through the trained xgboost model.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L423"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_516",
+      "label": "Run inference through the trained Keras model.",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "rationale",
+      "norm_label": "run inference through the trained keras model.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L516"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_94",
+      "label": "Coerce landmarks to a (126,) or (N, 126) float array, or raise.",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "rationale",
+      "norm_label": "coerce landmarks to a (126,) or (n, 126) float array, or raise.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L94"
+    },
+    {
+      "id": "backend_services_word_recognizer_rationale_1",
+      "label": "Sign-Bridge Flask API \u2014 ISL Word Recognition Service Loads a trained model that\u2026",
+      "_origin": "ast",
+      "community": 59,
+      "community_name": "normalize_landmarks",
+      "file_type": "rationale",
+      "norm_label": "sign-bridge flask api \u2014 isl word recognition service loads a trained model that...",
+      "source_file": "backend/services/word_recognizer.py",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_services_arduino_serial",
       "label": "arduino_serial.py",
       "_origin": "ast",
@@ -8667,7 +8479,7 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_112",
+      "id": "backend_services_arduino_serial_rationale_118",
       "label": "Scan COM ports for an Arduino device.",
       "_origin": "ast",
       "community": 6,
@@ -8675,10 +8487,10 @@
       "file_type": "rationale",
       "norm_label": "scan com ports for an arduino device.",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L112"
+      "source_location": "L118"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_124",
+      "id": "backend_services_arduino_serial_rationale_130",
       "label": "Open serial connection to Arduino.",
       "_origin": "ast",
       "community": 6,
@@ -8686,10 +8498,10 @@
       "file_type": "rationale",
       "norm_label": "open serial connection to arduino.",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L124"
+      "source_location": "L130"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_155",
+      "id": "backend_services_arduino_serial_rationale_161",
       "label": "Close the serial connection.",
       "_origin": "ast",
       "community": 6,
@@ -8697,10 +8509,10 @@
       "file_type": "rationale",
       "norm_label": "close the serial connection.",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L155"
+      "source_location": "L161"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_163",
+      "id": "backend_services_arduino_serial_rationale_169",
       "label": "Send a 10-element servo angle array to the Arduino. Format sent: JSON string\u2026",
       "_origin": "ast",
       "community": 6,
@@ -8708,10 +8520,10 @@
       "file_type": "rationale",
       "norm_label": "send a 10-element servo angle array to the arduino. format sent: json string...",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L163"
+      "source_location": "L169"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_184",
+      "id": "backend_services_arduino_serial_rationale_201",
       "label": "Look up the ISL servo angles for a single letter and send them. Holds the pose\u2026",
       "_origin": "ast",
       "community": 6,
@@ -8719,10 +8531,10 @@
       "file_type": "rationale",
       "norm_label": "look up the isl servo angles for a single letter and send them. holds the pose...",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L184"
+      "source_location": "L201"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_196",
+      "id": "backend_services_arduino_serial_rationale_213",
       "label": "Internal synchronous text signing implementation.",
       "_origin": "ast",
       "community": 6,
@@ -8730,10 +8542,10 @@
       "file_type": "rationale",
       "norm_label": "internal synchronous text signing implementation.",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L196"
+      "source_location": "L213"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_213",
+      "id": "backend_services_arduino_serial_rationale_230",
       "label": "Fingerspell an entire text string letter-by-letter. If async_mode is True,\u2026",
       "_origin": "ast",
       "community": 6,
@@ -8741,10 +8553,10 @@
       "file_type": "rationale",
       "norm_label": "fingerspell an entire text string letter-by-letter. if async_mode is true,...",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L213"
+      "source_location": "L230"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_224",
+      "id": "backend_services_arduino_serial_rationale_241",
       "label": "Return current connection and active signing status.",
       "_origin": "ast",
       "community": 6,
@@ -8752,10 +8564,10 @@
       "file_type": "rationale",
       "norm_label": "return current connection and active signing status.",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L224"
+      "source_location": "L241"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_65",
+      "id": "backend_services_arduino_serial_rationale_71",
       "label": "Manages connection to Arduino Mega via USB Serial. Sends servo angle commands\u2026",
       "_origin": "ast",
       "community": 6,
@@ -8763,10 +8575,10 @@
       "file_type": "rationale",
       "norm_label": "manages connection to arduino mega via usb serial. sends servo angle commands...",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L65"
+      "source_location": "L71"
     },
     {
-      "id": "backend_services_arduino_serial_rationale_85",
+      "id": "backend_services_arduino_serial_rationale_91",
       "label": "Worker thread to process signing tasks asynchronously with auto-idle rest.",
       "_origin": "ast",
       "community": 6,
@@ -8774,7 +8586,194 @@
       "file_type": "rationale",
       "norm_label": "worker thread to process signing tasks asynchronously with auto-idle rest.",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L85"
+      "source_location": "L91"
+    },
+    {
+      "id": "backend_services_feature_extractor",
+      "label": "feature_extractor.py",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "code",
+      "norm_label": "feature_extractor.py",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_translator_model",
+      "label": "translator_model.py",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "code",
+      "norm_label": "translator_model.py",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "valueerror",
+      "label": "ValueError",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "code",
+      "norm_label": "valueerror",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_services_feature_extractor_rationale_1",
+      "label": "Enriched Feature extraction for Indian Sign Language (ISL) alphabet\u2026",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "rationale",
+      "norm_label": "enriched feature extraction for indian sign language (isl) alphabet...",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_feature_extractor_rationale_171",
+      "label": "Extracts geometric feature vector enriched with upper-body anchor metrics. If\u2026",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "rationale",
+      "norm_label": "extracts geometric feature vector enriched with upper-body anchor metrics. if...",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L171"
+    },
+    {
+      "id": "backend_services_feature_extractor_rationale_31",
+      "label": "Compute cosine of the 3D angle at vertex p_b between vectors (p_a - p_b) and\u2026",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "rationale",
+      "norm_label": "compute cosine of the 3d angle at vertex p_b between vectors (p_a - p_b) and...",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L31"
+    },
+    {
+      "id": "backend_services_feature_extractor_rationale_43",
+      "label": "Extract a 208-D normalized geometric feature vector from 126 raw landmark\u2026",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "rationale",
+      "norm_label": "extract a 208-d normalized geometric feature vector from 126 raw landmark...",
+      "source_file": "backend/services/feature_extractor.py",
+      "source_location": "L43"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_1",
+      "label": "Sign-Bridge Flask API \u2014 ISL Gesture Translation Model Service Loads trained\u2026",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "rationale",
+      "norm_label": "sign-bridge flask api \u2014 isl gesture translation model service loads trained...",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_translator_model_rationale_90",
+      "label": "Raised when incoming landmark data doesn't match the expected shape.",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "translator_model.py",
+      "file_type": "rationale",
+      "norm_label": "raised when incoming landmark data doesn't match the expected shape.",
+      "source_file": "backend/services/translator_model.py",
+      "source_location": "L90"
+    },
+    {
+      "id": "backend_benchmark_alphabet_models",
+      "label": "benchmark_alphabet_models.py",
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "code",
+      "norm_label": "benchmark_alphabet_models.py",
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_data_loader",
+      "label": "data_loader.py",
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "code",
+      "norm_label": "data_loader.py",
+      "source_file": "backend/services/data_loader.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_data_loader_py_any",
+      "label": "Any",
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "code",
+      "norm_label": "any",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "path",
+      "label": "Path",
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_benchmark_alphabet_models_rationale_1",
+      "label": "SignBridge \u2014 Benchmark Standalone XGBoost, Standalone ST-GCN, and Calibrated\u2026",
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "rationale",
+      "norm_label": "signbridge \u2014 benchmark standalone xgboost, standalone st-gcn, and calibrated...",
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_data_loader_rationale_1",
+      "label": "Clean, Leak-Free Data Loader and Partition Manager for SignBridge ISL Alphabet\u2026",
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "rationale",
+      "norm_label": "clean, leak-free data loader and partition manager for signbridge isl alphabet...",
+      "source_file": "backend/services/data_loader.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_services_data_loader_rationale_35",
+      "label": "Compute SHA-256 hash of a file.",
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "rationale",
+      "norm_label": "compute sha-256 hash of a file.",
+      "source_file": "backend/services/data_loader.py",
+      "source_location": "L35"
+    },
+    {
+      "id": "backend_services_data_loader_rationale_46",
+      "label": "Load dataset strictly partitioned by origin without frame-level leakage.\u2026",
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "load_dataset_partitioned",
+      "file_type": "rationale",
+      "norm_label": "load dataset strictly partitioned by origin without frame-level leakage....",
+      "source_file": "backend/services/data_loader.py",
+      "source_location": "L46"
     },
     {
       "id": "backend_services_gemini_manager_rationale_332",
@@ -8788,84 +8787,7 @@
       "source_location": "L332"
     },
     {
-      "id": "backend_tests_test_gemini_manager_rationale_113",
-      "label": "Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "TestGeminiManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 4: key 1 invalid (401/403) -> permanently disabled, switches to key 2.",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L113"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_rationale_130",
-      "label": "Scenario 5: All keys/models fail -> Raises clean application error, no crash.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "TestGeminiManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 5: all keys/models fail -> raises clean application error, no crash.",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L130"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_rationale_137",
-      "label": "Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "TestGeminiManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 6: transient 500 error on attempt 1, succeeds on attempt 2.",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L137"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_rationale_153",
-      "label": "Scenario 7: 400 Invalid Argument fails fast without wasting retries.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "TestGeminiManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 7: 400 invalid argument fails fast without wasting retries.",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L153"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_rationale_52",
-      "label": "Verify proper classification of SDK exceptions.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "TestGeminiManager",
-      "file_type": "rationale",
-      "norm_label": "verify proper classification of sdk exceptions.",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L52"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_rationale_72",
-      "label": "Scenario 1: Key 1 works normally -> Returns response immediately.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "TestGeminiManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 1: key 1 works normally -> returns response immediately.",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L72"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_rationale_81",
-      "label": "Scenario 2: Key 1 hits 429 rate limit -> Automatically switches to Key 2.",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "TestGeminiManager",
-      "file_type": "rationale",
-      "norm_label": "scenario 2: key 1 hits 429 rate limit -> automatically switches to key 2.",
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L81"
-    },
-    {
-      "id": "backend_tests_test_gemini_manager_rationale_99",
+      "id": "backend_tests_test_gemini_manager_rationale_104",
       "label": "Scenario 3: Both keys fail on Model A -> Model B succeeds on Key 1.",
       "_origin": "ast",
       "community": 7,
@@ -8873,7 +8795,84 @@
       "file_type": "rationale",
       "norm_label": "scenario 3: both keys fail on model a -> model b succeeds on key 1.",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L99"
+      "source_location": "L104"
+    },
+    {
+      "id": "backend_tests_test_gemini_manager_rationale_118",
+      "label": "Scenario 4: Key 1 invalid (401/403) -> Permanently disabled, switches to Key 2.",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "TestGeminiManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 4: key 1 invalid (401/403) -> permanently disabled, switches to key 2.",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L118"
+    },
+    {
+      "id": "backend_tests_test_gemini_manager_rationale_135",
+      "label": "Scenario 5: All keys/models fail -> Raises clean application error, no crash.",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "TestGeminiManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 5: all keys/models fail -> raises clean application error, no crash.",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L135"
+    },
+    {
+      "id": "backend_tests_test_gemini_manager_rationale_142",
+      "label": "Scenario 6: Transient 500 error on attempt 1, succeeds on attempt 2.",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "TestGeminiManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 6: transient 500 error on attempt 1, succeeds on attempt 2.",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L142"
+    },
+    {
+      "id": "backend_tests_test_gemini_manager_rationale_158",
+      "label": "Scenario 7: 400 Invalid Argument fails fast without wasting retries.",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "TestGeminiManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 7: 400 invalid argument fails fast without wasting retries.",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L158"
+    },
+    {
+      "id": "backend_tests_test_gemini_manager_rationale_57",
+      "label": "Verify proper classification of SDK exceptions.",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "TestGeminiManager",
+      "file_type": "rationale",
+      "norm_label": "verify proper classification of sdk exceptions.",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L57"
+    },
+    {
+      "id": "backend_tests_test_gemini_manager_rationale_77",
+      "label": "Scenario 1: Key 1 works normally -> Returns response immediately.",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "TestGeminiManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 1: key 1 works normally -> returns response immediately.",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L77"
+    },
+    {
+      "id": "backend_tests_test_gemini_manager_rationale_86",
+      "label": "Scenario 2: Key 1 hits 429 rate limit -> Automatically switches to Key 2.",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "TestGeminiManager",
+      "file_type": "rationale",
+      "norm_label": "scenario 2: key 1 hits 429 rate limit -> automatically switches to key 2.",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L86"
     },
     {
       "id": "backend_services_gemini_manager",
@@ -8964,7 +8963,7 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_tests_test_gemini_manager_rationale_45",
+      "id": "backend_tests_test_gemini_manager_rationale_50",
       "label": "Verify API keys are never logged in plain text.",
       "_origin": "ast",
       "community": 8,
@@ -8972,7 +8971,7 @@
       "file_type": "rationale",
       "norm_label": "verify api keys are never logged in plain text.",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L45"
+      "source_location": "L50"
     },
     {
       "id": "backend_services_groq_manager_py_typeddict",
@@ -9018,7 +9017,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L708",
+      "source_location": "L652",
       "weight": 1.0
     },
     {
@@ -9042,7 +9041,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L656",
+      "source_location": "L600",
       "weight": 1.0
     },
     {
@@ -9202,18 +9201,6 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_translate_snapshot",
-      "target": "backend_app_translate",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "backend/app.py",
-      "source_location": "L591",
-      "weight": 1.0
-    },
-    {
       "source": "backend_app_translate_word",
       "target": "backend_app_safe_float",
       "relation": "calls",
@@ -9222,7 +9209,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app.py",
-      "source_location": "L636",
+      "source_location": "L580",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_benchmark_alphabet_models_run_benchmark",
+      "target": "backend_services_data_loader_load_dataset_partitioned",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_benchmark_alphabet_models_run_benchmark",
+      "target": "backend_services_translator_model_translatormodel",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -9546,7 +9557,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L129",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -9558,7 +9569,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L103",
+      "source_location": "L109",
       "weight": 1.0
     },
     {
@@ -9570,7 +9581,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L93",
+      "source_location": "L99",
       "weight": 1.0
     },
     {
@@ -9582,7 +9593,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L190",
+      "source_location": "L207",
       "weight": 1.0
     },
     {
@@ -9594,7 +9605,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L221",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -9606,7 +9617,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L201",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -9618,7 +9629,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L205",
+      "source_location": "L222",
       "weight": 1.0
     },
     {
@@ -9666,7 +9677,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L115",
+      "source_location": "L116",
       "weight": 1.0
     },
     {
@@ -9678,7 +9689,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L180",
+      "source_location": "L181",
       "weight": 1.0
     },
     {
@@ -9858,7 +9869,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L134",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -9870,7 +9881,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L157",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -9882,7 +9893,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L214",
+      "source_location": "L229",
       "weight": 1.0
     },
     {
@@ -9894,7 +9905,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L244",
+      "source_location": "L259",
       "weight": 1.0
     },
     {
@@ -9906,7 +9917,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L246",
+      "source_location": "L261",
       "weight": 1.0
     },
     {
@@ -9918,7 +9929,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L248",
+      "source_location": "L263",
       "weight": 1.0
     },
     {
@@ -9930,7 +9941,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L250",
+      "source_location": "L265",
       "weight": 1.0
     },
     {
@@ -9942,7 +9953,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L252",
+      "source_location": "L267",
       "weight": 1.0
     },
     {
@@ -9954,7 +9965,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L503",
+      "source_location": "L518",
       "weight": 1.0
     },
     {
@@ -9966,7 +9977,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L508",
+      "source_location": "L523",
       "weight": 1.0
     },
     {
@@ -9978,7 +9989,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L511",
+      "source_location": "L526",
       "weight": 1.0
     },
     {
@@ -9990,7 +10001,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L514",
+      "source_location": "L529",
       "weight": 1.0
     },
     {
@@ -10002,7 +10013,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L566",
+      "source_location": "L581",
       "weight": 1.0
     },
     {
@@ -10014,7 +10025,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L577",
+      "source_location": "L592",
       "weight": 1.0
     },
     {
@@ -10026,7 +10037,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L582",
+      "source_location": "L597",
       "weight": 1.0
     },
     {
@@ -10038,7 +10049,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L261",
+      "source_location": "L276",
       "weight": 1.0
     },
     {
@@ -10050,7 +10061,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L261",
+      "source_location": "L276",
       "weight": 1.0
     },
     {
@@ -10062,7 +10073,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L265",
+      "source_location": "L280",
       "weight": 1.0
     },
     {
@@ -10074,7 +10085,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L267",
+      "source_location": "L282",
       "weight": 1.0
     },
     {
@@ -10086,7 +10097,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L269",
+      "source_location": "L284",
       "weight": 1.0
     },
     {
@@ -10098,7 +10109,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L277",
+      "source_location": "L292",
       "weight": 1.0
     },
     {
@@ -10110,7 +10121,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L339",
+      "source_location": "L355",
       "weight": 1.0
     },
     {
@@ -10122,7 +10133,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L343",
+      "source_location": "L359",
       "weight": 1.0
     },
     {
@@ -10134,7 +10145,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L346",
+      "source_location": "L362",
       "weight": 1.0
     },
     {
@@ -10146,7 +10157,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L349",
+      "source_location": "L365",
       "weight": 1.0
     },
     {
@@ -10158,7 +10169,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L409",
+      "source_location": "L426",
       "weight": 1.0
     },
     {
@@ -10170,7 +10181,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L414",
+      "source_location": "L429",
       "weight": 1.0
     },
     {
@@ -10182,7 +10193,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L418",
+      "source_location": "L433",
       "weight": 1.0
     },
     {
@@ -10194,7 +10205,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L422",
+      "source_location": "L437",
       "weight": 1.0
     },
     {
@@ -10206,7 +10217,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L435",
+      "source_location": "L450",
       "weight": 1.0
     },
     {
@@ -10218,7 +10229,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L101",
+      "source_location": "L104",
       "weight": 1.0
     },
     {
@@ -10350,7 +10361,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L40",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -10362,7 +10373,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L46",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -10374,7 +10385,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L161",
+      "source_location": "L166",
       "weight": 1.0
     },
     {
@@ -10386,7 +10397,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L42",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -10398,7 +10409,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L47",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -10410,7 +10421,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L160",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -10710,7 +10721,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L324",
+      "source_location": "L309",
       "weight": 1.0
     },
     {
@@ -10722,7 +10733,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L357",
+      "source_location": "L342",
       "weight": 1.0
     },
     {
@@ -10734,19 +10745,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L423",
-      "weight": 1.0
-    },
-    {
-      "source": "src_hooks_usegesturerecognition_usegesturerecognition",
-      "target": "src_hooks_usegesturerecognition_capturevideosnapshot",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L500",
+      "source_location": "L408",
       "weight": 1.0
     },
     {
@@ -10806,7 +10805,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L272",
+      "source_location": "L257",
       "weight": 1.0
     },
     {
@@ -10842,7 +10841,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L668",
+      "source_location": "L612",
       "weight": 1.0
     },
     {
@@ -10854,7 +10853,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L652",
+      "source_location": "L596",
       "weight": 1.0
     },
     {
@@ -10950,7 +10949,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L733",
+      "source_location": "L677",
       "weight": 1.0
     },
     {
@@ -10962,7 +10961,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L759",
+      "source_location": "L703",
       "weight": 1.0
     },
     {
@@ -10974,7 +10973,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L766",
+      "source_location": "L710",
       "weight": 1.0
     },
     {
@@ -10986,7 +10985,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L823",
+      "source_location": "L767",
       "weight": 1.0
     },
     {
@@ -10998,7 +10997,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L727",
+      "source_location": "L671",
       "weight": 1.0
     },
     {
@@ -11026,18 +11025,6 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_translate_snapshot",
-      "target": "route",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "decorator",
-      "source_file": "backend/app.py",
-      "source_location": "L539",
-      "weight": 1.0
-    },
-    {
       "source": "backend_app_translate_word",
       "target": "route",
       "relation": "references",
@@ -11046,7 +11033,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "backend/app.py",
-      "source_location": "L595",
+      "source_location": "L539",
       "weight": 1.0
     },
     {
@@ -11254,6 +11241,30 @@
       "weight": 1.0
     },
     {
+      "source": "backend_benchmark_alphabet_models",
+      "target": "backend_services_data_loader_load_dataset_partitioned",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_benchmark_alphabet_models",
+      "target": "backend_services_translator_model_translatormodel",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
       "source": "backend_services_data_loader",
       "target": "backend_services_translator_model_normalize_landmarks",
       "relation": "imports",
@@ -11274,7 +11285,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L150",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -11322,7 +11333,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L24",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -11334,7 +11345,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L24",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -11346,7 +11357,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L24",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -11358,7 +11369,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L24",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -11370,7 +11381,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L24",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -11382,7 +11393,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L24",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -11394,7 +11405,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L24",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -11406,7 +11417,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L24",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -11418,7 +11429,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -11430,7 +11441,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -11442,7 +11453,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -11454,7 +11465,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -11466,7 +11477,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -11478,7 +11489,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -11490,7 +11501,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -11502,7 +11513,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -12178,6 +12189,30 @@
       "weight": 1.0
     },
     {
+      "source": "backend_benchmark_alphabet_models",
+      "target": "backend_services_data_loader",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_benchmark_alphabet_models",
+      "target": "backend_services_translator_model",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
       "source": "backend_services_data_loader",
       "target": "backend_services_translator_model",
       "relation": "imports_from",
@@ -12246,7 +12281,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L24",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -12258,7 +12293,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -14650,7 +14685,7 @@
     },
     {
       "source": "backend_app",
-      "target": "backend_app_translate_snapshot",
+      "target": "backend_app_translate_word",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -14661,24 +14696,13 @@
     },
     {
       "source": "backend_app",
-      "target": "backend_app_translate_word",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L596",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app",
       "target": "backend_app_get_history",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L653",
+      "source_location": "L597",
       "weight": 1.0
     },
     {
@@ -14689,7 +14713,51 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L669",
+      "source_location": "L613",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app",
+      "target": "backend_app_robot_status",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L672",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app",
+      "target": "backend_app_robot_connect",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L678",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app",
+      "target": "backend_app_robot_disconnect",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L704",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app",
+      "target": "backend_app_robot_sign",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L711",
       "weight": 1.0
     },
     {
@@ -14705,57 +14773,24 @@
     },
     {
       "source": "backend_app",
-      "target": "backend_app_robot_status",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L728",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app",
-      "target": "backend_app_robot_connect",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L734",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app",
-      "target": "backend_app_robot_disconnect",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L760",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app",
-      "target": "backend_app_robot_sign",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L767",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app",
       "target": "backend_app_robot_sign_letter",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L824",
+      "source_location": "L768",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_benchmark_alphabet_models",
+      "target": "backend_benchmark_alphabet_models_run_benchmark",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -15118,7 +15153,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L64",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -15151,7 +15186,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L169",
+      "source_location": "L170",
       "weight": 1.0
     },
     {
@@ -15162,7 +15197,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -15173,7 +15208,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L41",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -15404,7 +15439,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L115",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -15415,7 +15450,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L67",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -15426,7 +15461,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L86",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -15437,7 +15472,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L90",
+      "source_location": "L93",
       "weight": 1.0
     },
     {
@@ -15547,7 +15582,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L37",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -15558,7 +15593,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L39",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -17334,7 +17369,7 @@
     },
     {
       "source": "src_hooks_usegesturerecognition",
-      "target": "src_hooks_usegesturerecognition_capturevideosnapshot",
+      "target": "src_hooks_usegesturerecognition_formatwordforsentence",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -17345,35 +17380,24 @@
     },
     {
       "source": "src_hooks_usegesturerecognition",
-      "target": "src_hooks_usegesturerecognition_analyzequality",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L731",
-      "weight": 1.0
-    },
-    {
-      "source": "src_hooks_usegesturerecognition",
-      "target": "src_hooks_usegesturerecognition_formatwordforsentence",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L75",
-      "weight": 1.0
-    },
-    {
-      "source": "src_hooks_usegesturerecognition",
       "target": "src_hooks_usegesturerecognition_usegesturerecognition",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/hooks/useGestureRecognition.js",
-      "source_location": "L81",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "src_hooks_usegesturerecognition",
+      "target": "src_hooks_usegesturerecognition_analyzequality",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/hooks/useGestureRecognition.js",
+      "source_location": "L694",
       "weight": 1.0
     },
     {
@@ -17560,7 +17584,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L86",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -17615,7 +17639,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L111",
+      "source_location": "L117",
       "weight": 1.0
     },
     {
@@ -17626,7 +17650,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L123",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -17637,7 +17661,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L154",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -17648,7 +17672,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L162",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -17659,7 +17683,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L183",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -17670,7 +17694,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L195",
+      "source_location": "L212",
       "weight": 1.0
     },
     {
@@ -17681,7 +17705,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L212",
+      "source_location": "L229",
       "weight": 1.0
     },
     {
@@ -17692,7 +17716,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L223",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -17703,7 +17727,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L70",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -17714,7 +17738,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L84",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -18220,7 +18244,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L127",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
@@ -18231,7 +18255,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L136",
+      "source_location": "L139",
       "weight": 1.0
     },
     {
@@ -18242,7 +18266,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L217",
+      "source_location": "L232",
       "weight": 1.0
     },
     {
@@ -18253,7 +18277,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L239",
+      "source_location": "L254",
       "weight": 1.0
     },
     {
@@ -18264,7 +18288,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L258",
+      "source_location": "L273",
       "weight": 1.0
     },
     {
@@ -18275,7 +18299,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L336",
+      "source_location": "L351",
       "weight": 1.0
     },
     {
@@ -18286,7 +18310,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L406",
+      "source_location": "L422",
       "weight": 1.0
     },
     {
@@ -18297,7 +18321,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L500",
+      "source_location": "L515",
       "weight": 1.0
     },
     {
@@ -18308,7 +18332,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L556",
+      "source_location": "L571",
       "weight": 1.0
     },
     {
@@ -18319,7 +18343,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L559",
+      "source_location": "L574",
       "weight": 1.0
     },
     {
@@ -18330,7 +18354,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L611",
+      "source_location": "L626",
       "weight": 1.0
     },
     {
@@ -18341,7 +18365,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L636",
+      "source_location": "L651",
       "weight": 1.0
     },
     {
@@ -18352,7 +18376,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L716",
+      "source_location": "L731",
       "weight": 1.0
     },
     {
@@ -18363,7 +18387,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L768",
+      "source_location": "L783",
       "weight": 1.0
     },
     {
@@ -18423,13 +18447,24 @@
     },
     {
       "source": "backend_tests_test_gemini_manager_testgeminimanager",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_3_both_keys_fail_model_a_fallback_to_model_b",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_testgeminimanager",
       "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_4_key1_invalid_credentials",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L112",
+      "source_location": "L117",
       "weight": 1.0
     },
     {
@@ -18440,7 +18475,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L129",
+      "source_location": "L134",
       "weight": 1.0
     },
     {
@@ -18451,7 +18486,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L136",
+      "source_location": "L141",
       "weight": 1.0
     },
     {
@@ -18462,7 +18497,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L152",
+      "source_location": "L157",
       "weight": 1.0
     },
     {
@@ -18473,7 +18508,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L159",
+      "source_location": "L164",
       "weight": 1.0
     },
     {
@@ -18484,7 +18519,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L39",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -18495,7 +18530,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L44",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -18506,7 +18541,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L51",
+      "source_location": "L56",
       "weight": 1.0
     },
     {
@@ -18517,7 +18552,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L71",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -18528,128 +18563,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L80",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_testgeminimanager",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_3_both_keys_fail_model_a_fallback_to_model_b",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L98",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_4_key1_invalid_credentials",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L112",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_5_all_keys_and_models_fail_gracefully",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L128",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_6_transient_server_error_retry_backoff",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L135",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_7_invalid_request_fast_fails",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L151",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_8_latest_model_auto_discovery",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L158",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_setup",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L41",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_mask_key",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L45",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_error_classifier",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L52",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_1_key1_works",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L72",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_2_key1_rate_limited_switch_to_key2",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L81",
+      "source_location": "L85",
       "weight": 1.0
     },
     {
@@ -18660,7 +18574,117 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L98",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_4_key1_invalid_credentials",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_5_all_keys_and_models_fail_gracefully",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L133",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_6_transient_server_error_retry_backoff",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_7_invalid_request_fast_fails",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L156",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_8_latest_model_auto_discovery",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L163",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_setup",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_mask_key",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_error_classifier",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_1_key1_works",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_2_key1_rate_limited_switch_to_key2",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L86",
       "weight": 1.0
     },
     {
@@ -18929,7 +18953,7 @@
     },
     {
       "source": "backend_app_rationale_541",
-      "target": "backend_app_translate_snapshot",
+      "target": "backend_app_translate_word",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18939,47 +18963,69 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_597",
-      "target": "backend_app_translate_word",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L597",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_654",
+      "source": "backend_app_rationale_598",
       "target": "backend_app_get_history",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L654",
+      "source_location": "L598",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_670",
+      "source": "backend_app_rationale_614",
       "target": "backend_app_collect_data",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L670",
+      "source_location": "L614",
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_729",
+      "source": "backend_app_rationale_673",
       "target": "backend_app_robot_status",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L729",
+      "source_location": "L673",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_679",
+      "target": "backend_app_robot_connect",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L679",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_705",
+      "target": "backend_app_robot_disconnect",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L705",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_rationale_712",
+      "target": "backend_app_robot_sign",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app.py",
+      "source_location": "L712",
       "weight": 1.0
     },
     {
@@ -18994,47 +19040,25 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_rationale_735",
-      "target": "backend_app_robot_connect",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L735",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_761",
-      "target": "backend_app_robot_disconnect",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L761",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_768",
-      "target": "backend_app_robot_sign",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app.py",
-      "source_location": "L768",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_rationale_825",
+      "source": "backend_app_rationale_769",
       "target": "backend_app_robot_sign_letter",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app.py",
-      "source_location": "L825",
+      "source_location": "L769",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_benchmark_alphabet_models_rationale_1",
+      "target": "backend_benchmark_alphabet_models",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/benchmark_alphabet_models.py",
+      "source_location": "L1",
       "weight": 1.0
     },
     {
@@ -19379,74 +19403,63 @@
       "weight": 1.0
     },
     {
-      "source": "backend_services_arduino_serial_rationale_112",
+      "source": "backend_services_arduino_serial_rationale_118",
       "target": "backend_services_arduino_serial_arduinoserial_auto_detect_port",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L112",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
-      "source": "backend_services_arduino_serial_rationale_124",
+      "source": "backend_services_arduino_serial_rationale_130",
       "target": "backend_services_arduino_serial_arduinoserial_connect",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L124",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
-      "source": "backend_services_arduino_serial_rationale_155",
+      "source": "backend_services_arduino_serial_rationale_161",
       "target": "backend_services_arduino_serial_arduinoserial_disconnect",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L155",
+      "source_location": "L161",
       "weight": 1.0
     },
     {
-      "source": "backend_services_arduino_serial_rationale_163",
+      "source": "backend_services_arduino_serial_rationale_169",
       "target": "backend_services_arduino_serial_arduinoserial_send_angles",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L163",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
-      "source": "backend_services_arduino_serial_rationale_184",
+      "source": "backend_services_arduino_serial_rationale_201",
       "target": "backend_services_arduino_serial_arduinoserial_sign_letter",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L184",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_services_arduino_serial_rationale_196",
-      "target": "backend_services_arduino_serial_arduinoserial_sign_text_sync",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L196",
+      "source_location": "L201",
       "weight": 1.0
     },
     {
       "source": "backend_services_arduino_serial_rationale_213",
-      "target": "backend_services_arduino_serial_arduinoserial_sign_text",
+      "target": "backend_services_arduino_serial_arduinoserial_sign_text_sync",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19456,36 +19469,47 @@
       "weight": 1.0
     },
     {
-      "source": "backend_services_arduino_serial_rationale_224",
+      "source": "backend_services_arduino_serial_rationale_230",
+      "target": "backend_services_arduino_serial_arduinoserial_sign_text",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/arduino_serial.py",
+      "source_location": "L230",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_services_arduino_serial_rationale_241",
       "target": "backend_services_arduino_serial_arduinoserial_get_status",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L224",
+      "source_location": "L241",
       "weight": 1.0
     },
     {
-      "source": "backend_services_arduino_serial_rationale_65",
+      "source": "backend_services_arduino_serial_rationale_71",
       "target": "backend_services_arduino_serial_arduinoserial",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L65",
+      "source_location": "L71",
       "weight": 1.0
     },
     {
-      "source": "backend_services_arduino_serial_rationale_85",
+      "source": "backend_services_arduino_serial_rationale_91",
       "target": "backend_services_arduino_serial_arduinoserial_process_sign_queue",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/arduino_serial.py",
-      "source_location": "L85",
+      "source_location": "L91",
       "weight": 1.0
     },
     {
@@ -19533,36 +19557,36 @@
       "weight": 1.0
     },
     {
-      "source": "backend_services_feature_extractor_rationale_170",
+      "source": "backend_services_feature_extractor_rationale_171",
       "target": "backend_services_feature_extractor_extract_holistic_features",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L170",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
-      "source": "backend_services_feature_extractor_rationale_30",
+      "source": "backend_services_feature_extractor_rationale_31",
       "target": "backend_services_feature_extractor_compute_angle_cos",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
-      "source": "backend_services_feature_extractor_rationale_42",
+      "source": "backend_services_feature_extractor_rationale_43",
       "target": "backend_services_feature_extractor_extract_features",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/feature_extractor.py",
-      "source_location": "L42",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -20116,168 +20140,168 @@
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_116",
+      "source": "backend_services_translator_model_rationale_119",
       "target": "backend_services_translator_model_translatormodel",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L116",
+      "source_location": "L119",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_137",
+      "source": "backend_services_translator_model_rationale_140",
       "target": "backend_services_translator_model_translatormodel_load",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L137",
+      "source_location": "L140",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_218",
+      "source": "backend_services_translator_model_rationale_233",
       "target": "backend_services_translator_model_translatormodel_load_mendeley_ref",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L218",
+      "source_location": "L233",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_240",
+      "source": "backend_services_translator_model_rationale_255",
       "target": "backend_services_translator_model_translatormodel_predict",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L240",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_259",
+      "source": "backend_services_translator_model_rationale_274",
       "target": "backend_services_translator_model_translatormodel_predict_hybrid_ensemble",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L259",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_337",
+      "source": "backend_services_translator_model_rationale_352",
       "target": "backend_services_translator_model_translatormodel_predict_stgcn",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L337",
+      "source_location": "L352",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_407",
+      "source": "backend_services_translator_model_rationale_423",
       "target": "backend_services_translator_model_translatormodel_predict_xgb",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L407",
+      "source_location": "L423",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_501",
+      "source": "backend_services_translator_model_rationale_516",
       "target": "backend_services_translator_model_translatormodel_predict_dl",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L501",
+      "source_location": "L516",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_560",
+      "source": "backend_services_translator_model_rationale_575",
       "target": "backend_services_translator_model_translatormodel_predict_heuristic",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L560",
+      "source_location": "L575",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_612",
+      "source": "backend_services_translator_model_rationale_627",
       "target": "backend_services_translator_model_translatormodel_parse_landmarks",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L612",
+      "source_location": "L627",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_637",
+      "source": "backend_services_translator_model_rationale_652",
       "target": "backend_services_translator_model_translatormodel_extract_features",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L637",
+      "source_location": "L652",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_717",
+      "source": "backend_services_translator_model_rationale_732",
       "target": "backend_services_translator_model_translatormodel_score_letter",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L717",
+      "source_location": "L732",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_769",
+      "source": "backend_services_translator_model_rationale_784",
       "target": "backend_services_translator_model_translatormodel_get_info",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L769",
+      "source_location": "L784",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_87",
+      "source": "backend_services_translator_model_rationale_90",
       "target": "backend_services_translator_model_landmarkvalidationerror",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L87",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
-      "source": "backend_services_translator_model_rationale_91",
+      "source": "backend_services_translator_model_rationale_94",
       "target": "backend_services_translator_model_validate_landmark_array",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L91",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
@@ -20446,113 +20470,113 @@
       "weight": 1.0
     },
     {
-      "source": "backend_tests_test_gemini_manager_rationale_113",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_4_key1_invalid_credentials",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L113",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_rationale_130",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_5_all_keys_and_models_fail_gracefully",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L130",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_rationale_137",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_6_transient_server_error_retry_backoff",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L137",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_rationale_153",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_7_invalid_request_fast_fails",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L153",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_rationale_160",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_8_latest_model_auto_discovery",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L160",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_rationale_45",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_mask_key",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L45",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_rationale_52",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_error_classifier",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L52",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_rationale_72",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_1_key1_works",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L72",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_rationale_81",
-      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_2_key1_rate_limited_switch_to_key2",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L81",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_rationale_99",
+      "source": "backend_tests_test_gemini_manager_rationale_104",
       "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_3_both_keys_fail_model_a_fallback_to_model_b",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L99",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_rationale_118",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_4_key1_invalid_credentials",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_rationale_135",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_5_all_keys_and_models_fail_gracefully",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L135",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_rationale_142",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_6_transient_server_error_retry_backoff",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_rationale_158",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_7_invalid_request_fast_fails",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L158",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_rationale_165",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_8_latest_model_auto_discovery",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L165",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_rationale_50",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_mask_key",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_rationale_57",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_error_classifier",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_rationale_77",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_1_key1_works",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_gemini_manager_rationale_86",
+      "target": "backend_tests_test_gemini_manager_testgeminimanager_test_scenario_2_key1_rate_limited_switch_to_key2",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L86",
       "weight": 1.0
     },
     {
@@ -20567,113 +20591,113 @@
       "weight": 1.0
     },
     {
-      "source": "backend_tests_test_groq_manager_rationale_113",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_4_key1_invalid_credentials",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L113",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_rationale_129",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_5_all_keys_and_models_fail_gracefully",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L129",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_rationale_136",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_6_transient_server_error_retry_backoff",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L136",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_rationale_152",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_7_invalid_request_fast_fails",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L152",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_rationale_159",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_8_latest_model_auto_discovery",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L159",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_rationale_46",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_mask_key",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L46",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_rationale_53",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_error_classifier",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L53",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_rationale_73",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_1_key1_works",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L73",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_rationale_82",
-      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_2_key1_rate_limited_switch_to_key2",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L82",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_tests_test_groq_manager_rationale_99",
+      "source": "backend_tests_test_groq_manager_rationale_104",
       "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_3_both_keys_fail_model_a_fallback_to_model_b",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L99",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_rationale_118",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_4_key1_invalid_credentials",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_rationale_134",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_5_all_keys_and_models_fail_gracefully",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_rationale_141",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_6_transient_server_error_retry_backoff",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_rationale_157",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_7_invalid_request_fast_fails",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_rationale_164",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_8_latest_model_auto_discovery",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_rationale_51",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_mask_key",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_rationale_58",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_error_classifier",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_rationale_78",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_1_key1_works",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_groq_manager_rationale_87",
+      "target": "backend_tests_test_groq_manager_testgroqmanager_test_scenario_2_key1_rate_limited_switch_to_key2",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -20809,62 +20833,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "backend/services/translator_model.py",
-      "source_location": "L157",
-      "weight": 0.8
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_testgeminimanager",
-      "target": "backend_services_gemini_manager_keyinfo",
-      "relation": "uses",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L161",
-      "weight": 0.8
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_testgeminimanager",
-      "target": "backend_services_gemini_manager_modelselector",
-      "relation": "uses",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L163",
-      "weight": 0.8
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_testgeminimanager",
-      "target": "backend_services_gemini_manager_geminimanager",
-      "relation": "uses",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L40",
-      "weight": 0.8
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_testgeminimanager",
-      "target": "backend_services_gemini_manager_errorclassifier",
-      "relation": "uses",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L54",
-      "weight": 0.8
-    },
-    {
-      "source": "backend_tests_test_gemini_manager_testgeminimanager",
-      "target": "backend_services_gemini_manager_geminierrortype",
-      "relation": "uses",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L54",
+      "source_location": "L160",
       "weight": 0.8
     },
     {
@@ -20875,62 +20844,62 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "backend/tests/test_gemini_manager.py",
-      "source_location": "L95",
+      "source_location": "L100",
       "weight": 0.8
     },
     {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_services_groq_manager_keyinfo",
+      "source": "backend_tests_test_gemini_manager_testgeminimanager",
+      "target": "backend_services_gemini_manager_keyinfo",
       "relation": "uses",
       "_origin": "ast",
       "confidence": "INFERRED",
       "confidence_score": 0.95,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L160",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L166",
       "weight": 0.8
     },
     {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_services_groq_manager_modelselector",
+      "source": "backend_tests_test_gemini_manager_testgeminimanager",
+      "target": "backend_services_gemini_manager_modelselector",
       "relation": "uses",
       "_origin": "ast",
       "confidence": "INFERRED",
       "confidence_score": 0.95,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L162",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L168",
       "weight": 0.8
     },
     {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_services_groq_manager_groqmanager",
+      "source": "backend_tests_test_gemini_manager_testgeminimanager",
+      "target": "backend_services_gemini_manager_geminimanager",
       "relation": "uses",
       "_origin": "ast",
       "confidence": "INFERRED",
       "confidence_score": 0.95,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L42",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L45",
       "weight": 0.8
     },
     {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_services_groq_manager_errorclassifier",
+      "source": "backend_tests_test_gemini_manager_testgeminimanager",
+      "target": "backend_services_gemini_manager_errorclassifier",
       "relation": "uses",
       "_origin": "ast",
       "confidence": "INFERRED",
       "confidence_score": 0.95,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L55",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L59",
       "weight": 0.8
     },
     {
-      "source": "backend_tests_test_groq_manager_testgroqmanager",
-      "target": "backend_services_groq_manager_groqerrortype",
+      "source": "backend_tests_test_gemini_manager_testgeminimanager",
+      "target": "backend_services_gemini_manager_geminierrortype",
       "relation": "uses",
       "_origin": "ast",
       "confidence": "INFERRED",
       "confidence_score": 0.95,
-      "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L55",
+      "source_file": "backend/tests/test_gemini_manager.py",
+      "source_location": "L59",
       "weight": 0.8
     },
     {
@@ -20941,10 +20910,65 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "backend/tests/test_groq_manager.py",
-      "source_location": "L95",
+      "source_location": "L100",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_services_groq_manager_keyinfo",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L165",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_services_groq_manager_modelselector",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L167",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_services_groq_manager_groqmanager",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L47",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_services_groq_manager_errorclassifier",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L60",
+      "weight": 0.8
+    },
+    {
+      "source": "backend_tests_test_groq_manager_testgroqmanager",
+      "target": "backend_services_groq_manager_groqerrortype",
+      "relation": "uses",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/tests/test_groq_manager.py",
+      "source_location": "L60",
       "weight": 0.8
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "63b3e7fecd150174a136446a23b60a6aa1b215e9"
+  "built_at_commit": "c57919cc25d6c70242f65c66e507931b8c452c85"
 }
