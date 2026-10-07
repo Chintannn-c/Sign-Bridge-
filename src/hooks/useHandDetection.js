@@ -29,6 +29,7 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
   const trackerRef = useRef(null);
   const lastCallRef = useRef(0);
   const scriptLoadedRef = useRef(false);
+  const isProcessingRef = useRef(false);
   const smootherRef = useRef(new LandmarkSmoother(42, 1.2, 0.005));
 
   const latestProps = useRef({ enabled, onLandmarks, throttleMs });
@@ -92,8 +93,8 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
             enableSegmentation: false,
             smoothSegmentation: false,
             refineFaceLandmarks: false,
-            minDetectionConfidence: 0.50,
-            minTrackingConfidence: 0.50,
+            minDetectionConfidence: 0.45,
+            minTrackingConfidence: 0.45,
           });
 
           holistic.onResults((results) => {
@@ -228,8 +229,8 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
           hands.setOptions({
             maxNumHands: 2,
             modelComplexity: 1,
-            minDetectionConfidence: 0.50,
-            minTrackingConfidence: 0.50,
+            minDetectionConfidence: 0.45,
+            minTrackingConfidence: 0.45,
           });
 
           hands.onResults((results) => {
@@ -335,13 +336,16 @@ export function useHandDetection({ videoElement, enabled = false, onLandmarks = 
 
     const processFrame = async () => {
       if (cancelled) return;
-      if (trackerRef.current && videoElement.readyState >= 2) {
+      if (trackerRef.current && videoElement.readyState >= 2 && !isProcessingRef.current) {
         if (videoElement.currentTime !== lastVideoTime) {
           lastVideoTime = videoElement.currentTime;
+          isProcessingRef.current = true;
           try {
             await trackerRef.current.send({ image: videoElement });
           } catch (e) {
             console.warn('MediaPipe send error:', e);
+          } finally {
+            isProcessingRef.current = false;
           }
         }
       }

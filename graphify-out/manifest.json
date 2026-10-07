@@ -2238,15 +2238,15 @@
     "semantic_hash": "ece8bec5154fcc0a1da253745a7798e0"
   },
   "src/hooks/useGestureRecognition.js": {
-    "mtime": 1791301253.291059,
-    "seen": 1791301509.0453348,
-    "ast_hash": "8d54cdd57de0376cdb39830f72fcf5a3",
+    "mtime": 1791353098.7341714,
+    "seen": 1791353165.2750878,
+    "ast_hash": "a7768175c924fdd27e45601eafbdc2e3",
     "semantic_hash": ""
   },
   "src/hooks/useHandDetection.js": {
-    "mtime": 1791187737.003805,
-    "seen": 1791187986.4368758,
-    "ast_hash": "a978e3f61405e6affa1c4fdf184d93fc",
+    "mtime": 1791353023.9169166,
+    "seen": 1791353165.2750878,
+    "ast_hash": "2179289ebfce00519fb0834de474be6b",
     "semantic_hash": ""
   },
   "src/hooks/useISLTranslation.js": {
@@ -2256,10 +2256,10 @@
     "semantic_hash": ""
   },
   "src/hooks/useWebcam.js": {
-    "mtime": 1785389209.2243273,
-    "seen": 1790572451.7572732,
-    "ast_hash": "b98fde3c1b2f27d5aebd747bdb601f9b",
-    "semantic_hash": "b98fde3c1b2f27d5aebd747bdb601f9b"
+    "mtime": 1791352917.3526525,
+    "seen": 1791353165.276093,
+    "ast_hash": "d091fdbc63f15789b4983d945cf76423",
+    "semantic_hash": ""
   },
   "src/main.jsx": {
     "mtime": 1786445777.545391,

@@ -132,6 +132,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const frameBufferRef = useRef([]);
   const wordInferenceCooldownRef = useRef(0);
   const isRequestPendingRef = useRef(false);
+  const isWordRequestPendingRef = useRef(false);
   const prevLandmarksRef = useRef(null);
   const bodyAnchorsRef = useRef(null);
   const handsMissingCountRef = useRef(0);
@@ -396,8 +397,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       const hasViableSequence = frameBufferRef.current.length >= 15;
       const isCooldownOver = (now - wordInferenceCooldownRef.current >= 80);
 
-      if (hasViableSequence && isCooldownOver) {
+      if (hasViableSequence && isCooldownOver && !isWordRequestPendingRef.current) {
         wordInferenceCooldownRef.current = now;
+        isWordRequestPendingRef.current = true;
 
         // If sequence has 15-29 frames, linearly resample to exactly 30 frames for the model
         let framesToSend = frameBufferRef.current;
@@ -510,6 +512,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           console.warn('Word recognition error:', e);
           startOrResetInactivityTimer(false);
           return null;
+        } finally {
+          isWordRequestPendingRef.current = false;
         }
       } else {
         // Viable sequence not reached or cooldown active: check if waiting
