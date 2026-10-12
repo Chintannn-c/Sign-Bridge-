@@ -1,9 +1,9 @@
 {
   "model_type": "cnn_bilstm",
-  "train_samples": 14000,
-  "val_samples": 1286,
-  "val_accuracy": 0.4059097978227061,
-  "num_classes": 56,
+  "train_samples": 14258,
+  "val_samples": 1347,
+  "val_accuracy": 0.512249443207127,
+  "num_classes": 57,
   "labels": [
     "AGAIN",
     "BAD",
@@ -19,6 +19,7 @@
     "FEAR",
     "FOOD",
     "GIRL",
+    "GOOD",
     "GOOD_AFTERNOON",
     "GOOD_EVENING",
     "GOOD_MORNING",
@@ -64,85 +65,90 @@
   ],
   "sequence_length": 30,
   "input_features": 252,
-  "epochs_trained": 36,
-  "training_time_seconds": 932.83,
+  "epochs_trained": 41,
+  "training_time_seconds": 1546.99,
   "architecture": "1D-CNN(252->64->128) + BiLSTM(128, 2-layers) + TemporalAttention + FC(256->64->N)",
   "features_type": "kinetic_invariants_252d",
   "per_class": {
     "AGAIN": {
-      "precision": 0.0263,
+      "precision": 0.5962,
       "recall": 1.0,
-      "f1-score": 0.0513
+      "f1-score": 0.747
     },
     "BAD": {
-      "precision": 0.8485,
-      "recall": 0.9032,
-      "f1-score": 0.875
+      "precision": 0.5435,
+      "recall": 0.8065,
+      "f1-score": 0.6494
     },
     "BOY": {
-      "precision": 0.1026,
-      "recall": 0.129,
-      "f1-score": 0.1143
+      "precision": 0.4151,
+      "recall": 0.7097,
+      "f1-score": 0.5238
     },
     "BYE_BYE": {
-      "precision": 0.3333,
+      "precision": 0.125,
       "recall": 1.0,
-      "f1-score": 0.5
+      "f1-score": 0.2222
     },
     "CHILD": {
-      "precision": 0.3889,
-      "recall": 0.4516,
-      "f1-score": 0.4179
+      "precision": 0.9677,
+      "recall": 0.9677,
+      "f1-score": 0.9677
     },
     "CORRECT": {
-      "precision": 0.9355,
-      "recall": 0.9355,
-      "f1-score": 0.9355
-    },
-    "DAY": {
-      "precision": 0.5,
-      "recall": 0.0323,
-      "f1-score": 0.0606
-    },
-    "DEAF": {
-      "precision": 0.6667,
-      "recall": 0.9677,
-      "f1-score": 0.7895
-    },
-    "DIFFICULT": {
       "precision": 0.0,
       "recall": 0.0,
       "f1-score": 0.0
     },
-    "DOCTOR": {
-      "precision": 0.5,
+    "DAY": {
+      "precision": 0.9375,
+      "recall": 0.9677,
+      "f1-score": 0.9524
+    },
+    "DEAF": {
+      "precision": 1.0,
       "recall": 1.0,
-      "f1-score": 0.6667
+      "f1-score": 1.0
+    },
+    "DIFFICULT": {
+      "precision": 1.0,
+      "recall": 0.9355,
+      "f1-score": 0.9667
+    },
+    "DOCTOR": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0
     },
     "EASY": {
-      "precision": 1.0,
-      "recall": 0.6774,
-      "f1-score": 0.8077
+      "precision": 0.8462,
+      "recall": 0.3548,
+      "f1-score": 0.5
     },
     "FEAR": {
-      "precision": 0.6667,
-      "recall": 0.4516,
-      "f1-score": 0.5385
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
     },
     "FOOD": {
-      "precision": 0.25,
+      "precision": 0.04,
       "recall": 1.0,
-      "f1-score": 0.4
+      "f1-score": 0.0769
     },
     "GIRL": {
       "precision": 0.0,
       "recall": 0.0,
       "f1-score": 0.0
     },
+    "GOOD": {
+      "precision": 0.4667,
+      "recall": 0.6774,
+      "f1-score": 0.5526
+    },
     "GOOD_AFTERNOON": {
-      "precision": 0.2083,
-      "recall": 0.1613,
-      "f1-score": 0.1818
+      "precision": 0.8824,
+      "recall": 0.9677,
+      "f1-score": 0.9231
     },
     "GOOD_EVENING": {
       "precision": 0.0,
@@ -150,9 +156,9 @@
       "f1-score": 0.0
     },
     "GOOD_MORNING": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0
+      "precision": 0.7,
+      "recall": 0.2258,
+      "f1-score": 0.3415
     },
     "GOOD_NIGHT": {
       "precision": 0.0,
@@ -165,14 +171,14 @@
       "f1-score": 0.0
     },
     "HEARING": {
-      "precision": 0.0244,
-      "recall": 1.0,
-      "f1-score": 0.0476
+      "precision": 1.0,
+      "recall": 0.7097,
+      "f1-score": 0.8302
     },
     "HELLO": {
-      "precision": 0.3333,
+      "precision": 0.0833,
       "recall": 1.0,
-      "f1-score": 0.5
+      "f1-score": 0.1538
     },
     "HELP": {
       "precision": 0.5,
@@ -180,9 +186,9 @@
       "f1-score": 0.6667
     },
     "HOW_ARE_YOU": {
-      "precision": 0.5357,
-      "recall": 0.9677,
-      "f1-score": 0.6897
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
     },
     "IM_FINE": {
       "precision": 0.0,
@@ -190,69 +196,69 @@
       "f1-score": 0.0
     },
     "INDIA": {
-      "precision": 0.3333,
+      "precision": 0.0455,
       "recall": 1.0,
-      "f1-score": 0.5
+      "f1-score": 0.087
     },
     "I_DONT_UNDERSTAND": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0
+      "precision": 0.9032,
+      "recall": 0.9032,
+      "f1-score": 0.9032
     },
     "LANGUAGE": {
-      "precision": 0.0435,
-      "recall": 0.0323,
-      "f1-score": 0.037
+      "precision": 0.9688,
+      "recall": 1.0,
+      "f1-score": 0.9841
     },
     "MAN": {
-      "precision": 0.566,
-      "recall": 0.9677,
-      "f1-score": 0.7143
-    },
-    "ME": {
-      "precision": 0.9,
-      "recall": 0.5806,
-      "f1-score": 0.7059
-    },
-    "MORNING": {
-      "precision": 0.8333,
-      "recall": 0.8065,
-      "f1-score": 0.8197
-    },
-    "MY_NAME_IS": {
-      "precision": 0.5088,
-      "recall": 0.9355,
-      "f1-score": 0.6591
-    },
-    "NAMASTE": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1-score": 1.0
-    },
-    "NO": {
       "precision": 0.0,
       "recall": 0.0,
       "f1-score": 0.0
     },
+    "ME": {
+      "precision": 0.9091,
+      "recall": 0.9677,
+      "f1-score": 0.9375
+    },
+    "MORNING": {
+      "precision": 0.6667,
+      "recall": 0.5806,
+      "f1-score": 0.6207
+    },
+    "MY_NAME_IS": {
+      "precision": 0.8333,
+      "recall": 0.9677,
+      "f1-score": 0.8955
+    },
+    "NAMASTE": {
+      "precision": 0.1667,
+      "recall": 1.0,
+      "f1-score": 0.2857
+    },
+    "NO": {
+      "precision": 0.3684,
+      "recall": 0.2258,
+      "f1-score": 0.28
+    },
     "NO_FEAR": {
-      "precision": 0.4894,
-      "recall": 0.7419,
-      "f1-score": 0.5897
+      "precision": 0.875,
+      "recall": 0.9032,
+      "f1-score": 0.8889
     },
     "PEACE": {
-      "precision": 0.6818,
-      "recall": 0.9677,
-      "f1-score": 0.8
+      "precision": 0.9333,
+      "recall": 0.9032,
+      "f1-score": 0.918
     },
     "PLEASE": {
-      "precision": 0.0588,
-      "recall": 1.0,
-      "f1-score": 0.1111
+      "precision": 0.9231,
+      "recall": 0.3871,
+      "f1-score": 0.5455
     },
     "PRACTICE": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1-score": 1.0
+      "recall": 0.2258,
+      "f1-score": 0.3684
     },
     "REMEMBER": {
       "precision": 0.0,
@@ -270,79 +276,79 @@
       "f1-score": 0.6667
     },
     "SORRY": {
-      "precision": 0.0714,
+      "precision": 0.0526,
       "recall": 1.0,
-      "f1-score": 0.1333
+      "f1-score": 0.1
     },
     "STRONG": {
-      "precision": 0.7027,
-      "recall": 0.8387,
-      "f1-score": 0.7647
+      "precision": 1.0,
+      "recall": 0.9032,
+      "f1-score": 0.9492
     },
     "TEACHER": {
-      "precision": 0.1467,
-      "recall": 0.3548,
-      "f1-score": 0.2075
+      "precision": 0.4561,
+      "recall": 0.8387,
+      "f1-score": 0.5909
     },
     "THANK_YOU": {
-      "precision": 0.5455,
-      "recall": 0.7742,
-      "f1-score": 0.64
-    },
-    "THANK_YOU_VERY_MUCH": {
-      "precision": 1.0,
-      "recall": 0.9355,
-      "f1-score": 0.9667
-    },
-    "THIN": {
-      "precision": 0.2143,
-      "recall": 0.0968,
-      "f1-score": 0.1333
-    },
-    "UNDERSTAND": {
-      "precision": 0.6667,
-      "recall": 0.129,
-      "f1-score": 0.2162
-    },
-    "WASHROOM": {
       "precision": 1.0,
       "recall": 1.0,
       "f1-score": 1.0
     },
-    "WATER": {
-      "precision": 0.25,
+    "THANK_YOU_VERY_MUCH": {
+      "precision": 1.0,
+      "recall": 0.871,
+      "f1-score": 0.931
+    },
+    "THIN": {
+      "precision": 0.5714,
+      "recall": 0.3871,
+      "f1-score": 0.4615
+    },
+    "UNDERSTAND": {
+      "precision": 0.431,
+      "recall": 0.8065,
+      "f1-score": 0.5618
+    },
+    "WASHROOM": {
+      "precision": 0.5,
       "recall": 1.0,
-      "f1-score": 0.4
+      "f1-score": 0.6667
+    },
+    "WATER": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1-score": 0.6667
     },
     "WEAK": {
-      "precision": 0.8333,
-      "recall": 0.1613,
-      "f1-score": 0.2703
-    },
-    "WELCOME": {
-      "precision": 0.6154,
-      "recall": 0.2581,
-      "f1-score": 0.3636
-    },
-    "WHERE": {
-      "precision": 0.1429,
-      "recall": 1.0,
-      "f1-score": 0.25
-    },
-    "WOMAN": {
-      "precision": 0.0213,
-      "recall": 1.0,
-      "f1-score": 0.0417
-    },
-    "WRONG": {
-      "precision": 0.4286,
-      "recall": 0.0968,
-      "f1-score": 0.1579
-    },
-    "YES": {
       "precision": 0.0,
       "recall": 0.0,
       "f1-score": 0.0
+    },
+    "WELCOME": {
+      "precision": 0.6522,
+      "recall": 0.9677,
+      "f1-score": 0.7792
+    },
+    "WHERE": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0
+    },
+    "WOMAN": {
+      "precision": 1.0,
+      "recall": 0.9677,
+      "f1-score": 0.9836
+    },
+    "WRONG": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0
+    },
+    "YES": {
+      "precision": 0.3684,
+      "recall": 0.6774,
+      "f1-score": 0.4773
     },
     "YOU": {
       "precision": 0.0,
@@ -350,5 +356,5 @@
       "f1-score": 0.0
     }
   },
-  "trained_at": "2026-10-06T15:08:39Z"
+  "trained_at": "2026-10-09T05:25:40Z"
 }

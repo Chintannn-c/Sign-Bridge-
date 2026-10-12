@@ -127,6 +127,10 @@ class TranslatorModel:
       5. Heuristic mode       — rule-based matching using landmark geometry
     """
 
+    HYBRID_XGB_WEIGHT = 0.65
+    HYBRID_STGCN_WEIGHT = 0.35
+    HYBRID_TEMPERATURE = 1.20
+
     def __init__(self):
         self.stgcn_model = None
         self.xgb_model = None
@@ -288,33 +292,47 @@ class TranslatorModel:
 
             labels = self.metadata.get('labels', [c for c in ISL_LABELS if c.isalpha()])
 
-            # 1. XGBoost primary and swapped pass
+            # Check single-hand status
+            left_active = np.any(arr_norm[:, :63] != 0)
+            right_active = np.any(arr_norm[:, 63:] != 0)
+            is_single_hand = (left_active and not right_active) or (right_active and not left_active)
+
+            # 1. Primary orientation pass (both models evaluated on original input)
             feat_primary = extract_features(arr_norm)
             probs_xgb = self.xgb_model.predict_proba(feat_primary)[0]
 
-            swapped = np.zeros_like(arr_norm)
-            swapped[:, :63] = arr_norm[:, 63:]
-            swapped[:, 63:] = arr_norm[:, :63]
-            feat_swapped = extract_features(swapped)
-            probs_xgb_swapped = self.xgb_model.predict_proba(feat_swapped)[0]
-            if np.max(probs_xgb_swapped) > np.max(probs_xgb):
-                probs_xgb = probs_xgb_swapped
-
-            # 2. ST-GCN primary and swapped pass with temperature scaling (T=1.20)
             tensor_in = torch.tensor(arr_norm, dtype=torch.float32)
             with torch.no_grad():
                 logits = self.stgcn_model(tensor_in)
-                probs_stgcn = torch.softmax(logits / 1.20, dim=1).numpy()[0]
+                probs_stgcn = torch.softmax(logits / self.HYBRID_TEMPERATURE, dim=1).numpy()[0]
 
-            tensor_swapped = torch.tensor(swapped, dtype=torch.float32)
-            with torch.no_grad():
-                logits_swapped = self.stgcn_model(tensor_swapped)
-                probs_stgcn_swapped = torch.softmax(logits_swapped / 1.20, dim=1).numpy()[0]
-            if np.max(probs_stgcn_swapped) > np.max(probs_stgcn):
-                probs_stgcn = probs_stgcn_swapped
+            probs_primary = (self.HYBRID_XGB_WEIGHT * probs_xgb) + (self.HYBRID_STGCN_WEIGHT * probs_stgcn)
+            conf_primary = float(np.max(probs_primary))
 
-            # 3. Weighted Blending: 0.65 XGBoost + 0.35 ST-GCN
-            probs = (0.65 * probs_xgb) + (0.35 * probs_stgcn)
+            # 2. Only evaluate swapped pass if primary confidence is uncertain (< 0.55, or < 0.65 for single-hand)
+            # This cuts backend latency in half for clear signs and prevents redundant inference
+            if (is_single_hand and conf_primary < 0.65) or conf_primary < 0.55:
+                swapped = np.zeros_like(arr_norm)
+                swapped[:, :63] = arr_norm[:, 63:]
+                swapped[:, 63:] = arr_norm[:, :63]
+                feat_swapped = extract_features(swapped)
+                probs_xgb_swapped = self.xgb_model.predict_proba(feat_swapped)[0]
+
+                tensor_swapped = torch.tensor(swapped, dtype=torch.float32)
+                with torch.no_grad():
+                    logits_swapped = self.stgcn_model(tensor_swapped)
+                    probs_stgcn_swapped = torch.softmax(logits_swapped / self.HYBRID_TEMPERATURE, dim=1).numpy()[0]
+
+                probs_swapped = (self.HYBRID_XGB_WEIGHT * probs_xgb_swapped) + (self.HYBRID_STGCN_WEIGHT * probs_stgcn_swapped)
+                conf_swapped = float(np.max(probs_swapped))
+
+                # Choose ONE consistent orientation for the entire ensemble
+                if conf_swapped > conf_primary:
+                    probs = probs_swapped
+                else:
+                    probs = probs_primary
+            else:
+                probs = probs_primary
 
             top_idx = int(np.argmax(probs))
             confidence = float(probs[top_idx])
@@ -375,17 +393,22 @@ class TranslatorModel:
                 logits = model(tensor_in)
                 probs = torch.softmax(logits, dim=1).numpy()[0]
 
-            # 2. Hand-swapped orientation pass (enforce hand invariance)
-            swapped = np.zeros_like(arr)
-            swapped[:, :63] = arr[:, 63:]
-            swapped[:, 63:] = arr[:, :63]
-            tensor_swapped = torch.tensor(swapped, dtype=torch.float32)
-            with torch.no_grad():
-                logits_swapped = model(tensor_swapped)
-                probs_swapped = torch.softmax(logits_swapped, dim=1).numpy()[0]
+            left_active = np.any(arr[:, :63] != 0)
+            right_active = np.any(arr[:, 63:] != 0)
+            is_single_hand = (left_active and not right_active) or (right_active and not left_active)
 
-            if np.max(probs_swapped) > np.max(probs):
-                probs = probs_swapped
+            # 2. Hand-swapped orientation pass only when single-hand or confidence is low (< 0.72)
+            if is_single_hand or float(np.max(probs)) < 0.72:
+                swapped = np.zeros_like(arr)
+                swapped[:, :63] = arr[:, 63:]
+                swapped[:, 63:] = arr[:, :63]
+                tensor_swapped = torch.tensor(swapped, dtype=torch.float32)
+                with torch.no_grad():
+                    logits_swapped = model(tensor_swapped)
+                    probs_swapped = torch.softmax(logits_swapped, dim=1).numpy()[0]
+
+                if np.max(probs_swapped) > np.max(probs):
+                    probs = probs_swapped
 
             top_idx = int(np.argmax(probs))
             confidence = float(probs[top_idx])
@@ -785,11 +808,11 @@ class TranslatorModel:
         if self.mode == 'hybrid_ensemble':
             model_path = f"{XGB_MODEL_PATH} + {STGCN_MODEL_PATH}"
         elif self.mode == 'xgboost':
-            model_path = str(XGB_MODEL_PATH)
+            model_path = XGB_MODEL_PATH
         elif self.mode == 'stgcn':
-            model_path = str(STGCN_MODEL_PATH)
+            model_path = STGCN_MODEL_PATH
         else:
-            model_path = str(MODEL_PATH)
+            model_path = MODEL_PATH
 
         labels = [c for c in ISL_LABELS if c.isalpha()] if self.mode in ('xgboost', 'hybrid_ensemble', 'stgcn') else ISL_LABELS
         metrics = self.metadata.get('metrics', {})

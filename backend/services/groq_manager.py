@@ -40,18 +40,17 @@ class GroqErrorType(Enum):
     UNKNOWN_ERROR = "UNKNOWN_ERROR"
 
 
-# Master priority candidate lists (sorted from latest/highest capability down to fast fallbacks)
+# Master priority candidate lists (sorted from verified active models down to fallback candidates)
 PREFERRED_GROQ_MODELS = [
-    "llama-3.3-70b-versatile",
-    "llama-3.3-70b-specdec",
-    "llama-3.1-70b-versatile",
+    "qwen/qwen3.8-27b",
     "openai/gpt-oss-120b",
-    "qwen/qwen3.6-27b",
+    "openai/gpt-oss-20b",
+    "allam-2-7b",
+    "llama-3.3-70b-versatile",
+    "llama-3.1-70b-versatile",
     "llama-3.1-8b-instant",
     "gemma2-9b-it",
     "mixtral-8x7b-32768",
-    "groq/compound",
-    "groq/compound-mini",
 ]
 
 
@@ -317,7 +316,8 @@ class GroqManager:
         prompt: str,
         system_instruction: str = "You are SignBridge AI assistant.",
         temperature: float = 0.3,
-        max_tokens: int = 300
+        max_tokens: int = 300,
+        timeout: Optional[float] = None
     ) -> GroqResult:
         """
         Execute robust generation across Groq (Model x Key) matrix.
@@ -352,7 +352,8 @@ class GroqManager:
                             prompt=prompt,
                             system_instruction=system_instruction,
                             temperature=temperature,
-                            max_tokens=max_tokens
+                            max_tokens=max_tokens,
+                            timeout=timeout
                         )
 
                         if text_output and text_output.strip():
@@ -406,23 +407,45 @@ class GroqManager:
         prompt: str,
         system_instruction: str,
         temperature: float,
-        max_tokens: int
+        max_tokens: int,
+        timeout: Optional[float] = None
     ) -> str:
         """Low-level Groq completions caller."""
         client = key_info.client
         if not client:
             raise RuntimeError(f"Groq client not initialized for {key_info.key_id}")
 
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
-                {"role": "system", "content": system_instruction},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=temperature,
-            max_tokens=max_tokens,
-            timeout=self.timeout_sec
-        )
+        call_timeout = timeout if timeout is not None else self.timeout_sec
+        extra_kwargs = {}
+        if any(r in model_name.lower() for r in ["deepseek", "r1", "qwen"]):
+            extra_kwargs["reasoning_format"] = "hidden"
+
+        try:
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {"role": "system", "content": system_instruction},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens,
+                timeout=call_timeout,
+                **extra_kwargs
+            )
+        except Exception as e:
+            if extra_kwargs and "reasoning_format" in str(e).lower():
+                response = client.chat.completions.create(
+                    model=model_name,
+                    messages=[
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    timeout=call_timeout
+                )
+            else:
+                raise
 
         if response.choices and len(response.choices) > 0:
             msg = response.choices[0].message

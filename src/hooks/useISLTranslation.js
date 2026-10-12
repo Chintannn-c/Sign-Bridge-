@@ -68,6 +68,7 @@ export function useISLTranslation() {
 
   // ─── Core Message System ────────────────────────────────────────────────
   const addMessage = useCallback((sender, text) => {
+    if (!text || text.includes('robotic hands') || text.includes('Arduino not connected')) return;
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setMessages(prev => [
       ...prev,
@@ -85,6 +86,10 @@ export function useISLTranslation() {
    */
   const streamText = useCallback((targetSide, rawFullText, onDone) => {
     const fullText = (rawFullText != null) ? String(rawFullText) : '';
+    if (fullText.includes('robotic hands') || fullText.includes('Arduino not connected')) {
+      if (onDone) onDone();
+      return;
+    }
     let charIdx = 0;
     if (timerRef.current) clearInterval(timerRef.current);
     setIsStreamingHuman(false);
@@ -160,7 +165,7 @@ export function useISLTranslation() {
     return null;
   }, [apiStatus]);
 
-  // ─── Send Text to Arduino Robotic Hands ─────────────────────────────────
+  // ─── Send Text to Arduino Robotic Hands (Hardware actuation only) ───────
   const sendToRobot = useCallback(async (text) => {
     try {
       const res = await fetch(`${API_BASE}/robot/sign`, {
@@ -170,19 +175,13 @@ export function useISLTranslation() {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        // Display robot response in chat
-        const robotMsg = data.arduino_connected
-          ? `Signing: "${text}" on robotic hands`
-          : `Queued "${text}" for robotic hands (Arduino not connected)`;
-        streamText('robot', robotMsg);
-        return data;
+        return await res.json();
       }
     } catch (e) {
       console.warn('Robot sign API error:', e);
     }
     return null;
-  }, [streamText]);
+  }, []);
 
   // ─── LLM API: Refine Raw ISL Text Buffer ──────────────────────────────
   const refineWithLLM = useCallback(async (rawText) => {

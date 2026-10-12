@@ -36,7 +36,7 @@ const UPPER_BODY_JOINTS = [0, 11, 12, 13, 14, 15, 16, 23, 24];
 const FINGERTIPS = [4, 8, 12, 16, 20];
 const PALM_CENTER_INDICES = [0, 5, 9, 13, 17];
 
-export const HandTrackingOverlay = ({
+export const HandTrackingOverlay = React.memo(({
   landmarks,
   poseLandmarks = null,
   bodyAnchors = null,
@@ -48,6 +48,26 @@ export const HandTrackingOverlay = ({
   const canvasRef = useRef(null);
   const ripplesRef = useRef([]);
   const lastPalmsRef = useRef([]);
+
+  const propsRef = useRef({
+    landmarks,
+    poseLandmarks,
+    bodyAnchors,
+    width,
+    height,
+    activeSign,
+  });
+
+  useEffect(() => {
+    propsRef.current = {
+      landmarks,
+      poseLandmarks,
+      bodyAnchors,
+      width,
+      height,
+      activeSign,
+    };
+  }, [landmarks, poseLandmarks, bodyAnchors, width, height, activeSign]);
 
   // Trigger electric shockwave ripple whenever a sign is committed/active
   useEffect(() => {
@@ -69,6 +89,8 @@ export const HandTrackingOverlay = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+
+    const { landmarks, poseLandmarks, bodyAnchors, width, height } = propsRef.current;
 
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
@@ -301,7 +323,7 @@ export const HandTrackingOverlay = ({
       }
       ripplesRef.current = activeRipples;
     }
-  }, [landmarks, poseLandmarks, bodyAnchors, width, height]);
+  }, []);
 
   // Silky 60fps continuous requestAnimationFrame loop for breathing micro-animations
   useEffect(() => {
@@ -323,4 +345,4 @@ export const HandTrackingOverlay = ({
       height={height}
     />
   );
-};
+});

@@ -112,7 +112,6 @@ export const LiveDetectionTab = ({ isActive, onSendToChat }) => {
         inactivityCountdown={recognition.inactivityCountdown}
         autoSendEnabled={recognition.autoSendEnabled}
         onToggleAutoSend={() => recognition.setAutoSendEnabled(prev => !prev)}
-        lastAutoSpoken={recognition.lastAutoSpoken}
         onCancelCountdown={recognition.cancelInactivityCountdown}
       />
     </div>

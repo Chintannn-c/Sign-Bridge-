@@ -45,8 +45,8 @@ export function useWebcam() {
             }
 
             const videoConstraints = selectedDeviceId
-              ? { deviceId: { exact: selectedDeviceId }, width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30, max: 60 } }
-              : { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30, max: 60 }, facingMode: 'user' };
+              ? { deviceId: { exact: selectedDeviceId }, width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30 } }
+              : { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30 }, facingMode: 'user' };
 
             const stream = await navigator.mediaDevices.getUserMedia({
               video: videoConstraints,

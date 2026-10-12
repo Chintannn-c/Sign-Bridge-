@@ -1,7 +1,28 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Bot, User, ChevronDown, Keyboard, Send, BookOpen, Eye, EyeOff, Mic, MicOff } from 'lucide-react';
-import { GestureReferenceSheet } from './GestureReferenceSheet';
+const GestureReferenceSheet = React.lazy(() =>
+  import('./GestureReferenceSheet').then(m => ({ default: m.GestureReferenceSheet }))
+);
+
+const MessageBubble = React.memo(({ msg }) => {
+  const isHuman = msg.sender === 'human';
+  return (
+    <div className={`chat-bubble-row ${isHuman ? 'row-human' : 'row-robot'}`}>
+      <div className="chat-avatar">
+        {isHuman ? <User size={14} /> : <Bot size={14} />}
+      </div>
+      <div className="chat-bubble">
+        <div className="chat-sender-name">
+          {isHuman ? 'YOU (Gesture Detection)' : 'SIGN-BRIDGE AI'}
+        </div>
+        <div className="chat-bubble-text">{msg.text}</div>
+        <div className="chat-timestamp">{msg.timestamp}</div>
+      </div>
+    </div>
+  );
+});
+MessageBubble.displayName = 'MessageBubble';
 
 /**
  * RobotPanel Component - Right Panel Card ("SIGN-BRIDGE")
@@ -84,10 +105,17 @@ export const RobotPanel = React.memo(({
   );
   const currentWord = words[currentWordIndex] || words[0] || '';
 
-  // Auto-scroll chat thread to bottom on new messages
+  // Auto-scroll chat thread smoothly only on new finalized messages
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, streamingText]);
+  }, [messages]);
+
+  // Instant scroll during active typewriter streaming to prevent smooth-scroll thrashing & reflows
+  useEffect(() => {
+    if (streamingText && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  }, [streamingText]);
 
   // Monitor scroll position to show/hide "Scroll to Bottom" button
   const handleScroll = () => {
@@ -303,26 +331,11 @@ export const RobotPanel = React.memo(({
             </motion.div>
           )}
 
-          {messages.map((msg) => {
-            const isHuman = msg.sender === 'human';
-            return (
-              <div
-                key={msg.id}
-                className={`chat-bubble-row ${isHuman ? 'row-human' : 'row-robot'}`}
-              >
-                <div className="chat-avatar">
-                  {isHuman ? <User size={14} /> : <Bot size={14} />}
-                </div>
-                <div className="chat-bubble">
-                  <div className="chat-sender-name">
-                    {isHuman ? 'YOU (Gesture Detection)' : 'SIGN-BRIDGE AI'}
-                  </div>
-                  <div className="chat-bubble-text">{msg.text}</div>
-                  <div className="chat-timestamp">{msg.timestamp}</div>
-                </div>
-              </div>
-            );
-          })}
+          {messages
+            .filter((msg) => !msg.text?.includes('robotic hands') && !msg.text?.includes('Arduino not connected'))
+            .map((msg) => (
+              <MessageBubble key={msg.id} msg={msg} />
+            ))}
 
           {/* Active Live Streaming Typewriter Message */}
           {isStreaming && (
@@ -487,12 +500,16 @@ export const RobotPanel = React.memo(({
       </div>
 
       {/* Embedded In-Card Gesture Reference Panel (Splits Right Panel into top/bottom half) */}
-      <GestureReferenceSheet
-        isOpen={isSheetOpen}
-        onClose={() => setIsSheetOpen(false)}
-        onSimulateGesture={onSendMessage}
-        isEmbedded={true}
-      />
+      {isSheetOpen && (
+        <React.Suspense fallback={null}>
+          <GestureReferenceSheet
+            isOpen={isSheetOpen}
+            onClose={() => setIsSheetOpen(false)}
+            onSimulateGesture={onSendMessage}
+            isEmbedded={true}
+          />
+        </React.Suspense>
+      )}
     </div>
   );
 });

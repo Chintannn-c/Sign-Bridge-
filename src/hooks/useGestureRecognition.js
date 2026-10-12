@@ -31,8 +31,7 @@ const STATUS_LABELS = {
 };
 
 // Minimum consecutive identical predictions needed to commit a letter
-const STABILITY_THRESHOLD = 3;
-// Minimum confidence to consider a prediction valid
+const STABILITY_THRESHOLD = 2; // Immediate responsiveness without freezing
 const CONFIDENCE_THRESHOLD_LETTER = 0.52;
 const CONFIDENCE_THRESHOLD_WORD = 0.65;
 const WORD_SEQUENCE_LENGTH = 30;
@@ -63,6 +62,30 @@ function formatWordForSentence(rawWord) {
   return rawWord.replace(/_/g, ' ').trim();
 }
 
+function isHandActive(frame, offset) {
+  return Boolean(frame && (frame[offset] !== 0 || frame[offset + 1] !== 0));
+}
+
+function getFrameHandCentroid(frame, offset) {
+  const indices = [0, 5, 9, 13, 17];
+  let x = 0;
+  let y = 0;
+  for (const idx of indices) {
+    x += frame[offset + idx * 3];
+    y += frame[offset + idx * 3 + 1];
+  }
+  return { x: x / 5, y: y / 5 };
+}
+
+function swapHandsInFrame(frame) {
+  const swapped = new Array(126);
+  for (let i = 0; i < 63; i++) {
+    swapped[i] = frame[63 + i];
+    swapped[63 + i] = frame[i];
+  }
+  return swapped;
+}
+
 export function useGestureRecognition({ enabled = false, initialMode = 'letter', _videoElement = null, onSendMessage = null } = {}) {
   const [recognitionMode, setRecognitionMode] = useState(initialMode); // 'letter' | 'word'
   const [status, setStatus] = useState(STATES.IDLE);
@@ -88,7 +111,6 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const [autoSendEnabled, setAutoSendEnabled] = useState(true);
   const [autoSendTimeoutMs, setAutoSendTimeoutMs] = useState(5000);
   const [inactivityCountdown, setInactivityCountdown] = useState(null);
-  const [lastAutoSpoken, setLastAutoSpoken] = useState(null);
   const [isAutoSending, setIsAutoSending] = useState(false);
 
   // Synchronous Sentence Buffer & Ref
@@ -131,11 +153,22 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const lastCommittedItemRef = useRef(null);
   const frameBufferRef = useRef([]);
   const wordInferenceCooldownRef = useRef(0);
+  const letterInferenceCooldownRef = useRef(0);
   const isRequestPendingRef = useRef(false);
   const isWordRequestPendingRef = useRef(false);
-  const prevLandmarksRef = useRef(null);
   const bodyAnchorsRef = useRef(null);
   const handsMissingCountRef = useRef(0);
+
+  // Stabilize detected sign and onSendMessage across renders
+  const detectedRef = useRef(null);
+  useEffect(() => {
+    detectedRef.current = detectedWord || detectedLetter;
+  }, [detectedWord, detectedLetter]);
+
+  const onSendMessageRef = useRef(onSendMessage);
+  useEffect(() => {
+    onSendMessageRef.current = onSendMessage;
+  }, [onSendMessage]);
 
   // Inactivity auto-send timers & refs
   const autoSendTimerRef = useRef(null);
@@ -199,12 +232,11 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       }
 
       // 3. Send message to the Dialogue Chat Thread
-      if (onSendMessage) {
-        onSendMessage(speechText, 'human');
+      if (onSendMessageRef.current) {
+        onSendMessageRef.current(speechText, 'human');
       }
 
-      // 4. Update feedback and clear draft buffer
-      setLastAutoSpoken(speechText);
+      // 4. Clear draft buffer
       setSentenceBufferSync('');
     } catch (e) {
       console.warn('Auto-send execution error:', e);
@@ -213,7 +245,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       setIsAutoSending(false);
       cancelInactivityCountdown();
     }
-  }, [cancelInactivityCountdown, onSendMessage, setSentenceBufferSync]);
+  }, [cancelInactivityCountdown, setSentenceBufferSync]);
 
   /**
    * Start or maintain the 5-second countdown timer when no gesture is detected.
@@ -342,11 +374,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     // Update hand status with tracking grace period
     if (handCount > 0 && hasActiveLandmarks) {
       handsMissingCountRef.current = 0;
-      setHandInfo({
-        count: handCount,
-        label: handedness || (handCount >= 2 ? 'Both Hands (ISL)' : 'Single Hand'),
-      });
-      setStatus(STATES.DETECTED);
+      const label = handedness || (handCount >= 2 ? 'Both Hands (ISL)' : 'Single Hand');
+      setHandInfo(p => (p && p.count === handCount && p.label === label ? p : { count: handCount, label }));
+      setStatus(prev => (prev === STATES.DETECTED ? prev : STATES.DETECTED));
     } else {
       handsMissingCountRef.current += 1;
       // Grace period: allow up to 6 dropped tracking frames (~250ms) without clearing the word buffer
@@ -354,12 +384,12 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         return null; // Retain buffer during momentary tracking flicker
       }
       setHandInfo(null);
-      setStatus(STATES.SEARCHING);
+      setStatus(prev => (prev === STATES.SEARCHING ? prev : STATES.SEARCHING));
       setDetectedLetter(null);
       setDetectedWord(null);
       setConfidence(0);
       setAllScores({});
-      setGuidance('Show your hands inside the camera frame.');
+      setGuidance(prev => (prev === 'Show your hands inside the camera frame.' ? prev : 'Show your hands inside the camera frame.'));
       consecutiveLetterRef.current = { letter: null, count: 0 };
       consecutiveWordRef.current = { word: null, count: 0 };
       lastCommittedItemRef.current = null;
@@ -373,29 +403,69 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
     // Adaptive Guidance for Single-Hand vs Dual-Hand Gestures
     if (handCount === 1) {
-      setGuidance('Single hand detected (e.g. C, L, O, V, numbers 0–9)');
+      const g1 = 'Single hand detected (e.g. C, L, O, V, numbers 0–9)';
+      setGuidance(prev => (prev === g1 ? prev : g1));
     } else if (handCount >= 2) {
-      const guidanceMsg = landmarks && landmarks.length >= 126 ? analyzeQuality(landmarks) : null;
-      setGuidance(guidanceMsg || 'Dual-hand ISL tracking active');
+      const guidanceMsg = (landmarks && landmarks.length >= 126 ? analyzeQuality(landmarks) : null) || 'Dual-hand ISL tracking active';
+      setGuidance(prev => (prev === guidanceMsg ? prev : guidanceMsg));
     }
 
-    setStatus(STATES.TRACKING);
+    setStatus(prev => (prev === STATES.TRACKING ? prev : STATES.TRACKING));
 
     // ─────────────────────────────────────────────────────────────────────────
     // MODE 1: WORD SEQUENCE RECOGNITION (Sliding 30-Frame Window)
     // ─────────────────────────────────────────────────────────────────────────
     if (recognitionMode === 'word') {
+      // Maintain hand slot continuity across momentary occlusion or crossing
+      let frameToPush = landmarks;
+      if (frameBufferRef.current.length > 0 && landmarks && landmarks.length >= 126) {
+        const prevFrame = frameBufferRef.current[frameBufferRef.current.length - 1];
+        const prevHasL = isHandActive(prevFrame, 0);
+        const prevHasR = isHandActive(prevFrame, 63);
+        const curHasL = isHandActive(landmarks, 0);
+        const curHasR = isHandActive(landmarks, 63);
+
+        if (prevHasL && prevHasR && curHasL && curHasR) {
+          const prevL = getFrameHandCentroid(prevFrame, 0);
+          const prevR = getFrameHandCentroid(prevFrame, 63);
+          const curL = getFrameHandCentroid(landmarks, 0);
+          const curR = getFrameHandCentroid(landmarks, 63);
+
+          const distDirect = Math.hypot(prevL.x - curL.x, prevL.y - curL.y) + Math.hypot(prevR.x - curR.x, prevR.y - curR.y);
+          const distCross = Math.hypot(prevL.x - curR.x, prevL.y - curR.y) + Math.hypot(prevR.x - curL.x, prevR.y - curL.y);
+
+          if (distCross + 0.05 < distDirect && distDirect > 0.15) {
+            frameToPush = swapHandsInFrame(landmarks);
+          }
+        } else if (!prevHasL && prevHasR && curHasL && !curHasR) {
+          const prevR = getFrameHandCentroid(prevFrame, 63);
+          const curL = getFrameHandCentroid(landmarks, 0);
+          if (Math.hypot(prevR.x - curL.x, prevR.y - curL.y) < 0.20) {
+            frameToPush = swapHandsInFrame(landmarks);
+          }
+        } else if (prevHasL && !prevHasR && !curHasL && curHasR) {
+          const prevL = getFrameHandCentroid(prevFrame, 0);
+          const curR = getFrameHandCentroid(landmarks, 63);
+          if (Math.hypot(prevL.x - curR.x, prevL.y - curR.y) < 0.20) {
+            frameToPush = swapHandsInFrame(landmarks);
+          }
+        }
+      }
+
       // Append current frame to rolling sequence buffer
-      frameBufferRef.current.push(landmarks);
+      frameBufferRef.current.push(frameToPush);
       if (frameBufferRef.current.length > WORD_SEQUENCE_LENGTH) {
         frameBufferRef.current.shift();
       }
-      setWordBufferCount(frameBufferRef.current.length);
+      const currentBufLen = frameBufferRef.current.length;
+      if (currentBufLen % 3 === 0 || currentBufLen >= WORD_SEQUENCE_LENGTH) {
+        setWordBufferCount(currentBufLen);
+      }
 
-      // Start inference as soon as minimum viable sequence (>= 15 frames, ~0.5s) is reached
+      // Start inference as soon as minimum viable sequence (>= 10 frames, ~0.33s) is reached
       const now = Date.now();
-      const hasViableSequence = frameBufferRef.current.length >= 15;
-      const isCooldownOver = (now - wordInferenceCooldownRef.current >= 80);
+      const hasViableSequence = frameBufferRef.current.length >= 10;
+      const isCooldownOver = (now - wordInferenceCooldownRef.current >= 100);
 
       if (hasViableSequence && isCooldownOver && !isWordRequestPendingRef.current) {
         wordInferenceCooldownRef.current = now;
@@ -411,12 +481,15 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           framesToSend = indices.map(idx => framesToSend[idx]);
         }
 
+        const r = v => Math.round(v * 1e4) / 1e4;
+        const roundedFrames = framesToSend.map(f => f.map(r));
+
         try {
           const res = await fetch(`${API_BASE}/translate/word`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              frames: framesToSend,
+              frames: roundedFrames,
               body_anchors: bodyAnchorsRef.current,
             }),
           });
@@ -430,11 +503,11 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
           // Handle confidence rejection from backend
           if (prediction.rejected || !prediction.word || prediction.word === '?' || prediction.confidence < CONFIDENCE_THRESHOLD_WORD) {
-            setStatus(STATES.TRACKING);
+            setStatus(prev => (prev === STATES.TRACKING ? prev : STATES.TRACKING));
             setDetectedWord(null);
             setDetectedLetter(null);
-            setConfidence(prediction.confidence || 0);
-            setGuidance('Low confidence — adjust your hand position.');
+            setConfidence(prev => (Math.abs(prev - (prediction.confidence || 0)) < 0.02 ? prev : (prediction.confidence || 0)));
+            setGuidance(prev => (prev === 'Low confidence — adjust your hand position.' ? prev : 'Low confidence — adjust your hand position.'));
             consecutiveWordRef.current = { word: null, count: 0 };
             // No gesture detected: start or maintain 5-second countdown
             startOrResetInactivityTimer(false);
@@ -443,7 +516,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
           // Active gesture detected: pause/cancel countdown
           cancelInactivityCountdown();
-          setStatus(STATES.RECOGNISING);
+          setStatus(prev => (prev === STATES.RECOGNISING ? prev : STATES.RECOGNISING));
           setDetectedWord(prediction.word);
           setDetectedLetter(null);
           setConfidence(prediction.confidence);
@@ -478,8 +551,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
               strokeEnergy = validPts > 0 ? diffSum / validPts : 0;
             }
 
-            // Commit word when gesture decelerates (stroke completion) or has overwhelming confidence / stability
-            const isStrokeComplete = strokeEnergy < 0.040 || prediction.confidence >= 0.88 || consecutiveWordRef.current.count >= 3;
+            // Commit word when gesture decelerates (stroke completion) or has strong confidence / stability
+            const isStrokeComplete = strokeEnergy < 0.080 || prediction.confidence >= 0.78 || consecutiveWordRef.current.count >= 2;
 
             if (isStrokeComplete && (consecutiveWordRef.current.count >= 2 || prediction.confidence >= 0.85)) {
               const formattedWord = formatWordForSentence(prediction.word);
@@ -517,7 +590,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         }
       } else {
         // Viable sequence not reached or cooldown active: check if waiting
-        if (!detectedWord && !detectedLetter) {
+        if (!detectedRef.current) {
           startOrResetInactivityTimer(false);
         }
       }
@@ -527,38 +600,21 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     // ─────────────────────────────────────────────────────────────────────────
     // MODE 2: STATIC LETTER RECOGNITION (A-Z)
     // ─────────────────────────────────────────────────────────────────────────
-    // Kinematic Velocity Gating: suppress false positives during hand transition movement
-    if (prevLandmarksRef.current && prevLandmarksRef.current.length === landmarks.length) {
-      let totalDisplacement = 0;
-      let activePoints = 0;
-      for (let i = 0; i < landmarks.length; i += 3) {
-        if (landmarks[i] !== 0 || landmarks[i + 1] !== 0) {
-          const dx = landmarks[i] - prevLandmarksRef.current[i];
-          const dy = landmarks[i + 1] - prevLandmarksRef.current[i + 1];
-          totalDisplacement += Math.sqrt(dx * dx + dy * dy);
-          activePoints += 1;
-        }
-      }
-      const meanVelocity = activePoints > 0 ? totalDisplacement / activePoints : 0;
-      if (meanVelocity > 0.042) {
-        setStatus(STATES.TRACKING);
-        setGuidance('Hold sign steady...');
-        consecutiveLetterRef.current = { letter: null, count: 0 };
-        prevLandmarksRef.current = landmarks;
-        return null;
-      }
-    }
-    prevLandmarksRef.current = landmarks;
 
-    if (isRequestPendingRef.current) return null;
+
+    const now = Date.now();
+    if (now - letterInferenceCooldownRef.current < 60 || isRequestPendingRef.current) return null;
+    letterInferenceCooldownRef.current = now;
     isRequestPendingRef.current = true;
 
     try {
+      const r = v => Math.round(v * 1e4) / 1e4;
+      const roundedLandmarks = landmarks.map(r);
       const res = await fetch(`${API_BASE}/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          landmarks,
+          landmarks: roundedLandmarks,
           body_anchors: bodyAnchorsRef.current,
         }),
       });
@@ -572,12 +628,11 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
       // Handle confidence rejection or low confidence from backend
       if (prediction.rejected || !prediction.letter || prediction.letter === '?' || prediction.confidence < CONFIDENCE_THRESHOLD_LETTER) {
-        setStatus(STATES.TRACKING);
+        setStatus(prev => (prev === STATES.TRACKING ? prev : STATES.TRACKING));
         setDetectedLetter(null);
         setDetectedWord(null);
-        setConfidence(prediction.confidence || 0);
+        setConfidence(prev => (Math.abs(prev - (prediction.confidence || 0)) < 0.02 ? prev : (prediction.confidence || 0)));
         setAllScores(prediction.all_scores || {});
-        setGuidance(prediction.confidence > 0 ? 'Hold sign steady...' : 'Show hands clearly');
         consecutiveLetterRef.current = { letter: null, count: 0 };
         // No gesture detected: start or maintain 5-second countdown
         startOrResetInactivityTimer(false);
@@ -598,7 +653,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
       // Display detected letter with high responsiveness
       if (consecutiveLetterRef.current.count >= 1) {
-        setStatus(consecutiveLetterRef.current.count >= 2 ? STATES.RECOGNISING : STATES.TRACKING);
+        const nextStatus = consecutiveLetterRef.current.count >= 2 ? STATES.RECOGNISING : STATES.TRACKING;
+        setStatus(prev => (prev === nextStatus ? prev : nextStatus));
         setDetectedLetter(prediction.letter);
         setDetectedWord(null);
         setConfidence(prediction.confidence);
@@ -608,7 +664,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       // Commit letter after reaching stability threshold
       if (consecutiveLetterRef.current.count >= STABILITY_THRESHOLD) {
         const now = Date.now();
-        if (now - lastCommitRef.current > 420) {
+        if (now - lastCommitRef.current > 300) {
           if (lastCommittedItemRef.current !== prediction.letter) {
             setStatus(STATES.STABLE);
             clearAutoSpaceTimer();
@@ -645,7 +701,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     } finally {
       isRequestPendingRef.current = false;
     }
-  }, [enabled, recognitionMode, cancelInactivityCountdown, startOrResetInactivityTimer, handleHandsDropped, clearAutoSpaceTimer, setSentenceBufferSync, detectedWord, detectedLetter]);
+  }, [enabled, recognitionMode, cancelInactivityCountdown, startOrResetInactivityTimer, handleHandsDropped, clearAutoSpaceTimer, setSentenceBufferSync]);
 
   // Sentence buffer actions
   const undoLetter = useCallback(() => {
@@ -755,7 +811,6 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     if (onSendMessage) {
       onSendMessage(textToSend, 'human');
     }
-    setLastAutoSpoken(textToSend);
     setSentenceBufferSync('');
   }, [cancelInactivityCountdown, onSendMessage, setSentenceBufferSync]);
 
@@ -789,7 +844,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     autoSendTimeoutMs,
     setAutoSendTimeoutMs,
     inactivityCountdown,
-    lastAutoSpoken,
+    lastAutoSpoken: null,
     isAutoSending,
 
     // Actions

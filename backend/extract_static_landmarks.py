@@ -29,44 +29,8 @@ OUTPUT_DIR = BASE_DIR / 'dataset_collected'
 MODEL_TASK_PATH = BASE_DIR / 'models' / 'hand_landmarker.task'
 
 
-def get_landmark_vector_from_result(detection_result):
-    """
-    Standardizes MediaPipe HandLandmarker result into a 126-float array.
-    Indices 0..62: Left hand (21 x 3)
-    Indices 63..125: Right hand (21 x 3)
-    """
-    left_hand = np.zeros((21, 3), dtype=np.float32)
-    right_hand = np.zeros((21, 3), dtype=np.float32)
-
-    if not detection_result.hand_landmarks:
-        return None
-
-    handedness_list = detection_result.handedness or []
-    landmarks_list = detection_result.hand_landmarks
-
-    for i, hand_lms in enumerate(landmarks_list):
-        label = None
-        if i < len(handedness_list) and handedness_list[i]:
-            label = handedness_list[i][0].category_name
-
-        coords = np.array([[lm.x, lm.y, lm.z] for lm in hand_lms], dtype=np.float32)
-
-        if label == 'Left':
-            left_hand = coords
-        elif label == 'Right':
-            right_hand = coords
-        else:
-            if coords[0, 0] < 0.5:
-                left_hand = coords
-            else:
-                right_hand = coords
-
-    if len(landmarks_list) == 1 and not np.any(right_hand != 0) and not np.any(left_hand != 0):
-        coords = np.array([[lm.x, lm.y, lm.z] for lm in landmarks_list[0]], dtype=np.float32)
-        right_hand = coords
-
-    combined = np.concatenate([left_hand.reshape(-1), right_hand.reshape(-1)])
-    return combined.tolist()
+from collections import defaultdict
+from services.landmark_utils import get_landmark_vector_from_result
 
 
 def process_realsign_letters(detector, mp):
@@ -275,7 +239,7 @@ def extract_mendeley_zip():
 
 
 def process_mendeley_dataset(detector, mp):
-    """Process extracted Mendeley ISL images."""
+    """Process extracted Mendeley ISL images, aggregating across train/test subfolders without collision."""
     mendeley_extracted = DATASET_DIR / 'Mendeley_ISL' / 'extracted'
 
     if not mendeley_extracted.exists():
@@ -284,55 +248,39 @@ def process_mendeley_dataset(detector, mp):
             logger.warning("Mendeley extraction failed, skipping")
             return 0
 
-    # Scan for image directories
     total_extracted = 0
-    image_dirs = []
+    images_by_label = defaultdict(list)
+    image_exts = {'.jpg', '.jpeg', '.png'}
 
-    # Look for class directories (letter names or digit names)
-    for item in sorted(mendeley_extracted.rglob('*')):
-        if item.is_dir():
-            imgs = list(item.glob('*.jpg')) + list(item.glob('*.png')) + list(item.glob('*.jpeg'))
-            if imgs:
-                image_dirs.append(item)
+    for item in mendeley_extracted.rglob('*'):
+        if item.is_file() and item.suffix.lower() in image_exts:
+            p_name = item.parent.name.upper().strip()
+            if len(p_name) == 1 and (p_name.isalpha() or p_name.isdigit()):
+                images_by_label[p_name].append(item)
+            elif len(item.stem) == 1 and (item.stem.isalpha() or item.stem.isdigit()):
+                images_by_label[item.stem.upper()].append(item)
 
-    if not image_dirs:
-        # Maybe flat structure - look for images directly
-        imgs = list(mendeley_extracted.glob('*.jpg')) + list(mendeley_extracted.glob('*.png'))
-        if imgs:
-            logger.info(f"Mendeley has flat structure with {len(imgs)} images")
-        else:
-            logger.warning("No images found in Mendeley extracted directory")
+    if not images_by_label:
+        logger.warning("No images found in Mendeley extracted directory")
         return 0
 
-    logger.info(f"Processing Mendeley ISL dataset ({len(image_dirs)} class directories)...")
+    logger.info(f"Processing Mendeley ISL dataset ({len(images_by_label)} classes across folders)...")
 
-    for class_dir in image_dirs:
-        label = class_dir.name.upper().strip()
-        # Normalize label
-        if len(label) == 1 and (label.isalpha() or label.isdigit()):
-            pass  # Good label
-        elif label.lower() in [str(i) for i in range(10)]:
-            label = label
-        else:
-            logger.info(f"  [Mendeley] Skipping non-standard label: {label}")
-            continue
-
+    for label, img_paths in sorted(images_by_label.items()):
         target_dir = OUTPUT_DIR / label
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        # Check if already extracted
         existing_file = target_dir / "mendeley.json"
         if existing_file.exists():
             try:
                 existing_data = json.loads(existing_file.read_text(encoding='utf-8'))
-                if len(existing_data.get('frames', [])) > 0:
-                    logger.info(f"  [Mendeley] {label}: Already extracted, skipping")
-                    total_extracted += len(existing_data['frames'])
+                existing_frames = existing_data.get('frames', [])
+                if len(existing_frames) > 0:
+                    logger.info(f"  [Mendeley] {label}: Already extracted ({len(existing_frames)} frames), skipping")
+                    total_extracted += len(existing_frames)
                     continue
             except Exception:
                 pass
-
-        img_paths = sorted(list(class_dir.glob('*.jpg')) + list(class_dir.glob('*.png')) + list(class_dir.glob('*.jpeg')))
 
         frames = []
         for img_p in img_paths:
@@ -348,7 +296,7 @@ def process_mendeley_dataset(detector, mp):
             results = detector.detect(mp_image)
             if results.hand_landmarks:
                 vec = get_landmark_vector_from_result(results)
-                if vec:
+                if vec and any(v != 0 for v in vec):
                     frames.append(vec)
 
         if frames:

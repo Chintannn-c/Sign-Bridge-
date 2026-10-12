@@ -4,7 +4,7 @@ import { useWebcam } from '../hooks/useWebcam';
 import { useHandDetection } from '../hooks/useHandDetection';
 import { useGestureRecognition } from '../hooks/useGestureRecognition';
 import { HandTrackingOverlay } from './SignLanguageAssistant/HandTrackingOverlay';
-import { Video, VideoOff, Activity, CameraOff, Camera, FlipHorizontal, AlertCircle, Layers, Maximize2, Minimize2, Send, Trash2 } from 'lucide-react';
+import { Video, VideoOff, CameraOff, Camera, FlipHorizontal, Layers, Maximize2, Minimize2, Send, Trash2 } from 'lucide-react';
 import './SignLanguageAssistant/assistant.css';
 
 /**
@@ -31,6 +31,7 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
   const containerRef = useRef(null);
   const [videoElement, setVideoElement] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isCameraSelectOpen, setIsCameraSelectOpen] = useState(false);
 
   const toggleFullscreen = useCallback(() => {
     setIsFullscreen(prev => {
@@ -84,26 +85,40 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
   // Recognition state machine with dual letter & word modes and automatic snapshot fallback
   const recognition = useGestureRecognition({ enabled: isLive && isCameraOn, videoElement, onSendMessage });
 
-  // MediaPipe hands integration (2-hand detection, 0.25 confidence, 28 FPS responsive streaming)
+  // MediaPipe hands integration (dedicated 2-hand detection, 0.25 confidence, 0ms throttle)
   const detection = useHandDetection({
     videoElement: videoElement,
     enabled: isLive && isCameraOn && !!videoElement,
     onLandmarks: recognition.processLandmarks,
-    throttleMs: 35 // ~28 FPS real-time tracking for fluid 1.0s sequence buffering
+    throttleMs: 0
   });
+
+  const recognitionRef = useRef(recognition);
+  recognitionRef.current = recognition;
 
   // Notify parent of recognition updates
   useEffect(() => {
     if (onRecognitionUpdate) {
       onRecognitionUpdate({
-        ...recognition,
+        ...recognitionRef.current,
         isCameraOn
       });
     }
   }, [
     onRecognitionUpdate,
-    recognition,
-    isCameraOn
+    isCameraOn,
+    recognition.status,
+    recognition.detectedSign,
+    recognition.detectedLetter,
+    recognition.detectedWord,
+    recognition.confidence,
+    recognition.sentenceBuffer,
+    recognition.recognitionMode,
+    recognition.guidance,
+    recognition.inactivityCountdown,
+    recognition.isAutoSending,
+    recognition.handInfo,
+    recognition.wordBufferCount
   ]);
 
   // Canvas visualizer animation when camera fallback is active
@@ -165,76 +180,83 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
   const activeSign = (recognition.handInfo && recognition.confidence >= 0.60) ? (recognition.detectedWord || recognition.detectedLetter) : null;
 
   return (
-    <div className={`camera-feed-box ${isFullscreen ? 'camera-fullscreen-mode' : ''}`} ref={containerRef}>
-      {/* Top-Left Camera Source Selector Dropdown */}
-      {devices && devices.length > 0 && (
-        <div className="camera-select-pill" onClick={e => e.stopPropagation()}>
-          <Camera size={13} className="text-teal-400" />
-          <select
-            value={selectedDeviceId}
-            onChange={e => selectCamera(e.target.value, e)}
-            className="camera-select-dropdown"
-            title="Select Camera Source"
-          >
-            <option value="">Default Camera</option>
-            {devices.map((device, idx) => (
-              <option key={device.deviceId || idx} value={device.deviceId}>
-                {device.label || `Camera ${idx + 1}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Top-Right Action Controls Group */}
-      <div className="camera-top-actions" onClick={e => e.stopPropagation()}>
-        {/* Mode Switcher: Letters (A-Z) vs Words (ISL) */}
-        {isCameraOn && (
-          <button
-            className={`camera-toggle-btn ${isWordMode ? 'is-mirrored-active' : ''}`}
-            onClick={() => recognition.setRecognitionMode(prev => (prev === 'letter' ? 'word' : 'letter'))}
-            title={isWordMode ? 'Click to switch to Letters (A-Z) Mode' : 'Click to switch to ISL Words (HELLO, NAMASTE, etc.) Mode'}
-            style={{ fontWeight: 700 }}
-          >
-            <Layers size={14} />
-            <span>{isWordMode ? 'Words Mode' : 'Letters Mode'}</span>
-          </button>
-        )}
-
-        {/* Mirror Video Flip Toggle Button */}
-        {isCameraOn && (
-          <button
-            className={`camera-toggle-btn ${isMirrored ? 'is-mirrored-active' : ''}`}
-            onClick={toggleMirror}
-            title={isMirrored ? 'Video is Mirrored' : 'Video is Normal'}
-          >
-            <FlipHorizontal size={14} />
-            <span>{isMirrored ? 'Mirrored' : 'Normal'}</span>
-          </button>
-        )}
-
-        {/* Fullscreen Camera-Only Mode Toggle Button */}
-        {isCameraOn && (
-          <button
-            className={`camera-toggle-btn ${isFullscreen ? 'is-fullscreen-active' : ''}`}
-            onClick={toggleFullscreen}
-            title={isFullscreen ? 'Exit Full Screen Camera Mode (Esc or F)' : 'Enter Full Screen Camera Mode (F)'}
-            style={{ fontWeight: 700 }}
-          >
-            {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-            <span>{isFullscreen ? 'Exit Full' : 'Full Screen'}</span>
-          </button>
-        )}
-
-        {/* Camera Quick Toggle Button */}
+    <div
+      className={`camera-feed-box ${isFullscreen ? 'camera-fullscreen-mode' : ''}`}
+      ref={containerRef}
+      onClick={() => isCameraSelectOpen && setIsCameraSelectOpen(false)}
+    >
+      {/* Control Column pinned to top-right */}
+      <div className="camera-control-column" onClick={e => e.stopPropagation()}>
+        {/* 1. Mode toggle: Letters / Words */}
         <button
-          className={`camera-toggle-btn ${!isCameraOn ? 'is-off' : ''}`}
-          onClick={toggleCamera}
-          title={isCameraOn ? 'Turn Off Camera' : 'Turn On Camera'}
+          type="button"
+          className={`camera-icon-btn ${isWordMode ? 'is-active' : ''}`}
+          onClick={() => recognition.setRecognitionMode(prev => (prev === 'letter' ? 'word' : 'letter'))}
+          title={isWordMode ? 'Mode: Words (click for Letters)' : 'Mode: Letters (click for Words)'}
         >
-          {isCameraOn ? <Video size={14} /> : <VideoOff size={14} />}
-          <span>{isCameraOn ? 'Camera ON' : 'Camera OFF'}</span>
+          <Layers size={17} />
         </button>
+
+        {/* 2. Mirror toggle */}
+        <button
+          type="button"
+          className={`camera-icon-btn ${isMirrored ? 'is-active' : ''}`}
+          onClick={toggleMirror}
+          title={isMirrored ? 'Mirrored (click for normal)' : 'Normal (click to mirror)'}
+        >
+          <FlipHorizontal size={17} />
+        </button>
+
+        {/* 3. Fullscreen toggle */}
+        <button
+          type="button"
+          className={`camera-icon-btn ${isFullscreen ? 'is-active' : ''}`}
+          onClick={toggleFullscreen}
+          title={isFullscreen ? 'Exit full screen (Esc or F)' : 'Full screen (F)'}
+        >
+          {isFullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
+        </button>
+
+        {/* 4. Camera on/off toggle */}
+        <button
+          type="button"
+          className={`camera-icon-btn ${!isCameraOn ? 'is-off' : ''}`}
+          onClick={toggleCamera}
+          title={isCameraOn ? 'Turn camera off' : 'Turn camera on'}
+        >
+          {isCameraOn ? <Video size={17} /> : <VideoOff size={17} />}
+        </button>
+
+        {/* 5. Camera source selector (only if more than one device) */}
+        {devices && devices.length > 1 && (
+          <div className="camera-device-select-wrap">
+            <button
+              type="button"
+              className={`camera-icon-btn ${isCameraSelectOpen ? 'is-active' : ''}`}
+              onClick={() => setIsCameraSelectOpen(prev => !prev)}
+              title="Select camera source"
+            >
+              <Camera size={17} />
+            </button>
+            {isCameraSelectOpen && (
+              <div className="camera-dropdown-menu">
+                {devices.map((device, idx) => (
+                  <button
+                    key={device.deviceId || idx}
+                    type="button"
+                    className={`camera-dropdown-item ${selectedDeviceId === device.deviceId ? 'is-active' : ''}`}
+                    onClick={(e) => {
+                      selectCamera(device.deviceId, e);
+                      setIsCameraSelectOpen(false);
+                    }}
+                  >
+                    {device.label || `Camera ${idx + 1}`}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {isCameraOn ? (
@@ -247,7 +269,7 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
               muted
               className={`camera-video ${isMirrored ? 'is-mirrored' : ''}`}
             />
-            {/* Real-time Holistic Tracking Overlay (Upper-Body & Hands) */}
+            {/* Real-time Tracking Overlay */}
             {detection.isDetecting && (detection.landmarkData || detection.poseData) && (
               <HandTrackingOverlay 
                 landmarks={detection.landmarkData}
@@ -260,140 +282,27 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
               />
             )}
 
-            {/* Word Mode Sequence Buffer Progress Bar & Kinetic Pulse Equalizer */}
-            {isWordMode && (
-              <div style={{
-                position: 'absolute',
-                top: '3.3rem',
-                left: '0.875rem',
-                zIndex: 32,
-                background: 'rgba(28, 25, 23, 0.88)',
-                color: '#fff',
-                padding: '0.35rem 0.75rem',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.65rem',
-                fontSize: '0.72rem',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid rgba(200, 173, 147, 0.45)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.35)'
-              }}>
-                <span style={{ fontWeight: 600, color: 'var(--accent-camel)' }}>Sequence:</span>
-                <div style={{
-                  width: '64px',
-                  height: '6px',
-                  background: 'rgba(255,255,255,0.2)',
-                  borderRadius: '3px',
-                  overflow: 'hidden'
-                }}>
-                  <div 
-                    className="kinetic-energy-glow"
-                    style={{
-                      width: `${Math.min(100, (recognition.wordBufferCount / recognition.wordBufferMax) * 100)}%`,
-                      height: '100%',
-                      background: recognition.wordBufferCount >= recognition.wordBufferMax ? '#10b981' : 'var(--accent-sage)',
-                    }} 
-                  />
-                </div>
-                <span style={{ fontFamily: 'monospace', opacity: 0.9 }}>
-                  {recognition.wordBufferCount}/{recognition.wordBufferMax}
-                </span>
-
-                {/* Animated Live Kinetic Equalizer Waveform */}
-                <div className="live-waveform-equalizer" title="Kinetic Energy Motion Stream">
-                  <span className="waveform-bar" style={{ animationDuration: '0.8s' }} />
-                  <span className="waveform-bar" style={{ animationDuration: '1.2s' }} />
-                  <span className="waveform-bar" style={{ animationDuration: '0.9s' }} />
-                  <span className="waveform-bar" style={{ animationDuration: '1.1s' }} />
-                </div>
-              </div>
-            )}
-            
-            {/* Live Guidance Feedback with Smooth Slide Spring */}
-            <AnimatePresence>
-              {recognition.guidance && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  transition={{ duration: 0.22, ease: 'easeOut' }}
-                  style={{ position: 'absolute', bottom: '3.2rem', left: '0.875rem', zIndex: 30, background: 'rgba(0,0,0,0.82)', color: '#fff', padding: '0.45rem 0.85rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', backdropFilter: 'blur(8px)', pointerEvents: 'none', maxWidth: 'calc(100% - 2rem)', boxSizing: 'border-box', border: '1px solid rgba(255,255,255,0.15)' }}
-                >
-                  <AlertCircle size={14} className="text-amber-400" style={{ flexShrink: 0 }} />
-                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{recognition.guidance}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
-            {/* Detected Sign/Word Popup with Spring Bounce & Neon Breathing Halo */}
+            {/* Detected Sign Badge: restyled smaller and placed at bottom-center */}
             <AnimatePresence mode="wait">
-              {activeSign ? (
+              {activeSign && (
                 <motion.div
                   key={`sign-${activeSign}`}
-                  initial={{ scale: 0.6, opacity: 0, y: 15 }}
-                  animate={{ scale: [0.6, 1.08, 1.0], opacity: 1, y: 0 }}
-                  exit={{ scale: 0.8, opacity: 0, y: -10 }}
-                  transition={{ type: 'spring', stiffness: 450, damping: 22 }}
+                  initial={{ scale: 0.8, opacity: 0, y: 10, x: '-50%' }}
+                  animate={{ scale: 1, opacity: 1, y: 0, x: '-50%' }}
+                  exit={{ scale: 0.8, opacity: 0, y: -6, x: '-50%' }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                   className="detected-sign-hud-badge"
-                  style={{
-                    padding: activeSign.length > 2 ? '8px 14px' : '10px 16px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    maxWidth: '180px'
-                  }}
                 >
-                  <div style={{ 
-                    fontSize: activeSign.length > 4 ? '1.15rem' : (activeSign.length > 2 ? '1.4rem' : '2.5rem'), 
-                    fontWeight: 'bold', 
-                    lineHeight: 1.1,
-                    textAlign: 'center',
-                    letterSpacing: activeSign.length > 2 ? '0.04em' : 'normal'
-                  }}>
+                  <div className="detected-sign-label">
                     {activeSign}
                   </div>
                   {recognition.confidence > 0 && (
-                    <div style={{ fontSize: '0.7rem', opacity: 0.95, marginTop: '3px', fontFamily: 'monospace' }}>
+                    <div className="detected-sign-conf">
                       {Math.round(recognition.confidence * 100)}% {isWordMode ? 'Word' : 'Letter'}
                     </div>
                   )}
                 </motion.div>
-              ) : (recognition.confidence > 0 && recognition.confidence < 0.55 && recognition.status === 'tracking') ? (
-                <motion.div
-                  key="low-conf"
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.85 }}
-                  style={{
-                    position: 'absolute',
-                    bottom: '1rem',
-                    right: '1rem',
-                    zIndex: 35,
-                    background: 'rgba(217, 119, 6, 0.88)',
-                    color: 'white',
-                    padding: '8px 14px',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.35)',
-                    backdropFilter: 'blur(8px)',
-                    pointerEvents: 'none',
-                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    maxWidth: '180px',
-                    border: '1px solid rgba(255,255,255,0.2)'
-                  }}
-                >
-                  <AlertCircle size={20} style={{ marginBottom: '4px', opacity: 0.9 }} />
-                  <div style={{ fontSize: '0.78rem', fontWeight: 600, textAlign: 'center' }}>
-                    Low Confidence
-                  </div>
-                  <div style={{ fontSize: '0.65rem', opacity: 0.85, marginTop: '2px', fontFamily: 'monospace' }}>
-                    {Math.round(recognition.confidence * 100)}% — adjust hand
-                  </div>
-                </motion.div>
-              ) : null}
+              )}
             </AnimatePresence>
           </>
         ) : (
@@ -413,28 +322,6 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
           </button>
         </div>
       )}
-
-      {/* Live / Status Badge */}
-      <div className="camera-badge" style={{ zIndex: 40 }}>
-        {isCameraOn ? (
-          isLive ? (
-            <>
-              <Video size={14} className="text-teal-400" />
-              <span>{isWordMode ? 'WORD DETECTION' : 'LETTER DETECTION'}</span>
-            </>
-          ) : (
-            <>
-              <Activity size={14} />
-              <span>SIMULATED FEED</span>
-            </>
-          )
-        ) : (
-          <>
-            <CameraOff size={14} />
-            <span>OFFLINE</span>
-          </>
-        )}
-      </div>
 
       {/* Floating HUD only visible in Fullscreen Mode */}
       {isFullscreen && (

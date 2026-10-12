@@ -49,66 +49,19 @@ def init_mediapipe_detector():
     return HandLandmarker.create_from_options(options), mp
 
 
-def clean_word_label(raw_name):
-    """Derives a standardized uppercase word class name from video filename."""
-    if not raw_name:
-        return "UNKNOWN"
-    stem = Path(raw_name).stem.strip()
-    name = re.sub(r'[\(\)\[\]\{\}\-_]+', ' ', stem).strip().upper()
-    name = re.sub(r'\s+', '_', name)
-    if 'THANK' in name:
-        return 'THANK_YOU'
-    if 'BYE' in name:
-        return 'BYE_BYE'
-    if 'NAMASTE' in name:
-        return 'NAMASTE'
-    if 'INDIAN' in name or name == 'INDIA':
-        return 'INDIA'
-    if name == 'HI':
-        return 'HELLO'
-    return name
-
-
-def get_landmark_vector_from_result(detection_result):
-    """Standardizes MediaPipe HandLandmarker result into a 126-float array."""
-    left_hand = np.zeros((21, 3), dtype=np.float32)
-    right_hand = np.zeros((21, 3), dtype=np.float32)
-
-    if not detection_result.hand_landmarks:
-        return np.zeros(126, dtype=np.float32).tolist()
-
-    handedness_list = detection_result.handedness or []
-    landmarks_list = detection_result.hand_landmarks
-
-    for i, hand_lms in enumerate(landmarks_list):
-        label = None
-        if i < len(handedness_list) and handedness_list[i]:
-            label = handedness_list[i][0].category_name
-
-        coords = np.array([[lm.x, lm.y, lm.z] for lm in hand_lms], dtype=np.float32)
-
-        if label == 'Left':
-            left_hand = coords
-        elif label == 'Right':
-            right_hand = coords
-        else:
-            if coords[0, 0] < 0.5:
-                left_hand = coords
-            else:
-                right_hand = coords
-
-    if len(landmarks_list) == 1 and not np.any(right_hand != 0) and not np.any(left_hand != 0):
-        coords = np.array([[lm.x, lm.y, lm.z] for lm in landmarks_list[0]], dtype=np.float32)
-        right_hand = coords
-
-    combined = np.concatenate([left_hand.reshape(-1), right_hand.reshape(-1)])
-    return combined.tolist()
+from services.landmark_utils import (
+    clean_word_label,
+    get_landmark_vector_from_result,
+    trim_idle_frames,
+    sample_or_interpolate,
+    augment_raw_sequence,
+)
 
 
 def extract_raw_frames_from_video_bytes(video_bytes, detector, mp):
     """
     Decodes video frames directly from memory bytes buffer and extracts 42 3D landmarks per frame.
-    Immediately unlinks temporary file from disk upon completion.
+    Trims idle lead-in/out frames and unlinks temporary file from disk upon completion.
     """
     tmp_path = None
     try:
@@ -131,7 +84,7 @@ def extract_raw_frames_from_video_bytes(video_bytes, detector, mp):
             raw_frames.append(vec)
 
         cap.release()
-        return raw_frames
+        return trim_idle_frames(raw_frames)
     except Exception as e:
         logger.warning(f"Error decoding video stream: {e}")
         return None
@@ -141,58 +94,6 @@ def extract_raw_frames_from_video_bytes(video_bytes, detector, mp):
                 os.remove(tmp_path)
             except OSError:
                 pass
-
-
-def sample_or_interpolate(sequence, target_length=SEQUENCE_LENGTH):
-    """Resamples a list of landmark frames to exactly target_length frames."""
-    arr = np.array(sequence, dtype=np.float32)
-    current_len = len(arr)
-    if current_len == target_length:
-        return arr.tolist()
-    if current_len == 0:
-        return np.zeros((target_length, 126), dtype=np.float32).tolist()
-
-    indices = np.linspace(0, current_len - 1, target_length)
-    sampled = []
-    for idx in indices:
-        sampled.append(arr[int(round(idx))].tolist())
-    return sampled
-
-
-def augment_raw_sequence(raw_frames, rng):
-    """Generates an augmented 30-frame sequence (speed warp, jitter, mirror, noise)."""
-    arr = np.array(raw_frames, dtype=np.float32)
-    n_raw = len(arr)
-    if n_raw < 5:
-        return None
-
-    clip_ratio = rng.uniform(0.65, 1.0)
-    clip_len = max(5, int(n_raw * clip_ratio))
-    max_start = max(0, n_raw - clip_len)
-    start = rng.integers(0, max_start + 1)
-    sub_clip = arr[start:start + clip_len]
-
-    speed_factor = rng.uniform(0.8, 1.25)
-    target_frames = max(10, int(SEQUENCE_LENGTH * speed_factor))
-    indices = np.linspace(0, len(sub_clip) - 1, target_frames)
-    resampled = np.array([sub_clip[int(round(idx))] for idx in indices])
-
-    if len(resampled) != SEQUENCE_LENGTH:
-        final_indices = np.linspace(0, len(resampled) - 1, SEQUENCE_LENGTH)
-        resampled = np.array([resampled[int(round(idx))] for idx in final_indices])
-
-    result = resampled.copy()
-    noise_scale = rng.uniform(0.002, 0.008)
-    result += rng.normal(0, noise_scale, size=result.shape).astype(np.float32)
-
-    # Random mirror (swap left/right hand)
-    if rng.random() < 0.25:
-        mirrored = np.zeros_like(result)
-        mirrored[:, :63] = result[:, 63:]
-        mirrored[:, 63:] = result[:, :63]
-        result = mirrored
-
-    return result.tolist()
 
 
 def main():
@@ -252,35 +153,30 @@ def main():
         target_dir = OUTPUT_DIR / word
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        base_seq = sample_or_interpolate(raw_frames, SEQUENCE_LENGTH)
+        base_seq = sample_or_interpolate(raw_frames, 30)
+        all_sequences = [base_seq]
 
-        # 1. Save canonical 30-frame sequence (15 KB)
-        out_path = target_dir / f"session_hf_canonical.json"
+        for aug_idx in range(args.augment):
+            aug_seq = augment_raw_sequence(raw_frames, rng, aug_id=aug_idx)
+            if aug_seq:
+                all_sequences.append(aug_seq)
+
+        # Save all sequences for this video together (conforms to File 1 schema)
+        matched_stem = Path(matched_file).stem.replace(' ', '_').lower()
+        session_id = f"hf_{word.lower()}_{matched_stem}"
+        out_path = target_dir / f"{session_id}.json"
         out_path.write_text(json.dumps({
             "word": word,
-            "session_id": f"hf_{word}_canonical",
+            "session_id": session_id,
+            "source_file": matched_file,
             "source": f"ISLRTC_HuggingFace/{matched_file}",
-            "sequence_length": SEQUENCE_LENGTH,
-            "frames": base_seq
+            "original_raw_frames": len(raw_frames),
+            "frame_sequences": all_sequences
         }, indent=2), encoding='utf-8')
-        total_saved += 1
-
-        # 2. Generate heavy augmented variations (10 augmentations)
-        for aug_idx in range(args.augment):
-            aug_seq = augment_raw_sequence(raw_frames, rng)
-            if aug_seq:
-                aug_path = target_dir / f"session_hf_aug_{aug_idx:02d}.json"
-                aug_path.write_text(json.dumps({
-                    "word": word,
-                    "session_id": f"hf_{word}_aug_{aug_idx}",
-                    "source": "ISLRTC_HuggingFace/Augmented",
-                    "sequence_length": SEQUENCE_LENGTH,
-                    "frames": aug_seq
-                }, indent=2), encoding='utf-8')
-                total_saved += 1
+        total_saved += len(all_sequences)
 
         words_found += 1
-        logger.info(f"  -> Extracted & generated {args.augment + 1} sequences for [{word}] (Saved in {target_dir.name}/)")
+        logger.info(f"  -> Saved {len(all_sequences)} sequences (1 canonical + {len(all_sequences)-1} augmented) for [{word}] in {out_path.name}")
 
     logger.info(f"\n==========================================")
     logger.info(f"Direct In-Memory Streaming Complete!")

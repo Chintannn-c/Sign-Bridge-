@@ -33,10 +33,10 @@
     "Z"
   ],
   "data_summary": {
-    "train_samples": 16494,
-    "train_augmented": 65976,
+    "train_samples": 16854,
+    "train_augmented": 67416,
     "val_samples": 3488,
-    "test_samples": 4901,
+    "test_samples": 4902,
     "duplicate_frames_excluded": 1264,
     "sources": {
       "realsign_training": 9256,
@@ -48,18 +48,18 @@
       "selfmade": 1,
       "mendeley": 0,
       "other_capture": 0,
-      "dataset2_test": 75,
-      "dataset2_train": 5417,
+      "dataset2_test": 76,
+      "dataset2_train": 5777,
       "dataset2_val": 308
     }
   },
   "metrics": {
-    "val_accuracy": 0.6795,
-    "val_macro_f1": 0.6772,
-    "test_accuracy": 0.8745,
-    "test_macro_f1": 0.8723,
-    "test_precision": 0.8801,
-    "test_recall": 0.8744
+    "val_accuracy": 0.6961,
+    "val_macro_f1": 0.6934,
+    "test_accuracy": 0.8743,
+    "test_macro_f1": 0.8724,
+    "test_precision": 0.8811,
+    "test_recall": 0.8737
   },
   "per_class": {
     "A": {
@@ -69,156 +69,156 @@
       "test_samples": 203
     },
     "B": {
-      "precision": 1.0,
+      "precision": 0.981,
       "recall": 0.9936,
-      "f1-score": 0.9968,
+      "f1-score": 0.9873,
       "test_samples": 156
     },
     "C": {
-      "precision": 0.9676,
-      "recall": 0.989,
-      "f1-score": 0.9781,
+      "precision": 0.9526,
+      "recall": 1.0,
+      "f1-score": 0.9757,
       "test_samples": 181
     },
     "D": {
-      "precision": 0.7389,
+      "precision": 0.7426,
       "recall": 0.974,
-      "f1-score": 0.8403,
+      "f1-score": 0.8427,
       "test_samples": 154
     },
     "E": {
-      "precision": 0.9758,
-      "recall": 0.599,
-      "f1-score": 0.7423,
+      "precision": 0.976,
+      "recall": 0.604,
+      "f1-score": 0.7462,
       "test_samples": 202
     },
     "F": {
-      "precision": 0.8935,
-      "recall": 0.9554,
-      "f1-score": 0.9234,
+      "precision": 0.8553,
+      "recall": 0.9653,
+      "f1-score": 0.907,
       "test_samples": 202
     },
     "G": {
-      "precision": 0.9934,
-      "recall": 0.8118,
-      "f1-score": 0.8935,
-      "test_samples": 186
+      "precision": 0.9935,
+      "recall": 0.8128,
+      "f1-score": 0.8941,
+      "test_samples": 187
     },
     "H": {
-      "precision": 0.9643,
-      "recall": 0.931,
-      "f1-score": 0.9474,
+      "precision": 0.9541,
+      "recall": 0.9212,
+      "f1-score": 0.9373,
       "test_samples": 203
     },
     "I": {
-      "precision": 0.7697,
+      "precision": 0.7791,
       "recall": 0.7135,
-      "f1-score": 0.7405,
+      "f1-score": 0.7449,
       "test_samples": 178
     },
     "J": {
-      "precision": 0.9944,
-      "recall": 0.9227,
-      "f1-score": 0.9572,
+      "precision": 0.9837,
+      "recall": 0.933,
+      "f1-score": 0.9577,
       "test_samples": 194
     },
     "K": {
-      "precision": 0.98,
-      "recall": 0.9949,
-      "f1-score": 0.9874,
+      "precision": 0.9898,
+      "recall": 0.9848,
+      "f1-score": 0.9873,
       "test_samples": 197
     },
     "L": {
-      "precision": 0.8541,
+      "precision": 0.869,
       "recall": 1.0,
-      "f1-score": 0.9213,
+      "f1-score": 0.9299,
       "test_samples": 199
     },
     "M": {
-      "precision": 0.9317,
+      "precision": 0.9095,
       "recall": 0.9363,
-      "f1-score": 0.934,
+      "f1-score": 0.9227,
       "test_samples": 204
     },
     "N": {
-      "precision": 0.8836,
-      "recall": 0.8564,
-      "f1-score": 0.8698,
+      "precision": 0.8884,
+      "recall": 0.9795,
+      "f1-score": 0.9317,
       "test_samples": 195
     },
     "O": {
-      "precision": 0.6101,
-      "recall": 0.7733,
-      "f1-score": 0.6821,
+      "precision": 0.6324,
+      "recall": 0.75,
+      "f1-score": 0.6862,
       "test_samples": 172
     },
     "P": {
-      "precision": 0.9059,
+      "precision": 0.9333,
       "recall": 0.8021,
-      "f1-score": 0.8508,
+      "f1-score": 0.8627,
       "test_samples": 192
     },
     "Q": {
-      "precision": 0.8418,
-      "recall": 0.6683,
-      "f1-score": 0.7451,
+      "precision": 0.6114,
+      "recall": 0.6482,
+      "f1-score": 0.6293,
       "test_samples": 199
     },
     "R": {
-      "precision": 0.9899,
+      "precision": 0.9949,
       "recall": 0.9751,
-      "f1-score": 0.9825,
+      "f1-score": 0.9849,
       "test_samples": 201
     },
     "S": {
-      "precision": 0.7415,
-      "recall": 0.6813,
-      "f1-score": 0.7101,
+      "precision": 0.7347,
+      "recall": 0.675,
+      "f1-score": 0.7036,
       "test_samples": 160
     },
     "T": {
-      "precision": 0.7875,
-      "recall": 0.9356,
-      "f1-score": 0.8552,
+      "precision": 0.7628,
+      "recall": 0.9554,
+      "f1-score": 0.8484,
       "test_samples": 202
     },
     "U": {
-      "precision": 0.8077,
-      "recall": 0.9941,
-      "f1-score": 0.8912,
-      "test_samples": 169
+      "precision": 0.9489,
+      "recall": 0.9824,
+      "f1-score": 0.9653,
+      "test_samples": 170
     },
     "V": {
-      "precision": 0.9362,
-      "recall": 0.8302,
-      "f1-score": 0.88,
-      "test_samples": 159
+      "precision": 0.9457,
+      "recall": 0.7722,
+      "f1-score": 0.8502,
+      "test_samples": 158
     },
     "W": {
-      "precision": 0.7946,
-      "recall": 0.75,
-      "f1-score": 0.7717,
+      "precision": 0.9295,
+      "recall": 0.7398,
+      "f1-score": 0.8239,
       "test_samples": 196
     },
     "X": {
-      "precision": 0.7761,
-      "recall": 0.7647,
-      "f1-score": 0.7704,
+      "precision": 0.7958,
+      "recall": 0.7451,
+      "f1-score": 0.7696,
       "test_samples": 204
     },
     "Y": {
-      "precision": 0.7731,
-      "recall": 0.902,
-      "f1-score": 0.8326,
+      "precision": 0.7792,
+      "recall": 0.8824,
+      "f1-score": 0.8276,
       "test_samples": 204
     },
     "Z": {
-      "precision": 1.0,
-      "recall": 0.9947,
-      "f1-score": 0.9973,
+      "precision": 0.9947,
+      "recall": 0.9841,
+      "f1-score": 0.9894,
       "test_samples": 189
     }
   },
-  "trained_at": "2026-09-29T08:51:06Z",
-  "training_time_seconds": 549.75
+  "trained_at": "2026-10-09T04:14:02Z",
+  "training_time_seconds": 593.62
 }

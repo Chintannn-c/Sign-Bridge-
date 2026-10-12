@@ -4,7 +4,6 @@ Evaluates all three models identically on the held-out test split, prints compar
 and saves measured hybrid metrics to backend/models/hybrid_training_meta.json.
 """
 
-import os
 import sys
 import json
 import time
@@ -35,6 +34,14 @@ def run_benchmark():
 
     translator = TranslatorModel()
     print(f"   Active TranslatorModel initialized in mode: {translator.mode}")
+
+    # Safety guard: ensure full hybrid components are loaded before benchmarking
+    if translator.mode != 'hybrid' or translator.xgb_model is None or translator.stgcn_model is None:
+        print(f"\n[WARNING] TranslatorModel is in '{translator.mode}' fallback mode or missing sub-model weights.")
+        print("          Benchmark will execute for diagnostics, but hybrid metadata will NOT be overwritten.")
+        can_save_metadata = False
+    else:
+        can_save_metadata = True
 
     models_to_test = [
         ("XGBoost (Standalone)", translator._predict_xgb),
@@ -68,7 +75,10 @@ def run_benchmark():
         prec, rec, f1, _ = precision_recall_fscore_support(
             y_true, y_pred, labels=labels, average='macro', zero_division=0
         )
-        avg_lat = float(np.median(latencies))
+        median_lat = float(np.median(latencies))
+        mean_lat = float(np.mean(latencies))
+        abstains = sum(1 for p in y_pred if p == '?')
+        abstain_rate = float(abstains / len(y_pred)) if y_pred else 0.0
 
         report_raw = classification_report(
             y_true, y_pred, labels=labels, output_dict=True, zero_division=0
@@ -80,7 +90,9 @@ def run_benchmark():
             'precision': float(prec),
             'recall': float(rec),
             'f1': float(f1),
-            'latency_ms': round(avg_lat, 2),
+            'latency_ms': round(median_lat, 2),
+            'mean_latency_ms': round(mean_lat, 2),
+            'abstain_rate': round(abstain_rate, 4),
             'per_class': {
                 lbl: {
                     'precision': round(report_dict[lbl]['precision'], 4),
@@ -92,7 +104,7 @@ def run_benchmark():
             }
         }
 
-        print(f"   Accuracy: {acc * 100:.2f}% | Macro F1: {f1 * 100:.2f}% | Latency: {avg_lat:.2f} ms")
+        print(f"   Accuracy: {acc * 100:.2f}% | Macro F1: {f1 * 100:.2f}% | Median Latency: {median_lat:.2f} ms | Abstain: {abstain_rate * 100:.1f}%")
 
     # Print summary comparative table
     print("\n" + "=" * 70)
@@ -102,31 +114,41 @@ def run_benchmark():
         print(f"{name:<30} | {res['accuracy'] * 100:>8.2f}% | {res['f1'] * 100:>8.2f}% | {res['latency_ms']:>6.2f} ms")
     print("=" * 70)
 
-    # Save true measured hybrid metadata
-    hybrid_res = benchmark_results["Hybrid Ensemble (Blended)"]
-    hybrid_meta = {
-        'model_type': 'hybrid_ensemble',
-        'composition': '0.65 * XGBoost + 0.35 * ST-GCN (T=1.20)',
-        'raw_input_landmarks': 126,
-        'estimator_features': 208,
-        'feature_name': 'geometric_invariants_208d',
-        'num_classes': 26,
-        'labels': labels,
-        'test_samples': len(X_test),
-        'metrics': {
-            'test_accuracy': round(hybrid_res['accuracy'], 4),
-            'test_macro_f1': round(hybrid_res['f1'], 4),
-            'test_precision': round(hybrid_res['precision'], 4),
-            'test_recall': round(hybrid_res['recall'], 4),
-            'latency_ms': hybrid_res['latency_ms']
-        },
-        'per_class': hybrid_res['per_class'],
-        'evaluated_at': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-    }
+    # Save true measured hybrid metadata only when both models are active
+    if can_save_metadata:
+        hybrid_res = benchmark_results["Hybrid Ensemble (Blended)"]
+        xgb_w = getattr(translator, 'HYBRID_XGB_WEIGHT', 0.65)
+        stgcn_w = getattr(translator, 'HYBRID_STGCN_WEIGHT', 0.35)
+        temp_val = getattr(translator, 'HYBRID_TEMPERATURE', 1.20)
+        composition_str = f"{xgb_w:.2f} * XGBoost + {stgcn_w:.2f} * ST-GCN (T={temp_val:.2f})"
 
-    with open(HYBRID_META_PATH, 'w', encoding='utf-8') as f:
-        json.dump(hybrid_meta, f, indent=2)
-    print(f"\n[PASS] Saved measured hybrid metadata to: {HYBRID_META_PATH}")
+        hybrid_meta = {
+            'model_type': 'hybrid_ensemble',
+            'composition': composition_str,
+            'raw_input_landmarks': 126,
+            'estimator_features': 208,
+            'feature_name': 'geometric_invariants_208d',
+            'num_classes': 26,
+            'labels': labels,
+            'test_samples': len(X_test),
+            'metrics': {
+                'test_accuracy': round(hybrid_res['accuracy'], 4),
+                'test_macro_f1': round(hybrid_res['f1'], 4),
+                'test_precision': round(hybrid_res['precision'], 4),
+                'test_recall': round(hybrid_res['recall'], 4),
+                'latency_ms': hybrid_res['latency_ms'],
+                'mean_latency_ms': hybrid_res['mean_latency_ms'],
+                'abstain_rate': hybrid_res['abstain_rate'],
+            },
+            'per_class': hybrid_res['per_class'],
+            'evaluated_at': time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+
+        with open(HYBRID_META_PATH, 'w', encoding='utf-8') as f:
+            json.dump(hybrid_meta, f, indent=2)
+        print(f"\n[PASS] Saved verified hybrid metadata to: {HYBRID_META_PATH}")
+    else:
+        print("\n[SKIP] Preserved existing hybrid metadata (did not overwrite due to fallback mode).")
 
 
 if __name__ == '__main__':

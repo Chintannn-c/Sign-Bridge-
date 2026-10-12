@@ -234,8 +234,8 @@
 .sla-camera-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  max-height: 320px;
+  aspect-ratio: 16 / 9;
+  max-height: 360px;
   background: #0a0a0a;
   border-radius: 16px;
   overflow: hidden;
@@ -245,7 +245,7 @@
 .sla-camera-video {
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: contain;
 }
 .sla-camera-video.mirrored {
   transform: scaleX(-1);
@@ -255,6 +255,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: contain;
   pointer-events: none;
 }
 .sla-camera-canvas.is-mirrored {
@@ -285,13 +286,12 @@
   height: 28px;
   border: none;
   border-radius: 50%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(28, 25, 23, 0.88);
   color: #fff;
   cursor: pointer;
   transition: background 0.2s;
-  backdrop-filter: blur(4px);
 }
-.sla-cam-btn:hover { background: rgba(0,0,0,0.7); }
+.sla-cam-btn:hover { background: rgba(28, 25, 23, 0.98); }
 .sla-camera-badge {
   position: absolute;
   top: 0.5rem;
@@ -300,12 +300,11 @@
   align-items: center;
   gap: 0.3rem;
   padding: 0.25rem 0.6rem;
-  background: rgba(0,0,0,0.55);
+  background: rgba(28, 25, 23, 0.92);
   border-radius: 8px;
   font-size: 0.62rem;
   font-weight: 600;
   color: #fff;
-  backdrop-filter: blur(4px);
 }
 .sla-camera-badge .sla-live-dot {
   width: 6px;
@@ -326,12 +325,11 @@
 }
 .sla-hand-label {
   padding: 0.2rem 0.5rem;
-  background: rgba(110, 127, 107, 0.85);
+  background: rgba(45, 60, 45, 0.95);
   border-radius: 6px;
   font-size: 0.62rem;
   font-weight: 700;
   color: #fff;
-  backdrop-filter: blur(4px);
 }
 
 /* Detected gesture overlay */
@@ -344,9 +342,8 @@
   align-items: center;
   gap: 0.15rem;
   padding: 0.45rem 0.75rem;
-  background: rgba(0,0,0,0.65);
+  background: rgba(28, 25, 23, 0.94);
   border-radius: 12px;
-  backdrop-filter: blur(8px);
 }
 .sla-detected-letter {
   font-size: 1.8rem;

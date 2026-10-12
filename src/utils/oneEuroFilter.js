@@ -89,27 +89,44 @@ export class LandmarkSmoother {
 
   /**
    * Smooth flat landmark array of shape [x1, y1, z1, x2, y2, z2, ...]
+   * Points at (0, 0, 0) immediately reset their filters so that when the hand
+   * reappears or moves, it snaps to true position without dragging across the screen.
    */
   smooth(landmarks, timestamp = Date.now()) {
     if (!landmarks || landmarks.length === 0) return landmarks;
     const result = new Array(landmarks.length);
-    for (let i = 0; i < landmarks.length; i++) {
-      // If point is missing (0,0,0), pass through without filtering
-      if (landmarks[i] === 0 && (i % 3 === 0)) {
+    for (let i = 0; i < landmarks.length; i += 3) {
+      const isMissing = landmarks[i] === 0 && landmarks[i + 1] === 0 && landmarks[i + 2] === 0;
+      if (isMissing) {
         result[i] = 0;
-        if (i + 1 < landmarks.length) result[i + 1] = 0;
-        if (i + 2 < landmarks.length) result[i + 2] = 0;
-        i += 2;
+        result[i + 1] = 0;
+        result[i + 2] = 0;
+        if (i + 2 < this.filters.length) {
+          this.filters[i].reset();
+          this.filters[i + 1].reset();
+          this.filters[i + 2].reset();
+        }
         continue;
       }
 
-      if (i < this.filters.length) {
-        result[i] = this.filters[i].filter(landmarks[i], timestamp);
-      } else {
-        result[i] = landmarks[i];
+      for (let k = 0; k < 3; k++) {
+        const idx = i + k;
+        if (idx < this.filters.length) {
+          result[idx] = this.filters[idx].filter(landmarks[idx], timestamp);
+        } else {
+          result[idx] = landmarks[idx];
+        }
       }
     }
     return result;
+  }
+
+  resetHand(handIdx = 0) {
+    const start = handIdx * 63;
+    const end = start + 63;
+    for (let i = start; i < end && i < this.filters.length; i++) {
+      this.filters[i].reset();
+    }
   }
 
   reset() {

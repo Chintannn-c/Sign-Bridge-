@@ -350,7 +350,8 @@ class GeminiManager:
         system_instruction: str = "You are SignBridge AI assistant.",
         task_type: str = "text",
         temperature: float = 0.3,
-        max_output_tokens: int = 300
+        max_output_tokens: int = 300,
+        timeout: Optional[float] = None
     ) -> GeminiResult:
         """
         Execute robust generation across (Model x Key) matrix.
@@ -400,7 +401,8 @@ class GeminiManager:
                             prompt=prompt,
                             system_instruction=system_instruction,
                             temperature=temperature,
-                            max_output_tokens=max_output_tokens
+                            max_output_tokens=max_output_tokens,
+                            timeout=timeout
                         )
 
                         if text_output and text_output.strip():
@@ -460,7 +462,8 @@ class GeminiManager:
         prompt: str,
         system_instruction: str,
         temperature: float,
-        max_output_tokens: int
+        max_output_tokens: int,
+        timeout: Optional[float] = None
     ) -> str:
         """Low-level SDK caller handling both modern genai and legacy SDKs."""
         client = key_info.client
