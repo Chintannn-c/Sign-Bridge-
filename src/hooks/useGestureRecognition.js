@@ -12,6 +12,39 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 
 const API_BASE = '/api';
 
+/**
+ * Fixed-capacity ring buffer — O(1) push, zero shifting, zero allocation after init.
+ * Replaces frameBufferRef's plain array + Array.shift() pattern.
+ */
+class RingBuffer {
+  constructor(capacity) {
+    this._cap = capacity;
+    this._buf = new Array(capacity);
+    this._head = 0; // next write slot
+    this._len  = 0;
+  }
+  push(item) {
+    this._buf[this._head] = item;
+    this._head = (this._head + 1) % this._cap;
+    if (this._len < this._cap) this._len++;
+  }
+  get length() { return this._len; }
+  /** Most-recently pushed item. */
+  last()  { return this._len === 0 ? undefined : this._buf[(this._head - 1 + this._cap) % this._cap]; }
+  /** Second-to-last item. */
+  last2() { return this._len < 2  ? undefined : this._buf[(this._head - 2 + this._cap) % this._cap]; }
+  /** Return items in insertion order (oldest → newest). */
+  toArray() {
+    if (this._len === 0) return [];
+    const start = (this._head - this._len + this._cap) % this._cap;
+    if (start + this._len <= this._cap) {
+      return this._buf.slice(start, start + this._len);
+    }
+    return this._buf.slice(start).concat(this._buf.slice(0, this._head));
+  }
+  clear() { this._head = 0; this._len = 0; }
+}
+
 const STATES = {
   IDLE: 'idle',
   SEARCHING: 'searching',
@@ -151,7 +184,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const consecutiveWordRef = useRef({ word: null, count: 0 });
   const lastCommitRef = useRef(0);
   const lastCommittedItemRef = useRef(null);
-  const frameBufferRef = useRef([]);
+  const frameBufferRef = useRef(new RingBuffer(WORD_SEQUENCE_LENGTH));
   const wordInferenceCooldownRef = useRef(0);
   const letterInferenceCooldownRef = useRef(0);
   const isRequestPendingRef = useRef(false);
@@ -349,12 +382,12 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       consecutiveLetterRef.current = { letter: null, count: 0 };
       consecutiveWordRef.current = { word: null, count: 0 };
       lastCommittedItemRef.current = null;
-      frameBufferRef.current = [];
+      frameBufferRef.current.clear();
       setWordBufferCount(0);
       cancelInactivityCountdown();
     } else {
       setStatus(STATES.SEARCHING);
-      frameBufferRef.current = [];
+      frameBufferRef.current.clear();
       setWordBufferCount(0);
     }
   }, [enabled, recognitionMode, cancelInactivityCountdown]);
@@ -393,7 +426,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       consecutiveLetterRef.current = { letter: null, count: 0 };
       consecutiveWordRef.current = { word: null, count: 0 };
       lastCommittedItemRef.current = null;
-      frameBufferRef.current = [];
+      frameBufferRef.current.clear();
       setWordBufferCount(0);
 
       // Trigger hand-drop countdown if sentence buffer has words
@@ -419,7 +452,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       // Maintain hand slot continuity across momentary occlusion or crossing
       let frameToPush = landmarks;
       if (frameBufferRef.current.length > 0 && landmarks && landmarks.length >= 126) {
-        const prevFrame = frameBufferRef.current[frameBufferRef.current.length - 1];
+        const prevFrame = frameBufferRef.current.last();
         const prevHasL = isHandActive(prevFrame, 0);
         const prevHasR = isHandActive(prevFrame, 63);
         const curHasL = isHandActive(landmarks, 0);
@@ -453,10 +486,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       }
 
       // Append current frame to rolling sequence buffer
-      frameBufferRef.current.push(frameToPush);
-      if (frameBufferRef.current.length > WORD_SEQUENCE_LENGTH) {
-        frameBufferRef.current.shift();
-      }
+      frameBufferRef.current.push(frameToPush); // O(1) — ring buffer, no shift
       const currentBufLen = frameBufferRef.current.length;
       if (currentBufLen % 3 === 0 || currentBufLen >= WORD_SEQUENCE_LENGTH) {
         setWordBufferCount(currentBufLen);
@@ -465,31 +495,28 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       // Start inference as soon as minimum viable sequence (>= 10 frames, ~0.33s) is reached
       const now = Date.now();
       const hasViableSequence = frameBufferRef.current.length >= 10;
-      const isCooldownOver = (now - wordInferenceCooldownRef.current >= 100);
+      const isCooldownOver = (now - wordInferenceCooldownRef.current >= 200); // ponytail: 200ms halves round-trips; lower when model inference < 50ms
 
       if (hasViableSequence && isCooldownOver && !isWordRequestPendingRef.current) {
         wordInferenceCooldownRef.current = now;
         isWordRequestPendingRef.current = true;
 
         // If sequence has 15-29 frames, linearly resample to exactly 30 frames for the model
-        let framesToSend = frameBufferRef.current;
+        let framesToSend = frameBufferRef.current.toArray();
         if (framesToSend.length < WORD_SEQUENCE_LENGTH) {
           const N = framesToSend.length;
-          const indices = Array.from({ length: WORD_SEQUENCE_LENGTH }, (_, i) => 
+          const indices = Array.from({ length: WORD_SEQUENCE_LENGTH }, (_, i) =>
             Math.min(N - 1, Math.round(i * (N - 1) / (WORD_SEQUENCE_LENGTH - 1)))
           );
           framesToSend = indices.map(idx => framesToSend[idx]);
         }
-
-        const r = v => Math.round(v * 1e4) / 1e4;
-        const roundedFrames = framesToSend.map(f => f.map(r));
 
         try {
           const res = await fetch(`${API_BASE}/translate/word`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              frames: roundedFrames,
+              frames: framesToSend,
               body_anchors: bodyAnchorsRef.current,
             }),
           });
@@ -532,11 +559,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
             }
 
             // Measure recent kinetic velocity to detect gesture stroke completion / deceleration
-            const buf = frameBufferRef.current;
             let strokeEnergy = 0;
-            if (buf.length >= 2) {
-              const currF = buf[buf.length - 1];
-              const prevF = buf[buf.length - 2];
+            if (frameBufferRef.current.length >= 2) {
+              const currF = frameBufferRef.current.last();
+              const prevF = frameBufferRef.current.last2();
               let diffSum = 0;
               let validPts = 0;
               for (let p = 0; p < Math.min(currF.length, prevF.length); p += 3) {
@@ -570,7 +596,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
                 lastCommitRef.current = now;
                 lastCommittedItemRef.current = prediction.word;
                 consecutiveWordRef.current = { word: null, count: 0 };
-                frameBufferRef.current = []; // Clear buffer after successful word lock
+                frameBufferRef.current.clear(); // Clear buffer after successful word lock
                 setWordBufferCount(0);
                 // Word locked: start 5-second countdown to automatically send draft message
                 startOrResetInactivityTimer(true);
@@ -737,7 +763,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     consecutiveLetterRef.current = { letter: null, count: 0 };
     consecutiveWordRef.current = { word: null, count: 0 };
     lastCommittedItemRef.current = null;
-    frameBufferRef.current = [];
+    frameBufferRef.current.clear();
     setWordBufferCount(0);
   }, [clearAutoSpaceTimer, cancelInactivityCountdown, setSentenceBufferSync]);
 

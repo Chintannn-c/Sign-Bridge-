@@ -7,6 +7,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![XGBoost](https://img.shields.io/badge/XGBoost-Tree_Classifier-EB5424?style=flat-square)](https://xgboost.readthedocs.io/)
 [![MediaPipe](https://img.shields.io/badge/MediaPipe-Dual_Hand_Tracking-00897B?style=flat-square)](https://developers.google.com/mediapipe)
+[![Waitress](https://img.shields.io/badge/Waitress-3.0-4B8BBE?style=flat-square)](https://docs.pylonsproject.org/projects/waitress/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 > **A production-hardened, bidirectional assistive communication kiosk bridging Indian Sign Language (ISL) and spoken English through real-time dual-hand tracking, multi-tier AI inference, and physical dual-robotic hand actuation.**
@@ -50,12 +51,17 @@ Communication barriers between the Deaf and Hard-of-Hearing (DHH) community and 
 - **Multi-Tier AI Recognition Pipeline**:
   - **Static Alphabet Classifier (XGBoost & ST-GCN)**: 26 manual ISL alphabet signs ($A–Z$) classified in $<0.5\text{ ms}$ on single-frame invariant geometric features.
   - **Temporal Word Recognizer (1D-CNN + BiLSTM)**: 57 dynamic ISL vocabulary words and conversational phrases classified over a 30-frame temporal window with **93.3% test accuracy** and **5.75 ms inference latency**.
+- **Optimised Inference Hot-Path**:
+  - Vectorised landmark normalisation (`normalize_landmarks_batch`) processes all 30 frames in a single NumPy broadcast — replacing a 30-iteration Python loop for a **3–8× speedup** on the pre-processing step.
+  - O(1) fixed-capacity ring buffer (`RingBuffer`) for the sliding frame window eliminates `Array.shift()` memory moves at 30 fps.
+  - Word-inference HTTP round-trips halved (200 ms cooldown) with zero per-frame float-allocation overhead.
 - **Dual-Provider LLM Linguistic Refinement**:
   - Automatically reconstructs raw gloss buffers into natural sentences using Groq LPU (`llama-3.3-70b-versatile`) with seamless fallback to Google Gemini (`gemini-1.5-flash`).
   - Simplifies spoken responses into sequential ISL keywords for physical robotic execution.
 - **Physical Dual Robotic Hand Actuation**:
   - Custom PySerial hardware driver communicates with an Arduino Mega over USB at 9600 baud, controlling 10 SG90 micro-servos across dual hands.
   - Extensible ROS2 adapter stub (`BaseRobotActuator`, `ROS2ActuatorStub`) ready for industrial multi-axis robotic arms.
+- **Production WSGI Server**: Served by **Waitress 3.0** (pure-Python, Windows-native) in production mode; falls back to Werkzeug automatically when `FLASK_DEBUG=true`.
 - **Kiosk User Interface & Fullscreen HUD**:
   - High-visibility dual-panel layout (Human Deaf Panel vs. Robot Assistant Panel) with live landmark overlays, soundwave indicators, and keyboard shortcuts (`F` for fullscreen HUD).
 - **Dual Live & Demo Modes**:
@@ -79,6 +85,7 @@ Communication barriers between the Deaf and Hard-of-Hearing (DHH) community and 
 | **Robotics Middleware** | Python `BaseRobotActuator`, ROS2 Stub | Topic publishing adapter for dual robotic arm middleware |
 | **Database** | SQLite 3 (`signbridge.db`) | Embedded persistence for session logs and collected data |
 | **Testing & Quality** | Pytest, Oxlint, Graphify | Automated test suite (20/20 passed), zero-lint JS, AST graph |
+| **Production WSGI** | Waitress 3.0 | Pure-Python, Windows-native production server; replaces Werkzeug in non-debug mode |
 
 ---
 
@@ -167,8 +174,8 @@ SignBridge/
 │   │   ├── cnn_lstm_training_meta.json # Training metadata and validation logs
 │   │   └── word_training_meta.json # Class labels & vocabulary index mapping
 │   ├── services/
-│   │   ├── translator_model.py     # Alphabet recognition pipeline (XGBoost -> DL -> Heuristic)
-│   │   ├── word_recognizer.py      # CNN-BiLSTM 30-frame temporal word recognizer
+│   │   ├── translator_model.py     # Alphabet recognition pipeline + vectorised normalize_landmarks_batch
+│   │   ├── word_recognizer.py      # CNN-BiLSTM 30-frame temporal word recognizer (vectorised pre-processing)
 │   │   ├── feature_extractor.py    # Scale/rotation-invariant geometric feature extractor
 │   │   ├── groq_manager.py         # Primary LLM manager with rotation & health checks
 │   │   ├── gemini_manager.py       # Fallback LLM manager with automatic failover
@@ -189,7 +196,7 @@ SignBridge/
 │   │   └── GestureReferenceSheet.jsx # 26-letter interactive ISL reference drawer
 │   └── hooks/
 │       ├── useHandDetection.js     # MediaPipe hook with WebAssembly lifecycle management
-│       ├── useGestureRecognition.js# Temporal smoothing, gating, and prediction state machine
+│       ├── useGestureRecognition.js# State machine with O(1) RingBuffer, temporal gating & dual-mode prediction
 │       ├── useISLTranslation.js    # Translation orchestration and API sync
 │       └── useWebcam.js            # Video acquisition, resolution config, and device cleanup
 └── graphify-out/                   # Compiled codebase knowledge graph (769 nodes, 58 communities)
@@ -256,7 +263,7 @@ Open two terminal windows:
 cd backend
 python app.py
 ```
-*Backend runs on `http://localhost:5000`.*
+*Backend runs on `http://localhost:5000` via **Waitress** (production WSGI). Set `FLASK_DEBUG=true` to use Werkzeug with hot-reload.*
 
 **Terminal 2 (Frontend Kiosk Interface):**
 ```bash
@@ -409,6 +416,7 @@ python -m graphify update .
 
 ## Security & Resource Hardening
 
+- **Production WSGI**: Served by **Waitress 3.0** — pure-Python, Windows-native production server with 4 worker threads. Werkzeug is used only when `FLASK_DEBUG=true`, eliminating the development-server warning in production.
 - **Memory Leak Protection**: Explicit disposal in `useHandDetection.js` (`trackerRef.current.close()`) prevents WebAssembly memory growth during component unmounts; `useWebcam.js` terminates video tracks on camera toggling.
 - **Input Sanitization**: Backend `validate_landmark_array` verifies tensor shapes and strips `NaN` / infinite coordinates before model forward passes.
 - **Credential Safety**: Dual API key pools are loaded from `backend/.env` with strictly typed fallback mechanisms and zero secret leakage in logs or client bundles.

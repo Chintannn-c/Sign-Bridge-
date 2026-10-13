@@ -1131,8 +1131,16 @@ if __name__ == '__main__':
     logger.info("  SIGN-BRIDGE FLASK API SERVER")
     logger.info(f"  http://{host}:{port}")
     logger.info("=" * 60)
-    app.run(
-        host=host,
-        port=port,
-        debug=debug
-    )
+    if not debug:
+        try:
+            from waitress import serve
+            logger.info("  Server: Waitress (production WSGI)")
+            logger.info("=" * 60)
+            serve(app, host=host, port=port, threads=4)
+        except ImportError:
+            logger.warning("waitress not installed — falling back to Werkzeug dev server. Run: pip install waitress")
+            app.run(host=host, port=port, debug=False)
+    else:
+        logger.info("  Server: Werkzeug (debug mode)")
+        logger.info("=" * 60)
+        app.run(host=host, port=port, debug=True)

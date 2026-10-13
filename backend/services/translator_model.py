@@ -86,6 +86,47 @@ def normalize_landmarks(landmarks):
     return normalized.reshape(-1)
 
 
+def normalize_landmarks_batch(batch):
+    """Vectorized normalize_landmarks for a (N, 126) float32 array.
+
+    Mirrors normalize_landmarks() exactly but operates on all N frames
+    in one numpy call — no Python loop, no per-frame overhead.
+
+    Returns a (N, 126) float32 array.  Frames where both hands are absent
+    are left as zeros (same contract as the scalar version).
+    Returns None if no frame contains any hand data at all.
+    """
+    pts = np.asarray(batch, dtype=np.float32).reshape(-1, 2, 21, 3)   # (N, 2, 21, 3)
+    N = pts.shape[0]
+
+    # Which frames have at least one active hand
+    present = np.any(pts != 0, axis=(2, 3))                            # (N, 2) bool
+
+    if not present.any():
+        return None
+
+    # Anchor: mean wrist position across present hands per frame
+    # Mask absent hands to 0 before summing so they don't skew the mean
+    wrist_masked = pts[:, :, 0, :] * present[:, :, None]              # (N, 2, 3)
+    n_present = present.sum(axis=1, keepdims=True).clip(min=1)         # (N, 1)
+    anchor = wrist_masked.sum(axis=1) / n_present                      # (N, 3)
+
+    # Scale: mean mid-finger-to-wrist distance across present hands
+    hand_sizes = np.linalg.norm(
+        pts[:, :, 12, :] - pts[:, :, 0, :], axis=-1                   # (N, 2)
+    )
+    scale = np.where(present, hand_sizes, 0).sum(axis=1) / n_present[:, 0]  # (N,)
+    scale = scale.clip(min=1e-4)                                       # guard zero
+
+    # Normalise: subtract anchor, divide by scale
+    normed = (pts - anchor[:, None, None, :]) / scale[:, None, None, None]  # (N, 2, 21, 3)
+
+    # Zero-out absent hand slots (keep same contract as scalar version)
+    normed[~present] = 0
+
+    return normed.reshape(N, 126).astype(np.float32)
+
+
 class LandmarkValidationError(ValueError):
     """Raised when incoming landmark data doesn't match the expected shape."""
 

@@ -229,7 +229,7 @@ class WordRecognizer:
             return None
 
         try:
-            from services.translator_model import normalize_landmarks
+            from services.translator_model import normalize_landmarks, normalize_landmarks_batch
 
             arr = np.asarray(frame_sequence, dtype=np.float32)
 
@@ -253,25 +253,15 @@ class WordRecognizer:
                     'all_scores': {},
                 }
 
-            normalized = []
-            has_valid_hand = False
-            for frame in arr:
-                norm = normalize_landmarks(frame)
-                if norm is not None:
-                    has_valid_hand = True
-                    normalized.append(norm)
-                else:
-                    normalized.append(np.zeros(NUM_FEATURES, dtype=np.float32))
-
-            if not has_valid_hand:
+            # Vectorised normalisation — one numpy call for all 30 frames
+            norm_arr = normalize_landmarks_batch(arr)
+            if norm_arr is None:
                 return {
                     'word': '?',
                     'confidence': 0.0,
                     'mode': self.mode,
                     'all_scores': {},
                 }
-
-            norm_arr = np.asarray(normalized, dtype=np.float32)
 
             # Motion velocity pre-gate: measure average frame-to-frame displacement
             diffs = np.diff(norm_arr, axis=0)
