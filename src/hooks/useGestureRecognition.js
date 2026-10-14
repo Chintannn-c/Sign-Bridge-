@@ -192,6 +192,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const bodyAnchorsRef = useRef(null);
   const handsMissingCountRef = useRef(0);
 
+  const wsRef = useRef(null);
+  const pendingWsRequestsRef = useRef(new Map());
+  const wsReqIdRef = useRef(0);
+
   // Stabilize detected sign and onSendMessage across renders
   const detectedRef = useRef(null);
   useEffect(() => {
@@ -392,6 +396,115 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     }
   }, [enabled, recognitionMode, cancelInactivityCountdown]);
 
+  // Persistent WebSocket connection for sub-2ms low-latency inference
+  useEffect(() => {
+    let ws = null;
+    let reconnectTimeout = null;
+    let isCancelled = false;
+
+    function connect() {
+      if (isCancelled) return;
+      try {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        // Connect via Vite proxy /ws in dev or direct to port 5001
+        const wsUrl = window.location.port === '5173'
+          ? `${protocol}//${window.location.host}/ws`
+          : `${protocol}//${window.location.hostname}:5001`;
+
+        ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            const reqId = data.req_id;
+            if (reqId !== undefined && pendingWsRequestsRef.current.has(reqId)) {
+              const resolver = pendingWsRequestsRef.current.get(reqId);
+              pendingWsRequestsRef.current.delete(reqId);
+              resolver(data);
+            }
+          } catch (e) {
+            console.debug('WS parse notice:', e);
+          }
+        };
+
+        ws.onclose = () => {
+          wsRef.current = null;
+          if (!isCancelled) {
+            reconnectTimeout = setTimeout(connect, 2000);
+          }
+        };
+
+        ws.onerror = () => {
+          try { ws.close(); } catch {}
+        };
+      } catch {
+        if (!isCancelled) {
+          reconnectTimeout = setTimeout(connect, 3000);
+        }
+      }
+    }
+
+    connect();
+
+    return () => {
+      isCancelled = true;
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (ws) {
+        try { ws.close(); } catch {}
+      }
+      wsRef.current = null;
+      pendingWsRequestsRef.current.clear();
+    };
+  }, []);
+
+  /**
+   * Send inference request over WebSocket pipe (1-3ms) with seamless HTTP fallback.
+   */
+  const predictViaSocketOrHttp = useCallback(async (payload, httpEndpoint) => {
+    const ws = wsRef.current;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      return new Promise((resolve) => {
+        const reqId = ++wsReqIdRef.current;
+        payload.req_id = reqId;
+
+        const timeout = setTimeout(async () => {
+          pendingWsRequestsRef.current.delete(reqId);
+          // Fallback to HTTP if socket request times out
+          try {
+            const res = await fetch(`${API_BASE}${httpEndpoint}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            resolve(res.ok ? await res.json() : null);
+          } catch {
+            resolve(null);
+          }
+        }, 300);
+
+        pendingWsRequestsRef.current.set(reqId, (data) => {
+          clearTimeout(timeout);
+          resolve(data);
+        });
+
+        ws.send(JSON.stringify(payload));
+      });
+    }
+
+    // Default HTTP fallback
+    try {
+      const res = await fetch(`${API_BASE}${httpEndpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return res.ok ? await res.json() : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   /**
    * Process a frame of 126 landmark floats from MediaPipe Holistic (with upper-body anchors).
    */
@@ -512,21 +625,16 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         }
 
         try {
-          const res = await fetch(`${API_BASE}/translate/word`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              frames: framesToSend,
-              body_anchors: bodyAnchorsRef.current,
-            }),
-          });
+          const prediction = await predictViaSocketOrHttp({
+            type: 'word',
+            frames: framesToSend,
+            body_anchors: bodyAnchorsRef.current,
+          }, '/translate/word');
 
-          if (!res.ok) {
+          if (!prediction) {
             startOrResetInactivityTimer(false);
             return null;
           }
-
-          const prediction = await res.json();
 
           // Handle confidence rejection from backend
           if (prediction.rejected || !prediction.word || prediction.word === '?' || prediction.confidence < CONFIDENCE_THRESHOLD_WORD) {
@@ -629,28 +737,23 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
 
     const now = Date.now();
-    if (now - letterInferenceCooldownRef.current < 60 || isRequestPendingRef.current) return null;
+    if (now - letterInferenceCooldownRef.current < 35 || isRequestPendingRef.current) return null;
     letterInferenceCooldownRef.current = now;
     isRequestPendingRef.current = true;
 
     try {
       const r = v => Math.round(v * 1e4) / 1e4;
       const roundedLandmarks = landmarks.map(r);
-      const res = await fetch(`${API_BASE}/translate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          landmarks: roundedLandmarks,
-          body_anchors: bodyAnchorsRef.current,
-        }),
-      });
+      const prediction = await predictViaSocketOrHttp({
+        type: 'letter',
+        landmarks: roundedLandmarks,
+        body_anchors: bodyAnchorsRef.current,
+      }, '/translate');
 
-      if (!res.ok) {
+      if (!prediction) {
         startOrResetInactivityTimer(false);
         return null;
       }
-
-      let prediction = await res.json();
 
       // Handle confidence rejection or low confidence from backend
       if (prediction.rejected || !prediction.letter || prediction.letter === '?' || prediction.confidence < CONFIDENCE_THRESHOLD_LETTER) {

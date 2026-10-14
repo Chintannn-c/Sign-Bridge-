@@ -30,12 +30,17 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    // Proxy /api requests to the Flask backend at localhost:5000
+    // Proxy /api to Flask (5000) and /ws to WebSocket server (5001)
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
+      },
+      '/ws': {
+        target: 'ws://localhost:5001',
+        ws: true,
+        rewriteWsOrigin: true,
       }
     }
   }

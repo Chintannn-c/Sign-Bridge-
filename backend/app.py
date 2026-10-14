@@ -116,6 +116,15 @@ arduino = ArduinoSerial()
 logger.info(f"Translator mode: {translator.mode}")
 logger.info("Services ready.")
 
+# Start real-time WebSocket prediction server (ws://127.0.0.1:5001)
+try:
+    from services.websocket_server import start_websocket_server
+    ws_port = int(os.getenv('WS_PORT', 5001))
+    ws_host = os.getenv('WS_HOST', os.getenv('HOST', '127.0.0.1'))
+    start_websocket_server(translator, word_recognizer, host=ws_host, port=ws_port, model_lock=model_reload_lock)
+except Exception as _ws_err:
+    logger.warning(f"WebSocket service initialization failed: {_ws_err}")
+
 
 def safe_log(**kwargs):
     """Safely log conversation to SQLite without propagating errors."""
