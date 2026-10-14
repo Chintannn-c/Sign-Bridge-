@@ -4,7 +4,7 @@
   --splash-accent: #6E7F6B;
   --splash-darker: #B59E82;
   --splash-highlight: #F4F1EA;
-  --splash-duration: 1000ms;
+  --splash-duration: 2500ms;
   --splash-title-size: clamp(3.5rem, 10vw, 7.5rem);
   --splash-hand-size: clamp(52px, 8.5vw, 88px);
 }
@@ -194,7 +194,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 @keyframes splashOverlayFade {
-  0%, 65% {
+  0%, 78% {
     opacity: 1;
     pointer-events: auto;
   }
@@ -207,38 +207,38 @@
 @keyframes splashSignSlide {
   0% {
     opacity: 0;
-    transform: translateX(-28px) scale(0.92);
+    transform: translateX(-30px) scale(0.92);
   }
-  35% {
+  22% {
     opacity: 1;
     transform: translateX(0) scale(1);
   }
-  65% {
+  78% {
     opacity: 1;
     transform: translateX(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(-10px) scale(1.04);
+    transform: translateX(-12px) scale(1.04);
   }
 }
 
 @keyframes splashBridgeSlide {
   0% {
     opacity: 0;
-    transform: translateX(28px) scale(0.92);
+    transform: translateX(30px) scale(0.92);
   }
-  35% {
+  22% {
     opacity: 1;
     transform: translateX(0) scale(1);
   }
-  65% {
+  78% {
     opacity: 1;
     transform: translateX(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(10px) scale(1.04);
+    transform: translateX(12px) scale(1.04);
   }
 }
 
@@ -256,10 +256,10 @@
     stroke-dashoffset: 400;
     opacity: 0;
   }
-  15% {
+  12% {
     opacity: 1;
   }
-  35%, 65% {
+  25%, 78% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
@@ -271,15 +271,15 @@
 }
 
 @keyframes splashDotPulse {
-  0%, 48% {
+  0%, 58% {
     opacity: 0.85;
     transform: scale(1);
   }
-  58% {
+  66% {
     opacity: 1;
     transform: scale(1.6);
   }
-  65% {
+  74%, 78% {
     opacity: 1;
     transform: scale(1);
   }
@@ -289,77 +289,87 @@
 }
 
 @keyframes splashRippleAnim {
-  0%, 50% {
+  0%, 60% {
     opacity: 0;
     transform: scale(0.5);
   }
-  56% {
-    opacity: 0.9;
+  66% {
+    opacity: 0.95;
     transform: scale(1);
   }
-  72% {
+  78% {
     opacity: 0;
-    transform: scale(7.5);
+    transform: scale(8.5);
   }
   100% {
     opacity: 0;
   }
 }
 
-/* Left hand: 0-300ms rise -> 200-600ms wave (-12deg -> +12deg) -> 500-700ms move inward (22px) -> 650-1000ms exit */
+/* Left hand: natural rise, 2 friendly waves, inward glide to bridge, smooth exit */
 @keyframes splashHandLeftAnim {
   0% {
     opacity: 0;
-    transform: translateY(14px) rotate(0deg);
+    transform: translateY(16px) rotate(0deg);
   }
-  26% {
+  18% {
     opacity: 1;
     transform: translateY(0) rotate(-14deg);
   }
-  42% {
-    opacity: 1;
-    transform: translateY(0) rotate(12deg);
+  32% {
+    transform: translateY(0) rotate(14deg);
   }
-  54% {
-    opacity: 1;
-    transform: translateY(0) rotate(-4deg);
+  46% {
+    transform: translateY(0) rotate(-12deg);
+  }
+  58% {
+    transform: translateY(0) rotate(8deg);
   }
   68% {
     opacity: 1;
-    transform: translateX(22px) rotate(0deg);
+    transform: translateX(24px) rotate(0deg);
+  }
+  78% {
+    opacity: 1;
+    transform: translateX(24px) rotate(0deg);
   }
   100% {
     opacity: 0;
-    transform: translateX(22px) scale(1.06);
+    transform: translateX(24px) scale(1.06);
     filter: blur(4px);
   }
 }
 
-/* Right hand: mirrored conversational wave offset -> moves inward (-22px) */
+/* Right hand: mirrored natural rise, offset wave, inward glide to bridge, smooth exit */
 @keyframes splashHandRightAnim {
   0% {
     opacity: 0;
-    transform: scaleX(-1) translateY(14px) rotate(0deg);
+    transform: scaleX(-1) translateY(16px) rotate(0deg);
   }
-  28% {
+  20% {
     opacity: 1;
     transform: scaleX(-1) translateY(0) rotate(-12deg);
   }
-  45% {
-    opacity: 1;
+  34% {
     transform: scaleX(-1) translateY(0) rotate(14deg);
   }
-  56% {
-    opacity: 1;
-    transform: scaleX(-1) translateY(0) rotate(-4deg);
+  48% {
+    transform: scaleX(-1) translateY(0) rotate(-10deg);
+  }
+  60% {
+    transform: scaleX(-1) translateY(0) rotate(8deg);
   }
   68% {
     opacity: 1;
-    transform: scaleX(-1) translateX(22px) rotate(0deg);
+    transform: scaleX(-1) translateX(24px) rotate(0deg);
+  }
+  78% {
+    opacity: 1;
+    transform: scaleX(-1) translateX(24px) rotate(0deg);
   }
   100% {
     opacity: 0;
-    transform: scaleX(-1) translateX(22px) scale(1.06);
+    transform: scaleX(-1) translateX(24px) scale(1.06);
     filter: blur(4px);
   }
 }

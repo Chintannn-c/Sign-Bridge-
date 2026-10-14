@@ -14,7 +14,7 @@ const MessageBubble = React.memo(({ msg }) => {
       </div>
       <div className="chat-bubble">
         <div className="chat-sender-name">
-          {isHuman ? 'YOU (Gesture Detection)' : 'SIGN-BRIDGE AI'}
+          {isHuman ? 'YOU' : 'SIGN-BRIDGE'}
         </div>
         <div className="chat-bubble-text">{msg.text}</div>
         <div className="chat-timestamp">{msg.timestamp}</div>
@@ -345,7 +345,7 @@ export const RobotPanel = React.memo(({
               </div>
               <div className="chat-bubble streaming-bubble">
                 <div className="chat-sender-name">
-                  {isActive ? 'SIGN-BRIDGE AI' : 'YOU (Gesture Detection)'}
+                  {isActive ? 'SIGN-BRIDGE' : 'YOU'}
                   <span className="live-typing-pill">Translating...</span>
                 </div>
                 <div className="chat-bubble-text">

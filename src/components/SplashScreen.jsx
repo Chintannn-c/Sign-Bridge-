@@ -5,7 +5,7 @@ import './SplashScreen.css';
  * Total splash screen lifetime in milliseconds.
  * Controls both React unmount timing and CSS animation synchronization.
  */
-export const SPLASH_DURATION_MS = 1000;
+export const SPLASH_DURATION_MS = 2500;
 
 /**
  * SignBridge Launch Splash Screen.

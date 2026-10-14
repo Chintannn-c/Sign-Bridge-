@@ -49,6 +49,7 @@ export const HandTrackingOverlay = React.memo(({
   const canvasRef = useRef(null);
   const ripplesRef = useRef([]);
   const lastPalmsRef = useRef([]);
+  const trailsRef = useRef([{}, {}]);
 
   const propsRef = useRef({
     landmarks,
@@ -230,6 +231,39 @@ export const HandTrackingOverlay = React.memo(({
           ctx.moveTo(pA.x, pA.y);
           ctx.lineTo(pB.x, pB.y);
           ctx.stroke();
+        }
+
+        // Draw motion comet trails behind fingertips
+        const handTrails = trailsRef.current[hand] || {};
+        trailsRef.current[hand] = handTrails;
+
+        for (const tip of FINGERTIPS) {
+          const p = points[tip];
+          if (!p || (p.x === 0 && p.y === 0)) continue;
+          if (!handTrails[tip]) handTrails[tip] = [];
+          const history = handTrails[tip];
+          history.push({ x: p.x, y: p.y });
+          if (history.length > 5) history.shift();
+
+          if (history.length > 1) {
+            ctx.beginPath();
+            ctx.moveTo(history[0].x, history[0].y);
+            for (let h = 1; h < history.length; h++) {
+              ctx.lineTo(history[h].x, history[h].y);
+            }
+            ctx.strokeStyle = `rgba(${baseColor}, 0.28)`;
+            ctx.lineWidth = 2.0;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+
+            // Ghost particle at the tail of the trail
+            const tail = history[0];
+            ctx.beginPath();
+            ctx.arc(tail.x, tail.y, 2.2, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${baseColor}, 0.18)`;
+            ctx.fill();
+          }
         }
 
         // Draw joint points with living halo animation
