@@ -40,6 +40,7 @@ export const HandTrackingOverlay = React.memo(({
   landmarks,
   poseLandmarks = null,
   bodyAnchors = null,
+  rawLandmarksRef = null,
   width = 640,
   height = 480,
   isMirrored = true,
@@ -90,7 +91,12 @@ export const HandTrackingOverlay = React.memo(({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    const { landmarks, poseLandmarks, bodyAnchors, width, height } = propsRef.current;
+    const { width, height } = propsRef.current;
+    // Read RAW landmarks from ref for zero-lag display (bypasses React state)
+    const raw = rawLandmarksRef?.current;
+    const landmarks = raw?.landmarks ?? propsRef.current.landmarks;
+    const poseLandmarks = raw?.poseLandmarks ?? propsRef.current.poseLandmarks;
+    const bodyAnchors = raw?.bodyAnchors ?? propsRef.current.bodyAnchors;
 
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;

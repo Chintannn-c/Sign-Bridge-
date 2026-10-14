@@ -275,6 +275,7 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
                 landmarks={detection.landmarkData}
                 poseLandmarks={detection.poseData}
                 bodyAnchors={detection.bodyAnchors}
+                rawLandmarksRef={detection.rawLandmarksRef}
                 width={videoElement?.videoWidth || 640}
                 height={videoElement?.videoHeight || 480}
                 isMirrored={isMirrored}

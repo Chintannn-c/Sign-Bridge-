@@ -222,6 +222,8 @@ export function useHandDetection({
   const isProcessingRef = useRef(false);
   const smootherRef = useRef(new LandmarkSmoother(42, 1.0, 0.07));
   const prevHandsRef = useRef({ left: null, right: null, lostL: 0, lostR: 0 });
+  // Raw landmarks ref: written every MediaPipe frame, read by overlay rAF loop (zero-lag display)
+  const rawLandmarksRef = useRef({ landmarks: null, poseLandmarks: null, bodyAnchors: null });
 
   const togglePipelineMode = useCallback(() => {
     setPipelineMode(prev => (prev === 'hands' ? 'holistic' : 'hands'));
@@ -350,6 +352,9 @@ export function useHandDetection({
                 };
               }
 
+              // Write raw landmarks to ref every frame for zero-lag overlay
+              rawLandmarksRef.current = { landmarks: rawFlat, poseLandmarks: pose, bodyAnchors: anchors };
+
               const t = performance.now();
               const shouldUpdateUi = (t - lastUiRef.current > 40);
               if (shouldUpdateUi) {
@@ -430,6 +435,8 @@ export function useHandDetection({
 
             if (nHands > 0) {
               const rawFlat = flattenHands(separation.leftHand, separation.rightHand);
+              // Write raw landmarks to ref every frame for zero-lag overlay
+              rawLandmarksRef.current = { landmarks: rawFlat, poseLandmarks: null, bodyAnchors: null };
               const smoothedLandmarks = smootherRef.current.smooth(rawFlat);
 
               if (shouldUpdateUi) {
@@ -520,5 +527,6 @@ export function useHandDetection({
     handCount,
     pipelineMode,
     togglePipelineMode,
+    rawLandmarksRef,
   };
 }
