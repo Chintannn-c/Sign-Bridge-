@@ -1,17 +1,10 @@
 :root {
-  --splash-bg: var(--bg-primary, #F4F1EA);
-  --splash-text: var(--text-espresso, #2D2A26);
-  --splash-accent: var(--accent-sage, #6E7F6B);
-  --splash-accent-light: var(--accent-camel, #C8AD93);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --splash-bg: #181715;
-    --splash-text: #F4F1EA;
-    --splash-accent: #8FA38C;
-    --splash-accent-light: #D4BFA9;
-  }
+  --splash-bg: #C8AD93;
+  --splash-text: #2D2A26;
+  --splash-accent: #6E7F6B;
+  --splash-darker: #B59E82;
+  --splash-highlight: #F4F1EA;
+  --splash-duration: 1000ms;
 }
 
 .splash-overlay {
@@ -37,25 +30,25 @@
   justify-content: center;
 }
 
-/* Soft ambient glow behind text */
+/* Soft ambient glow behind text on camel background */
 .splash-glow {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 260px;
-  height: 130px;
-  background: radial-gradient(ellipse at center, var(--splash-accent) 0%, rgba(110, 127, 107, 0) 70%);
-  filter: blur(28px);
+  width: 280px;
+  height: 140px;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.32) 0%, rgba(200, 173, 147, 0) 70%);
+  filter: blur(22px);
   pointer-events: none;
   animation: splashGlowAnim var(--splash-duration, 1000ms) forwards ease-in-out;
 }
 
-/* Main Display Typography */
+/* Main Display Typography: Times New Roman, bold brown */
 .splash-title {
   position: relative;
-  font-family: var(--font-family, 'Poppins', 'Inter', system-ui, -apple-system, sans-serif);
-  font-size: clamp(2.4rem, 6vw, 3.8rem);
-  font-weight: 800;
+  font-family: 'Times New Roman', Times, 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.6rem, 6.5vw, 4.2rem);
+  font-weight: 700;
   letter-spacing: 0.5px;
   color: var(--splash-text);
   line-height: 1.1;
@@ -68,10 +61,10 @@
 /* Drawing underline beneath the text */
 .splash-underline {
   width: 100%;
-  height: 3px;
+  height: 2.5px;
   margin-top: 8px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--splash-accent-light) 0%, var(--splash-accent) 100%);
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(45, 42, 38, 0.25) 0%, var(--splash-text) 50%, rgba(45, 42, 38, 0.25) 100%);
   transform-origin: left center;
   animation: splashUnderlineAnim var(--splash-duration, 1000ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
@@ -120,12 +113,12 @@
     opacity: 1;
   }
   35%, 65% {
-    opacity: 1;
     transform: scaleX(1);
+    opacity: 1;
   }
   100% {
-    opacity: 0;
     transform: scaleX(1.04);
+    opacity: 0;
   }
 }
 
