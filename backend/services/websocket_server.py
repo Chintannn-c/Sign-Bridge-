@@ -150,27 +150,30 @@ def handle_word_prediction(word_recognizer, data, model_lock=None):
 
 
 async def ws_handler(websocket, translator, word_recognizer, model_lock=None):
-    async for raw_message in websocket:
-        try:
-            data = json.loads(raw_message)
-            msg_type = data.get('type', 'letter')
-            req_id = data.get('req_id')
-
-            if msg_type == 'word':
-                res = handle_word_prediction(word_recognizer, data, model_lock)
-            else:
-                res = handle_letter_prediction(translator, data, model_lock)
-
-            if req_id is not None:
-                res['req_id'] = req_id
-
-            await websocket.send(json.dumps(res))
-        except Exception as err:
-            logger.error(f"WebSocket client error: {err}")
+    try:
+        async for raw_message in websocket:
             try:
-                await websocket.send(json.dumps({'error': str(err), 'rejected': True}))
-            except Exception:
-                pass
+                data = json.loads(raw_message)
+                msg_type = data.get('type', 'letter')
+                req_id = data.get('req_id')
+
+                if msg_type == 'word':
+                    res = handle_word_prediction(word_recognizer, data, model_lock)
+                else:
+                    res = handle_letter_prediction(translator, data, model_lock)
+
+                if req_id is not None:
+                    res['req_id'] = req_id
+
+                await websocket.send(json.dumps(res))
+            except Exception as err:
+                logger.error(f"WebSocket message error: {err}")
+                try:
+                    await websocket.send(json.dumps({'error': str(err), 'rejected': True}))
+                except Exception:
+                    pass
+    except websockets.ConnectionClosed:
+        pass  # Normal client disconnect (page reload, HMR, or tab close)
 
 
 def start_websocket_server(translator, word_recognizer, host='127.0.0.1', port=5001, model_lock=None):

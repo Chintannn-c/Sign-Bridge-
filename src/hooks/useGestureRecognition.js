@@ -458,7 +458,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       isCancelled = true;
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
       if (ws) {
-        try { ws.close(); } catch {}
+        try { ws.close(1000, 'unmount'); } catch {}
       }
       wsRef.current = null;
       pendingWsRequestsRef.current.clear();
