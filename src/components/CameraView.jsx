@@ -4,7 +4,7 @@ import { useWebcam } from '../hooks/useWebcam';
 import { useHandDetection } from '../hooks/useHandDetection';
 import { useGestureRecognition } from '../hooks/useGestureRecognition';
 import { HandTrackingOverlay } from './SignLanguageAssistant/HandTrackingOverlay';
-import { Video, VideoOff, CameraOff, Camera, FlipHorizontal, Layers, Maximize2, Minimize2, Send, Trash2 } from 'lucide-react';
+import { Video, VideoOff, CameraOff, Camera, FlipHorizontal, Layers, Maximize2, Minimize2, Send, Trash2, Timer, TimerOff } from 'lucide-react';
 import './SignLanguageAssistant/assistant.css';
 
 /**
@@ -117,6 +117,7 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
     recognition.guidance,
     recognition.inactivityCountdown,
     recognition.isAutoSending,
+    recognition.autoSendEnabled,
     recognition.handInfo,
     recognition.wordBufferCount
   ]);
@@ -197,7 +198,17 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
           <Layers size={17} />
         </button>
 
-        {/* 2. Mirror toggle */}
+        {/* 2. Auto-Send toggle */}
+        <button
+          type="button"
+          className={`camera-icon-btn ${recognition.autoSendEnabled ? 'is-active' : 'is-off'}`}
+          onClick={() => recognition.setAutoSendEnabled(prev => !prev)}
+          title={recognition.autoSendEnabled ? 'Auto-send: ON (click to disable)' : 'Auto-send: OFF (click to enable)'}
+        >
+          {recognition.autoSendEnabled ? <Timer size={17} /> : <TimerOff size={17} />}
+        </button>
+
+        {/* 3. Mirror toggle */}
         <button
           type="button"
           className={`camera-icon-btn ${isMirrored ? 'is-active' : ''}`}

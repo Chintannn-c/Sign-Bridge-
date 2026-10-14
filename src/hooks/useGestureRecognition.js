@@ -224,6 +224,13 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     setInactivityCountdown(null);
   }, []);
 
+  // Cancel any running countdown immediately if user disables auto-send
+  useEffect(() => {
+    if (!autoSendEnabled) {
+      cancelInactivityCountdown();
+    }
+  }, [autoSendEnabled, cancelInactivityCountdown]);
+
   const triggerAutoSend = useCallback(async () => {
     const rawText = sentenceBufferRef.current.trim();
     if (!rawText || isAutoSendingRef.current) {
