@@ -1,10 +1,10 @@
 :root {
   --splash-bg: #C8AD93;
-  --splash-text: #2D2A26;
+  --splash-text: #ffffff;
   --splash-accent: #6E7F6B;
   --splash-darker: #B59E82;
   --splash-highlight: #F4F1EA;
-  --splash-duration: 1000ms;
+  --splash-duration: 2500ms;
 }
 
 .splash-overlay {
@@ -19,7 +19,7 @@
   justify-content: center;
   z-index: 999999;
   overflow: hidden;
-  animation: splashOverlayFade var(--splash-duration, 1000ms) forwards ease-in-out;
+  animation: splashOverlayFade var(--splash-duration, 2500ms) forwards ease-in-out;
 }
 
 .splash-content {
@@ -40,7 +40,7 @@
   background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.32) 0%, rgba(200, 173, 147, 0) 70%);
   filter: blur(22px);
   pointer-events: none;
-  animation: splashGlowAnim var(--splash-duration, 1000ms) forwards ease-in-out;
+  animation: splashGlowAnim var(--splash-duration, 2500ms) forwards ease-in-out;
 }
 
 /* Main Display Typography: Times New Roman, bold brown */
@@ -54,7 +54,7 @@
   line-height: 1.1;
   margin: 0;
   padding: 0 0.5rem;
-  animation: splashTextAnim var(--splash-duration, 1000ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
+  animation: splashTextAnim var(--splash-duration, 2500ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
 }
 
@@ -66,7 +66,7 @@
   border-radius: 2px;
   background: linear-gradient(90deg, rgba(45, 42, 38, 0.25) 0%, var(--splash-text) 50%, rgba(45, 42, 38, 0.25) 100%);
   transform-origin: left center;
-  animation: splashUnderlineAnim var(--splash-duration, 1000ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
+  animation: splashUnderlineAnim var(--splash-duration, 2500ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
 }
 
@@ -142,12 +142,12 @@
    ───────────────────────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .splash-overlay {
-    animation: splashReducedFade var(--splash-duration, 1000ms) forwards ease-in-out !important;
+    animation: splashReducedFade var(--splash-duration, 2500ms) forwards ease-in-out !important;
   }
 
   .splash-title,
   .splash-underline {
-    animation: splashReducedFade var(--splash-duration, 1000ms) forwards ease-in-out !important;
+    animation: splashReducedFade var(--splash-duration, 2500ms) forwards ease-in-out !important;
     transform: none !important;
   }
 
