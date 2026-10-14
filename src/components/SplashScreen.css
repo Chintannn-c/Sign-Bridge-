@@ -4,7 +4,9 @@
   --splash-accent: #6E7F6B;
   --splash-darker: #B59E82;
   --splash-highlight: #F4F1EA;
-  --splash-duration: 2500ms;
+  --splash-duration: 1000ms;
+  --splash-title-size: clamp(3.5rem, 10vw, 7.5rem);
+  --splash-hand-size: clamp(52px, 8.5vw, 88px);
 }
 
 .splash-overlay {
@@ -19,7 +21,32 @@
   justify-content: center;
   z-index: 999999;
   overflow: hidden;
-  animation: splashOverlayFade var(--splash-duration, 2500ms) forwards ease-in-out;
+  animation: splashOverlayFade var(--splash-duration, 1000ms) forwards ease-in-out;
+}
+
+/* Subtle ambient depth orbs */
+.splash-ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(55px);
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+.splash-ambient-orb.orb-1 {
+  width: 380px;
+  height: 380px;
+  top: -80px;
+  right: -60px;
+  background: radial-gradient(circle, var(--splash-highlight) 0%, rgba(200, 173, 147, 0) 70%);
+}
+
+.splash-ambient-orb.orb-2 {
+  width: 440px;
+  height: 440px;
+  bottom: -100px;
+  left: -80px;
+  background: radial-gradient(circle, var(--splash-darker) 0%, rgba(200, 173, 147, 0) 70%);
 }
 
 .splash-content {
@@ -28,50 +55,142 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 1.5rem;
 }
 
-/* Soft ambient glow behind text on camel background */
-.splash-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 280px;
-  height: 140px;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.32) 0%, rgba(200, 173, 147, 0) 70%);
-  filter: blur(22px);
-  pointer-events: none;
-  animation: splashGlowAnim var(--splash-duration, 2500ms) forwards ease-in-out;
+/* Main horizontal row pairing hands and wordmark */
+.splash-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.2rem, 3.5vw, 3.2rem);
+  width: 100%;
 }
 
-/* Main Display Typography: Times New Roman, bold brown */
-.splash-title {
+/* ─────────────────────────────────────────────────────────────────────────────
+   1. WORDMARK & BRIDGE ARC
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.splash-wordmark-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  font-family: 'Times New Roman', Times, 'Playfair Display', Georgia, serif;
-  font-size: clamp(2.6rem, 6.5vw, 4.2rem);
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--splash-text);
-  line-height: 1.1;
+  max-width: 100%;
+}
+
+.splash-title {
   margin: 0;
   padding: 0 0.5rem;
-  animation: splashTextAnim var(--splash-duration, 2500ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Times New Roman', Times, 'Playfair Display', Georgia, serif;
+  font-size: var(--splash-title-size);
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--splash-text);
+  line-height: 1.05;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* "Sign" / "Bridge" Split Slide-in & Shimmer */
+.splash-word-part {
+  display: inline-block;
+  background: linear-gradient(
+    110deg,
+    var(--splash-text) 0%,
+    var(--splash-highlight) 35%,
+    var(--splash-text) 60%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--splash-text);
+  animation: splashShimmer var(--splash-duration, 1000ms) infinite linear;
+}
+
+.splash-sign {
+  animation: splashSignSlide var(--splash-duration, 1000ms) forwards cubic-bezier(0.16, 1, 0.3, 1),
+             splashShimmer var(--splash-duration, 1000ms) infinite linear;
   will-change: transform, opacity;
 }
 
-/* Drawing underline beneath the text */
-.splash-underline {
+.splash-bridge {
+  animation: splashBridgeSlide var(--splash-duration, 1000ms) forwards cubic-bezier(0.16, 1, 0.3, 1),
+             splashShimmer var(--splash-duration, 1000ms) infinite linear;
+  will-change: transform, opacity;
+}
+
+/* Proportionately scaled Bridge Arc */
+.splash-bridge-wrap {
   width: 100%;
-  height: 2.5px;
-  margin-top: 8px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, rgba(45, 42, 38, 0.25) 0%, var(--splash-text) 50%, rgba(45, 42, 38, 0.25) 100%);
-  transform-origin: left center;
-  animation: splashUnderlineAnim var(--splash-duration, 2500ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 480px;
+  margin-top: clamp(6px, 1.2vw, 14px);
+  color: var(--splash-text);
+}
+
+.splash-bridge-arc {
+  width: 100%;
+  height: clamp(18px, 3.2vw, 32px);
+  display: block;
+}
+
+.splash-arc-path {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: splashArcDraw var(--splash-duration, 1000ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.splash-node-dot {
+  transform-origin: center;
+  animation: splashDotPulse var(--splash-duration, 1000ms) forwards ease-in-out;
+}
+
+.splash-ripple-ring {
+  transform-origin: 160px 13px;
+  animation: splashRippleAnim var(--splash-duration, 1000ms) forwards ease-out;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   2. GESTURE HANDS ANIMATION
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.splash-hand-wrap {
+  width: var(--splash-hand-size);
+  color: var(--splash-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.splash-hand-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(45, 42, 38, 0.12));
+}
+
+.splash-hand-left {
+  transform-origin: 22px 60px;
+  animation: splashHandLeftAnim var(--splash-duration, 1000ms) forwards cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform, opacity;
+}
+
+.splash-hand-right {
+  transform-origin: 22px 60px;
+  animation: splashHandRightAnim var(--splash-duration, 1000ms) forwards cubic-bezier(0.34, 1.56, 0.64, 1);
   will-change: transform, opacity;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   ANIMATION KEYFRAMES (0-350ms in, 350-650ms hold, 650-1000ms out)
+   3. ANIMATION KEYFRAMES (0-300ms in, 200-600ms wave, 500-700ms connect, 650-1000ms exit)
    ───────────────────────────────────────────────────────────────────────────── */
 
 @keyframes splashOverlayFade {
@@ -85,74 +204,235 @@
   }
 }
 
-@keyframes splashTextAnim {
+@keyframes splashSignSlide {
   0% {
     opacity: 0;
-    transform: translateY(8px) scale(0.92);
+    transform: translateX(-28px) scale(0.92);
   }
   35% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(0) scale(1);
   }
   65% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateY(0) scale(1.04);
+    transform: translateX(-10px) scale(1.04);
   }
 }
 
-@keyframes splashUnderlineAnim {
+@keyframes splashBridgeSlide {
   0% {
     opacity: 0;
-    transform: scaleX(0);
+    transform: translateX(28px) scale(0.92);
+  }
+  35% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  65% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(10px) scale(1.04);
+  }
+}
+
+@keyframes splashShimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+@keyframes splashArcDraw {
+  0% {
+    stroke-dashoffset: 400;
+    opacity: 0;
   }
   15% {
     opacity: 1;
   }
   35%, 65% {
-    transform: scaleX(1);
+    stroke-dashoffset: 0;
     opacity: 1;
   }
   100% {
-    transform: scaleX(1.04);
+    stroke-dashoffset: 0;
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes splashDotPulse {
+  0%, 48% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  58% {
+    opacity: 1;
+    transform: scale(1.6);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
     opacity: 0;
   }
 }
 
-@keyframes splashGlowAnim {
-  0% {
+@keyframes splashRippleAnim {
+  0%, 50% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.85);
+    transform: scale(0.5);
   }
-  35%, 65% {
-    opacity: 0.45;
-    transform: translate(-50%, -50%) scale(1.05);
+  56% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  72% {
+    opacity: 0;
+    transform: scale(7.5);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+
+/* Left hand: 0-300ms rise -> 200-600ms wave (-12deg -> +12deg) -> 500-700ms move inward (22px) -> 650-1000ms exit */
+@keyframes splashHandLeftAnim {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) rotate(0deg);
+  }
+  26% {
+    opacity: 1;
+    transform: translateY(0) rotate(-14deg);
+  }
+  42% {
+    opacity: 1;
+    transform: translateY(0) rotate(12deg);
+  }
+  54% {
+    opacity: 1;
+    transform: translateY(0) rotate(-4deg);
+  }
+  68% {
+    opacity: 1;
+    transform: translateX(22px) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(22px) scale(1.06);
+    filter: blur(4px);
+  }
+}
+
+/* Right hand: mirrored conversational wave offset -> moves inward (-22px) */
+@keyframes splashHandRightAnim {
+  0% {
+    opacity: 0;
+    transform: scaleX(-1) translateY(14px) rotate(0deg);
+  }
+  28% {
+    opacity: 1;
+    transform: scaleX(-1) translateY(0) rotate(-12deg);
+  }
+  45% {
+    opacity: 1;
+    transform: scaleX(-1) translateY(0) rotate(14deg);
+  }
+  56% {
+    opacity: 1;
+    transform: scaleX(-1) translateY(0) rotate(-4deg);
+  }
+  68% {
+    opacity: 1;
+    transform: scaleX(-1) translateX(22px) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(-1) translateX(22px) scale(1.06);
+    filter: blur(4px);
   }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   ACCESSIBILITY: prefers-reduced-motion
+   4. RESPONSIVE LAYOUT (<600px narrow screens)
    ───────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .splash-main-row {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .splash-hand-wrap {
+    width: clamp(38px, 11vw, 56px);
+  }
+
+  /* Hands stack under the wordmark and sit side-by-side near bridge arc */
+  .splash-hand-left {
+    order: 2;
+  }
+
+  .splash-wordmark-wrap {
+    order: 1;
+  }
+
+  .splash-hand-right {
+    order: 3;
+  }
+
+  .splash-main-row {
+    display: grid;
+    grid-template-areas:
+      "title title"
+      "handL handR";
+    justify-items: center;
+  }
+
+  .splash-wordmark-wrap {
+    grid-area: title;
+  }
+
+  .splash-hand-left {
+    grid-area: handL;
+  }
+
+  .splash-hand-right {
+    grid-area: handR;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   5. ACCESSIBILITY: prefers-reduced-motion
+   ───────────────────────────────────────────────────────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
-  .splash-overlay {
-    animation: splashReducedFade var(--splash-duration, 2500ms) forwards ease-in-out !important;
-  }
-
-  .splash-title,
-  .splash-underline {
-    animation: splashReducedFade var(--splash-duration, 2500ms) forwards ease-in-out !important;
-    transform: none !important;
-  }
-
-  .splash-glow {
+  .splash-hand-wrap,
+  .splash-ripple-ring,
+  .splash-ambient-orb {
     display: none !important;
+  }
+
+  .splash-overlay {
+    animation: splashReducedFade var(--splash-duration, 1000ms) forwards ease-in-out !important;
+  }
+
+  .splash-sign,
+  .splash-bridge,
+  .splash-arc-path,
+  .splash-node-dot {
+    animation: splashReducedFade var(--splash-duration, 1000ms) forwards ease-in-out !important;
+    transform: none !important;
   }
 
   @keyframes splashReducedFade {
