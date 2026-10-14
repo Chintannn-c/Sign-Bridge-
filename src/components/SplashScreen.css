@@ -1,0 +1,176 @@
+:root {
+  --splash-bg: var(--bg-primary, #F4F1EA);
+  --splash-text: var(--text-espresso, #2D2A26);
+  --splash-accent: var(--accent-sage, #6E7F6B);
+  --splash-accent-light: var(--accent-camel, #C8AD93);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --splash-bg: #181715;
+    --splash-text: #F4F1EA;
+    --splash-accent: #8FA38C;
+    --splash-accent-light: #D4BFA9;
+  }
+}
+
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: var(--splash-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  overflow: hidden;
+  animation: splashOverlayFade var(--splash-duration, 1000ms) forwards ease-in-out;
+}
+
+.splash-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Soft ambient glow behind text */
+.splash-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 260px;
+  height: 130px;
+  background: radial-gradient(ellipse at center, var(--splash-accent) 0%, rgba(110, 127, 107, 0) 70%);
+  filter: blur(28px);
+  pointer-events: none;
+  animation: splashGlowAnim var(--splash-duration, 1000ms) forwards ease-in-out;
+}
+
+/* Main Display Typography */
+.splash-title {
+  position: relative;
+  font-family: var(--font-family, 'Poppins', 'Inter', system-ui, -apple-system, sans-serif);
+  font-size: clamp(2.4rem, 6vw, 3.8rem);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--splash-text);
+  line-height: 1.1;
+  margin: 0;
+  padding: 0 0.5rem;
+  animation: splashTextAnim var(--splash-duration, 1000ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+/* Drawing underline beneath the text */
+.splash-underline {
+  width: 100%;
+  height: 3px;
+  margin-top: 8px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--splash-accent-light) 0%, var(--splash-accent) 100%);
+  transform-origin: left center;
+  animation: splashUnderlineAnim var(--splash-duration, 1000ms) forwards cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ANIMATION KEYFRAMES (0-350ms in, 350-650ms hold, 650-1000ms out)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes splashOverlayFade {
+  0%, 65% {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  100% {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@keyframes splashTextAnim {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+  35% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(1.04);
+  }
+}
+
+@keyframes splashUnderlineAnim {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  15% {
+    opacity: 1;
+  }
+  35%, 65% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1.04);
+  }
+}
+
+@keyframes splashGlowAnim {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  35%, 65% {
+    opacity: 0.45;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ACCESSIBILITY: prefers-reduced-motion
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .splash-overlay {
+    animation: splashReducedFade var(--splash-duration, 1000ms) forwards ease-in-out !important;
+  }
+
+  .splash-title,
+  .splash-underline {
+    animation: splashReducedFade var(--splash-duration, 1000ms) forwards ease-in-out !important;
+    transform: none !important;
+  }
+
+  .splash-glow {
+    display: none !important;
+  }
+
+  @keyframes splashReducedFade {
+    0% {
+      opacity: 0;
+    }
+    35%, 65% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}
