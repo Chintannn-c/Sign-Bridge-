@@ -1,24 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { SignBridgeKiosk } from './components/SignBridgeKiosk';
-import { SplashScreen, SPLASH_DURATION_MS } from './components/SplashScreen';
+import { SplashScreen } from './components/SplashScreen';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 function App() {
+  const isPreviewMode = typeof window !== 'undefined' && 
+    (window.location.search.includes('preview=splash') || window.location.search.includes('splash=true'));
+
   const [showSplash, setShowSplash] = useState(true);
 
+  // Expose global preview trigger for easy isolation testing
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, SPLASH_DURATION_MS);
-
-    return () => clearTimeout(timer);
+    window.previewSplash = () => setShowSplash(true);
   }, []);
 
+  const handleSplashFinish = useCallback(() => {
+    if (!isPreviewMode) {
+      setShowSplash(false);
+    }
+  }, [isPreviewMode]);
+
   return (
-    <>
+    <ErrorBoundary>
       {/* Main app mounts and begins camera/model loading immediately in background */}
       <SignBridgeKiosk />
-      {showSplash && <SplashScreen />}
-    </>
+      {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+    </ErrorBoundary>
   );
 }
 

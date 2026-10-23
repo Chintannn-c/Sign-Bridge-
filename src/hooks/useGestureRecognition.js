@@ -1,13 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { GESTURE_CONFIG, GESTURE_STATES, GESTURE_STATUS_LABELS } from '../config/gestureConfig';
 
 /**
  * Gesture Recognition State Machine with Temporal Smoothing & Dual Mode (Letter & Word).
  *
- * Modes:
- *   1. 'letter' — Frame-by-frame static alphabet recognition (A-Z) via /api/translate
- *   2. 'word'   — Sliding 30-frame temporal sequence recognition (ISL words) via /api/translate/word
- *
- * States: idle → searching → detected → tracking → recognising → stable
+ * Lifecycle: NEUTRAL -> ARMED -> CAPTURING -> COOLDOWN -> back to NEUTRAL
+ * Re-arm base gesture: Two open palms facing camera held for N consecutive frames.
  */
 
 const API_BASE = '/api';
@@ -63,11 +61,95 @@ const STATUS_LABELS = {
   stable: 'Sign Locked',
 };
 
-// Minimum consecutive identical predictions needed to commit a letter
-const STABILITY_THRESHOLD = 2; // Immediate responsiveness without freezing
-const CONFIDENCE_THRESHOLD_LETTER = 0.52;
-const CONFIDENCE_THRESHOLD_WORD = 0.65;
 const WORD_SEQUENCE_LENGTH = 30;
+
+export function isSingleFingerExtended(pts, tipIdx, pipIdx, mcpIdx) {
+  const wx = pts[0], wy = pts[1];
+  const tx = pts[tipIdx * 3], ty = pts[tipIdx * 3 + 1];
+  const px = pts[pipIdx * 3], py = pts[pipIdx * 3 + 1];
+  const mx = pts[mcpIdx * 3], my = pts[mcpIdx * 3 + 1];
+
+  const dTipW = Math.hypot(tx - wx, ty - wy);
+  const dPipW = Math.hypot(px - wx, py - wy);
+  const dTipM = Math.hypot(tx - mx, ty - my);
+  const dPipM = Math.hypot(px - mx, py - my);
+
+  return (dTipW > 1.15 * dPipW) && (dTipM > dPipM);
+}
+
+export function isThumbExtended(pts) {
+  const wx = pts[0], wy = pts[1];
+  const tx = pts[4 * 3], ty = pts[4 * 3 + 1];
+  const mx = pts[2 * 3], my = pts[2 * 3 + 1];
+  const ix = pts[5 * 3], iy = pts[5 * 3 + 1];
+
+  const dTipW = Math.hypot(tx - wx, ty - wy);
+  const dMcpW = Math.hypot(mx - wx, my - wy);
+  const dTipIdx = Math.hypot(tx - ix, ty - iy);
+
+  return (dTipW > 1.10 * dMcpW) && (dTipIdx > 0.04);
+}
+
+export function isPalmFacingCamera(pts) {
+  const wx = pts[0], wy = pts[1], wz = pts[2] || 0;
+  const ix = pts[5 * 3], iy = pts[5 * 3 + 1], iz = pts[5 * 3 + 2] || 0;
+  const px = pts[17 * 3], py = pts[17 * 3 + 1], pz = pts[17 * 3 + 2] || 0;
+
+  const v1x = ix - wx, v1y = iy - wy, v1z = iz - wz;
+  const v2x = px - wx, v2y = py - wy, v2z = pz - wz;
+
+  const crossZ = v1x * v2y - v1y * v2x;
+  const palmWidth = Math.hypot(ix - px, iy - py);
+  return palmWidth > 0.030 && Math.abs(crossZ) > 0.0008;
+}
+
+export function isNeutralGesture(landmarks) {
+  if (!landmarks || landmarks.length < 126) return false;
+  const leftHand = landmarks.slice(0, 63);
+  const rightHand = landmarks.slice(63, 126);
+
+  const hasLeft = leftHand.some((v, i) => i % 3 === 0 && (v !== 0 || leftHand[i + 1] !== 0));
+  const hasRight = rightHand.some((v, i) => i % 3 === 0 && (v !== 0 || rightHand[i + 1] !== 0));
+  if (!hasLeft || !hasRight) return false;
+
+  for (const hand of [leftHand, rightHand]) {
+    if (!isPalmFacingCamera(hand)) return false;
+    if (!isThumbExtended(hand)) return false;
+    if (!isSingleFingerExtended(hand, 8, 6, 5)) return false;
+    if (!isSingleFingerExtended(hand, 12, 10, 9)) return false;
+    if (!isSingleFingerExtended(hand, 16, 14, 13)) return false;
+    if (!isSingleFingerExtended(hand, 20, 18, 17)) return false;
+  }
+  return true;
+}
+
+export function isIdleHand(landmarks) {
+  if (!landmarks || landmarks.length < 126) return true;
+  let hasHand = false;
+  for (let h = 0; h < 2; h++) {
+    const offset = h * 63;
+    const wx = landmarks[offset], wy = landmarks[offset + 1];
+    if (wx !== 0 || wy !== 0) {
+      hasHand = true;
+      if (wy > GESTURE_CONFIG.IDLE_WRIST_Y_THRESHOLD) return true;
+      let minX = 1, maxX = 0, minY = 1, maxY = 0;
+      for (let i = 0; i < 21; i++) {
+        const x = landmarks[offset + i * 3];
+        const y = landmarks[offset + i * 3 + 1];
+        if (x !== 0 || y !== 0) {
+          minX = Math.min(minX, x);
+          maxX = Math.max(maxX, x);
+          minY = Math.min(minY, y);
+          maxY = Math.max(maxY, y);
+        }
+      }
+      if ((maxX - minX) < GESTURE_CONFIG.MIN_HAND_SPAN || (maxY - minY) < GESTURE_CONFIG.MIN_HAND_SPAN) {
+        return true;
+      }
+    }
+  }
+  return !hasHand;
+}
 
 function isValidHandGeometry(landmarks) {
   if (!landmarks || landmarks.length < 126) return false;
@@ -179,6 +261,14 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     }
   }, []);
 
+  // State Machine & Re-Arming Lifecycle
+  const [gestureState, setGestureState] = useState(GESTURE_STATES.NEUTRAL);
+  const gestureStateRef = useRef(GESTURE_STATES.NEUTRAL);
+  const neutralHoldCountRef = useRef(0);
+  const majorityVoteWindowRef = useRef([]);
+  const candidateStreakRef = useRef(0);
+  const currentCandidateRef = useRef(null);
+
   // Temporal smoothing & buffering refs
   const consecutiveLetterRef = useRef({ letter: null, count: 0 });
   const consecutiveWordRef = useRef({ word: null, count: 0 });
@@ -189,12 +279,25 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const letterInferenceCooldownRef = useRef(0);
   const isRequestPendingRef = useRef(false);
   const isWordRequestPendingRef = useRef(false);
-  const bodyAnchorsRef = useRef(null);
   const handsMissingCountRef = useRef(0);
-
+  const bodyAnchorsRef = useRef(null);
   const wsRef = useRef(null);
   const pendingWsRequestsRef = useRef(new Map());
-  const wsReqIdRef = useRef(0);
+  const pendingReqIdRef = useRef(0);
+
+  // Debug Overlay Metrics
+  const [debugOverlay, setDebugOverlay] = useState(GESTURE_CONFIG.DEBUG_OVERLAY_ENABLED);
+  const [debugInfo, setDebugInfo] = useState({
+    state: 'neutral',
+    confidence: 0,
+    margin: 0,
+    distance: 0,
+    neutralStreak: 0,
+    candidateStreak: 0,
+    isNeutral: false,
+    isIdle: true,
+  });
+  const toggleDebugOverlay = useCallback(() => setDebugOverlay(prev => !prev), []);
 
   // Stabilize detected sign and onSendMessage across renders
   const detectedRef = useRef(null);
@@ -543,8 +646,15 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       setConfidence(0);
       setAllScores({});
       setGuidance(prev => (prev === 'Show your hands inside the camera frame.' ? prev : 'Show your hands inside the camera frame.'));
-      consecutiveLetterRef.current = { letter: null, count: 0 };
-      consecutiveWordRef.current = { word: null, count: 0 };
+      
+      // Reset state machine to NEUTRAL when hands are lost
+      gestureStateRef.current = GESTURE_STATES.NEUTRAL;
+      setGestureState(GESTURE_STATES.NEUTRAL);
+      neutralHoldCountRef.current = 0;
+      majorityVoteWindowRef.current = [];
+      currentCandidateRef.current = null;
+      candidateStreakRef.current = 0;
+
       lastCommittedItemRef.current = null;
       frameBufferRef.current.clear();
       setWordBufferCount(0);
@@ -553,6 +663,73 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       handleHandsDropped();
       return null;
     }
+
+    // Evaluate Neutral & Idle hand condition for State Machine
+    const isNeutral = isNeutralGesture(landmarks);
+    const isIdle = isIdleHand(landmarks);
+    const curState = gestureStateRef.current;
+    const nowTime = Date.now();
+
+    // 1. COOLDOWN state transition
+    if (curState === GESTURE_STATES.COOLDOWN) {
+      if (nowTime - lastCommitRef.current >= GESTURE_CONFIG.COOLDOWN_MS || isNeutral) {
+        gestureStateRef.current = GESTURE_STATES.NEUTRAL;
+        setGestureState(GESTURE_STATES.NEUTRAL);
+        neutralHoldCountRef.current = isNeutral ? 1 : 0;
+      }
+    }
+    // 2. NEUTRAL state transition (holding two open palms to re-arm)
+    else if (curState === GESTURE_STATES.NEUTRAL) {
+      majorityVoteWindowRef.current = [];
+      currentCandidateRef.current = null;
+      candidateStreakRef.current = 0;
+
+      if (isNeutral) {
+        neutralHoldCountRef.current += 1;
+        if (neutralHoldCountRef.current >= GESTURE_CONFIG.NEUTRAL_HOLD_FRAMES) {
+          gestureStateRef.current = GESTURE_STATES.ARMED;
+          setGestureState(GESTURE_STATES.ARMED);
+          neutralHoldCountRef.current = 0;
+        }
+      } else {
+        neutralHoldCountRef.current = 0;
+      }
+    }
+    // 3. ARMED state transition
+    else if (curState === GESTURE_STATES.ARMED) {
+      majorityVoteWindowRef.current = [];
+      currentCandidateRef.current = null;
+      candidateStreakRef.current = 0;
+
+      if (!isIdle && !isNeutral) {
+        gestureStateRef.current = GESTURE_STATES.CAPTURING;
+        setGestureState(GESTURE_STATES.CAPTURING);
+      }
+    }
+    // 4. CAPTURING state transitions
+    else if (curState === GESTURE_STATES.CAPTURING) {
+      if (isIdle) {
+        majorityVoteWindowRef.current = [];
+        currentCandidateRef.current = null;
+        candidateStreakRef.current = 0;
+      } else if (isNeutral) {
+        gestureStateRef.current = GESTURE_STATES.NEUTRAL;
+        setGestureState(GESTURE_STATES.NEUTRAL);
+        neutralHoldCountRef.current = 1;
+        majorityVoteWindowRef.current = [];
+        currentCandidateRef.current = null;
+        candidateStreakRef.current = 0;
+      }
+    }
+
+    setDebugInfo(prev => ({
+      ...prev,
+      state: gestureStateRef.current,
+      neutralStreak: neutralHoldCountRef.current,
+      candidateStreak: candidateStreakRef.current,
+      isNeutral,
+      isIdle
+    }));
 
     // Adaptive Guidance for Single-Hand vs Dual-Hand Gestures
     if (handCount === 1) {
@@ -743,6 +920,12 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     // ─────────────────────────────────────────────────────────────────────────
 
 
+    // Only execute letter recognition when in CAPTURING (or transitioning from ARMED)
+    if (gestureStateRef.current === GESTURE_STATES.NEUTRAL || gestureStateRef.current === GESTURE_STATES.COOLDOWN) {
+      setDetectedLetter(null);
+      return null;
+    }
+
     const now = Date.now();
     if (now - letterInferenceCooldownRef.current < 35 || isRequestPendingRef.current) return null;
     letterInferenceCooldownRef.current = now;
@@ -762,15 +945,36 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         return null;
       }
 
-      // Handle confidence rejection or low confidence from backend
-      if (prediction.rejected || !prediction.letter || prediction.letter === '?' || prediction.confidence < CONFIDENCE_THRESHOLD_LETTER) {
+      const conf = prediction.confidence || 0;
+      const margin = prediction.margin !== undefined ? prediction.margin : 1.0;
+      const dist = prediction.centroid_distance || 0;
+
+      setDebugInfo({
+        state: gestureStateRef.current,
+        confidence: conf,
+        margin: margin,
+        distance: dist,
+        neutralStreak: neutralHoldCountRef.current,
+        candidateStreak: candidateStreakRef.current,
+        isNeutral,
+        isIdle
+      });
+
+      // Handle confidence rejection, margin rejection, or out-of-dataset centroid rejection
+      if (
+        prediction.rejected ||
+        !prediction.letter ||
+        prediction.letter === '?' ||
+        conf < GESTURE_CONFIG.CONFIDENCE_THRESHOLD_LETTER ||
+        margin < GESTURE_CONFIG.MARGIN_THRESHOLD ||
+        dist > GESTURE_CONFIG.MAX_CENTROID_DISTANCE
+      ) {
         setStatus(prev => (prev === STATES.TRACKING ? prev : STATES.TRACKING));
         setDetectedLetter(null);
         setDetectedWord(null);
-        setConfidence(prev => (Math.abs(prev - (prediction.confidence || 0)) < 0.02 ? prev : (prediction.confidence || 0)));
+        setConfidence(conf);
         setAllScores(prediction.all_scores || {});
-        consecutiveLetterRef.current = { letter: null, count: 0 };
-        // No gesture detected: start or maintain 5-second countdown
+        candidateStreakRef.current = Math.max(0, candidateStreakRef.current - 1);
         startOrResetInactivityTimer(false);
         return prediction;
       }
@@ -778,49 +982,62 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       // Valid gesture detected: pause/cancel countdown
       cancelInactivityCountdown();
 
-      // Temporal smoothing & stability check
-      const prev = consecutiveLetterRef.current;
-      if (prev.letter === prediction.letter) {
-        prev.count += 1;
-      } else {
-        // Sign changed — immediately reset streak for new letter
-        consecutiveLetterRef.current = { letter: prediction.letter, count: 1 };
-      }
+      // Only inside CAPTURING state do we smooth with majority-vote and commit
+      if (gestureStateRef.current === GESTURE_STATES.CAPTURING) {
+        majorityVoteWindowRef.current.push(prediction.letter);
+        if (majorityVoteWindowRef.current.length > GESTURE_CONFIG.MAJORITY_VOTE_WINDOW) {
+          majorityVoteWindowRef.current.shift();
+        }
 
-      // Display detected letter with high responsiveness
-      if (consecutiveLetterRef.current.count >= 1) {
-        const nextStatus = consecutiveLetterRef.current.count >= 2 ? STATES.RECOGNISING : STATES.TRACKING;
-        setStatus(prev => (prev === nextStatus ? prev : nextStatus));
-        setDetectedLetter(prediction.letter);
+        // Majority vote candidate
+        const counts = {};
+        let topCandidate = null;
+        let maxCount = 0;
+        for (const item of majorityVoteWindowRef.current) {
+          counts[item] = (counts[item] || 0) + 1;
+          if (counts[item] > maxCount) {
+            maxCount = counts[item];
+            topCandidate = item;
+          }
+        }
+
+        if (topCandidate === currentCandidateRef.current) {
+          candidateStreakRef.current += 1;
+        } else {
+          currentCandidateRef.current = topCandidate;
+          candidateStreakRef.current = 1;
+        }
+
+        // Display detected letter preview
+        setStatus(STATES.RECOGNISING);
+        setDetectedLetter(topCandidate);
         setDetectedWord(null);
-        setConfidence(prediction.confidence);
+        setConfidence(conf);
         setAllScores(prediction.all_scores || {});
-      }
 
-      // Commit letter after reaching stability threshold
-      if (consecutiveLetterRef.current.count >= STABILITY_THRESHOLD) {
-        const now = Date.now();
-        if (now - lastCommitRef.current > 300) {
-          if (lastCommittedItemRef.current !== prediction.letter) {
+        // Commit letter only after reaching K stability frames
+        if (candidateStreakRef.current >= GESTURE_CONFIG.STABILITY_FRAMES_K) {
+          if (now - lastCommitRef.current > GESTURE_CONFIG.COOLDOWN_MS) {
             setStatus(STATES.STABLE);
             clearAutoSpaceTimer();
-            setSentenceBufferSync(prevBuf => prevBuf + prediction.letter);
+            setSentenceBufferSync(prevBuf => prevBuf + topCandidate);
             lastCommitRef.current = now;
-            lastCommittedItemRef.current = prediction.letter;
-            consecutiveLetterRef.current = { letter: null, count: 0 };
+            lastCommittedItemRef.current = topCandidate;
 
-            // Letter locked: start 5-second countdown to automatically send draft message
+            // Transition to COOLDOWN (prevents duplicates, requires neutral re-arm)
+            gestureStateRef.current = GESTURE_STATES.COOLDOWN;
+            setGestureState(GESTURE_STATES.COOLDOWN);
+            majorityVoteWindowRef.current = [];
+            currentCandidateRef.current = null;
+            candidateStreakRef.current = 0;
+
             startOrResetInactivityTimer(true);
 
-            // Automatic word-spacing: when user pauses between words, automatically append space
             if (autoSpaceWordsRef.current) {
               autoSpaceTimerRef.current = setTimeout(() => {
                 setSentenceBufferSync(prev => {
                   const trimmed = prev.trimEnd();
-                  if (trimmed.length > 0 && !prev.endsWith(' ')) {
-                    return trimmed + ' ';
-                  }
-                  return prev;
+                  return trimmed.length > 0 && !prev.endsWith(' ') ? trimmed + ' ' : prev;
                 });
                 lastCommittedItemRef.current = null;
               }, autoWordSpaceDelayMsRef.current);
@@ -951,13 +1168,19 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   }, [cancelInactivityCountdown, onSendMessage, setSentenceBufferSync]);
 
   return {
+    // Gesture State Machine & Diagnostics
+    gestureState,
+    statusLabel: GESTURE_STATUS_LABELS[gestureState] || STATUS_LABELS[status] || 'Ready',
+    debugOverlay,
+    toggleDebugOverlay,
+    debugInfo,
+
     // Mode
     recognitionMode,
     setRecognitionMode,
 
     // State
     status,
-    statusLabel: STATUS_LABELS[status] || status,
     detectedLetter,
     detectedWord,
     detectedSign: detectedWord || detectedLetter,

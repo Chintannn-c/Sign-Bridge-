@@ -2385,3 +2385,108 @@ html, body, #root {
     transform: translateY(0) scale(1);
   }
 }
+
+/* Subtle State Machine Indicator Pill */
+.gesture-state-pill {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.gesture-state-pill .gesture-state-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.gesture-state-pill.state-neutral {
+  background: rgba(45, 42, 38, 0.75);
+  color: #FAF8F5;
+  border: 1px solid rgba(200, 173, 147, 0.35);
+}
+.gesture-state-pill.state-neutral .gesture-state-dot {
+  background: #C8AD93;
+}
+
+.gesture-state-pill.state-armed {
+  background: rgba(110, 127, 107, 0.85);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.gesture-state-pill.state-armed .gesture-state-dot {
+  background: #A3E635;
+  box-shadow: 0 0 6px #A3E635;
+  animation: pulse 1.5s infinite;
+}
+
+.gesture-state-pill.state-capturing {
+  background: rgba(217, 119, 6, 0.85);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+.gesture-state-pill.state-capturing .gesture-state-dot {
+  background: #FBBF24;
+  box-shadow: 0 0 6px #FBBF24;
+}
+
+.gesture-state-pill.state-cooldown {
+  background: rgba(59, 130, 246, 0.85);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+.gesture-state-pill.state-cooldown .gesture-state-dot {
+  background: #60A5FA;
+}
+
+/* Debug HUD Overlay */
+.gesture-debug-hud {
+  position: absolute;
+  top: 3.2rem;
+  left: 1rem;
+  z-index: 36;
+  background: rgba(20, 20, 22, 0.88);
+  color: #E2E8F0;
+  border: 1px solid rgba(200, 173, 147, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  line-height: 1.4;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  min-width: 175px;
+}
+.gesture-debug-hud .debug-hud-title {
+  font-weight: 700;
+  color: #C8AD93;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  font-size: 0.64rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 2px;
+}
+.gesture-debug-hud .debug-hud-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.gesture-debug-hud .debug-hud-row strong {
+  color: #6E7F6B;
+}
+

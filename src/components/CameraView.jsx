@@ -4,7 +4,7 @@ import { useWebcam } from '../hooks/useWebcam';
 import { useHandDetection } from '../hooks/useHandDetection';
 import { useGestureRecognition } from '../hooks/useGestureRecognition';
 import { HandTrackingOverlay } from './SignLanguageAssistant/HandTrackingOverlay';
-import { Video, VideoOff, CameraOff, Camera, FlipHorizontal, Layers, Maximize2, Minimize2, Send, Trash2, Timer, TimerOff } from 'lucide-react';
+import { Video, VideoOff, CameraOff, Camera, FlipHorizontal, Layers, Maximize2, Minimize2, Send, Trash2, Timer, TimerOff, Activity } from 'lucide-react';
 import './SignLanguageAssistant/assistant.css';
 
 /**
@@ -228,6 +228,16 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
           {isFullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
         </button>
 
+        {/* Debug HUD Toggle */}
+        <button
+          type="button"
+          className={`camera-icon-btn ${recognition.debugOverlay ? 'is-active' : ''}`}
+          onClick={recognition.toggleDebugOverlay}
+          title={recognition.debugOverlay ? 'Hide Debug HUD' : 'Show Debug HUD (State, Confidence, Margin, Distance)'}
+        >
+          <Activity size={17} />
+        </button>
+
         {/* 4. Camera on/off toggle */}
         <button
           type="button"
@@ -280,6 +290,25 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
               muted
               className={`camera-video ${isMirrored ? 'is-mirrored' : ''}`}
             />
+            {/* Subtle State Machine Lifecycle Badge */}
+            <div className={`gesture-state-pill state-${recognition.gestureState || 'neutral'}`}>
+              <span className="gesture-state-dot" />
+              <span>{recognition.statusLabel}</span>
+            </div>
+
+            {/* Debug Metrics HUD */}
+            {recognition.debugOverlay && recognition.debugInfo && (
+              <div className="gesture-debug-hud">
+                <div className="debug-hud-title">Pipeline Diagnostics</div>
+                <div className="debug-hud-row"><span>State:</span> <strong>{(recognition.debugInfo.state || 'neutral').toUpperCase()}</strong></div>
+                <div className="debug-hud-row"><span>Neutral hold:</span> {recognition.debugInfo.neutralStreak}/10</div>
+                <div className="debug-hud-row"><span>K stability:</span> {recognition.debugInfo.candidateStreak}/8</div>
+                <div className="debug-hud-row"><span>Confidence:</span> {(recognition.debugInfo.confidence * 100).toFixed(1)}%</div>
+                <div className="debug-hud-row"><span>Margin:</span> {(recognition.debugInfo.margin * 100).toFixed(1)}%</div>
+                <div className="debug-hud-row"><span>Centroid dist:</span> {recognition.debugInfo.distance ? recognition.debugInfo.distance.toFixed(2) : '0.00'}</div>
+              </div>
+            )}
+
             {/* Real-time Tracking Overlay */}
             {detection.isDetecting && (detection.landmarkData || detection.poseData) && (
               <HandTrackingOverlay 

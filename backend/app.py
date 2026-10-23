@@ -46,6 +46,12 @@ from services.word_recognizer import WordRecognizer
 from services.gemini_manager import gemini_manager
 from services.groq_manager import groq_manager
 from database.schema import init_db, log_conversation, get_recent_history, log_dataset_session
+from services.gesture_config import (
+    NEUTRAL_HOLD_FRAMES, STABILITY_FRAMES_K, CONFIDENCE_THRESHOLD,
+    MARGIN_THRESHOLD, DEFAULT_MAX_CENTROID_DISTANCE, COOLDOWN_FRAMES,
+    COOLDOWN_MS, MAJORITY_VOTE_WINDOW
+)
+from services.gesture_pipeline import is_idle_hand, is_neutral_gesture
 
 # ─── Configuration ──────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -667,10 +673,18 @@ def llm_answer():
 # HEALTH & INFO ENDPOINTS
 # ═══════════════════════════════════════════════════════════════════════════
 
+_cached_health_data: Optional[dict[str, Any]] = None
+_cached_health_time: float = 0.0
+
 @app.route('/api/health', methods=['GET'])
 def health():
-    """Server health check."""
-    return jsonify({
+    """Server health check with 5-second caching for high throughput and sub-millisecond response."""
+    global _cached_health_data, _cached_health_time
+    now = time.time()
+    if _cached_health_data is not None and (now - _cached_health_time < 5.0):
+        return jsonify(_cached_health_data)
+
+    data: dict[str, Any] = {
         'status': 'ok',
         'service': 'Sign-Bridge Flask API',
         'translator_mode': translator.mode,
@@ -680,7 +694,10 @@ def health():
         'gemini_available': gemini_manager.is_available(),
         'gemini_health': gemini_manager.get_health_status(),
         'word_recognizer_available': word_recognizer.is_available
-    })
+    }
+    _cached_health_data = data
+    _cached_health_time = now
+    return jsonify(data)
 
 
 @app.route('/api/llm/status', methods=['GET'])
@@ -740,16 +757,26 @@ def translate():
 
     landmarks = data['landmarks']
 
-    # Fast guard: if no hands are visible (all zeros or empty), do not predict
+    # Fast guard: if no hands are visible, idle hand, or neutral gesture
     try:
         arr_check = np.asarray(landmarks, dtype=np.float32)
-        if arr_check.size == 0 or not np.any(arr_check != 0) or np.all(np.abs(arr_check) < 1e-4):
+        if arr_check.size == 0 or not np.any(arr_check != 0) or np.all(np.abs(arr_check) < 1e-4) or is_idle_hand(arr_check):
             return jsonify({
                 'letter': '?',
                 'confidence': 0.0,
                 'mode': translator.mode,
                 'rejected': True,
-                'rejection_reason': 'no_hands_detected',
+                'rejection_reason': 'idle_or_no_hands',
+                'all_scores': {}
+            })
+        if is_neutral_gesture(arr_check):
+            return jsonify({
+                'letter': '?',
+                'confidence': 0.0,
+                'is_neutral': True,
+                'mode': translator.mode,
+                'rejected': True,
+                'rejection_reason': 'neutral_base_gesture',
                 'all_scores': {}
             })
     except Exception:
@@ -770,7 +797,7 @@ def translate():
         conf_raw = result.get('confidence', 0.0)
         confidence = safe_float(conf_raw, 0.0)
 
-        is_rej = bool(result.get('rejected', False)) or (confidence < 0.50) or (str(result.get('letter', '')) == '?')
+        is_rej = bool(result.get('rejected', False)) or (confidence < CONFIDENCE_THRESHOLD) or (str(result.get('letter', '')) == '?')
         if is_rej:
             result['rejected'] = True
             result['rejection_reason'] = result.get('rejection_reason') or 'low_confidence'
@@ -886,7 +913,7 @@ def translate_word():
         conf_raw = result.get('confidence', 0.0)
         confidence = safe_float(conf_raw, 0.0)
 
-        if confidence < 0.60 or str(result.get('word', '')) == '?':
+        if confidence < CONFIDENCE_THRESHOLD or str(result.get('word', '')) == '?':
             result['rejected'] = True
             result['rejection_reason'] = 'low_confidence'
             result['original_word'] = result.get('word', '?')
@@ -898,6 +925,21 @@ def translate_word():
     except Exception as e:
         logger.error(f"Word translation error: {e}", exc_info=True)
         return jsonify({'error': 'Word translation processing error.'}), 500
+
+
+@app.route('/api/gesture/config', methods=['GET'])
+def get_gesture_config():
+    """Returns the central gesture recognition and state machine configuration thresholds."""
+    return jsonify({
+        'neutral_hold_frames': NEUTRAL_HOLD_FRAMES,
+        'stability_k': STABILITY_FRAMES_K,
+        'confidence_threshold': CONFIDENCE_THRESHOLD,
+        'margin_threshold': MARGIN_THRESHOLD,
+        'max_centroid_distance': DEFAULT_MAX_CENTROID_DISTANCE,
+        'cooldown_frames': COOLDOWN_FRAMES,
+        'cooldown_ms': COOLDOWN_MS,
+        'majority_vote_window': MAJORITY_VOTE_WINDOW,
+    })
 
 
 @app.route('/api/history', methods=['GET'])

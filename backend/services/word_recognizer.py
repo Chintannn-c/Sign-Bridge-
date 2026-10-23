@@ -14,6 +14,11 @@ import logging
 import pickle
 import numpy as np
 
+try:
+    from .gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
+except ImportError:
+    from services.gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
+
 logger = logging.getLogger(__name__)
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), '..', 'models')
@@ -357,7 +362,15 @@ class WordRecognizer:
 
             sorted_probs = np.sort(probs)[::-1]
             margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
-            is_rejected = bool(confidence < 0.50 or margin < 0.06 or word == '?')
+            is_rejected = bool(confidence < CONFIDENCE_THRESHOLD or margin < MARGIN_THRESHOLD or word == '?')
+            rejection_reason = None
+            if is_rejected:
+                if confidence < CONFIDENCE_THRESHOLD:
+                    rejection_reason = 'low_confidence'
+                elif margin < MARGIN_THRESHOLD:
+                    rejection_reason = 'low_margin'
+                else:
+                    rejection_reason = 'unknown_gesture'
 
             sorted_indices = np.argsort(probs)[::-1][:5]
             top_scores = {
@@ -371,7 +384,7 @@ class WordRecognizer:
                 'margin': round(margin, 4),
                 'mode': self.mode,
                 'rejected': is_rejected,
-                'rejection_reason': 'low_confidence_or_margin' if is_rejected else None,
+                'rejection_reason': rejection_reason,
                 'motion_velocity': round(motion_velocity, 5),
                 'holistic_anchored': bool(body_anchors is not None),
                 'all_scores': top_scores,

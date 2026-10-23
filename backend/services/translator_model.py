@@ -18,6 +18,7 @@ When no trained model file exists, falls back to a rule-based
 heuristic classifier using the Mendeley ISL landmark descriptions.
 """
 
+from huggingface_hub.inference._generated.types import automatic_speech_recognition
 import os
 import csv
 import json
@@ -27,8 +28,12 @@ import numpy as np
 
 try:
     from .feature_extractor import extract_features, NUM_EXTRACTED_FEATURES, NUM_RAW_FEATURES
+    from .gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
+    from .gesture_pipeline import CentroidValidator
 except ImportError:
     from services.feature_extractor import extract_features, NUM_EXTRACTED_FEATURES, NUM_RAW_FEATURES
+    from services.gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
+    from services.gesture_pipeline import CentroidValidator
 
 logger = logging.getLogger(__name__)
 
@@ -179,6 +184,7 @@ class TranslatorModel:
         self.mode = 'heuristic'  # 'hybrid_ensemble' | 'stgcn' | 'xgboost' | 'deep_learning' | 'heuristic'
         self.mendeley_ref = {}
         self.metadata = {}
+        self.centroid_validator = CentroidValidator()
         self._load()
 
     def _load(self):
@@ -375,29 +381,43 @@ class TranslatorModel:
             else:
                 probs = probs_primary
 
-            top_idx = int(np.argmax(probs))
+            sorted_indices = np.argsort(probs)[::-1]
+            top_idx = int(sorted_indices[0])
             confidence = float(probs[top_idx])
+            second_conf = float(probs[sorted_indices[1]]) if len(sorted_indices) > 1 else 0.0
+            margin = float(confidence - second_conf)
             letter = labels[top_idx] if top_idx < len(labels) else '?'
 
-            # Top 2 margin calculation
-            sorted_probs = np.sort(probs)[::-1]
-            margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
-
-            sorted_indices = np.argsort(probs)[::-1][:5]
+            # Top 5 scores
             top_scores = {
                 labels[i]: round(float(probs[i]), 4)
-                for i in sorted_indices if i < len(labels)
+                for i in sorted_indices[:5] if i < len(labels)
             }
 
-            is_rejected = bool(confidence < 0.48 or margin < 0.04 or letter == '?')
+            # Out of dataset / centroid distance check
+            norm_first = arr_norm[0] if arr_norm.ndim > 1 else arr_norm
+            val_ok, dist, dist_thresh, r_reason = self.centroid_validator.validate(norm_first, letter)
+
+            is_rejected = bool(confidence < CONFIDENCE_THRESHOLD or margin < MARGIN_THRESHOLD or not val_ok or letter == '?')
+            rejection_reason = None
+            if is_rejected:
+                if confidence < CONFIDENCE_THRESHOLD:
+                    rejection_reason = 'low_confidence'
+                elif margin < MARGIN_THRESHOLD:
+                    rejection_reason = 'low_margin'
+                elif not val_ok:
+                    rejection_reason = r_reason
+                else:
+                    rejection_reason = 'unknown_gesture'
 
             return {
                 'letter': '?' if is_rejected else letter,
                 'confidence': round(confidence, 4),
                 'margin': round(margin, 4),
+                'centroid_distance': round(dist, 4),
                 'mode': 'hybrid_ensemble',
                 'rejected': is_rejected,
-                'rejection_reason': 'low_confidence_or_margin' if is_rejected else None,
+                'rejection_reason': rejection_reason,
                 'all_scores': top_scores
             }
         except LandmarkValidationError as e:
@@ -451,29 +471,43 @@ class TranslatorModel:
                 if np.max(probs_swapped) > np.max(probs):
                     probs = probs_swapped
 
-            top_idx = int(np.argmax(probs))
+            sorted_indices = np.argsort(probs)[::-1]
+            top_idx = int(sorted_indices[0])
             confidence = float(probs[top_idx])
+            second_conf = float(probs[sorted_indices[1]]) if len(sorted_indices) > 1 else 0.0
+            margin = float(confidence - second_conf)
             letter = labels[top_idx] if top_idx < len(labels) else '?'
 
-            # Top 2 margin calculation
-            sorted_probs = np.sort(probs)[::-1]
-            margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
-
-            sorted_indices = np.argsort(probs)[::-1][:5]
+            # Top 5 scores
             top_scores = {
                 labels[i]: round(float(probs[i]), 4)
-                for i in sorted_indices if i < len(labels)
+                for i in sorted_indices[:5] if i < len(labels)
             }
 
-            is_rejected = bool(confidence < 0.48 or margin < 0.04 or letter == '?')
+            # Out of dataset / centroid distance check
+            norm_first = arr[0] if arr.ndim > 1 else arr
+            val_ok, dist, dist_thresh, r_reason = self.centroid_validator.validate(norm_first, letter)
+
+            is_rejected = bool(confidence < CONFIDENCE_THRESHOLD or margin < MARGIN_THRESHOLD or not val_ok or letter == '?')
+            rejection_reason = None
+            if is_rejected:
+                if confidence < CONFIDENCE_THRESHOLD:
+                    rejection_reason = 'low_confidence'
+                elif margin < MARGIN_THRESHOLD:
+                    rejection_reason = 'low_margin'
+                elif not val_ok:
+                    rejection_reason = r_reason
+                else:
+                    rejection_reason = 'unknown_gesture'
 
             return {
                 'letter': '?' if is_rejected else letter,
                 'confidence': round(confidence, 4),
                 'margin': round(margin, 4),
+                'centroid_distance': round(dist, 4),
                 'mode': 'stgcn',
                 'rejected': is_rejected,
-                'rejection_reason': 'low_confidence_or_margin' if is_rejected else None,
+                'rejection_reason': rejection_reason,
                 'all_scores': top_scores
             }
         except LandmarkValidationError as e:
@@ -542,31 +576,43 @@ class TranslatorModel:
                 if np.max(p_r) > np.max(probs):
                     probs = p_r
 
-            top_idx = int(np.argmax(probs))
+            sorted_indices = np.argsort(probs)[::-1]
+            top_idx = int(sorted_indices[0])
             confidence = float(probs[top_idx])
+            second_conf = float(probs[sorted_indices[1]]) if len(sorted_indices) > 1 else 0.0
+            margin = float(confidence - second_conf)
             letter = labels[top_idx] if top_idx < len(labels) else '?'
 
-            # Calculate confidence margin between top-1 and top-2
-            sorted_probs = np.sort(probs)[::-1]
-            margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
-
             # Top 5 scores
-            sorted_indices = np.argsort(probs)[::-1][:5]
             top_scores = {
                 labels[i]: round(float(probs[i]), 4)
-                for i in sorted_indices if i < len(labels)
+                for i in sorted_indices[:5] if i < len(labels)
             }
 
-            # Reject if confidence is too low or margin is ambiguous (noise/non-gesture)
-            is_rejected = bool(confidence < 0.50 or margin < 0.05 or letter == '?')
+            # Out of dataset / centroid distance check
+            norm_first = arr[0] if arr.ndim > 1 else arr
+            val_ok, dist, dist_thresh, r_reason = self.centroid_validator.validate(norm_first, letter)
+
+            is_rejected = bool(confidence < CONFIDENCE_THRESHOLD or margin < MARGIN_THRESHOLD or not val_ok or letter == '?')
+            rejection_reason = None
+            if is_rejected:
+                if confidence < CONFIDENCE_THRESHOLD:
+                    rejection_reason = 'low_confidence'
+                elif margin < MARGIN_THRESHOLD:
+                    rejection_reason = 'low_margin'
+                elif not val_ok:
+                    rejection_reason = r_reason
+                else:
+                    rejection_reason = 'unknown_gesture'
 
             return {
                 'letter': '?' if is_rejected else letter,
                 'confidence': round(confidence, 4),
                 'margin': round(margin, 4),
+                'centroid_distance': round(dist, 4),
                 'mode': 'xgboost',
                 'rejected': is_rejected,
-                'rejection_reason': 'low_confidence_or_margin' if is_rejected else None,
+                'rejection_reason': rejection_reason,
                 'all_scores': top_scores
             }
         except LandmarkValidationError as e:
@@ -607,21 +653,42 @@ class TranslatorModel:
                 probs = np.exp(logits)
                 probs /= probs.sum()
 
-            top_idx = np.argmax(probs)
+            sorted_indices = np.argsort(probs)[::-1]
+            top_idx = int(sorted_indices[0])
             confidence = float(probs[top_idx])
+            second_conf = float(probs[sorted_indices[1]]) if len(sorted_indices) > 1 else 0.0
+            margin = float(confidence - second_conf)
             letter = labels[top_idx] if top_idx < len(labels) else '?'
 
             # Top 5 scores
-            sorted_indices = np.argsort(probs)[::-1][:5]
             top_scores = {
                 labels[i]: round(float(probs[i]), 4)
-                for i in sorted_indices if i < len(labels)
+                for i in sorted_indices[:5] if i < len(labels)
             }
 
+            norm_first = arr[0] if arr.ndim > 1 else arr
+            val_ok, dist, dist_thresh, r_reason = self.centroid_validator.validate(norm_first, letter)
+
+            is_rejected = bool(confidence < CONFIDENCE_THRESHOLD or margin < MARGIN_THRESHOLD or not val_ok or letter == '?')
+            rejection_reason = None
+            if is_rejected:
+                if confidence < CONFIDENCE_THRESHOLD:
+                    rejection_reason = 'low_confidence'
+                elif margin < MARGIN_THRESHOLD:
+                    rejection_reason = 'low_margin'
+                elif not val_ok:
+                    rejection_reason = r_reason
+                else:
+                    rejection_reason = 'unknown_gesture'
+
             return {
-                'letter': letter,
+                'letter': '?' if is_rejected else letter,
                 'confidence': round(confidence, 4),
+                'margin': round(margin, 4),
+                'centroid_distance': round(dist, 4),
                 'mode': 'deep_learning',
+                'rejected': is_rejected,
+                'rejection_reason': rejection_reason,
                 'all_scores': top_scores
             }
         except LandmarkValidationError as e:
@@ -633,7 +700,16 @@ class TranslatorModel:
 
     @staticmethod
     def _invalid_input_result(mode):
-        return {'letter': '?', 'confidence': 0.0, 'mode': mode, 'rejected': True, 'all_scores': {}}
+        return {
+            'letter': '?',
+            'confidence': 0.0,
+            'margin': 0.0,
+            'centroid_distance': 999.0,
+            'mode': mode,
+            'rejected': True,
+            'rejection_reason': 'invalid_input',
+            'all_scores': {}
+        }
 
     def _predict_heuristic(self, landmarks):
         """
@@ -661,21 +737,38 @@ class TranslatorModel:
                 scores[letter] = self._score_letter(letter, features)
 
             # Find best match
-            best_letter = max(scores, key=lambda k: scores[k])
-            best_score = scores[best_letter]
+            sorted_letters = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+            best_letter = sorted_letters[0][0] if sorted_letters else '?'
+            best_score = sorted_letters[0][1] if sorted_letters else 0.0
+            second_score = sorted_letters[1][1] if len(sorted_letters) > 1 else 0.0
 
             # Normalize confidence
             total = sum(scores.values()) or 1.0
             confidence = best_score / total
+            second_conf = second_score / total
+            margin = float(confidence - second_conf)
 
             # Top 5
-            sorted_letters = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:5]
-            top_scores = {l: round(s / total, 4) for l, s in sorted_letters}
+            top_scores = {l: round(s / total, 4) for l, s in sorted_letters[:5]}
+
+            is_rejected = bool(confidence < CONFIDENCE_THRESHOLD or margin < MARGIN_THRESHOLD or best_letter == '?')
+            rejection_reason = None
+            if is_rejected:
+                if confidence < CONFIDENCE_THRESHOLD:
+                    rejection_reason = 'low_confidence'
+                elif margin < MARGIN_THRESHOLD:
+                    rejection_reason = 'low_margin'
+                else:
+                    rejection_reason = 'unknown_gesture'
 
             return {
-                'letter': best_letter,
+                'letter': '?' if is_rejected else best_letter,
                 'confidence': round(confidence, 4),
+                'margin': round(margin, 4),
+                'centroid_distance': 0.0,
                 'mode': 'heuristic',
+                'rejected': is_rejected,
+                'rejection_reason': rejection_reason,
                 'all_scores': top_scores
             }
         except Exception as e:

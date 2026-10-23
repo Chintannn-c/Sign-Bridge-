@@ -16,6 +16,13 @@ import threading
 import numpy as np
 import websockets
 
+try:
+    from .gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
+    from .gesture_pipeline import is_idle_hand, is_neutral_gesture
+except ImportError:
+    from services.gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
+    from services.gesture_pipeline import is_idle_hand, is_neutral_gesture
+
 logger = logging.getLogger("SignBridge.WS")
 
 
@@ -41,13 +48,23 @@ def handle_letter_prediction(translator, data, model_lock=None):
 
     try:
         arr = np.asarray(landmarks, dtype=np.float32)
-        if arr.size == 0 or not np.any(arr != 0) or np.all(np.abs(arr) < 1e-4):
+        if arr.size == 0 or not np.any(arr != 0) or np.all(np.abs(arr) < 1e-4) or is_idle_hand(arr):
             return {
                 'type': 'letter',
                 'letter': '?',
                 'confidence': 0.0,
                 'rejected': True,
-                'rejection_reason': 'no_hands_detected',
+                'rejection_reason': 'idle_or_no_hands',
+                'all_scores': {},
+            }
+        if is_neutral_gesture(arr):
+            return {
+                'type': 'letter',
+                'letter': '?',
+                'confidence': 0.0,
+                'is_neutral': True,
+                'rejected': True,
+                'rejection_reason': 'neutral_base_gesture',
                 'all_scores': {},
             }
     except Exception:
@@ -68,7 +85,7 @@ def handle_letter_prediction(translator, data, model_lock=None):
         result = translator.predict(landmarks, body_anchors=body_anchors)
 
     conf = _safe_float(result.get('confidence', 0.0))
-    is_rej = bool(result.get('rejected', False)) or (conf < 0.50) or (str(result.get('letter', '')) == '?')
+    is_rej = bool(result.get('rejected', False)) or (conf < CONFIDENCE_THRESHOLD) or (str(result.get('letter', '')) == '?')
     result['rejected'] = is_rej
     if is_rej:
         result['rejection_reason'] = result.get('rejection_reason') or 'low_confidence'
@@ -139,10 +156,10 @@ def handle_word_prediction(word_recognizer, data, model_lock=None):
         }
 
     conf = _safe_float(result.get('confidence', 0.0))
-    is_rej = (conf < 0.60) or (str(result.get('word', '')) == '?')
+    is_rej = bool(result.get('rejected', False)) or (conf < CONFIDENCE_THRESHOLD) or (str(result.get('word', '')) == '?')
     result['rejected'] = is_rej
     if is_rej:
-        result['rejection_reason'] = 'low_confidence'
+        result['rejection_reason'] = result.get('rejection_reason') or 'low_confidence'
         result['original_word'] = result.get('word', '?')
         result['word'] = '?'
     result['type'] = 'word'

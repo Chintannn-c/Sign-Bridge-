@@ -1,102 +1,166 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { SPLASH_CONFIG, SPLASH_DURATION_MS } from '../config/splashConfig';
 import './SplashScreen.css';
 
-/**
- * Total splash screen lifetime in milliseconds.
- * Controls both React unmount timing and CSS animation synchronization.
- */
-export const SPLASH_DURATION_MS = 2500;
+export { SPLASH_CONFIG, SPLASH_DURATION_MS };
 
-/**
- * SignBridge Launch Splash Screen.
- *
- * Features:
- *   - Bold display wordmark with split "Sign" / "Bridge" slide-in & shimmer.
- *   - Two animated line-art SVG hands performing a conversational wave and meeting at the bridge arc.
- *   - Proportionately scaled bridge arc with pulsing contact nodes and ripple.
- *   - Fullscreen camel background (#C8AD93) with subtle ambient orbs.
- *   - Auto unmounts at SPLASH_DURATION_MS (1000ms) with zero delay to background app startup.
- *   - Honors prefers-reduced-motion.
- */
-export const SplashScreen = React.memo(() => {
+const PATH_GREEN_ARCH = "M 1284.0 993.0 L 1309.5 992.5 L 1309.3 984.0 C 1308.4 940.7 1289.9 883.0 1263.1 840.5 C 1244.6 811.1 1217.8 782.4 1188.6 760.6 C 1173.3 749.3 1163.3 743.1 1147.2 735.1 C 1134.5 728.7 1110.7 719.0 1107.8 719.0 C 1107.2 719.0 1105.2 720.2 1103.5 721.8 C 1099.3 725.5 1104.8 720.1 1128.0 698.1 C 1159.6 668.0 1164.6 663.4 1162.6 665.8 L 1160.7 668.0 L 1165.1 669.7 C 1171.5 672.2 1197.8 685.2 1207.3 690.7 C 1218.0 696.8 1228.1 703.6 1240.5 712.9 C 1251.7 721.3 1251.4 721.0 1305.5 766.1 C 1327.0 783.9 1353.5 806.0 1364.5 815.1 C 1375.5 824.2 1396.7 841.7 1411.5 854.0 C 1426.3 866.3 1447.8 884.1 1459.1 893.4 C 1470.4 902.8 1492.7 921.3 1508.6 934.5 C 1524.5 947.6 1543.8 963.6 1551.5 969.9 C 1559.2 976.2 1568.5 984.0 1572.1 987.2 L 1578.7 993.0 L 1608.6 993.3 C 1625.1 993.4 1553.0 993.5 1448.5 993.5 C 1344.0 993.5 1270.0 993.3 1284.0 993.0 Z M 471.4 916.2 C 443.9 881.4 425.5 842.3 416.1 798.9 C 409.3 767.4 408.4 728.3 413.5 693.0 C 418.1 662.1 431.1 624.2 446.1 598.0 C 471.8 553.2 503.6 518.9 545.0 491.5 C 569.1 475.6 588.6 466.1 616.2 456.9 C 649.2 445.9 674.8 442.0 714.5 442.0 C 772.7 442.1 824.1 457.5 876.9 490.7 C 902.0 506.4 921.0 521.9 966.5 563.6 C 980.3 576.2 994.8 589.4 998.8 592.9 C 1002.8 596.4 1006.0 599.8 1006.0 600.4 C 1006.0 601.1 1003.9 603.6 1001.3 606.0 C 997.6 609.5 997.3 609.6 999.9 606.8 C 1004.4 601.9 1003.3 601.5 989.2 602.4 C 956.3 604.6 921.8 611.3 889.8 621.7 C 879.1 625.2 878.1 625.4 877.1 623.8 C 875.5 621.2 856.8 605.5 844.0 595.9 C 805.9 567.5 773.4 553.5 734.0 548.4 C 695.3 543.5 649.5 553.1 614.7 573.4 C 561.7 604.3 527.5 656.7 519.9 718.4 C 518.5 730.3 519.2 757.1 521.3 768.5 C 527.6 802.0 538.2 826.4 558.0 852.8 C 560.1 855.6 560.2 856.2 558.9 857.4 C 556.9 859.2 481.2 921.2 479.1 922.7 C 477.7 923.8 476.6 922.9 471.4 916.2 Z M 842.0 751.4 C 841.9 738.1 834.8 720.1 823.9 705.6 L 820.2 700.6 L 829.4 694.9 C 855.8 678.7 890.6 663.6 920.6 655.4 C 929.8 652.9 957.3 646.9 957.6 647.3 C 957.6 647.4 952.7 652.2 946.6 658.0 C 940.4 663.8 923.1 680.2 908.0 694.6 C 892.9 708.9 876.0 724.7 870.6 729.6 C 865.1 734.5 856.5 742.5 851.3 747.4 L 842.0 756.4 L 842.0 751.4 Z";
+
+const PATH_CHARCOAL = "M 410.1 986.2 L 410.1 979.5 L 417.3 973.9 C 428.2 965.4 464.2 935.8 475.5 926.0 C 488.3 915.0 547.9 866.2 563.0 854.4 C 569.3 849.5 588.0 834.2 604.6 820.5 C 648.9 783.7 682.4 756.1 698.9 742.6 C 706.9 736.0 724.1 721.8 737.0 711.1 C 768.5 684.8 786.7 671.3 805.1 660.5 C 866.4 624.8 926.0 606.3 993.2 602.2 C 999.7 601.8 1005.0 601.5 1005.0 601.6 C 1005.0 601.6 994.5 611.9 981.6 624.4 L 958.2 647.0 L 945.8 649.5 C 904.9 657.8 862.5 674.3 830.6 694.2 C 826.3 696.9 822.2 699.4 821.5 699.6 C 820.8 699.9 818.2 698.0 815.8 695.4 C 810.4 689.5 792.3 673.0 791.3 673.0 C 790.8 673.0 784.5 679.4 777.1 687.3 C 749.9 716.0 646.8 824.2 623.9 848.0 C 588.0 885.2 579.5 894.7 572.1 905.8 C 569.8 909.3 561.3 925.2 553.3 941.3 C 545.4 957.4 536.3 975.6 533.2 981.7 L 527.5 993.0 L 468.8 993.0 L 410.0 993.0 L 410.1 986.2 Z M 1259.0 988.1 C 1259.0 985.3 1258.3 977.8 1257.5 971.3 C 1250.2 915.2 1223.7 862.6 1183.4 824.0 C 1152.5 794.4 1120.8 775.9 1079.7 763.6 C 1073.2 761.6 1067.2 760.0 1066.4 760.0 C 1065.5 760.0 1065.0 759.5 1065.2 758.9 C 1065.8 757.0 1106.3 719.0 1107.7 719.0 C 1110.7 719.0 1134.2 728.6 1147.2 735.1 C 1177.0 749.9 1203.6 770.0 1228.8 796.6 C 1275.6 845.9 1304.8 913.3 1309.6 982.8 L 1310.3 993.0 L 1284.6 993.0 L 1259.0 993.0 L 1259.0 988.1 Z M 1577.0 991.5 C 1576.4 990.7 1567.2 983.0 1556.7 974.3 C 1546.2 965.6 1525.4 948.4 1510.4 936.0 C 1495.5 923.6 1473.2 905.2 1460.9 894.9 C 1448.6 884.7 1426.3 866.3 1411.5 854.0 C 1396.7 841.7 1375.5 824.2 1364.5 815.1 C 1353.5 806.0 1327.0 783.9 1305.5 766.1 C 1251.4 721.0 1251.7 721.3 1240.5 712.9 C 1228.1 703.6 1218.0 696.8 1207.3 690.7 C 1198.0 685.4 1171.7 672.3 1165.0 669.7 L 1160.5 667.9 L 1169.5 659.3 C 1174.5 654.6 1181.9 647.7 1186.0 644.0 L 1193.5 637.2 L 1208.2 644.5 C 1239.3 660.2 1266.1 678.3 1300.5 707.1 C 1309.3 714.5 1328.7 730.3 1343.5 742.2 C 1358.3 754.1 1388.7 778.6 1411.0 796.6 C 1433.3 814.6 1465.7 840.7 1483.0 854.6 C 1500.3 868.5 1527.8 890.7 1544.0 903.9 C 1560.2 917.2 1588.0 939.6 1605.7 953.8 L 1637.9 979.5 L 1637.9 986.2 L 1638.0 993.0 L 1608.1 993.0 C 1583.2 993.0 1578.0 992.8 1577.0 991.5 Z";
+
+const PATH_TAN_ARCH = "M 1531.0 892.7 C 1509.8 875.6 1491.2 860.5 1489.6 859.3 L 1486.7 857.0 L 1490.8 851.8 C 1501.8 837.3 1514.6 812.6 1520.3 794.3 C 1527.4 772.0 1528.5 764.2 1528.5 738.0 C 1528.5 717.4 1528.2 713.1 1526.2 703.1 C 1521.8 681.6 1514.2 662.2 1502.1 642.0 C 1493.2 627.2 1486.2 618.1 1474.1 605.7 C 1443.6 574.3 1406.5 555.7 1361.7 549.0 C 1351.7 547.5 1324.3 547.5 1312.5 549.0 C 1274.5 553.7 1241.1 568.8 1198.4 600.5 C 1175.1 617.8 1143.2 647.0 1074.0 714.0 C 1057.8 729.7 1024.0 762.1 999.0 786.0 C 974.0 809.9 944.9 837.9 934.4 848.2 C 923.9 858.6 914.9 867.0 914.3 867.0 C 913.7 867.0 903.8 863.6 892.3 859.6 C 880.7 855.5 866.8 851.0 861.4 849.6 C 839.3 844.0 817.3 842.6 797.5 845.5 C 792.0 846.3 787.1 847.0 786.5 847.0 C 785.0 847.0 810.5 821.6 835.5 798.2 C 847.6 786.8 867.0 768.5 878.5 757.5 C 890.1 746.5 907.4 730.1 917.0 721.0 C 940.4 698.9 978.2 662.7 1001.5 640.0 C 1071.1 572.2 1118.6 528.5 1143.9 509.1 C 1189.2 474.4 1241.4 451.6 1292.5 444.5 C 1384.8 431.5 1473.6 458.9 1542.0 521.3 C 1600.2 574.4 1633.1 643.6 1638.2 723.8 C 1641.9 780.6 1626.5 840.9 1596.0 889.8 C 1589.4 900.3 1572.2 923.1 1570.5 923.7 C 1569.9 923.8 1552.2 909.9 1531.0 892.7 Z";
+
+const PATH_GREEN_HAND = "M 410.0 1292.9 L 410.0 1143.4 L 443.2 1125.1 C 489.5 1099.5 489.6 1099.5 496.8 1093.8 C 500.4 1090.9 506.4 1085.0 510.2 1080.5 C 516.8 1073.0 519.0 1068.8 548.7 1009.0 C 566.0 974.1 582.2 941.5 584.5 936.5 C 593.6 917.7 595.3 915.7 665.0 842.5 C 680.2 826.5 700.6 805.0 710.5 794.5 C 726.4 777.5 768.8 732.6 785.8 714.8 L 792.1 708.0 L 799.3 715.3 C 810.7 726.7 816.2 739.8 816.1 755.3 C 816.1 771.6 811.5 780.4 792.3 802.0 C 716.4 887.3 673.0 937.2 673.6 938.2 C 673.9 938.7 676.3 937.5 678.8 935.6 C 692.9 925.3 745.4 889.3 750.8 886.3 C 773.4 873.6 803.8 867.3 829.8 869.8 C 849.8 871.8 850.9 872.1 983.9 917.7 C 991.2 920.2 991.2 920.3 990.6 923.3 C 989.2 930.3 982.5 941.5 975.5 948.6 C 964.6 959.7 952.0 965.0 936.3 965.0 C 925.9 965.0 921.9 963.9 889.9 952.4 C 854.5 939.6 846.9 937.4 834.2 936.0 C 814.6 933.9 796.8 938.3 780.8 949.4 C 747.6 972.4 724.1 989.4 724.6 990.1 C 725.1 990.9 744.8 984.3 760.0 978.2 C 798.0 963.0 832.4 960.2 868.3 969.2 C 894.5 975.7 919.7 988.6 936.0 1003.6 C 943.0 1010.2 1005.0 1087.6 1005.0 1089.9 C 1005.0 1090.6 993.7 1098.2 989.5 1100.3 C 977.6 1106.1 959.3 1108.0 947.5 1104.5 C 934.5 1100.8 923.7 1093.2 914.8 1081.6 C 897.3 1058.7 883.4 1047.5 864.3 1040.9 C 838.1 1031.8 808.6 1035.5 785.7 1050.7 C 768.3 1062.2 756.3 1078.3 749.4 1099.0 C 746.8 1106.9 746.6 1108.7 746.5 1124.0 C 746.5 1138.3 746.8 1141.6 748.8 1148.5 C 755.9 1173.4 774.0 1195.0 796.5 1205.6 C 810.5 1212.2 816.9 1213.5 835.0 1213.5 C 848.2 1213.5 851.7 1213.2 858.4 1211.2 C 873.6 1206.8 891.2 1196.2 900.0 1186.2 C 902.2 1183.7 907.5 1176.1 911.8 1169.2 C 924.5 1148.7 938.1 1137.8 956.5 1133.4 C 969.2 1130.3 984.9 1131.4 997.8 1136.2 C 1002.4 1137.9 1003.1 1138.5 1002.7 1140.4 C 1002.4 1141.5 997.2 1153.1 991.0 1166.0 C 979.2 1190.7 964.8 1221.1 952.7 1246.7 L 945.6 1261.9 L 940.0 1263.9 C 937.0 1265.0 909.1 1275.1 878.0 1286.4 C 846.9 1297.7 812.5 1310.2 801.5 1314.3 C 779.9 1322.3 767.7 1326.0 753.5 1328.7 C 745.4 1330.3 736.8 1330.5 669.0 1330.6 C 601.7 1330.7 592.4 1330.9 583.6 1332.5 C 570.7 1334.7 561.2 1337.9 549.8 1343.6 C 538.4 1349.3 534.6 1351.9 504.5 1374.0 C 480.5 1391.6 464.7 1402.9 432.0 1426.0 C 422.4 1432.7 413.5 1439.2 412.2 1440.3 L 410.0 1442.3 L 410.0 1292.9 Z";
+
+const PATH_TAN_HAND = "M 1259.8 1600.0 C 1246.2 1586.1 1241.4 1570.6 1245.5 1554.6 C 1248.1 1544.5 1253.4 1536.0 1265.3 1522.8 C 1300.3 1483.8 1334.9 1445.0 1344.9 1433.5 C 1351.2 1426.4 1359.7 1416.8 1363.7 1412.3 C 1367.8 1407.8 1370.7 1404.0 1370.3 1403.7 C 1369.9 1403.5 1356.0 1414.4 1339.5 1428.1 C 1258.6 1495.2 1265.9 1489.6 1197.5 1537.5 C 1173.3 1554.5 1142.8 1575.9 1129.7 1585.2 C 1116.7 1594.5 1105.4 1602.3 1104.7 1602.6 C 1104.0 1602.8 1101.8 1600.9 1099.8 1598.3 C 1086.6 1580.8 1084.4 1560.3 1093.7 1541.3 C 1097.8 1532.9 1103.5 1527.3 1120.3 1514.9 C 1128.7 1508.7 1137.8 1502.0 1140.5 1500.0 C 1150.4 1492.6 1191.1 1463.3 1206.7 1452.3 C 1215.4 1446.1 1226.2 1438.1 1230.6 1434.5 C 1242.0 1425.0 1302.1 1366.0 1301.4 1364.9 C 1300.7 1363.7 1287.4 1372.9 1258.5 1394.5 C 1225.5 1419.2 1214.9 1425.2 1194.3 1430.5 C 1167.8 1437.4 1139.6 1435.2 1114.1 1424.3 C 1097.0 1417.0 1005.0 1371.5 1005.0 1370.4 C 1005.0 1369.8 1006.7 1366.0 1008.7 1361.9 C 1015.1 1349.1 1028.6 1337.8 1042.7 1333.5 C 1057.3 1329.0 1070.1 1330.9 1089.5 1340.4 C 1110.6 1350.8 1137.1 1362.7 1143.0 1364.5 C 1156.5 1368.5 1176.4 1367.2 1190.4 1361.3 C 1201.0 1356.9 1233.1 1333.7 1231.2 1331.8 C 1230.6 1331.2 1227.5 1331.6 1223.4 1332.9 C 1189.8 1342.8 1173.1 1343.2 1148.0 1334.5 C 1114.5 1322.8 1085.8 1300.7 1068.7 1273.3 C 1065.4 1268.0 1022.5 1182.8 1022.5 1181.5 C 1022.5 1181.0 1025.8 1178.9 1029.8 1176.9 C 1053.1 1165.3 1077.6 1168.7 1095.1 1186.0 C 1101.0 1191.9 1102.5 1194.2 1110.2 1210.0 C 1120.4 1231.1 1127.7 1241.2 1139.3 1250.5 C 1165.2 1271.3 1196.9 1275.1 1225.7 1261.0 C 1236.1 1255.8 1250.5 1244.7 1257.0 1236.8 C 1263.6 1228.6 1270.5 1215.0 1273.1 1205.3 C 1276.0 1194.3 1276.0 1175.6 1273.1 1164.5 C 1262.9 1126.1 1227.5 1100.8 1187.5 1103.3 C 1166.7 1104.7 1149.8 1111.6 1128.0 1127.9 C 1108.1 1142.7 1099.3 1146.6 1083.4 1147.7 C 1064.8 1148.9 1046.7 1142.0 1031.8 1128.2 C 1029.1 1125.7 1027.0 1123.2 1027.0 1122.6 C 1027.0 1122.0 1030.7 1118.3 1035.2 1114.5 C 1045.8 1105.4 1063.0 1089.8 1087.1 1067.5 C 1097.8 1057.6 1111.2 1045.2 1117.0 1039.9 L 1127.5 1030.4 L 1141.5 1029.1 C 1149.2 1028.4 1172.2 1026.2 1192.5 1024.2 L 1229.5 1020.5 L 1434.0 1020.5 L 1638.4 1020.5 L 1638.3 1119.9 C 1638.3 1202.9 1638.0 1219.4 1636.9 1220.0 C 1636.1 1220.4 1620.2 1226.5 1601.5 1233.5 C 1562.6 1248.1 1554.2 1251.8 1543.9 1258.7 C 1529.7 1268.3 1522.6 1275.9 1514.0 1291.0 C 1509.9 1298.1 1479.3 1357.5 1459.5 1396.6 C 1454.5 1406.6 1448.6 1417.2 1446.5 1420.1 C 1434.9 1436.2 1426.9 1444.5 1279.8 1594.5 L 1267.1 1607.4 L 1259.8 1600.0 Z";
+
+const BRAND_NAME = "SignBridge";
+
+export const SplashScreen = React.memo(({ onFinish }) => {
+  const [isExiting, setIsExiting] = useState(false);
+  const navigatedRef = useRef(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const prefersReducedMotion = typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const activeDuration = prefersReducedMotion
+      ? SPLASH_CONFIG.REDUCED_MOTION_MS
+      : SPLASH_CONFIG.ANIMATION_DURATION_MS;
+
+    const exitFadeDuration = prefersReducedMotion
+      ? 0
+      : SPLASH_CONFIG.EXIT_FADE_MS;
+
+    const exitTimer = setTimeout(() => {
+      if (!isMounted) return;
+      setIsExiting(true);
+    }, activeDuration);
+
+    const finishTimer = setTimeout(() => {
+      if (!isMounted) return;
+      if (!navigatedRef.current) {
+        navigatedRef.current = true;
+        if (onFinish) onFinish();
+      }
+    }, activeDuration + exitFadeDuration);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(exitTimer);
+      clearTimeout(finishTimer);
+    };
+  }, [onFinish]);
+
   return (
     <div
-      className="splash-overlay"
-      style={{ '--splash-duration': `${SPLASH_DURATION_MS}ms` }}
-      aria-hidden="true"
+      className={`signbridge-splash-root ${isExiting ? 'is-exiting' : ''}`}
+      role="status"
+      aria-live="polite"
+      aria-label="SignBridge loading"
     >
-      {/* Ambient background glow orbs */}
-      <div className="splash-ambient-orb orb-1" />
-      <div className="splash-ambient-orb orb-2" />
+      {/* 8. Ambient Depth: Soft full-screen vignette */}
+      <div className="splash-vignette" aria-hidden="true" />
 
-      <div className="splash-content">
-        <div className="splash-main-row">
-          {/* Left Hand SVG (Waving & Connecting) */}
-          <div className="splash-hand-wrap splash-hand-left">
-            <svg
-              viewBox="0 0 54 64"
-              fill="rgba(255, 255, 255, 0.05)"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="splash-hand-svg"
-            >
-              <path d="M18 60 C18 52 14 46 12 40 C10 34 6 32 4 35 C2 38 4 43 8 48" />
-              <path d="M16 38 L16 16 C16 12 21 12 21 16 L21 34" />
-              <path d="M21 34 L21 10 C21 6 27 6 27 10 L27 34" />
-              <path d="M27 34 L27 14 C27 10 33 10 33 14 L33 36" />
-              <path d="M33 36 L33 22 C33 18 38 18 38 22 L38 40 C38 52 32 60 22 60 Z" />
-            </svg>
+      <div className="splash-stage">
+        {/* Logo Container */}
+        <div className="splash-logo-container">
+          {/* 5. Glow: Circular radial-gradient core + larger outer ring */}
+          <div className="splash-glow-group" aria-hidden="true">
+            <div className="splash-glow-core" />
+            <div className="splash-glow-ring" />
           </div>
 
-          {/* Centered Wordmark with "Sign" / "Bridge" split and Bridge Arc */}
-          <div className="splash-wordmark-wrap">
-            <h1 className="splash-title">
-              <span className="splash-word-part splash-sign">Sign</span>
-              <span className="splash-word-part splash-bridge">Bridge</span>
-            </h1>
+          {/* 8. Ambient Sparkle Dots: 4 tiny floating tan sparkles */}
+          <div className="splash-sparkles" aria-hidden="true">
+            <span className="splash-sparkle sparkle-1" />
+            <span className="splash-sparkle sparkle-2" />
+            <span className="splash-sparkle sparkle-3" />
+            <span className="splash-sparkle sparkle-4" />
+          </div>
 
-            {/* Connecting Bridge Arc */}
-            <div className="splash-bridge-wrap">
+          {/* Logo assembly & breathing wrapper */}
+          <div className="splash-logo-wrapper">
+            {/* 2. Connection Ripple: 2 thin tan concentric rings expanding from meeting center */}
+            <div className="splash-ripple-wrapper" aria-hidden="true">
+              <div className="splash-ripple ripple-1" />
+              <div className="splash-ripple ripple-2" />
+            </div>
+
+            {/* 4. Light Sweep: soft diagonal shimmer masked across logo */}
+            <div className="splash-shimmer-wrapper" aria-hidden="true">
+              <div className="splash-light-sweep" />
+            </div>
+
+            <div className="splash-logo-breathing">
               <svg
-                viewBox="0 0 320 28"
+                className="splash-svg"
+                viewBox="374 374 1300 1300"
                 fill="none"
-                className="splash-bridge-arc"
-                preserveAspectRatio="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
               >
-                <path
-                  d="M 12 24 Q 160 2, 308 24"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  className="splash-arc-path"
-                />
-                <circle cx="12" cy="24" r="3.5" fill="currentColor" className="splash-node-dot dot-left" />
-                <circle cx="308" cy="24" r="3.5" fill="currentColor" className="splash-node-dot dot-right" />
-                <circle cx="160" cy="13" r="1.5" stroke="currentColor" strokeWidth="1.5" className="splash-ripple-ring" />
+                {/* 1. Green Arch (Sage #6F8A68) - fades in at 0.7s */}
+                <g className="splash-layer layer-green-arch">
+                  <path d={PATH_GREEN_ARCH} fill="#6F8A68" fillRule="evenodd" />
+                </g>
+
+                {/* 3. Charcoal Shadow Accents (#2B2B2B) - stroke draw-on 0.6-1.4s then fill */}
+                <g className="splash-layer layer-charcoal">
+                  <path
+                    className="charcoal-stroke"
+                    d={PATH_CHARCOAL}
+                    fill="none"
+                    stroke="#2B2B2B"
+                    strokeWidth="7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    className="charcoal-fill"
+                    d={PATH_CHARCOAL}
+                    fill="#2B2B2B"
+                    fillRule="evenodd"
+                  />
+                </g>
+
+                {/* 1. Tan Arch (#CFA47B) - fades in at 0.8s (0.1s stagger after green arch) */}
+                <g className="splash-layer layer-tan-arch">
+                  <path d={PATH_TAN_ARCH} fill="#CFA47B" fillRule="evenodd" />
+                </g>
+
+                {/* 1. Green Hand (Sage #6F8A68) - slides in from left 0.0-0.9s */}
+                <g className="splash-layer layer-green-hand">
+                  <path d={PATH_GREEN_HAND} fill="#6F8A68" fillRule="evenodd" />
+                </g>
+
+                {/* 1. Tan Hand (#CFA47B) - slides in from right 0.0-0.9s */}
+                <g className="splash-layer layer-tan-hand">
+                  <path d={PATH_TAN_HAND} fill="#CFA47B" fillRule="evenodd" />
+                </g>
               </svg>
             </div>
           </div>
+        </div>
 
-          {/* Right Hand SVG (Mirrored Conversational Wave & Connecting) */}
-          <div className="splash-hand-wrap splash-hand-right">
-            <svg
-              viewBox="0 0 54 64"
-              fill="rgba(255, 255, 255, 0.05)"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="splash-hand-svg"
-            >
-              <path d="M18 60 C18 52 14 46 12 40 C10 34 6 32 4 35 C2 38 4 43 8 48" />
-              <path d="M16 38 L16 16 C16 12 21 12 21 16 L21 34" />
-              <path d="M21 34 L21 10 C21 6 27 6 27 10 L27 34" />
-              <path d="M27 34 L27 14 C27 10 33 10 33 14 L33 36" />
-              <path d="M33 36 L33 22 C33 18 38 18 38 22 L38 40 C38 52 32 60 22 60 Z" />
-            </svg>
-          </div>
+        {/* 7. Golden line (1.6-2.2s): draws from width 0 to 60px centered */}
+        <div className="splash-golden-line" aria-hidden="true" />
+
+        {/* 6. Wordmark (1.4-2.4s): "SignBridge" revealed letter by letter with 0.04s stagger */}
+        <div className="splash-wordmark-container">
+          <h1 className="splash-brand-text">
+            {BRAND_NAME.split('').map((char, index) => (
+              <span
+                key={index}
+                className="splash-letter"
+                style={{ animationDelay: `${1.4 + index * 0.04}s` }}
+              >
+                {char}
+              </span>
+            ))}
+          </h1>
         </div>
       </div>
     </div>

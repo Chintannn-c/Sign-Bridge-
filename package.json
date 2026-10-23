@@ -3,11 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "description": "Two-Way Indian Sign Language (ISL) Translation & Robotic Actuation Kiosk",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "test": "node --test tests/*.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
