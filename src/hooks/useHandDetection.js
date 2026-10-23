@@ -224,6 +224,7 @@ export function useHandDetection({
   const prevHandsRef = useRef({ left: null, right: null, lostL: 0, lostR: 0 });
   // Raw landmarks ref: written every MediaPipe frame, read by overlay rAF loop (zero-lag display)
   const rawLandmarksRef = useRef({ landmarks: null, poseLandmarks: null, bodyAnchors: null });
+  const frameCaptureTimeRef = useRef(0);
 
   const togglePipelineMode = useCallback(() => {
     setPipelineMode(prev => (prev === 'hands' ? 'holistic' : 'hands'));
@@ -377,6 +378,7 @@ export function useHandDetection({
                   props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
                     poseLandmarks: pose,
                     bodyAnchors: anchors,
+                    captureTime: frameCaptureTimeRef.current,
                   });
                 }
               } else {
@@ -447,7 +449,11 @@ export function useHandDetection({
               if (props.onLandmarks && (now - lastCallRef.current) >= props.throttleMs) {
                 lastCallRef.current = now;
                 const handednessStr = nHands >= 2 ? 'Both Hands' : (separation.leftHand ? 'Left' : 'Right');
-                props.onLandmarks(smoothedLandmarks, nHands, handednessStr, null);
+                props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
+                  poseLandmarks: null,
+                  bodyAnchors: null,
+                  captureTime: frameCaptureTimeRef.current,
+                });
               }
             } else {
               if (shouldUpdateUi) {
@@ -485,36 +491,56 @@ export function useHandDetection({
     };
   }, [enabled, loadScript]);
 
-  // Camera Frame Loop
+  // Camera Frame Loop: requestVideoFrameCallback (zero-latency hardware camera sync) with rAF fallback
   useEffect(() => {
     if (!enabled || !isLoaded || !videoElement || !trackerRef.current) return;
 
     let cancelled = false;
-    let animId;
+    let rVFCId = null;
+    let rAFId = null;
     let lastVideoTime = -1;
 
-    const processFrame = async () => {
+    const hasRVFC = typeof HTMLVideoElement !== 'undefined' && 'requestVideoFrameCallback' in HTMLVideoElement.prototype;
+
+    const onFrame = async () => {
       if (cancelled) return;
+
       if (trackerRef.current && videoElement.readyState >= 2 && !isProcessingRef.current) {
-        if (videoElement.currentTime !== lastVideoTime) {
+        if (!hasRVFC || videoElement.currentTime !== lastVideoTime) {
           lastVideoTime = videoElement.currentTime;
           isProcessingRef.current = true;
           try {
+            frameCaptureTimeRef.current = performance.now();
             await trackerRef.current.send({ image: videoElement });
-          } catch (e) {
-            console.warn('MediaPipe send error:', e);
+          } catch {
+            // Drop transient frames without building queue
           } finally {
             isProcessingRef.current = false;
           }
         }
       }
-      animId = requestAnimationFrame(processFrame);
+
+      if (!cancelled) {
+        if (hasRVFC && typeof videoElement.requestVideoFrameCallback === 'function') {
+          rVFCId = videoElement.requestVideoFrameCallback(onFrame);
+        } else {
+          rAFId = requestAnimationFrame(onFrame);
+        }
+      }
     };
-    processFrame();
+
+    if (hasRVFC && typeof videoElement.requestVideoFrameCallback === 'function') {
+      rVFCId = videoElement.requestVideoFrameCallback(onFrame);
+    } else {
+      rAFId = requestAnimationFrame(onFrame);
+    }
 
     return () => {
       cancelled = true;
-      if (animId) cancelAnimationFrame(animId);
+      if (hasRVFC && rVFCId !== null && typeof videoElement.cancelVideoFrameCallback === 'function') {
+        videoElement.cancelVideoFrameCallback(rVFCId);
+      }
+      if (rAFId) cancelAnimationFrame(rAFId);
     };
   }, [enabled, isLoaded, videoElement]);
 

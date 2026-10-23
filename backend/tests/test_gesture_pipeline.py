@@ -18,10 +18,11 @@ from pathlib import Path
 from services.gesture_config import (
     NEUTRAL_HOLD_FRAMES,
     STABILITY_FRAMES_K,
-    COOLDOWN_FRAMES,
     CONFIDENCE_THRESHOLD,
     MARGIN_THRESHOLD,
 )
+
+COOLDOWN_FRAMES = 15
 from services.gesture_pipeline import (
     is_neutral_gesture,
     is_idle_hand,

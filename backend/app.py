@@ -48,8 +48,10 @@ from services.groq_manager import groq_manager
 from database.schema import init_db, log_conversation, get_recent_history, log_dataset_session
 from services.gesture_config import (
     NEUTRAL_HOLD_FRAMES, STABILITY_FRAMES_K, CONFIDENCE_THRESHOLD,
-    MARGIN_THRESHOLD, DEFAULT_MAX_CENTROID_DISTANCE, COOLDOWN_FRAMES,
-    COOLDOWN_MS, MAJORITY_VOTE_WINDOW
+    CONFIDENCE_THRESHOLD_WORD, MARGIN_THRESHOLD, MARGIN_THRESHOLD_WORD,
+    DEFAULT_MAX_CENTROID_DISTANCE, INSTANT_COMMIT_CONFIDENCE, MAX_MISS_FRAMES,
+    MIN_LOCK_MS, STEADY_MS, STEADY_MOTION_THRESHOLD, MAX_COOLDOWN_MS,
+    REQUIRE_NEUTRAL_BETWEEN_SIGNS, HAND_LOST_FRAMES, RELEASE_FRAMES
 )
 from services.gesture_pipeline import is_idle_hand, is_neutral_gesture
 
@@ -913,7 +915,7 @@ def translate_word():
         conf_raw = result.get('confidence', 0.0)
         confidence = safe_float(conf_raw, 0.0)
 
-        if confidence < CONFIDENCE_THRESHOLD or str(result.get('word', '')) == '?':
+        if confidence < CONFIDENCE_THRESHOLD_WORD or str(result.get('word', '')) == '?':
             result['rejected'] = True
             result['rejection_reason'] = 'low_confidence'
             result['original_word'] = result.get('word', '?')
@@ -933,12 +935,20 @@ def get_gesture_config():
     return jsonify({
         'neutral_hold_frames': NEUTRAL_HOLD_FRAMES,
         'stability_k': STABILITY_FRAMES_K,
+        'instant_commit_confidence': INSTANT_COMMIT_CONFIDENCE,
+        'max_miss_frames': MAX_MISS_FRAMES,
+        'min_lock_ms': MIN_LOCK_MS,
+        'steady_ms': STEADY_MS,
+        'steady_motion_threshold': STEADY_MOTION_THRESHOLD,
+        'max_cooldown_ms': MAX_COOLDOWN_MS,
+        'require_neutral_between_signs': REQUIRE_NEUTRAL_BETWEEN_SIGNS,
+        'hand_lost_frames': HAND_LOST_FRAMES,
+        'release_frames': RELEASE_FRAMES,
         'confidence_threshold': CONFIDENCE_THRESHOLD,
+        'confidence_threshold_word': CONFIDENCE_THRESHOLD_WORD,
         'margin_threshold': MARGIN_THRESHOLD,
+        'margin_threshold_word': MARGIN_THRESHOLD_WORD,
         'max_centroid_distance': DEFAULT_MAX_CENTROID_DISTANCE,
-        'cooldown_frames': COOLDOWN_FRAMES,
-        'cooldown_ms': COOLDOWN_MS,
-        'majority_vote_window': MAJORITY_VOTE_WINDOW,
     })
 
 

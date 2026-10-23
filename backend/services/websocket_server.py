@@ -17,10 +17,10 @@ import numpy as np
 import websockets
 
 try:
-    from .gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
+    from .gesture_config import CONFIDENCE_THRESHOLD, CONFIDENCE_THRESHOLD_WORD, MARGIN_THRESHOLD
     from .gesture_pipeline import is_idle_hand, is_neutral_gesture
 except ImportError:
-    from services.gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
+    from services.gesture_config import CONFIDENCE_THRESHOLD, CONFIDENCE_THRESHOLD_WORD, MARGIN_THRESHOLD
     from services.gesture_pipeline import is_idle_hand, is_neutral_gesture
 
 logger = logging.getLogger("SignBridge.WS")
@@ -156,7 +156,7 @@ def handle_word_prediction(word_recognizer, data, model_lock=None):
         }
 
     conf = _safe_float(result.get('confidence', 0.0))
-    is_rej = bool(result.get('rejected', False)) or (conf < CONFIDENCE_THRESHOLD) or (str(result.get('word', '')) == '?')
+    is_rej = bool(result.get('rejected', False)) or (conf < CONFIDENCE_THRESHOLD_WORD) or (str(result.get('word', '')) == '?')
     result['rejected'] = is_rej
     if is_rej:
         result['rejection_reason'] = result.get('rejection_reason') or 'low_confidence'

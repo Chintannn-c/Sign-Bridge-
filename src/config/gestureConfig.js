@@ -1,26 +1,40 @@
 /**
  * SignBridge Gesture Recognition Configuration & Thresholds.
  * Centralizes all state machine timings, confidence limits, and stability parameters.
+ *
+ * Calibrated for a ~30 FPS camera feed. Everything tunable lives here.
  */
 
 export const GESTURE_CONFIG = {
-  // 1. State Machine & Timing (calibrated for 30 FPS camera feed)
-  NEUTRAL_HOLD_FRAMES: 10,       // Consecutive frames (~0.33s) holding 'two open palms' required to arm
-  STABILITY_FRAMES_K: 8,         // Consecutive identical predictions (8-12) required to commit sign
-  COOLDOWN_MS: 1000,             // Cooldown (1.0s) after emitting a sign before allowing re-arm
-  MAJORITY_VOTE_WINDOW: 5,       // Sliding window for majority-vote smoothing in CAPTURING
+  // 1. Fast commit (speed comes from removing waiting, not from loosening accuracy checks)
+  NEUTRAL_HOLD_FRAMES: 4,            // Frames (~0.13s) of 'two open palms' to arm (was 10)
+  STABILITY_FRAMES_K: 3,             // Consecutive identical valid predictions (~0.1s) to commit (was 5)
+  INSTANT_COMMIT_CONFIDENCE: 0.92,   // A single frame at/above this (and passing margin + centroid checks) commits immediately
+  MAX_MISS_FRAMES: 1,                // Invalid/dropped frames tolerated mid-streak before the streak resets
 
-  // 2. Confidence & Ambiguity Thresholds
-  CONFIDENCE_THRESHOLD_LETTER: 0.85, // Top-class probability threshold for static letters
-  CONFIDENCE_THRESHOLD_WORD: 0.80,   // Probability threshold for whole-word sequences
-  MARGIN_THRESHOLD: 0.15,            // Minimum gap between top-1 and top-2 probabilities
+  // 2. Lock, then hold steady (replaces the old fixed COOLDOWN_MS = 1000)
+  MIN_LOCK_MS: 250,                  // Minimum time the locked sign stays visible
+  STEADY_MS: 350,                    // Hand must be steady this long to re-arm
+  STEADY_MOTION_THRESHOLD: 0.015,    // Mean landmark movement per frame (normalized 0..1) counted as "steady"
+  MAX_COOLDOWN_MS: 1500,             // Failsafe: never stay locked longer than this
+  REQUIRE_NEUTRAL_BETWEEN_SIGNS: false, // true = need the two-open-palms gesture before every sign
+
+  // 3. Hand presence / same-sign repeat protection
+  HAND_LOST_FRAMES: 3,               // Frames without an active hand before it counts as "left the frame"
+  RELEASE_FRAMES: 4,                 // Frames of no/other sign after a lock before the same sign may be accepted again
+
+  // 4. Confidence & Ambiguity Thresholds (unchanged: these protect accuracy)
+  CONFIDENCE_THRESHOLD_LETTER: 0.75, // Top-class probability threshold for static letters
+  CONFIDENCE_THRESHOLD_WORD: 0.50,   // Probability threshold for 57-class whole-word sequences
+  MARGIN_THRESHOLD: 0.10,            // Minimum gap between top-1 and top-2 probabilities for letters
+  MARGIN_THRESHOLD_WORD: 0.06,       // Minimum gap for words
   MAX_CENTROID_DISTANCE: 11.5,       // Maximum Euclidean distance to class centroid
 
-  // 3. Resting / Idle Hand Detection
+  // 5. Resting / Idle Hand Detection
   IDLE_WRIST_Y_THRESHOLD: 0.88,      // Wrist below 88% of camera frame treated as resting on desk
   MIN_HAND_SPAN: 0.035,              // Minimum bounding box dimension for an intentional gesture
 
-  // 4. Debug & Developer Tools
+  // 6. Debug & Developer Tools
   DEBUG_OVERLAY_ENABLED: false,      // Display live debug metrics HUD overlay on camera
 };
 
@@ -28,12 +42,12 @@ export const GESTURE_STATES = {
   NEUTRAL: 'neutral',
   ARMED: 'armed',
   CAPTURING: 'capturing',
-  COOLDOWN: 'cooldown',
+  COOLDOWN: 'cooldown', // "locked, hold steady"
 };
 
 export const GESTURE_STATUS_LABELS = {
   neutral: 'Show neutral to continue',
-  armed: 'Ready',
+  armed: 'Ready - show the next sign',
   capturing: 'Recognising...',
-  cooldown: 'Sign locked',
+  cooldown: 'Sign locked - hold your hand steady',
 };

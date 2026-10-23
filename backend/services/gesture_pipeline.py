@@ -20,13 +20,11 @@ import numpy as np
 from services.gesture_config import (
     NEUTRAL_HOLD_FRAMES,
     STABILITY_FRAMES_K,
-    COOLDOWN_FRAMES,
-    COOLDOWN_MS,
-    MAJORITY_VOTE_WINDOW,
     CONFIDENCE_THRESHOLD,
     MARGIN_THRESHOLD,
     DEFAULT_MAX_CENTROID_DISTANCE,
     IDLE_WRIST_Y_THRESHOLD,
+    MIN_HAND_SPAN,
 )
 
 logger = logging.getLogger(__name__)
@@ -209,18 +207,19 @@ def is_idle_hand(landmarks: Any) -> bool:
         if not np.any(hand != 0):
             continue
 
-        active_hands += 1
         wrist_y = hand[0, 1]
 
         # Resting at bottom of camera frame
         if wrist_y > IDLE_WRIST_Y_THRESHOLD:
-            return True
+            continue
 
         # Check hand bounding box extent
         x_span = hand[:, 0].max() - hand[:, 0].min()
         y_span = hand[:, 1].max() - hand[:, 1].min()
-        if x_span < 0.035 or y_span < 0.035:
-            return True
+        if x_span < MIN_HAND_SPAN or y_span < MIN_HAND_SPAN:
+            continue
+
+        active_hands += 1
 
     return active_hands == 0
 
@@ -237,8 +236,8 @@ class GestureStateMachine:
         self,
         neutral_hold_frames: int = NEUTRAL_HOLD_FRAMES,
         stability_k: int = STABILITY_FRAMES_K,
-        cooldown_frames: int = COOLDOWN_FRAMES,
-        majority_window_size: int = MAJORITY_VOTE_WINDOW,
+        cooldown_frames: int = 15,
+        majority_window_size: int = 5,
         confidence_threshold: float = CONFIDENCE_THRESHOLD,
         margin_threshold: float = MARGIN_THRESHOLD,
         centroid_validator: Optional[CentroidValidator] = None,
