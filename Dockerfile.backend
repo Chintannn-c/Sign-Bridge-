@@ -12,14 +12,15 @@ ENV HOST=0.0.0.0
 
 # Install OpenCV and system dependencies required for MediaPipe & NumPy
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
-    libxrender-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser
 
 WORKDIR /app
 
@@ -32,14 +33,17 @@ COPY backend/ ./backend/
 
 WORKDIR /app/backend
 
-# Initialize database schema directory
-RUN mkdir -p database
+# Initialize directories requiring write permissions and grant ownership to appuser
+RUN mkdir -p database models dataset_collected && \
+    chown -R appuser:appuser /app
 
-EXPOSE 5000
+USER appuser
+
+EXPOSE 5000 5001
 
 # Health check endpoint
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:5000/api/health || exit 1
 
-# Start Flask via Gunicorn WSGI production server
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "app:app"]
+# Start Flask via Waitress WSGI production server with threads
+CMD ["waitress-serve", "--listen=0.0.0.0:5000", "--threads=4", "app:app"]
