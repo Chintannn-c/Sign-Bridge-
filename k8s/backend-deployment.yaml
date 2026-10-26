@@ -22,7 +22,13 @@ spec:
           image: signbridge-backend:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 5000
+            - name: http
+              containerPort: 5000
+            - name: ws
+              containerPort: 5001
+          env:
+            - name: DB_PATH
+              value: /data/signbridge.db
           envFrom:
             - configMapRef:
                 name: signbridge-config
@@ -30,11 +36,11 @@ spec:
                 name: signbridge-secrets
           resources:
             requests:
-              cpu: "250m"
+              cpu: "500m"
               memory: "512Mi"
             limits:
-              cpu: "1000m"
-              memory: "1536Mi"
+              cpu: "2000m"
+              memory: "2Gi"
           livenessProbe:
             httpGet:
               path: /api/health
@@ -49,7 +55,7 @@ spec:
             periodSeconds: 10
           volumeMounts:
             - name: sqlite-storage
-              mountPath: /app/backend/database
+              mountPath: /data
       volumes:
         - name: sqlite-storage
           persistentVolumeClaim:
@@ -76,5 +82,9 @@ spec:
     app: signbridge
     component: backend
   ports:
-    - port: 5000
+    - name: http
+      port: 5000
       targetPort: 5000
+    - name: ws
+      port: 5001
+      targetPort: 5001
