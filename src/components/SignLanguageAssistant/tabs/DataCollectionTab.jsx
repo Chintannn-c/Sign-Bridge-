@@ -50,7 +50,7 @@ export const DataCollectionTab = ({ isActive }) => {
     
     setSaveStatus('Saving...');
     try {
-      const response = await fetch('http://localhost:5000/api/collect_data', {
+      const response = await fetch('/api/collect_data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
