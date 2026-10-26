@@ -312,10 +312,19 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
   // Auto-Space Between Words states & stable refs
   const [autoSpaceWords, setAutoSpaceWords] = useState(true);
-  const [autoWordSpaceDelayMs, setAutoWordSpaceDelayMs] = useState(900);
+  const [autoWordSpaceDelayMs, setAutoWordSpaceDelayMs] = useState(2500);
   const autoSpaceTimerRef = useRef(null);
   const autoSpaceWordsRef = useRef(autoSpaceWords);
   const autoWordSpaceDelayMsRef = useRef(autoWordSpaceDelayMs);
+
+  // Clear all pending timers on unmount (ponytail: prevent memory leaks and post-unmount updates)
+  useEffect(() => {
+    return () => {
+      if (autoSpaceTimerRef.current) clearTimeout(autoSpaceTimerRef.current);
+      if (autoSendTimerRef.current) clearTimeout(autoSendTimerRef.current);
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     autoSpaceWordsRef.current = autoSpaceWords;
@@ -353,6 +362,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const neutralHoldCountRef = useRef(0);
   const candidateStreakRef = useRef(0);
   const currentCandidateRef = useRef(null);
+  const recentLetterVotesRef = useRef([]); // sliding window for majority voting
+  const pendingWordRef = useRef(null); // holds captured word until return to neutral
 
   // Status label for UI
   const statusLabel = gestureState === GESTURE_STATES.COOLDOWN
@@ -473,8 +484,14 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         onSendMessageRef.current(speechText, 'human');
       }
 
-      // 4. Clear draft buffer
-      setSentenceBufferSync('');
+      // 4. Remove only the sent prefix from draft buffer, keeping any newly signed characters
+      setSentenceBufferSync(prev => {
+        const trimmed = prev.trim();
+        if (trimmed.startsWith(rawText)) {
+          return trimmed.slice(rawText.length).trimStart();
+        }
+        return '';
+      });
     } catch (e) {
       console.warn('Auto-send execution error:', e);
     } finally {
@@ -606,10 +623,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       if (isCancelled) return;
       try {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        // Connect via Vite proxy /ws in dev or direct to port 5001
-        const wsUrl = window.location.port === '5173'
-          ? `${protocol}//${window.location.host}/ws`
-          : `${protocol}//${window.location.hostname}:5001`;
+        // Connect via same-origin /ws (handled by Vite proxy in dev, Nginx in Docker/k8s)
+        const wsUrl = window.location.port === '5000'
+          ? `${protocol}//${window.location.hostname}:5001`
+          : `${protocol}//${window.location.host}/ws`;
 
         ws = new WebSocket(wsUrl);
         wsRef.current = ws;
@@ -629,7 +646,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         };
 
         ws.onclose = () => {
-          wsRef.current = null;
+          if (wsRef.current === ws) {
+            wsRef.current = null;
+          }
           if (!isCancelled) {
             reconnectTimeout = setTimeout(connect, 2000);
           }
@@ -752,8 +771,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         releaseFramesRef.current = GESTURE_CONFIG.RELEASE_FRAMES;
       }
 
-      // Grace period: allow up to 6 dropped tracking frames (~250ms) without clearing the word buffer
-      if (handsMissingCountRef.current < 6 && frameBufferRef.current.length > 0) {
+      // Grace period: allow up to 12 dropped tracking frames (~400ms) without clearing the word buffer
+      if (handsMissingCountRef.current < 12 && frameBufferRef.current.length > 0) {
         return null; // Retain buffer during momentary tracking flicker
       }
       setHandInfo(null);
@@ -792,6 +811,11 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     if (curState === GESTURE_STATES.COOLDOWN) {
       const elapsed = nowTime - lockedAtMsRef.current;
 
+      const isReleasing = isNeutral || (motion > GESTURE_CONFIG.STEADY_MOTION_THRESHOLD);
+      if (isReleasing) {
+        releaseFramesRef.current += 1;
+      }
+
       // Failsafe: never stay locked longer than MAX_COOLDOWN_MS
       if (elapsed >= GESTURE_CONFIG.MAX_COOLDOWN_MS) {
         const nextState = GESTURE_CONFIG.REQUIRE_NEUTRAL_BETWEEN_SIGNS ? GESTURE_STATES.NEUTRAL : GESTURE_STATES.ARMED;
@@ -804,17 +828,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         setSteadyProgress(0);
       } else {
         if (elapsed >= GESTURE_CONFIG.MIN_LOCK_MS) {
-          if (motion <= GESTURE_CONFIG.STEADY_MOTION_THRESHOLD) {
-            steadyDurationMsRef.current += dt;
-          } else {
-            releaseFramesRef.current += 1;
-            steadyDurationMsRef.current = Math.max(0, steadyDurationMsRef.current - 20);
-          }
-          const prog = Math.min(1.0, steadyDurationMsRef.current / GESTURE_CONFIG.STEADY_MS);
-          steadyProgressRef.current = prog;
-          setSteadyProgress(prog);
-
-          if (prog >= 1.0) {
+          if (releaseFramesRef.current >= GESTURE_CONFIG.RELEASE_FRAMES && isReleasing) {
             const nextState = GESTURE_CONFIG.REQUIRE_NEUTRAL_BETWEEN_SIGNS ? GESTURE_STATES.NEUTRAL : GESTURE_STATES.ARMED;
             gestureStateRef.current = nextState;
             setGestureState(nextState);
@@ -823,6 +837,26 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
             steadyDurationMsRef.current = 0;
             steadyProgressRef.current = 0;
             setSteadyProgress(0);
+          } else {
+            if (motion <= GESTURE_CONFIG.STEADY_MOTION_THRESHOLD) {
+              steadyDurationMsRef.current += dt;
+            } else {
+              steadyDurationMsRef.current = Math.max(0, steadyDurationMsRef.current - 20);
+            }
+            const prog = Math.min(1.0, steadyDurationMsRef.current / GESTURE_CONFIG.STEADY_MS);
+            steadyProgressRef.current = prog;
+            setSteadyProgress(prog);
+
+            if (prog >= 1.0) {
+              const nextState = GESTURE_CONFIG.REQUIRE_NEUTRAL_BETWEEN_SIGNS ? GESTURE_STATES.NEUTRAL : GESTURE_STATES.ARMED;
+              gestureStateRef.current = nextState;
+              setGestureState(nextState);
+              lockedSignRef.current = null;
+              setLockedSign(null);
+              steadyDurationMsRef.current = 0;
+              steadyProgressRef.current = 0;
+              setSteadyProgress(0);
+            }
           }
         } else {
           steadyProgressRef.current = 0;
@@ -854,23 +888,44 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       missFramesRef.current = 0;
 
       if (hasActiveLandmarks && !isIdle && !isNeutral) {
+        clearAutoSpaceTimer();
         gestureStateRef.current = GESTURE_STATES.CAPTURING;
         setGestureState(GESTURE_STATES.CAPTURING);
       }
     }
     // 4. CAPTURING state transitions
     else if (curState === GESTURE_STATES.CAPTURING) {
-      if (GESTURE_CONFIG.REQUIRE_NEUTRAL_BETWEEN_SIGNS && isNeutral) {
+      if ((GESTURE_CONFIG.REQUIRE_NEUTRAL_BETWEEN_SIGNS && isNeutral) || isNeutral || isIdle) {
+        // If in word mode and we captured a valid word, commit upon returning to NEUTRAL / resting
+        if (recognitionMode === 'word' && pendingWordRef.current) {
+          const pending = pendingWordRef.current;
+          pendingWordRef.current = null;
+          const formattedWord = formatWordForSentence(pending.word);
+          const isDifferentWord = (lastCommittedItemRef.current !== pending.word);
+          const canRepeat = (nowTime - lastCommitRef.current > 1800);
+
+          if (nowTime - lastCommitRef.current > 900 && (isDifferentWord || canRepeat)) {
+            setStatus(STATES.STABLE);
+            lockedSignRef.current = pending.word;
+            setLockedSign(pending.word);
+            clearAutoSpaceTimer();
+            setSentenceBufferSync(prev => {
+              const clean = prev.trim();
+              return clean.length > 0 ? `${clean} ${formattedWord}` : formattedWord;
+            });
+            lastCommitRef.current = nowTime;
+            lastCommittedItemRef.current = pending.word;
+            playLockFeedback();
+          }
+        }
+
         gestureStateRef.current = GESTURE_STATES.NEUTRAL;
         setGestureState(GESTURE_STATES.NEUTRAL);
         neutralHoldCountRef.current = 1;
         currentCandidateRef.current = null;
         candidateStreakRef.current = 0;
         missFramesRef.current = 0;
-      } else if (isIdle) {
-        currentCandidateRef.current = null;
-        candidateStreakRef.current = 0;
-        missFramesRef.current = 0;
+        recentLetterVotesRef.current = [];
       }
     }
 
@@ -941,9 +996,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         setWordBufferCount(currentBufLen);
       }
 
-      // Start inference as soon as minimum viable sequence (>= 10 frames, ~0.33s) is reached
+      // Start inference only while CAPTURING state is active and sequence has viable length (>= 10 frames)
       const now = Date.now();
-      const hasViableSequence = frameBufferRef.current.length >= 10;
+      const isCapturing = (gestureStateRef.current === GESTURE_STATES.CAPTURING);
+      const hasViableSequence = isCapturing && (frameBufferRef.current.length >= 10);
       const isCooldownOver = (now - wordInferenceCooldownRef.current >= 200); // ponytail: 200ms halves round-trips; lower when model inference < 50ms
 
       if (hasViableSequence && isCooldownOver && !isWordRequestPendingRef.current) {
@@ -993,8 +1049,13 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           setConfidence(prediction.confidence);
           setAllScores(prediction.all_scores || {});
 
-          // Temporal smoothing & kinetic stroke completion gating for whole words
+          // Temporal candidate tracking & stroke completion gating for whole words
           if (prediction.confidence >= GESTURE_CONFIG.CONFIDENCE_THRESHOLD_WORD) {
+            pendingWordRef.current = {
+              word: prediction.word,
+              confidence: prediction.confidence,
+              timestamp: now,
+            };
             const prev = consecutiveWordRef.current;
             if (prev.word === prediction.word) {
               prev.count += 1;
@@ -1137,13 +1198,15 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         if (missFramesRef.current > GESTURE_CONFIG.MAX_MISS_FRAMES) {
           candidateStreakRef.current = 0;
           currentCandidateRef.current = null;
+          recentLetterVotesRef.current = [];
         }
         startOrResetInactivityTimer(false);
         return prediction;
       }
 
-      // Valid gesture detected: pause/cancel countdown
+      // Valid gesture detected: pause/cancel countdown and space timer
       cancelInactivityCountdown();
+      clearAutoSpaceTimer();
 
       // Only inside CAPTURING state do we commit
       if (gestureStateRef.current === GESTURE_STATES.CAPTURING) {
@@ -1154,22 +1217,49 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         if (canRepeat) {
           let shouldCommit = false;
 
+          // Push to sliding voting window (N = 5 frames)
+          const votes = recentLetterVotesRef.current;
+          votes.push({ label, conf, time: now });
+          if (votes.length > 5) votes.shift();
+
+          // Temporary debug log of top-3 predictions per frame for H
+          if (label === 'H' || (prediction.all_scores && 'H' in prediction.all_scores)) {
+            const sortedTop3 = Object.entries(prediction.all_scores || {})
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 3)
+              .map(([letter, score]) => `${letter}:${score.toFixed(3)}`);
+            console.debug(`[Letter H Debug] Top-1: ${label} (${conf.toFixed(3)}) | Top-3: [${sortedTop3.join(', ')}]`);
+          }
+
           // Rule 1: Instant commit on single high-confidence frame
           if (conf >= GESTURE_CONFIG.INSTANT_COMMIT_CONFIDENCE) {
             shouldCommit = true;
           } else {
-            // Rule 2: Quick commit on STABILITY_FRAMES_K consecutive frames
-            if (label === currentCandidateRef.current) {
+            // Rule 2: Temporal majority voting across sliding window of N=5 frames
+            const counts = {};
+            let majorityLabel = null;
+            let maxCount = 0;
+            for (const v of votes) {
+              counts[v.label] = (counts[v.label] || 0) + 1;
+              if (counts[v.label] > maxCount) {
+                maxCount = counts[v.label];
+                majorityLabel = v.label;
+              }
+            }
+
+            // Require majority (>= 3 out of 5 frames, 60%) or K consecutive identical frames
+            if (majorityLabel === label && maxCount >= 3) {
+              shouldCommit = true;
+            } else if (label === currentCandidateRef.current) {
               candidateStreakRef.current += 1;
               missFramesRef.current = 0;
+              if (candidateStreakRef.current >= GESTURE_CONFIG.STABILITY_FRAMES_K) {
+                shouldCommit = true;
+              }
             } else {
               currentCandidateRef.current = label;
               candidateStreakRef.current = 1;
               missFramesRef.current = 0;
-            }
-
-            if (candidateStreakRef.current >= GESTURE_CONFIG.STABILITY_FRAMES_K) {
-              shouldCommit = true;
             }
           }
 
@@ -1198,6 +1288,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
             currentCandidateRef.current = null;
             candidateStreakRef.current = 0;
             missFramesRef.current = 0;
+            recentLetterVotesRef.current = [];
 
             setStatus(STATES.STABLE);
             clearAutoSpaceTimer();
@@ -1324,8 +1415,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
   const sendSentence = useCallback(async () => {
     const rawText = sentenceBufferRef.current.trim();
-    if (!rawText) return;
+    if (!rawText || isAutoSendingRef.current) return;
     cancelInactivityCountdown();
+    clearAutoSpaceTimer();
+    isAutoSendingRef.current = true;
     setIsAutoSending(true);
     let textToSend = rawText;
     try {
@@ -1343,14 +1436,21 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     } catch (e) {
       console.warn('Manual send refine notice:', e);
     } finally {
+      isAutoSendingRef.current = false;
       setIsAutoSending(false);
     }
     textToSend = textToSend.replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '').trim() || rawText;
     if (onSendMessage) {
       onSendMessage(textToSend, 'human');
     }
-    setSentenceBufferSync('');
-  }, [cancelInactivityCountdown, onSendMessage, setSentenceBufferSync]);
+    setSentenceBufferSync(prev => {
+      const trimmed = prev.trim();
+      if (trimmed.startsWith(rawText)) {
+        return trimmed.slice(rawText.length).trimStart();
+      }
+      return '';
+    });
+  }, [cancelInactivityCountdown, clearAutoSpaceTimer, onSendMessage, setSentenceBufferSync]);
 
   return {
     // Gesture State Machine & Diagnostics

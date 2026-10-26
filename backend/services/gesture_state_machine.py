@@ -189,6 +189,13 @@ class GestureStateMachine:
         if self.state == COOLDOWN:
             elapsed = now_ms - self.locked_at_ms
 
+            # Advance release frame counter if hand moves, gesture is neutral, or prediction leaves locked sign
+            is_valid, _ = self._is_valid(prediction)
+            pred_label = str(prediction.get('label') or prediction.get('letter') or prediction.get('word') or '') if (is_valid and prediction) else None
+            is_releasing = is_neutral or (not is_valid) or (pred_label != self.locked_sign) or (motion > STEADY_MOTION_THRESHOLD)
+            if is_releasing:
+                self.release_frames_counter += 1
+
             # Failsafe: never stay locked longer than MAX_COOLDOWN_MS
             if elapsed >= MAX_COOLDOWN_MS:
                 self.state = ARMED if not self.require_neutral_between_signs else NEUTRAL
@@ -205,21 +212,26 @@ class GestureStateMachine:
             else:
                 # Minimum lock time guaranteed
                 if elapsed >= MIN_LOCK_MS:
-                    if motion <= STEADY_MOTION_THRESHOLD:
-                        self.steady_duration_ms += dt
-                    else:
-                        # Hand moved significantly -> advance release counter
-                        self.release_frames_counter += 1
-                        self.steady_duration_ms = max(0.0, self.steady_duration_ms - 20)
-
-                    self.steady_progress = min(1.0, self.steady_duration_ms / STEADY_MS)
-
-                    if self.steady_progress >= 1.0:
-                        # Hand held steady -> Re-arm for next detection!
+                    # If hand has completed sufficient release/transition frames, re-arm immediately
+                    if self.release_frames_counter >= RELEASE_FRAMES and is_releasing:
                         self.state = ARMED if not self.require_neutral_between_signs else NEUTRAL
                         self.locked_sign = None
                         self.steady_duration_ms = 0.0
                         self.steady_progress = 0.0
+                    else:
+                        if motion <= STEADY_MOTION_THRESHOLD:
+                            self.steady_duration_ms += dt
+                        else:
+                            self.steady_duration_ms = max(0.0, self.steady_duration_ms - 20)
+
+                        self.steady_progress = min(1.0, self.steady_duration_ms / STEADY_MS)
+
+                        if self.steady_progress >= 1.0:
+                            # Hand held steady -> Re-arm for next detection!
+                            self.state = ARMED if not self.require_neutral_between_signs else NEUTRAL
+                            self.locked_sign = None
+                            self.steady_duration_ms = 0.0
+                            self.steady_progress = 0.0
                 else:
                     self.steady_progress = 0.0
 
