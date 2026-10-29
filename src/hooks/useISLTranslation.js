@@ -68,7 +68,7 @@ export function useISLTranslation() {
 
   // ─── Core Message System ────────────────────────────────────────────────
   const addMessage = useCallback((sender, text) => {
-    if (!text || text.includes('robotic hands') || text.includes('Arduino not connected')) return;
+    if (!text || text.includes('Arduino not connected')) return;
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setMessages(prev => [
       ...prev,
@@ -86,7 +86,7 @@ export function useISLTranslation() {
    */
   const streamText = useCallback((targetSide, rawFullText, onDone) => {
     const fullText = (rawFullText != null) ? String(rawFullText) : '';
-    if (fullText.includes('robotic hands') || fullText.includes('Arduino not connected')) {
+    if (fullText.includes('Arduino not connected')) {
       if (onDone) onDone();
       return;
     }
@@ -239,27 +239,29 @@ export function useISLTranslation() {
       console.warn('LLM answer API error:', e);
     }
 
-    // Client-side smart fallback if API endpoint is unreachable
+    // Client-side smart fallback with word boundaries if API endpoint is unreachable
     const q = cleanQuery.toLowerCase();
+    const hasWord = (regex) => regex.test(q);
+
     if (q.length <= 2 && !['hi', 'no', 'ok'].includes(q)) {
       return "Could you sign that again?";
-    } else if (q.includes('washroom') || q.includes('toilet') || q.includes('restroom') || q.includes('bathroom')) {
+    } else if (hasWord(/\b(washroom|toilet|restroom|bathroom)\b/)) {
       return "Down the hall on your left.";
-    } else if (q.includes('water') || q.includes('drink') || q.includes('thirsty')) {
+    } else if (hasWord(/\b(water|drink|thirsty)\b/)) {
       return "Sure thing! Here's some water for you.";
-    } else if (q.includes('food') || q.includes('hungry') || q.includes('eat')) {
+    } else if (hasWord(/\b(food|hungry|eat)\b/)) {
       return "Let's grab a bite! What are you craving?";
-    } else if (q.includes('hello') || q.includes('namaste') || q.includes('hi') || q.includes('hey')) {
+    } else if (hasWord(/\b(hello|namaste|hi|hey)\b/)) {
       return "Hey! How's your day going?";
-    } else if (q.includes('how are you') || q.includes('how do you do') || q.includes('how r u')) {
+    } else if (hasWord(/\b(how are you|how do you do|how r u)\b/)) {
       return "Doing great, thanks! How about you?";
-    } else if (q.includes('name') || q.includes('who are you')) {
+    } else if (hasWord(/\b(name|who are you)\b/)) {
       return "I'm SignBridge! Nice to meet you.";
-    } else if (q.includes('thank')) {
+    } else if (hasWord(/\b(thank|thanks)\b/)) {
       return "Anytime! Happy to help.";
-    } else if (q.includes('help') || q.includes('assist')) {
+    } else if (hasWord(/\b(help|assist)\b/)) {
       return "I'm right here! How can I help?";
-    } else if (q.includes('bye') || q.includes('goodbye')) {
+    } else if (hasWord(/\b(bye|goodbye)\b/)) {
       return "Take care! See you soon.";
     } else if (q.includes('nice to meet you')) {
       return "Nice to meet you too!";
@@ -310,30 +312,52 @@ export function useISLTranslation() {
     streamText('robot', text);
   }, [streamText]);
 
-  const sendMessage = useCallback((customText) => {
+  const sendMessage = useCallback((customText, sender = 'human') => {
     if (!customText || !customText.trim()) return;
     const cleanText = customText.trim();
     setIsAutoDemo(false);
     if (timerRef.current) clearInterval(timerRef.current);
 
-    // 1. Instantly show sent message in the chat thread
+    if (sender === 'robot') {
+      // Path 2: Hearing desk staff voice input -> simplify -> robot hands fingerspelling
+      addMessage('robot', cleanText);
+      setRobotText(cleanText);
+      setRobotStreamText('');
+      setIsStreamingHuman(false);
+      setIsStreamingRobot(false);
+
+      (async () => {
+        if (apiStatus === 'connected') {
+          const simplified = await simplifyWithLLM(cleanText);
+          const rawKeywords = simplified?.robot_keywords || cleanText;
+          const textToSign = rawKeywords.toUpperCase().replace(/_/g, ' ').replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+          if (textToSign) {
+            sendToRobot(textToSign);
+          }
+        }
+      })();
+      return;
+    }
+
+    // Path 1: Deaf user signed input -> AI response -> robot fingerspelling
     addMessage('human', cleanText);
     setHumanText(cleanText);
     setHumanStreamText('');
     setIsStreamingHuman(false);
     setIsStreamingRobot(false);
 
-    // 2. Fetch AI response and stream it to the robot panel
     (async () => {
       const fetchedAnswer = await fetchAIAnswer(cleanText);
       const aiAnswer = fetchedAnswer || "Got it! How can I help with that?";
       
       streamText('robot', aiAnswer, async () => {
         if (apiStatus === 'connected') {
-          // Extract keywords via LLM simplify before robotic fingerspelling
           const simplified = await simplifyWithLLM(aiAnswer);
-          const textToSign = simplified?.robot_keywords || aiAnswer;
-          sendToRobot(textToSign);
+          const rawKeywords = simplified?.robot_keywords || aiAnswer;
+          const textToSign = rawKeywords.toUpperCase().replace(/_/g, ' ').replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+          if (textToSign) {
+            sendToRobot(textToSign);
+          }
         }
       });
     })();
@@ -355,9 +379,15 @@ export function useISLTranslation() {
     setLastPrediction(null);
   }, []);
 
-  // Auto conversation loop (demo mode only)
+  const [demoStep, setDemoStep] = useState(0);
+  const autoDemoTimeoutRef = useRef(null);
+
+  // Auto conversation loop (demo mode only) - uses demoStep state to reliably progress
   useEffect(() => {
-    if (!isAutoDemo) return;
+    if (!isAutoDemo) {
+      if (autoDemoTimeoutRef.current) clearTimeout(autoDemoTimeoutRef.current);
+      return;
+    }
 
     const currentScenario = ISL_CONVERSATIONS[scenarioIdxRef.current];
     const exchanges = currentScenario.exchanges;
@@ -366,25 +396,26 @@ export function useISLTranslation() {
     if (!currentExchange) {
       scenarioIdxRef.current = (scenarioIdxRef.current + 1) % ISL_CONVERSATIONS.length;
       exchangeIdxRef.current = 0;
+      setDemoStep(prev => prev + 1);
       return;
     }
 
     streamText(currentExchange.speaker, currentExchange.text, () => {
-      const delay = setTimeout(() => {
+      autoDemoTimeoutRef.current = setTimeout(() => {
         exchangeIdxRef.current += 1;
         if (exchangeIdxRef.current >= exchanges.length) {
           scenarioIdxRef.current = (scenarioIdxRef.current + 1) % ISL_CONVERSATIONS.length;
           exchangeIdxRef.current = 0;
         }
+        setDemoStep(prev => prev + 1);
       }, 1500);
-
-      return () => clearTimeout(delay);
     });
 
     return () => {
+      if (autoDemoTimeoutRef.current) clearTimeout(autoDemoTimeoutRef.current);
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isAutoDemo, streamText]);
+  }, [isAutoDemo, demoStep, streamText]);
 
   return {
     // Existing display state

@@ -17,8 +17,6 @@ The model accepts a flat array of 126 landmark values:
 When no trained model file exists, falls back to a rule-based
 heuristic classifier using the Mendeley ISL landmark descriptions.
 """
-
-from huggingface_hub.inference._generated.types import automatic_speech_recognition
 import os
 import csv
 import json
@@ -197,6 +195,14 @@ class TranslatorModel:
           4. Keras (.h5)
           5. Heuristic — rule-based geometric matching
         """
+        # Reset state on load/reload (ponytail: prevent stale state leakage)
+        self.stgcn_model = None
+        self.xgb_model = None
+        self.model = None
+        self.mode = 'heuristic'
+        self.metadata = {}
+        self.mendeley_ref = {}
+
         # Load ST-GCN if available
         if os.path.exists(STGCN_MODEL_PATH):
             try:
@@ -209,7 +215,7 @@ class TranslatorModel:
 
                 labels = self.metadata.get('labels', [c for c in ISL_LABELS if c.isalpha()])
                 st_model = STGCNHandClassifier(num_classes=len(labels))
-                checkpoint = torch.load(STGCN_MODEL_PATH, map_location='cpu')
+                checkpoint = torch.load(STGCN_MODEL_PATH, map_location='cpu', weights_only=True)
                 if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
                     st_model.load_state_dict(checkpoint['model_state_dict'])
                 else:
@@ -530,12 +536,11 @@ class TranslatorModel:
             if not np.any(arr != 0):
                 return self._invalid_input_result('xgboost')
 
-            # Apply same normalization as training pipeline
-            if self.metadata.get('preprocessing') == 'wrist_center_scale_v1':
-                normalized = [normalize_landmarks(row) for row in arr]
-                if any(row is None for row in normalized):
-                    return self._invalid_input_result('xgboost')
-                arr = np.asarray(normalized, dtype=np.float32)
+            # Apply same normalization as training pipeline unconditionally
+            normalized = [normalize_landmarks(row) for row in arr]
+            if any(row is None for row in normalized):
+                return self._invalid_input_result('xgboost')
+            arr = np.asarray(normalized, dtype=np.float32)
 
             labels = self.metadata.get('labels', ISL_LABELS)
 
@@ -548,20 +553,20 @@ class TranslatorModel:
             feat_primary = extract_features(arr)
             probs = model.predict_proba(feat_primary)[0]
 
-            # Evaluate alternate hand slot arrangement to ensure 100% hand-invariance
-            swapped = np.zeros_like(arr)
-            swapped[:, :63] = arr[:, 63:]
-            swapped[:, 63:] = arr[:, :63]
-            feat_swapped = extract_features(swapped)
-            probs_swapped = model.predict_proba(feat_swapped)[0]
-            
-            # Pick whichever slot orientation yields higher model confidence
-            if np.max(probs_swapped) > np.max(probs):
-                probs = probs_swapped
+            conf_primary = float(np.max(probs))
 
-            # For contact gestures where hands overlap (e.g. K, M, T, P, R, S), if dual-hand confidence is moderate,
-            # also evaluate dominant individual hand sub-representations
-            if left_active and right_active and np.max(probs) < 0.80:
+            # Only evaluate alternate hand slot arrangement if primary placement is uncertain
+            if (is_single_hand and conf_primary < 0.65) or conf_primary < 0.55:
+                swapped = np.zeros_like(arr)
+                swapped[:, :63] = arr[:, 63:]
+                swapped[:, 63:] = arr[:, :63]
+                feat_swapped = extract_features(swapped)
+                probs_swapped = model.predict_proba(feat_swapped)[0]
+                if np.max(probs_swapped) > np.max(probs):
+                    probs = probs_swapped
+
+            # For contact gestures where hands overlap, only evaluate dominant sub-hands if confidence remains low
+            if left_active and right_active and np.max(probs) < 0.50:
                 h_left_single = np.zeros_like(arr)
                 h_left_single[:, :63] = arr[:, :63]
                 f_l = extract_features(h_left_single)
@@ -725,6 +730,18 @@ class TranslatorModel:
                     'confidence': 0.0,
                     'mode': 'heuristic',
                     'rejected': True,
+                    'all_scores': {}
+                }
+
+            if not self.mendeley_ref:
+                return {
+                    'letter': '?',
+                    'confidence': 0.0,
+                    'margin': 0.0,
+                    'centroid_distance': 0.0,
+                    'mode': 'heuristic',
+                    'rejected': True,
+                    'rejection_reason': 'no_reference_rules',
                     'all_scores': {}
                 }
 
@@ -913,7 +930,7 @@ class TranslatorModel:
             score += (1.0 if not features['l_middle_ext'] else 0.0)
         elif 'l-shape' in lh_posture:
             score += (1.0 if features['l_thumb_ext'] and features['l_index_ext'] else 0.0) * 2.0
-        elif 'cross' in lh_posture or letter == 'F':
+        elif 'cross' in lh_posture:
             is_isl_f = features['l_index_thumb_touch'] < THUMB_INDEX_TOUCH_THRESHOLD and features['l_middle_ext']
             score += 10.0 if is_isl_f else ((1.0 if features['l_index_ext'] or features['l_middle_ext'] else 0.0) * 2.0)
 
@@ -928,7 +945,7 @@ class TranslatorModel:
             score += (1.0 if features['r_index_ext'] and features['r_middle_ext'] else 0.0) * 2.0
         elif 'w-peaks' in rh_posture:
             score += (1.0 if features['r_index_ext'] and features['r_middle_ext'] and features['r_ring_ext'] else 0.0) * 2.0
-        elif 'cross' in rh_posture or letter == 'F':
+        elif 'cross' in rh_posture:
             # Was comparing the inter-hand index_touch distance here, which
             # measures left-index-to-right-index — not this hand's own
             # thumb-to-index touch. Fixed to use the same-hand feature.

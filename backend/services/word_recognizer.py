@@ -33,6 +33,44 @@ LSTM_META_PATH = os.path.join(MODEL_DIR, 'lstm_training_meta.json')
 SEQUENCE_LENGTH = 30
 NUM_FEATURES = 126
 
+# Gating & Confidence Thresholds (calibrated across live webcams)
+MIN_MOTION_VELOCITY = 0.025
+MAX_SINGLE_FRAME_JUMP = 0.15
+CONFIDENCE_THRESHOLD_WORD = 0.50
+MARGIN_THRESHOLD_WORD = 0.06
+MAX_WORD_ENTROPY = 2.20
+
+
+def compute_wrist_relative_motion(arr: np.ndarray, max_jump: float = MAX_SINGLE_FRAME_JUMP) -> float:
+    """
+    Computes motion velocity across sequence using wrist-relative per-hand deltas.
+    Clips single-frame outlier jumps (> max_jump) so tracking glitches, slot-swaps,
+    or sudden hand entries/exits cannot artificially trip the motion gate.
+    """
+    pts = arr.reshape(-1, 2, 21, 3)
+    T = pts.shape[0]
+    if T < 2:
+        return 0.0
+
+    present = np.any(pts != 0, axis=(2, 3))
+    deltas = []
+
+    for t in range(T - 1):
+        for h in range(2):
+            if present[t, h] and present[t + 1, h]:
+                w_t = pts[t, h, 0]
+                w_t1 = pts[t + 1, h, 0]
+                rel_t = pts[t, h] - w_t
+                rel_t1 = pts[t + 1, h] - w_t1
+                d_rel = np.linalg.norm(rel_t1 - rel_t, axis=-1)
+                d_w = float(np.linalg.norm(w_t1 - w_t))
+                if d_w < max_jump:
+                    valid = d_rel[d_rel < max_jump]
+                    if len(valid) > 0:
+                        deltas.append(float(np.mean(valid)) + d_w)
+
+    return float(np.mean(deltas)) if deltas else 0.0
+
 
 class WordRecognizer:
     """
@@ -59,13 +97,20 @@ class WordRecognizer:
           3. Plain Bi-LSTM PyTorch (.pt)
           4. Keras Bi-LSTM (.h5)
         """
+        # Reset state on load/reload (ponytail: prevent stale state leakage)
+        self.model = None
+        self.mode = None
+        self.metadata = {}
+        self.labels = []
+        self.is_available = False
+
         # 1. Try CNN-BiLSTM hybrid model (.pt) — highest priority
         if os.path.exists(CNN_LSTM_MODEL_PATH):
             try:
                 import torch
                 import torch.nn as nn
 
-                checkpoint = torch.load(CNN_LSTM_MODEL_PATH, map_location='cpu')
+                checkpoint = torch.load(CNN_LSTM_MODEL_PATH, map_location='cpu', weights_only=True)
 
                 if checkpoint.get('model_type') == 'cnn_bilstm':
                     if os.path.exists(CNN_LSTM_META_PATH):
@@ -187,7 +232,7 @@ class WordRecognizer:
                     with open(LSTM_META_PATH, 'r', encoding='utf-8') as f:
                         self.metadata = json.load(f)
 
-                checkpoint = torch.load(PT_MODEL_PATH, map_location='cpu')
+                checkpoint = torch.load(PT_MODEL_PATH, map_location='cpu', weights_only=True)
                 self.labels = checkpoint.get('word_labels') or self.metadata.get('labels', [])
                 num_classes = len(self.labels)
 
@@ -268,12 +313,11 @@ class WordRecognizer:
                     'all_scores': {},
                 }
 
-            # Motion velocity pre-gate: measure average frame-to-frame displacement
-            diffs = np.diff(norm_arr, axis=0)
-            motion_velocity = float(np.mean(np.linalg.norm(diffs.reshape(SEQUENCE_LENGTH - 1, 2, 21, 3), axis=-1)))
+            # Motion velocity pre-gate: wrist-relative joint displacement velocity
+            # Rejects static/resting hands while suppressing glitch/tracking jumps (> 0.15)
+            motion_velocity = compute_wrist_relative_motion(arr, MAX_SINGLE_FRAME_JUMP)
 
-            # If hand is static / motionless (< 0.020 units/frame), reject to prevent false word hallucinations
-            if motion_velocity < 0.020:
+            if motion_velocity < MIN_MOTION_VELOCITY:
                 return {
                     'word': '?',
                     'confidence': 0.0,
@@ -293,7 +337,7 @@ class WordRecognizer:
                 import torch
                 if getattr(self, 'input_dim', NUM_FEATURES) == 252:
                     from services.feature_extractor import transform_to_kinetic_invariants
-                    kinetic_seq = transform_to_kinetic_invariants(arr)
+                    kinetic_seq = transform_to_kinetic_invariants(norm_arr)
                     input_data = kinetic_seq.reshape(1, SEQUENCE_LENGTH, 252)
                 else:
                     input_data = norm_arr.reshape(1, SEQUENCE_LENGTH, NUM_FEATURES)
@@ -332,8 +376,9 @@ class WordRecognizer:
 
                     # Chest signs: NAMASTE, PLEASE, SORRY, ME, HEARING
                     elif lbl in ('NAMASTE', 'PLEASE', 'SORRY', 'ME', 'HEARING'):
-                        if min_chest < 0.35:
-                            priors[idx] *= 1.40
+                        if min_chest < 0.35 and max_elev > -0.15:
+                            # Only mild prior boost when actively signing at chest height
+                            priors[idx] *= 1.15
                         elif min_chest > 0.80:
                             priors[idx] *= 0.55
 
@@ -360,15 +405,27 @@ class WordRecognizer:
             confidence = float(probs[top_idx])
             word = self.labels[top_idx] if top_idx < len(self.labels) else '?'
 
+            # Shannon entropy across class distribution
+            entropy = -float(np.sum(probs * np.log(probs + 1e-9)))
+
             sorted_probs = np.sort(probs)[::-1]
             margin = float(sorted_probs[0] - sorted_probs[1]) if len(sorted_probs) > 1 else float(sorted_probs[0])
-            is_rejected = bool(confidence < CONFIDENCE_THRESHOLD_WORD or margin < MARGIN_THRESHOLD_WORD or word == '?')
+            is_rejected = bool(
+                word in ('NONE', 'IDLE', '?') or
+                confidence < CONFIDENCE_THRESHOLD_WORD or
+                margin < MARGIN_THRESHOLD_WORD or
+                entropy > MAX_WORD_ENTROPY
+            )
             rejection_reason = None
             if is_rejected:
-                if confidence < CONFIDENCE_THRESHOLD_WORD:
+                if word in ('NONE', 'IDLE'):
+                    rejection_reason = 'idle_detected'
+                elif confidence < CONFIDENCE_THRESHOLD_WORD:
                     rejection_reason = 'low_confidence'
                 elif margin < MARGIN_THRESHOLD_WORD:
                     rejection_reason = 'low_margin'
+                elif entropy > MAX_WORD_ENTROPY:
+                    rejection_reason = 'high_entropy'
                 else:
                     rejection_reason = 'unknown_gesture'
 
@@ -382,6 +439,7 @@ class WordRecognizer:
                 'word': '?' if is_rejected else word,
                 'confidence': round(confidence, 4),
                 'margin': round(margin, 4),
+                'entropy': round(entropy, 4),
                 'mode': self.mode,
                 'rejected': is_rejected,
                 'rejection_reason': rejection_reason,
@@ -396,8 +454,11 @@ class WordRecognizer:
     def _pad_or_trim(self, frames):
         """Ensure frames array is exactly SEQUENCE_LENGTH frames long."""
         if len(frames) < SEQUENCE_LENGTH:
-            pad = np.zeros((SEQUENCE_LENGTH - len(frames), NUM_FEATURES), dtype=np.float32)
-            return np.concatenate([frames, pad], axis=0)
+            if len(frames) > 0:
+                last_frame = frames[-1:]
+                pad = np.repeat(last_frame, SEQUENCE_LENGTH - len(frames), axis=0)
+                return np.concatenate([frames, pad], axis=0)
+            return np.zeros((SEQUENCE_LENGTH, NUM_FEATURES), dtype=np.float32)
         elif len(frames) > SEQUENCE_LENGTH:
             indices = np.linspace(0, len(frames) - 1, SEQUENCE_LENGTH, dtype=int)
             return frames[indices]

@@ -28,6 +28,8 @@ export const GESTURE_CONFIG = {
   CONFIDENCE_THRESHOLD_WORD: 0.50,   // Probability threshold for 57-class whole-word sequences
   MARGIN_THRESHOLD: 0.10,            // Minimum gap between top-1 and top-2 probabilities for letters
   MARGIN_THRESHOLD_WORD: 0.06,       // Minimum gap for words
+  MIN_MOTION_VELOCITY: 0.025,        // Minimum wrist-relative joint displacement velocity for word gating
+  MAX_WORD_ENTROPY: 2.20,            // Maximum distribution entropy tolerated before rejection
   MAX_CENTROID_DISTANCE: 11.5,       // Maximum Euclidean distance to class centroid
 
   // 5. Resting / Idle Hand Detection

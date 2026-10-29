@@ -51,6 +51,7 @@ dataset_2/
 *.zip
 !dataset/Mendeley_ISL/ISL_Dataset.zip
 backend/models/*_backup.pkl
+backend/models/*_backup.pt
 backend/dataset_collected/
 backend/dataset_words/
 graphify-out/cache/

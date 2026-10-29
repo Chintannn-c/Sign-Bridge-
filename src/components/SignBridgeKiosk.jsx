@@ -28,8 +28,15 @@ export const SignBridgeKiosk = () => {
         target &&
         (target.tagName === 'INPUT' ||
           target.tagName === 'TEXTAREA' ||
+          target.tagName === 'BUTTON' ||
+          target.closest('button') ||
           target.isContentEditable)
       ) {
+        return;
+      }
+
+      // Guard demo hotkeys behind dev environment or Alt modifier to prevent accidental kiosk corruption
+      if (!import.meta.env.DEV && !e.altKey) {
         return;
       }
 

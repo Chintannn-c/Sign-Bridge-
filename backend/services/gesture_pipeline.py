@@ -82,10 +82,12 @@ class CentroidValidator:
 
         dist = min(dist_direct, dist_swapped)
 
-        if dist > threshold:
-            return False, dist, threshold, 'out_of_dataset_distance'
+        # ponytail: 1.35x tolerance buffer accommodates natural camera angle and wrist tilt
+        effective_threshold = threshold * 1.35
+        if dist > effective_threshold:
+            return False, dist, effective_threshold, 'out_of_dataset_distance'
 
-        return True, dist, threshold, None
+        return True, dist, effective_threshold, None
 
 
 def _is_single_finger_extended(pts: np.ndarray, tip_idx: int, pip_idx: int, mcp_idx: int) -> bool:

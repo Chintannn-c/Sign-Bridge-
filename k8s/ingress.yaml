@@ -4,6 +4,9 @@ metadata:
   name: signbridge-ingress
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/websocket-services: "signbridge-backend-service"
 spec:
   rules:
     - http:
@@ -22,3 +25,10 @@ spec:
                 name: signbridge-backend-service
                 port:
                   number: 5000
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: signbridge-backend-service
+                port:
+                  number: 5001

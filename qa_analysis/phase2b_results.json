@@ -1,0 +1,113 @@
+{
+  "vocabulary_analysis": {
+    "num_classes": 57,
+    "val_accuracy": 0.5122,
+    "chance_level": 0.0175,
+    "class_counts_on_disk": {
+      "AGAIN": 16,
+      "BAD": 4,
+      "BOY": 6,
+      "BYE_BYE": 17,
+      "CHILD": 4,
+      "CORRECT": 4,
+      "DAY": 7,
+      "DEAF": 19,
+      "DIFFICULT": 4,
+      "DOCTOR": 11,
+      "EASY": 2,
+      "FEAR": 4,
+      "FOOD": 16,
+      "GIRL": 4,
+      "GOOD": 2,
+      "GOOD_AFTERNOON": 4,
+      "GOOD_EVENING": 4,
+      "GOOD_MORNING": 4,
+      "GOOD_NIGHT": 4,
+      "HE": 6,
+      "HEARING": 18,
+      "HELLO": 17,
+      "HELP": 11,
+      "HOW_ARE_YOU": 3,
+      "IM_FINE": 9,
+      "INDIA": 16,
+      "I_DONT_UNDERSTAND": 4,
+      "LANGUAGE": 4,
+      "MAN": 16,
+      "ME": 5,
+      "MORNING": 4,
+      "MY_NAME_IS": 4,
+      "NAMASTE": 17,
+      "NO": 4,
+      "NONE": 50,
+      "NO_FEAR": 4,
+      "PEACE": 5,
+      "PLEASE": 17,
+      "PRACTICE": 4,
+      "REMEMBER": 8,
+      "SHE": 4,
+      "SIGN": 15,
+      "SORRY": 16,
+      "STRONG": 4,
+      "TEACHER": 4,
+      "THANK_YOU": 18,
+      "THANK_YOU_VERY_MUCH": 5,
+      "THIN": 4,
+      "UNDERSTAND": 7,
+      "WASHROOM": 11,
+      "WATER": 11,
+      "WEAK": 4,
+      "WELCOME": 5,
+      "WHERE": 11,
+      "WOMAN": 17,
+      "WRONG": 4,
+      "YES": 5,
+      "YOU": 17
+    },
+    "imbalance_ratio": 25.0
+  },
+  "motion_gating": {
+    "static_hands_motion_velocity": 0.0,
+    "static_hands_rejected": true,
+    "static_rejection_reason": "static_hand_detected",
+    "jump_motion_velocity_clipped": 0.0
+  },
+  "namaste_regression": {
+    "predicted_word": "?",
+    "rejected": true,
+    "rejection_reason": "static_hand_detected",
+    "namaste_hallucination_suppressed": true
+  },
+  "temporal_tests": {
+    "frame_count_29": {
+      "handled_without_crash": true,
+      "rejected": true,
+      "rejection_reason": "low_confidence"
+    },
+    "frame_count_31": {
+      "handled_without_crash": true,
+      "rejected": true,
+      "rejection_reason": "low_confidence"
+    },
+    "frame_count_0": {
+      "handled_without_crash": true,
+      "rejected": false,
+      "rejection_reason": null
+    },
+    "slow_signing_0.5x": {
+      "word": "?",
+      "confidence": 0.0,
+      "rejected": true
+    }
+  },
+  "margin_and_entropy": {
+    "configured_margin_threshold": 0.06,
+    "configured_entropy_threshold": 2.2,
+    "active_labels_count": 57
+  },
+  "core_23_assessment": {
+    "core_23_all_present": true,
+    "missing_core_words": [],
+    "current_val_accuracy_57_classes": 0.5122,
+    "recommendation": "Pruning from 57 classes (51.2% val acc) to the core 23 high-frequency kiosk classes increases per-class samples and classification margin, avoiding low-confidence confusion on rare classes like THIN, WEAK, FEAR, PEACE."
+  }
+}

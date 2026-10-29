@@ -97,20 +97,43 @@ def augment_training_partition(X, y, seed=42):
     swapped_single[:, :63] = single_X[:, 63:]
     swapped_single[:, 63:] = single_X[:, :63]
 
-    # Dual-hand jitter
+    # Dual-hand processing
     is_dual = np.any(X[:, :63] != 0, axis=1) & np.any(X[:, 63:] != 0, axis=1)
     dual_X = X[is_dual].copy()
     dual_y = y[is_dual].copy()
+
+    # 1. Per-hand independent jitter
     jittered_dual = dual_X.copy()
-    shift_h1 = rng.normal(0, 0.015, size=(len(dual_X), 1, 3)).astype(np.float32)
-    shift_h2 = rng.normal(0, 0.015, size=(len(dual_X), 1, 3)).astype(np.float32)
+    shift_h1 = rng.normal(0, 0.012, size=(len(dual_X), 1, 3)).astype(np.float32)
+    shift_h2 = rng.normal(0, 0.012, size=(len(dual_X), 1, 3)).astype(np.float32)
     pts = jittered_dual.reshape(-1, 2, 21, 3)
     pts[:, 0] += shift_h1
     pts[:, 1] += shift_h2
     jittered_dual = pts.reshape(-1, 126)
 
-    X_aug = np.concatenate([X_base, swapped_single, jittered_dual], axis=0)
-    y_aug = np.concatenate([y_base, single_y, dual_y], axis=0)
+    # 2. Slot swap for dual-hand signs (critical for two-handed signs like H, N, P, W)
+    swapped_dual = np.zeros_like(dual_X)
+    swapped_dual[:, :63] = dual_X[:, 63:]
+    swapped_dual[:, 63:] = dual_X[:, :63]
+
+    # 3. Mirrored dual-hand pairs (horizontal flip + slot swap)
+    mirrored_dual = dual_X.copy().reshape(-1, 2, 21, 3)
+    mirrored_dual[:, :, :, 0] = 1.0 - mirrored_dual[:, :, :, 0]
+    mirrored_dual = mirrored_dual[:, [1, 0], :, :].reshape(-1, 126)
+
+    # 4. Partial one-hand dropout (simulates transient tracking loss during contact)
+    drop_indices = rng.choice(len(dual_X), size=int(0.15 * len(dual_X)), replace=False)
+    dropout_dual = dual_X[drop_indices].copy()
+    dropout_y = dual_y[drop_indices].copy()
+    drop_slot = rng.integers(0, 2, size=len(drop_indices))
+    for idx_i, s in enumerate(drop_slot):
+        if s == 0:
+            dropout_dual[idx_i, :63] = 0.0
+        else:
+            dropout_dual[idx_i, 63:] = 0.0
+
+    X_aug = np.concatenate([X_base, swapped_single, jittered_dual, swapped_dual, mirrored_dual, dropout_dual], axis=0)
+    y_aug = np.concatenate([y_base, single_y, dual_y, dual_y, dual_y, dropout_y], axis=0)
     return X_aug, y_aug
 
 
@@ -236,7 +259,8 @@ def train_letter_model():
         'model_type': 'xgboost',
         'raw_input_landmarks': 126,
         'estimator_features': NUM_EXTRACTED_FEATURES,
-        'feature_name': 'geometric_invariants_176d',
+        'feature_name': f'geometric_invariants_{NUM_EXTRACTED_FEATURES}d',
+        'preprocessing': 'wrist_center_scale_v1',
         'num_classes': len(ALPHABET_LABELS),
         'labels': ALPHABET_LABELS,
         'data_summary': {
@@ -595,12 +619,8 @@ def train_word_model():
     X_val_kinetic = transform_to_kinetic_invariants(X_val)
     logger.info(f"Transformed kinetic shapes: train={X_train_kinetic.shape}, val={X_val_kinetic.shape}")
 
-    # Compute inverse class frequencies from RAW training distribution to penalize dominant classes (e.g. THANK_YOU)
-    raw_counts = np.bincount(y_train, minlength=len(word_labels))
-    raw_counts_clamped = np.maximum(raw_counts, 1)
-    inv_weights = (len(y_train) / (len(word_labels) * raw_counts_clamped)) ** 0.5
-    inv_weights = inv_weights / np.mean(inv_weights)
-    class_weights_tensor = torch.tensor(inv_weights, dtype=torch.float32)
+    # ponytail: y_train_aug is already balanced to target_per_class (250).
+    # Double-balancing with raw inv_weights caused class collapse (14 classes had F1=0).
 
     # --- PyTorch Dataset ---
     class SeqDataset(Dataset):
@@ -653,7 +673,7 @@ def train_word_model():
             return self.classifier(pooled)
 
     model = CNNBiLSTMWordClassifier(in_dim=252, num_classes=len(word_labels))
-    criterion = nn.CrossEntropyLoss(weight=class_weights_tensor, label_smoothing=0.1)
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.05)
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
 

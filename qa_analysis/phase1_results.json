@@ -1,0 +1,74 @@
+{
+  "timestamp": "2026-10-26T11:21:43Z",
+  "test_suites": {},
+  "model_metas": {
+    "xgboost": {
+      "exists": true,
+      "model_type": "xgboost",
+      "num_classes": 26,
+      "metrics": {
+        "val_accuracy": 0.6961,
+        "val_macro_f1": 0.6934,
+        "test_accuracy": 0.8743,
+        "test_macro_f1": 0.8724,
+        "test_precision": 0.8811,
+        "test_recall": 0.8737
+      }
+    },
+    "stgcn": {
+      "exists": true,
+      "model_type": "st_gcn",
+      "num_classes": 26,
+      "metrics": {
+        "val_accuracy": 0.6442,
+        "test_accuracy": 0.8203,
+        "test_macro_f1": 0.8161,
+        "test_precision": 0.8246,
+        "test_recall": 0.8219
+      }
+    },
+    "hybrid": {
+      "exists": true,
+      "model_type": "hybrid_ensemble",
+      "num_classes": 26,
+      "metrics": {
+        "test_accuracy": 0.8623,
+        "test_macro_f1": 0.8799,
+        "test_precision": 0.9067,
+        "test_recall": 0.8633,
+        "latency_ms": 26.92
+      }
+    },
+    "cnn_bilstm_word": {
+      "exists": true,
+      "model_type": "cnn_bilstm",
+      "num_classes": 57,
+      "metrics": {
+        "val_accuracy": 0.512249443207127,
+        "train_samples": 14258,
+        "val_samples": 1347
+      }
+    },
+    "random_forest_word": {
+      "exists": true,
+      "model_type": "random_forest_sequence",
+      "num_classes": 57,
+      "metrics": {
+        "val_accuracy": null,
+        "train_samples": 14258,
+        "val_samples": 1347
+      }
+    }
+  },
+  "data_leakage_check": {
+    "train_samples": 16854,
+    "val_samples": 3488,
+    "test_samples": 4902,
+    "train_test_frame_overlap_count": 0,
+    "train_val_frame_overlap_count": 0,
+    "val_test_frame_overlap_count": 0,
+    "duplicate_files_detected": 0,
+    "duplicate_frames_excluded": 0
+  },
+  "mismatches": []
+}

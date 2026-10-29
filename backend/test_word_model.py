@@ -79,7 +79,7 @@ def run_checks():
 
     acc = (correct / total * 100) if total > 0 else 0
     active_classes = sum(1 for w in recognizer.labels if class_correct[w] > 0)
-    logger.info(f"[PASS] Validation accuracy on held-out test data: {acc:.1f}% ({correct}/{total} sequences)")
+    logger.info(f"[PASS] Sequence smoke check accuracy: {acc:.1f}% ({correct}/{total} sequences)")
     logger.info(f"[PASS] Active detected classes: {active_classes}/{len(recognizer.labels)} classes operational")
 
     print("\n" + "=" * 65)

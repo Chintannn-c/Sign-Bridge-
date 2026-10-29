@@ -64,6 +64,7 @@ export function useWebcam() {
 
             if (videoRef.current) {
               videoRef.current.srcObject = stream;
+              videoRef.current.play().catch(() => {});
             }
 
             // Fetch device list with populated labels after permission is granted
@@ -118,6 +119,7 @@ export function useWebcam() {
     videoRef.current = node;
     if (node && streamRef.current && isCameraOn) {
       node.srcObject = streamRef.current;
+      node.play().catch(() => {});
     }
   }, [isCameraOn]);
 

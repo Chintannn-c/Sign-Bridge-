@@ -175,9 +175,9 @@ async def ws_handler(websocket, translator, word_recognizer, model_lock=None):
                 req_id = data.get('req_id')
 
                 if msg_type == 'word':
-                    res = handle_word_prediction(word_recognizer, data, model_lock)
+                    res = await asyncio.to_thread(handle_word_prediction, word_recognizer, data, model_lock)
                 else:
-                    res = handle_letter_prediction(translator, data, model_lock)
+                    res = await asyncio.to_thread(handle_letter_prediction, translator, data, model_lock)
 
                 if req_id is not None:
                     res['req_id'] = req_id
@@ -208,7 +208,7 @@ def start_websocket_server(translator, word_recognizer, host='127.0.0.1', port=5
                 port,
                 ping_interval=20,
                 ping_timeout=20,
-                max_size=10 * 1024 * 1024,
+                max_size=64 * 1024,
             ):
                 logger.info(f"WebSocket real-time prediction service running on ws://{host}:{port}")
                 await asyncio.Future()

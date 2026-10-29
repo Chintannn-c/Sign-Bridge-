@@ -12,7 +12,7 @@ Provides shared, bug-free implementations of:
 
 import re
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 
 SEQUENCE_LENGTH = 30
@@ -73,6 +73,51 @@ def clean_word_label(path_or_name: Union[str, Path], video_dirs: Optional[List[P
             except (ValueError, RuntimeError):
                 pass
     return _normalize_word_str(p.stem)
+def assign_canonical_hand_slots(detected_hands: List[dict[str, Any]]) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    """
+    Deterministically assigns detected hands to canonical slots:
+      Slot 0: 'left_hand' (subject's left hand, x >= other_x in third-person view / RealSign)
+      Slot 1: 'right_hand' (subject's right hand, x < other_x in third-person view / RealSign)
+    
+    Guarantees consistency regardless of MediaPipe label flips or identical/colliding labels.
+    """
+    if not detected_hands:
+        return None, None
+
+    if len(detected_hands) == 1:
+        h = detected_hands[0]
+        # In third-person dataset (RealSign), Left hand is at x >= 0.5, Right hand is at x < 0.5
+        if h.get('label') == 'Left':
+            return h['coords'], None
+        elif h.get('label') == 'Right':
+            return None, h['coords']
+        else:
+            if h['coords'][0, 0] >= 0.5:
+                return h['coords'], None
+            else:
+                return None, h['coords']
+
+    # 2 or more hands: sort by detection score descending, take top 2
+    sorted_hands = sorted(detected_hands, key=lambda x: x.get('score', 0.5), reverse=True)[:2]
+    h0, h1 = sorted_hands[0], sorted_hands[1]
+
+    l0 = h0.get('label')
+    l1 = h1.get('label')
+
+    # If labels are distinct and valid, use label-based mapping
+    if l0 and l1 and l0 != l1 and {l0, l1} == {'Left', 'Right'}:
+        left_h = h0['coords'] if l0 == 'Left' else h1['coords']
+        right_h = h0['coords'] if l0 == 'Right' else h1['coords']
+        return left_h, right_h
+
+    # Canonical spatial fallback for ambiguous or colliding labels:
+    # In RealSign, Left hand (Slot 0) is at x >= 0.5, Right hand (Slot 1) is at x < 0.5.
+    # The hand with the larger X coordinate belongs to Slot 0 (left_hand),
+    # and the hand with the smaller X coordinate belongs to Slot 1 (right_hand).
+    if h0['coords'][0, 0] >= h1['coords'][0, 0]:
+        return h0['coords'], h1['coords']
+    else:
+        return h1['coords'], h0['coords']
 
 
 def get_landmark_vector_from_result(detection_result) -> List[float]:
@@ -101,35 +146,7 @@ def get_landmark_vector_from_result(detection_result) -> List[float]:
         coords = np.array([[lm.x, lm.y, lm.z] for lm in hand_lms], dtype=np.float32)
         detected_hands.append({'coords': coords, 'label': label, 'score': score})
 
-    left_hand = None
-    right_hand = None
-
-    if len(detected_hands) == 1:
-        h = detected_hands[0]
-        if h['label'] == 'Left':
-            left_hand = h['coords']
-        elif h['label'] == 'Right':
-            right_hand = h['coords']
-        else:
-            if h['coords'][0, 0] < 0.5:
-                left_hand = h['coords']
-            else:
-                right_hand = h['coords']
-    elif len(detected_hands) >= 2:
-        # Sort by confidence score descending to keep top 2
-        detected_hands.sort(key=lambda x: x['score'], reverse=True)
-        h0, h1 = detected_hands[0], detected_hands[1]
-
-        # If labels are distinct, assign by label
-        if h0['label'] and h1['label'] and h0['label'] != h1['label']:
-            left_hand = h0['coords'] if h0['label'] == 'Left' else h1['coords']
-            right_hand = h0['coords'] if h0['label'] == 'Right' else h1['coords']
-        else:
-            # Fallback for identical/ambiguous labels: assign by x position to avoid overwriting
-            if h0['coords'][0, 0] < h1['coords'][0, 0]:
-                left_hand, right_hand = h0['coords'], h1['coords']
-            else:
-                left_hand, right_hand = h1['coords'], h0['coords']
+    left_hand, right_hand = assign_canonical_hand_slots(detected_hands)
 
     l_arr = left_hand if left_hand is not None else np.zeros((21, 3), dtype=np.float32)
     r_arr = right_hand if right_hand is not None else np.zeros((21, 3), dtype=np.float32)

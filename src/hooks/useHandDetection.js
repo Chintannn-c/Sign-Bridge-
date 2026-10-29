@@ -53,34 +53,11 @@ function distSq(a, b) {
   return dx * dx + dy * dy;
 }
 
-function isDuplicateHand(hA, hB) {
-  if (!hA || !hB) return false;
-  const dWrist = Math.hypot(hA[0].x - hB[0].x, hA[0].y - hB[0].y);
-  if (dWrist > 0.06) return false;
-  let sumD = 0;
-  for (let i = 0; i < 21; i++) {
-    sumD += Math.hypot(hA[i].x - hB[i].x, hA[i].y - hB[i].y);
-  }
-  return (sumD / 21) < 0.04;
-}
-
 function trackAndSeparateHands(landmarksList, handednessList, prevHands) {
   let h0 = landmarksList[0];
   let h1 = landmarksList[1];
   let l0 = handednessList?.[0]?.label;
   let l1 = handednessList?.[1]?.label;
-
-  // 1. Guard against duplicate single-hand detections
-  if (h0 && h1 && isDuplicateHand(h0, h1)) {
-    const score0 = handednessList?.[0]?.score || 0.5;
-    const score1 = handednessList?.[1]?.score || 0.5;
-    if (score1 > score0) {
-      h0 = h1;
-      l0 = l1;
-    }
-    h1 = null;
-    l1 = null;
-  }
 
   const num = h1 ? 2 : (h0 ? 1 : 0);
   if (num === 0) {
@@ -121,8 +98,8 @@ function trackAndSeparateHands(landmarksList, handednessList, prevHands) {
         leftHand = (l0 === 'Left') ? h0 : h1;
         rightHand = (l0 === 'Left') ? h1 : h0;
       } else {
-        leftHand = (c0.x > c1.x) ? h0 : h1;
-        rightHand = (c0.x > c1.x) ? h1 : h0;
+        leftHand = (c0.x >= c1.x) ? h0 : h1;
+        rightHand = (c0.x >= c1.x) ? h1 : h0;
       }
     }
   } else {
@@ -215,6 +192,10 @@ export function useHandDetection({
   const [poseData, setPoseData] = useState(null);
   const [bodyAnchors, setBodyAnchors] = useState(null);
   const [handCount, setHandCount] = useState(0);
+  const [error, setError] = useState(null);
+  const [fps, setFps] = useState(0);
+  const fpsFrameCountRef = useRef(0);
+  const lastFpsTimeRef = useRef(performance.now());
 
   const trackerRef = useRef(null);
   const lastCallRef = useRef(0);
@@ -235,19 +216,27 @@ export function useHandDetection({
     latestProps.current = { enabled, onLandmarks, throttleMs };
   }, [enabled, onLandmarks, throttleMs]);
 
-  // Load MediaPipe Scripts via CDN
+  // Load MediaPipe Scripts via CDN (guards against duplicate tags & StrictMode remount)
   const loadScript = useCallback((src) => {
     return new Promise((resolve, reject) => {
       const existing = document.querySelector(`script[src="${src}"]`);
       if (existing) {
-        resolve();
+        if (existing.dataset.loaded === 'true') {
+          resolve();
+          return;
+        }
+        existing.addEventListener('load', () => resolve(), { once: true });
+        existing.addEventListener('error', (err) => reject(err), { once: true });
         return;
       }
       const script = document.createElement('script');
       script.src = src;
       script.async = true;
-      script.onload = resolve;
-      script.onerror = reject;
+      script.onload = () => {
+        script.dataset.loaded = 'true';
+        resolve();
+      };
+      script.onerror = (err) => reject(err);
       document.head.appendChild(script);
     });
   }, []);
@@ -285,10 +274,6 @@ export function useHandDetection({
               let leftHand = results.leftHandLandmarks || null;
               let rightHand = results.rightHandLandmarks || null;
               const pose = results.poseLandmarks || null;
-
-              if (leftHand && rightHand && isDuplicateHand(leftHand, rightHand)) {
-                rightHand = null;
-              }
 
               const rawHands = [];
               const rawHandedness = [];
@@ -375,11 +360,15 @@ export function useHandDetection({
                 if (props.onLandmarks && (now - lastCallRef.current) >= props.throttleMs) {
                   lastCallRef.current = now;
                   const handednessStr = nHands >= 2 ? 'Both Hands' : (separation.leftHand ? 'Left' : 'Right');
-                  props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
-                    poseLandmarks: pose,
-                    bodyAnchors: anchors,
-                    captureTime: frameCaptureTimeRef.current,
-                  });
+                  try {
+                    props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
+                      poseLandmarks: pose,
+                      bodyAnchors: anchors,
+                      captureTime: frameCaptureTimeRef.current,
+                    });
+                  } catch (cbErr) {
+                    console.error('Holistic onLandmarks callback error:', cbErr);
+                  }
                 }
               } else {
                 if (shouldUpdateUi) {
@@ -387,7 +376,11 @@ export function useHandDetection({
                 }
                 smootherRef.current.reset();
                 if (props.onLandmarks && (!pose || pose.length === 0)) {
-                  props.onLandmarks(null, 0, null, null);
+                  try {
+                    props.onLandmarks(null, 0, null, null);
+                  } catch (cbErr) {
+                    console.error('Holistic empty onLandmarks callback error:', cbErr);
+                  }
                 }
               }
             });
@@ -449,11 +442,15 @@ export function useHandDetection({
               if (props.onLandmarks && (now - lastCallRef.current) >= props.throttleMs) {
                 lastCallRef.current = now;
                 const handednessStr = nHands >= 2 ? 'Both Hands' : (separation.leftHand ? 'Left' : 'Right');
-                props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
-                  poseLandmarks: null,
-                  bodyAnchors: null,
-                  captureTime: frameCaptureTimeRef.current,
-                });
+                try {
+                  props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
+                    poseLandmarks: null,
+                    bodyAnchors: null,
+                    captureTime: frameCaptureTimeRef.current,
+                  });
+                } catch (cbErr) {
+                  console.error('Hands onLandmarks callback error:', cbErr);
+                }
               }
             } else {
               if (shouldUpdateUi) {
@@ -461,15 +458,23 @@ export function useHandDetection({
               }
               smootherRef.current.reset();
               if (props.onLandmarks) {
-                props.onLandmarks(null, 0, null, null);
+                try {
+                  props.onLandmarks(null, 0, null, null);
+                } catch (cbErr) {
+                  console.error('Hands empty onLandmarks callback error:', cbErr);
+                }
               }
             }
           });
 
           trackerRef.current = hands;
           setIsLoaded(true);
+        } else {
+          setError('Model failed to load');
+          console.error('MediaPipe Hands script loaded but window.Hands is undefined');
         }
       } catch (err) {
+        setError('Model failed to load');
         console.error('Failed to initialize MediaPipe tracking pipeline:', err);
       }
     }
@@ -512,8 +517,15 @@ export function useHandDetection({
           try {
             frameCaptureTimeRef.current = performance.now();
             await trackerRef.current.send({ image: videoElement });
-          } catch {
-            // Drop transient frames without building queue
+            fpsFrameCountRef.current++;
+            const nowT = performance.now();
+            if (nowT - lastFpsTimeRef.current >= 1000) {
+              setFps(Math.round((fpsFrameCountRef.current * 1000) / (nowT - lastFpsTimeRef.current)));
+              fpsFrameCountRef.current = 0;
+              lastFpsTimeRef.current = nowT;
+            }
+          } catch (sendErr) {
+            console.warn('Frame processing dropped:', sendErr);
           } finally {
             isProcessingRef.current = false;
           }
@@ -554,5 +566,7 @@ export function useHandDetection({
     pipelineMode,
     togglePipelineMode,
     rawLandmarksRef,
+    error,
+    fps,
   };
 }

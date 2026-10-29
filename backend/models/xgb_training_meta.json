@@ -2,7 +2,8 @@
   "model_type": "xgboost",
   "raw_input_landmarks": 126,
   "estimator_features": 208,
-  "feature_name": "geometric_invariants_176d",
+  "feature_name": "geometric_invariants_208d",
+  "preprocessing": "wrist_center_scale_v1",
   "num_classes": 26,
   "labels": [
     "A",

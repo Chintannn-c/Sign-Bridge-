@@ -143,18 +143,27 @@ def main():
         letter_output_dir = OUTPUT_DIR / letter
         letter_output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save stratified splits (70% train, 15% val, 15% test) by original photo index
-        n_imgs = len(imgs)
-        val_count = max(1, (round(n_imgs * 0.15)))
-        test_count = max(1, (round(n_imgs * 0.15)))
-        train_count = n_imgs - val_count - test_count
+        # ponytail: Group photos by burst session prefix to prevent frame-level leakage across splits
+        session_groups = {}
+        for idx, img_p in enumerate(imgs):
+            stem = img_p.stem
+            # Group timestamped bursts e.g. "20260825_141250" -> "20260825_1412"
+            grp_key = stem[:13] if len(stem) >= 15 and '_' in stem else stem
+            session_groups.setdefault(grp_key, []).append(idx)
 
-        shuffled_indices = list(range(n_imgs))
-        rng.shuffle(shuffled_indices)
+        group_keys = list(session_groups.keys())
+        rng.shuffle(group_keys)
 
-        train_set = set(shuffled_indices[:train_count])
-        val_set = set(shuffled_indices[train_count:train_count + val_count])
-        test_set = set(shuffled_indices[train_count + val_count:])
+        n_grps = len(group_keys)
+        val_grp_cnt = max(1, round(n_grps * 0.15)) if n_grps > 2 else 0
+        test_grp_cnt = max(1, round(n_grps * 0.15)) if n_grps > 2 else 0
+        train_grp_cnt = n_grps - val_grp_cnt - test_grp_cnt
+
+        train_set = set(idx for k in group_keys[:train_grp_cnt] for idx in session_groups[k])
+        val_set = set(idx for k in group_keys[train_grp_cnt:train_grp_cnt + val_grp_cnt] for idx in session_groups[k])
+        test_set = set(idx for k in group_keys[train_grp_cnt + val_grp_cnt:] for idx in session_groups[k])
+        if not train_set:
+            train_set = set(range(n_imgs))
 
         train_frames, val_frames, test_frames = [], [], []
 

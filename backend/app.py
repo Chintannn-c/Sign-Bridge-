@@ -17,6 +17,8 @@ Run:
 The server starts on http://localhost:5000
 """
 
+from services.translator_model import LandmarkValidationError
+from services.translator_model import validate_landmark_array
 import os
 import sys
 import json
@@ -103,10 +105,14 @@ _api_key_warning_logged = False
 
 
 def check_api_key() -> bool:
-    """Optional shared-secret authentication using SIGNBRIDGE_API_KEY and X-API-Key header."""
+    """Shared-secret authentication using SIGNBRIDGE_API_KEY and X-API-Key header."""
     global _api_key_warning_logged
     expected_key = os.getenv('SIGNBRIDGE_API_KEY')
     if not expected_key:
+        remote_ip = getattr(request, 'remote_addr', None)
+        if remote_ip and remote_ip not in ('127.0.0.1', '::1', 'localhost', 'testclient'):
+            logger.warning(f"Rejecting remote request from {remote_ip}: SIGNBRIDGE_API_KEY not configured.")
+            return False
         if not _api_key_warning_logged:
             logger.warning("SIGNBRIDGE_API_KEY is not set: API key protection is disabled for local dev.")
             _api_key_warning_logged = True
@@ -283,7 +289,8 @@ def generate_llm_response(
     system_instruction: str = "You are SignBridge AI assistant.",
     temperature: float = 0.6,
     max_tokens: int = 60,
-    local_fallback: Optional[Callable[[str], str]] = None
+    local_fallback: Optional[Callable[[str], str]] = None,
+    user_query: Optional[str] = None
 ) -> LLMResponse:
     """
     Tiered Automatic Drop-Down LLM Cascade:
@@ -346,7 +353,8 @@ def generate_llm_response(
     else:
         logger.warning(f"All external LLM APIs exhausted or unreachable. Errors: {'; '.join(errors)}")
 
-    fallback_text = local_fallback(prompt)
+    target_fallback_query = user_query if (user_query and user_query.strip()) else prompt
+    fallback_text = local_fallback(target_fallback_query)
     return {
         "text": fallback_text,
         "provider": "local_fallback",
@@ -629,7 +637,8 @@ def llm_answer():
             system_instruction=system_instruction,
             temperature=0.7,
             max_tokens=200,
-            local_fallback=get_smart_fallback_response
+            local_fallback=get_smart_fallback_response,
+            user_query=text
         )
         cleaned_answer = limit_sentences(clean_llm_text(res['text']))
         provider = res['provider']
@@ -759,35 +768,39 @@ def translate():
 
     landmarks = data['landmarks']
 
-    # Fast guard: if no hands are visible, idle hand, or neutral gesture
+    # Validate landmark array format first (converts 42 dicts to flat array, guards shape & non-finite)
     try:
-        arr_check = np.asarray(landmarks, dtype=np.float32)
-        if arr_check.size == 0 or not np.any(arr_check != 0) or np.all(np.abs(arr_check) < 1e-4) or is_idle_hand(arr_check):
-            return jsonify({
-                'letter': '?',
-                'confidence': 0.0,
-                'mode': translator.mode,
-                'rejected': True,
-                'rejection_reason': 'idle_or_no_hands',
-                'all_scores': {}
-            })
-        if is_neutral_gesture(arr_check):
-            return jsonify({
-                'letter': '?',
-                'confidence': 0.0,
-                'is_neutral': True,
-                'mode': translator.mode,
-                'rejected': True,
-                'rejection_reason': 'neutral_base_gesture',
-                'all_scores': {}
-            })
-    except Exception:
+        arr_val = validate_landmark_array(landmarks)
+        arr_check = arr_val.flatten()
+    except LandmarkValidationError as exc:
         return jsonify({
             'letter': '?',
             'confidence': 0.0,
             'mode': translator.mode,
             'rejected': True,
             'rejection_reason': 'invalid_landmarks_payload',
+            'error': str(exc),
+            'all_scores': {}
+        }), 400
+
+    # Fast guard: if no hands are visible, idle hand, or neutral gesture
+    if arr_check.size == 0 or not np.any(arr_check != 0) or np.all(np.abs(arr_check) < 1e-4) or is_idle_hand(arr_check):
+        return jsonify({
+            'letter': '?',
+            'confidence': 0.0,
+            'mode': translator.mode,
+            'rejected': True,
+            'rejection_reason': 'idle_or_no_hands',
+            'all_scores': {}
+        })
+    if is_neutral_gesture(arr_check):
+        return jsonify({
+            'letter': '?',
+            'confidence': 0.0,
+            'is_neutral': True,
+            'mode': translator.mode,
+            'rejected': True,
+            'rejection_reason': 'neutral_base_gesture',
             'all_scores': {}
         })
 
@@ -846,8 +859,8 @@ def translate_batch():
             conf_raw = result.get('confidence', 0.0)
             conf_val = safe_float(conf_raw, 0.0)
 
-            if conf_val > 0.5:
-                sentence_letters.append(str(result.get('letter', '?')))
+            if conf_val > 0.5 and not result.get('rejected', False) and result.get('letter') != '?':
+                sentence_letters.append(str(result.get('letter')))
         except Exception as e:
             logger.error(f"Batch prediction frame error: {e}", exc_info=True)
             results.append({'letter': '?', 'confidence': 0.0, 'error': 'Prediction error on frame.'})
@@ -894,6 +907,8 @@ def translate_word():
 
     # Fast guard: if no hands are visible across frames (all zeros), do not predict
     arr_check = np.asarray(frames, dtype=np.float32)
+    if not np.isfinite(arr_check).all():
+        return jsonify({'error': 'frames contain NaN or infinite values.'}), 400
     if not np.any(arr_check != 0):
         return jsonify({
             'word': '?',
@@ -953,8 +968,11 @@ def get_gesture_config():
 
 
 @app.route('/api/history', methods=['GET'])
+@limiter.limit("60 per minute", methods=['GET'])
 def get_history():
     """Returns recent conversation history from SQLite database."""
+    if not check_api_key():
+        return jsonify({'error': 'Unauthorized: invalid or missing X-API-Key.'}), 401
     limit_raw = request.args.get('limit', default=50, type=int)
     limit = 50 if limit_raw is None else limit_raw
     limit = max(1, min(200, limit))
@@ -971,6 +989,7 @@ def get_history():
 # -----------------------------------------------------------------------------
 
 @app.route('/api/collect_data', methods=['POST'])
+@limiter.limit("30 per minute", methods=['POST'])
 def collect_data():
     """
     Saves recorded landmark frames for a specific ISL letter to build a dataset.
@@ -992,7 +1011,8 @@ def collect_data():
     else:
         session_id = str(raw_session).strip()
 
-    signer_id = str(data.get('signer_id', 'unknown_signer')).strip()
+    raw_signer = str(data.get('signer_id', 'unknown_signer'))[:64].strip()
+    signer_id = raw_signer if re.match(r'^[a-zA-Z0-9_\-]+$', raw_signer) else 'unknown_signer'
 
     if not re.match(r'^[a-zA-Z0-9_\-]+$', session_id):
         return jsonify({'error': 'Invalid session_id: only alphanumeric characters, dashes, and underscores allowed.'}), 400
@@ -1103,9 +1123,11 @@ def robot_sign():
     if not isinstance(raw_text, str) or len(raw_text) == 0 or len(raw_text) > 100:
         return jsonify({'error': 'text must be a string between 1 and 100 characters.'}), 400
 
-    text = raw_text.upper()
-    if not re.match(r'^[A-Z0-9 ]+$', text):
-        return jsonify({'error': 'text must only contain A-Z, 0-9 and spaces.'}), 400
+    # Sanitize: uppercase, convert underscores to spaces, filter to valid [A-Z0-9 ], collapse spaces
+    text = re.sub(r'[^A-Z0-9 ]', ' ', raw_text.upper().replace('_', ' '))
+    text = re.sub(r'\s+', ' ', text).strip()
+    if not text:
+        return jsonify({'error': 'text contains no valid signable characters (A-Z, 0-9).'}), 400
 
     letter_hold = clamp_float(data.get('letter_hold'), 0.2, 5.0, 1.5)
     gap = clamp_float(data.get('gap'), 0.0, 3.0, 0.5)
@@ -1202,6 +1224,12 @@ if __name__ == '__main__':
             logger.warning("waitress not installed — falling back to Werkzeug dev server. Run: pip install waitress")
             app.run(host=host, port=port, debug=False)
     else:
-        logger.info("  Server: Werkzeug (debug mode)")
-        logger.info("=" * 60)
-        app.run(host=host, port=port, debug=True)
+        # Werkzeug debug mode with PIN / interactive debugger is unsafe on 0.0.0.0
+        # and reloader creates duplicate subprocesses that try to bind port 5001 and open serial twice
+        if host not in ('127.0.0.1', 'localhost'):
+            logger.warning(f"FLASK_DEBUG requested on non-local host ({host}). Overriding debug=False to prevent RCE.")
+            app.run(host=host, port=port, debug=False, use_reloader=False)
+        else:
+            logger.info("  Server: Werkzeug (debug mode, reloader disabled to protect serial/ws)")
+            logger.info("=" * 60)
+            app.run(host=host, port=port, debug=True, use_reloader=False)

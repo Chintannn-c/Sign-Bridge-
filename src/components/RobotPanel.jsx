@@ -51,7 +51,7 @@ export const RobotPanel = React.memo(({
   const toggleSpeechRecognition = useCallback(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
+      console.warn("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
       return;
     }
 
@@ -378,8 +378,10 @@ export const RobotPanel = React.memo(({
             <div className="letter-tiles-row">
               <AnimatePresence mode="wait">
                 {currentWord.split('').map((char, idx) => {
-                  const isCurrentTile =
-                    idx === streamingText.length % (currentWord.length || 1);
+                  const lastSpace = (streamingText || '').lastIndexOf(' ');
+                  const activeWordPrefix = lastSpace >= 0 ? (streamingText || '').slice(lastSpace + 1) : (streamingText || '');
+                  const activeCharIdx = Math.max(0, activeWordPrefix.length - 1);
+                  const isCurrentTile = idx === activeCharIdx;
                   return (
                     <motion.div
                       key={`${currentWord}-${char}-${idx}`}

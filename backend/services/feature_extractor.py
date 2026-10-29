@@ -224,14 +224,21 @@ def transform_to_kinetic_invariants(sequences):
 
     for i in range(N):
         for t in range(T):
+            present = [bool(np.any(pts[i, t, h] != 0)) for h in range(2)]
+            if not any(present):
+                continue
+            active_wrists = [pts[i, t, h, 0] for h in range(2) if present[h]]
+            anchor = np.mean(active_wrists, axis=0)
+            active_scales = [
+                float(np.linalg.norm(pts[i, t, h, 9] - pts[i, t, h, 0]))
+                for h in range(2) if present[h]
+            ]
+            scale = float(np.mean(active_scales))
+            if scale < 1e-4 or not np.isfinite(scale):
+                scale = 1.0
             for h in range(2):
-                hand = pts[i, t, h]
-                if np.any(hand != 0):
-                    wrist = hand[0]
-                    scale = float(np.linalg.norm(hand[9] - wrist))
-                    if scale < 1e-4 or not np.isfinite(scale):
-                        scale = 1.0
-                    normed_pts[i, t, h] = (hand - wrist) / scale
+                if present[h]:
+                    normed_pts[i, t, h] = (pts[i, t, h] - anchor) / scale
 
     normed_flat = normed_pts.reshape(N, T, 126)
     velocities = np.zeros_like(normed_flat)

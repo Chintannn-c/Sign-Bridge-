@@ -24,7 +24,8 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
     selectCamera,
     toggleCamera,
     toggleMirror,
-    turnOnCamera
+    turnOnCamera,
+    error: cameraError
   } = useWebcam();
   
   const canvasRef = useRef(null);
@@ -361,9 +362,72 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Visible Model/Detection Failure Status */}
+            {detection.error && (
+              <div className="tracking-error-pill" style={{
+                position: 'absolute',
+                top: '52px',
+                left: '12px',
+                background: 'rgba(239, 68, 68, 0.9)',
+                color: '#fff',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                zIndex: 25,
+              }}>
+                {detection.error}
+              </div>
+            )}
+
+            {/* Small Dev-Only HUD: camera ready, model loaded, FPS, number of hands detected */}
+            {import.meta.env.DEV && (
+              <div className="dev-tracking-hud" style={{
+                position: 'absolute',
+                bottom: '10px',
+                left: '10px',
+                background: 'rgba(15, 23, 42, 0.85)',
+                backdropFilter: 'blur(4px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '11px',
+                color: '#94a3b8',
+                fontFamily: 'monospace',
+                zIndex: 20,
+                display: 'flex',
+                gap: '8px',
+                pointerEvents: 'none'
+              }}>
+                <span>Cam: <strong style={{ color: isLive ? '#34d399' : '#f87171' }}>{isLive ? 'Ready' : 'Off'}</strong></span>
+                <span>Model: <strong style={{ color: detection.isLoaded ? '#34d399' : (detection.error ? '#f87171' : '#fbbf24') }}>{detection.isLoaded ? 'Loaded' : (detection.error ? 'Error' : 'Loading')}</strong></span>
+                <span>FPS: <strong style={{ color: '#38bdf8' }}>{detection.fps || 0}</strong></span>
+                <span>Hands: <strong style={{ color: detection.handCount > 0 ? '#34d399' : '#94a3b8' }}>{detection.handCount}</strong></span>
+              </div>
+            )}
           </>
         ) : (
           <div className="camera-sim-fallback">
+            {cameraError && (
+              <div className="camera-blocked-notice" style={{
+                position: 'absolute',
+                top: '20px',
+                left: '20px',
+                right: '20px',
+                background: 'rgba(239, 68, 68, 0.95)',
+                color: '#fff',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                textAlign: 'center',
+                zIndex: 25,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+              }}>
+                Camera blocked (permission denied or device in use)
+              </div>
+            )}
             <canvas ref={canvasRef} className="hand-sim-canvas" />
           </div>
         )

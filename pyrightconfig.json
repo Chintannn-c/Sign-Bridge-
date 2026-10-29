@@ -4,6 +4,6 @@
   "extraPaths": [
     "backend"
   ],
-  "reportMissingImports": false,
+  "reportMissingImports": true,
   "reportMissingModuleSource": false
 }

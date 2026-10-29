@@ -9,10 +9,13 @@ services:
     restart: unless-stopped
     ports:
       - "5000:5000"
+      - "5001:5001"
+    environment:
+      - DB_PATH=/data/signbridge.db
     env_file:
       - backend/.env
     volumes:
-      - sqlite_data:/app/backend/database
+      - sqlite_data:/data
     networks:
       - signbridge-net
 

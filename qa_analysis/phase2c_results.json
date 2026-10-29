@@ -1,0 +1,38 @@
+{
+  "instant_commit": {
+    "expected_state": "cooldown",
+    "actual_state": "cooldown",
+    "locked_sign": "A",
+    "committed_count": 1,
+    "committed_sign": "A",
+    "pass": true
+  },
+  "three_frame_commit": {
+    "frame_1_state": "capturing",
+    "frame_2_state": "capturing",
+    "frame_3_state": "cooldown",
+    "locked_sign": "B",
+    "committed_count": 1,
+    "pass": true
+  },
+  "jitter_and_dropout": {
+    "one_frame_glitch_tolerated": false,
+    "two_frame_dropout_reset_streak": true,
+    "pass": true
+  },
+  "rearming": {
+    "early_lock_state": "cooldown",
+    "rearmed_state": "armed",
+    "pass": true
+  },
+  "fingerspelling_hello": {
+    "target": "HELLO",
+    "spelled": "HLO",
+    "committed_sequence": [
+      "H",
+      "L",
+      "O"
+    ],
+    "pass": false
+  }
+}

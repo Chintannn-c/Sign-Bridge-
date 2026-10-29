@@ -36,7 +36,7 @@ def run_benchmark():
     print(f"   Active TranslatorModel initialized in mode: {translator.mode}")
 
     # Safety guard: ensure full hybrid components are loaded before benchmarking
-    if translator.mode != 'hybrid' or translator.xgb_model is None or translator.stgcn_model is None:
+    if translator.mode not in ('hybrid', 'hybrid_ensemble') or translator.xgb_model is None or translator.stgcn_model is None:
         print(f"\n[WARNING] TranslatorModel is in '{translator.mode}' fallback mode or missing sub-model weights.")
         print("          Benchmark will execute for diagnostics, but hybrid metadata will NOT be overwritten.")
         can_save_metadata = False

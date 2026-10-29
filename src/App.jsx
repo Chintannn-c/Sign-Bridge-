@@ -9,9 +9,11 @@ function App() {
 
   const [showSplash, setShowSplash] = useState(true);
 
-  // Expose global preview trigger for easy isolation testing
+  // Expose global preview trigger for easy isolation testing in dev mode only
   useEffect(() => {
-    window.previewSplash = () => setShowSplash(true);
+    if (import.meta.env.DEV) {
+      window.previewSplash = () => setShowSplash(true);
+    }
   }, []);
 
   const handleSplashFinish = useCallback(() => {

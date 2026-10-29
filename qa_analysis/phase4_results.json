@@ -1,0 +1,113 @@
+{
+  "findings": [
+    {
+      "id": "FE-HARDCODED-URL",
+      "severity": "High",
+      "file": "src\\components\\SignLanguageAssistant\\tabs\\DataCollectionTab.jsx",
+      "line": 53,
+      "code": "const response = await fetch('http://localhost:5000/api/collect_data', {",
+      "issue": "Hardcoded localhost URL breaks Vite proxy and Docker/production deployment.",
+      "fix": "Replace with relative path '/api/...'"
+    },
+    {
+      "id": "FE-HARDCODED-URL",
+      "severity": "High",
+      "file": "src\\hooks\\useISLTranslation.js",
+      "line": 5,
+      "code": "const API_BASE = '/api';  // Proxied by Vite to http://localhost:5000",
+      "issue": "Hardcoded localhost URL breaks Vite proxy and Docker/production deployment.",
+      "fix": "Replace with relative path '/api/...'"
+    }
+  ],
+  "timer_listener_stats": {
+    "useGestureRecognition.js": {
+      "setTimeouts": 5,
+      "clearTimeouts": 7,
+      "setIntervals": 1,
+      "clearIntervals": 4,
+      "addEventListeners": 0,
+      "removeEventListeners": 0,
+      "listeners_balanced": true,
+      "intervals_balanced": true
+    },
+    "useHandDetection.js": {
+      "setTimeouts": 0,
+      "clearTimeouts": 0,
+      "setIntervals": 0,
+      "clearIntervals": 0,
+      "addEventListeners": 2,
+      "removeEventListeners": 0,
+      "listeners_balanced": false,
+      "intervals_balanced": true
+    },
+    "useWebcam.js": {
+      "setTimeouts": 0,
+      "clearTimeouts": 0,
+      "setIntervals": 0,
+      "clearIntervals": 0,
+      "addEventListeners": 1,
+      "removeEventListeners": 1,
+      "listeners_balanced": true,
+      "intervals_balanced": true
+    },
+    "useISLTranslation.js": {
+      "setTimeouts": 2,
+      "clearTimeouts": 3,
+      "setIntervals": 3,
+      "clearIntervals": 8,
+      "addEventListeners": 0,
+      "removeEventListeners": 0,
+      "listeners_balanced": true,
+      "intervals_balanced": true
+    },
+    "CameraView.jsx": {
+      "setTimeouts": 0,
+      "clearTimeouts": 0,
+      "setIntervals": 0,
+      "clearIntervals": 0,
+      "addEventListeners": 3,
+      "removeEventListeners": 3,
+      "listeners_balanced": true,
+      "intervals_balanced": true
+    },
+    "RobotPanel.jsx": {
+      "setTimeouts": 0,
+      "clearTimeouts": 0,
+      "setIntervals": 0,
+      "clearIntervals": 0,
+      "addEventListeners": 0,
+      "removeEventListeners": 0,
+      "listeners_balanced": true,
+      "intervals_balanced": true
+    },
+    "SignBridgeKiosk.jsx": {
+      "setTimeouts": 0,
+      "clearTimeouts": 0,
+      "setIntervals": 0,
+      "clearIntervals": 0,
+      "addEventListeners": 1,
+      "removeEventListeners": 1,
+      "listeners_balanced": true,
+      "intervals_balanced": true
+    }
+  },
+  "hand_drop_timer_verification": {
+    "duration_1800ms_configured": true,
+    "countdown_state_tracked": true,
+    "auto_refine_on_drop": false
+  },
+  "speech_api_resilience": {
+    "browser_vendor_prefix_check": true,
+    "unsupported_warning_handled": true
+  },
+  "accessibility": {
+    "prefers_reduced_motion_supported": true,
+    "keyboard_shortcuts_registered": [
+      "Space (demo)",
+      "1 / H (human)",
+      "2 / R (robot)",
+      "F (fullscreen HUD)",
+      "C (clear)"
+    ]
+  }
+}

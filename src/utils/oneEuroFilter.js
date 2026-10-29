@@ -94,6 +94,24 @@ export class LandmarkSmoother {
    */
   smooth(landmarks, timestamp = Date.now()) {
     if (!landmarks || landmarks.length === 0) return landmarks;
+
+    // Detect slot swap / large sudden jump per hand (e.g. wrist jumping > 0.18 across the screen)
+    // and reset that hand's filters so it snaps immediately without dragging ghost points across the frame.
+    for (let h = 0; h < 2; h++) {
+      const wIdx = h * 63;
+      if (wIdx < landmarks.length && (landmarks[wIdx] !== 0 || landmarks[wIdx + 1] !== 0)) {
+        const fX = this.filters[wIdx]?.xFilter;
+        const fY = this.filters[wIdx + 1]?.xFilter;
+        if (fX && fY && fX.initialized && fY.initialized) {
+          const dx = landmarks[wIdx] - fX.y;
+          const dy = landmarks[wIdx + 1] - fY.y;
+          if (dx * dx + dy * dy > 0.035) {
+            this.resetHand(h);
+          }
+        }
+      }
+    }
+
     const result = new Array(landmarks.length);
     for (let i = 0; i < landmarks.length; i += 3) {
       const isMissing = landmarks[i] === 0 && landmarks[i + 1] === 0 && landmarks[i + 2] === 0;

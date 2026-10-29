@@ -1,0 +1,129 @@
+{
+  "endpoint_tests": [
+    {
+      "route": "GET /api/health",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "GET /api/llm/status",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "GET /api/model/info",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "GET /api/words/info",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "GET /api/gesture/config",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "GET /api/history",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "GET /api/robot/status",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "POST /api/translate",
+      "status_valid": 200,
+      "status_empty": 400,
+      "status_malformed": 400,
+      "pass": true
+    },
+    {
+      "route": "POST /api/translate/batch",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "POST /api/translate/word",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "POST /api/llm/refine",
+      "status_injection": 200,
+      "status_emoji": 200,
+      "status_oversize": 400,
+      "pass": true
+    },
+    {
+      "route": "POST /api/llm/simplify",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "POST /api/llm/answer",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "POST /api/collect_data",
+      "status": 401,
+      "pass": false
+    },
+    {
+      "route": "POST /api/robot/sign",
+      "status": 401,
+      "pass": false
+    },
+    {
+      "route": "POST /api/robot/sign-letter",
+      "status": 401,
+      "pass": false
+    },
+    {
+      "route": "POST /api/robot/connect",
+      "status": 401,
+      "pass": false
+    },
+    {
+      "route": "POST /api/robot/disconnect",
+      "status": 401,
+      "pass": false
+    },
+    {
+      "route": "POST /api/model/reload (auth)",
+      "status_no_key": 401,
+      "status_with_key": 200,
+      "pass": true
+    }
+  ],
+  "auth_verification": {
+    "timing_safe_compare_equal": true,
+    "timing_safe_compare_diff": false,
+    "pass": true
+  },
+  "llm_sanitization": {
+    "think_tag_stripped": true,
+    "cleaned_output": "Can I get some water please?",
+    "limited_sentences": "First sentence. Second sentence.",
+    "pass": true
+  },
+  "arduino_serial": {
+    "simulation_mode_connected": false,
+    "all_26_letters_in_servo_map": true,
+    "missing_letters": [],
+    "auto_idle_threshold_seconds": 15.0,
+    "pass": true
+  },
+  "sqlite_concurrency": {
+    "threads": 5,
+    "total_writes": 100,
+    "elapsed_seconds": 1.1561,
+    "recent_history_retrieved": 10,
+    "pass": true
+  }
+}

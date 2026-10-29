@@ -1,0 +1,37 @@
+# Version control & environments
+.git
+.gitignore
+.venv/
+venv/
+env/
+
+# Dependencies & build outputs
+node_modules/
+dist/
+build/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Sensitive credentials & environment files
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Large datasets & local binaries
+dataset/
+datasets/
+dataset_2/
+Dataset_Words/
+dataset_collected/
+backend/dataset_collected/
+backend/dataset_words/
+qa_analysis/
+graphify-out/
+.agents/
+*.docx
+*.log
