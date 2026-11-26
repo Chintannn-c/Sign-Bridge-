@@ -17,22 +17,25 @@ const MEDIAPIPE_HOLISTIC_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/holistic
 const MEDIAPIPE_HANDS_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.min.js';
 const MEDIAPIPE_CAMERA = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.min.js';
 
+// ponytail: modelComplexity: 1 stabilizes overlapping/moving hands; drop to 0 if CPU FPS < 20
 const HANDS_OPTIONS = {
   maxNumHands: 2,
-  modelComplexity: 0, // Lite model for real-time high-speed motion tracking
-  minDetectionConfidence: 0.25, // Matches training confidence for unbroken tracking when hands touch
-  minTrackingConfidence: 0.25,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.45,
+  minTrackingConfidence: 0.40,
 };
 
 const HOLISTIC_OPTIONS = {
-  modelComplexity: 0,
+  modelComplexity: 1,
   smoothLandmarks: false,
   enableSegmentation: false,
   smoothSegmentation: false,
   refineFaceLandmarks: false,
-  minDetectionConfidence: 0.25,
-  minTrackingConfidence: 0.25,
+  minDetectionConfidence: 0.45,
+  minTrackingConfidence: 0.40,
 };
+
+const COAST_MAX_FRAMES = 4;
 
 function getHandCentroid(pts) {
   if (!pts || !pts[0]) return { x: 0, y: 0 };
@@ -201,9 +204,10 @@ export function useHandDetection({
   const lastCallRef = useRef(0);
   const lastUiRef = useRef(0);
   const isProcessingRef = useRef(false);
-  const smootherRef = useRef(new LandmarkSmoother(42, 1.0, 0.07));
+  const smootherRef = useRef(new LandmarkSmoother(42, 1.2, 0.20, COAST_MAX_FRAMES));
   const prevHandsRef = useRef({ left: null, right: null, lostL: 0, lostR: 0 });
-  // Raw landmarks ref: written every MediaPipe frame, read by overlay rAF loop (zero-lag display)
+  const lastValidHandsRef = useRef({ landmarks: null, poseLandmarks: null, bodyAnchors: null, missingFrames: 0 });
+  // Smoothed landmarks ref: written every MediaPipe frame, read by overlay rAF loop (zero-lag display)
   const rawLandmarksRef = useRef({ landmarks: null, poseLandmarks: null, bodyAnchors: null });
   const frameCaptureTimeRef = useRef(0);
 
@@ -215,6 +219,94 @@ export function useHandDetection({
   useEffect(() => {
     latestProps.current = { enabled, onLandmarks, throttleMs };
   }, [enabled, onLandmarks, throttleMs]);
+
+  const processDetectionFrame = useCallback(({ separation, pose = null, anchors = null, uiIntervalMs = 33 }) => {
+    const props = latestProps.current;
+    if (!props.enabled) {
+      setIsDetecting(false);
+      setLandmarkData(null);
+      setPoseData(null);
+      setBodyAnchors(null);
+      return;
+    }
+
+    const nHands = separation.count;
+    const hasPose = Boolean(pose && pose.length >= 25);
+    const t = performance.now();
+    const shouldUpdateUi = (t - lastUiRef.current > uiIntervalMs);
+
+    if (nHands > 0) {
+      const rawFlat = flattenHands(separation.leftHand, separation.rightHand);
+      const captureTs = frameCaptureTimeRef.current || t;
+      const smoothedLandmarks = smootherRef.current.smooth(rawFlat, captureTs);
+
+      lastValidHandsRef.current = {
+        landmarks: smoothedLandmarks,
+        poseLandmarks: pose,
+        bodyAnchors: anchors,
+        missingFrames: 0,
+      };
+      rawLandmarksRef.current = { landmarks: smoothedLandmarks, poseLandmarks: pose, bodyAnchors: anchors };
+
+      if (shouldUpdateUi) {
+        lastUiRef.current = t;
+        setHandCount(nHands);
+        setIsDetecting(true);
+        setPoseData(pose);
+        setBodyAnchors(anchors);
+        setLandmarkData(smoothedLandmarks);
+      }
+
+      const now = Date.now();
+      if (props.onLandmarks && (now - lastCallRef.current) >= props.throttleMs) {
+        lastCallRef.current = now;
+        const handednessStr = nHands >= 2 ? 'Both Hands' : (separation.leftHand ? 'Left' : 'Right');
+        try {
+          props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
+            poseLandmarks: pose,
+            bodyAnchors: anchors,
+            captureTime: captureTs,
+          });
+        } catch (cbErr) {
+          console.error('onLandmarks callback error:', cbErr);
+        }
+      }
+      return;
+    }
+
+    // Coast briefly across 1..COAST_MAX_FRAMES drops so blur/occlusion flickers don't blink off
+    const lastValid = lastValidHandsRef.current;
+    if (lastValid.landmarks && lastValid.missingFrames < COAST_MAX_FRAMES) {
+      lastValid.missingFrames += 1;
+      rawLandmarksRef.current = {
+        landmarks: lastValid.landmarks,
+        poseLandmarks: pose ?? lastValid.poseLandmarks,
+        bodyAnchors: anchors ?? lastValid.bodyAnchors,
+      };
+      return;
+    }
+
+    lastValidHandsRef.current = { landmarks: null, poseLandmarks: null, bodyAnchors: null, missingFrames: 0 };
+    rawLandmarksRef.current = { landmarks: null, poseLandmarks: pose, bodyAnchors: anchors };
+    smootherRef.current.reset();
+
+    if (shouldUpdateUi) {
+      lastUiRef.current = t;
+      setHandCount(0);
+      setIsDetecting(hasPose);
+      setPoseData(pose);
+      setBodyAnchors(anchors);
+      setLandmarkData(null);
+    }
+
+    if (props.onLandmarks && !hasPose) {
+      try {
+        props.onLandmarks(null, 0, null, null);
+      } catch (cbErr) {
+        console.error('empty onLandmarks callback error:', cbErr);
+      }
+    }
+  }, []);
 
   // Load MediaPipe Scripts via CDN (guards against duplicate tags & StrictMode remount)
   const loadScript = useCallback((src) => {
@@ -246,6 +338,7 @@ export function useHandDetection({
     if (!enabled) return;
 
     let cancelled = false;
+    const smoother = smootherRef.current;
 
     async function init() {
       try {
@@ -262,17 +355,8 @@ export function useHandDetection({
             holistic.setOptions(HOLISTIC_OPTIONS);
 
             holistic.onResults((results) => {
-              const props = latestProps.current;
-              if (!props.enabled) {
-                setIsDetecting(false);
-                setLandmarkData(null);
-                setPoseData(null);
-                setBodyAnchors(null);
-                return;
-              }
-
-              let leftHand = results.leftHandLandmarks || null;
-              let rightHand = results.rightHandLandmarks || null;
+              const leftHand = results.leftHandLandmarks || null;
+              const rightHand = results.rightHandLandmarks || null;
               const pose = results.poseLandmarks || null;
 
               const rawHands = [];
@@ -287,10 +371,6 @@ export function useHandDetection({
               }
 
               const separation = trackAndSeparateHands(rawHands, rawHandedness, prevHandsRef.current);
-              const nHands = separation.count;
-              const hasDetection = Boolean(nHands > 0 || (pose && pose.length >= 25));
-
-              const rawFlat = flattenHands(separation.leftHand, separation.rightHand);
 
               // Extract Upper-Body Anchors
               let anchors = null;
@@ -338,51 +418,7 @@ export function useHandDetection({
                 };
               }
 
-              // Write raw landmarks to ref every frame for zero-lag overlay
-              rawLandmarksRef.current = { landmarks: rawFlat, poseLandmarks: pose, bodyAnchors: anchors };
-
-              const t = performance.now();
-              const shouldUpdateUi = (t - lastUiRef.current > 40);
-              if (shouldUpdateUi) {
-                lastUiRef.current = t;
-                setHandCount(nHands);
-                setIsDetecting(hasDetection);
-                setPoseData(pose);
-                setBodyAnchors(anchors);
-              }
-
-              if (nHands > 0) {
-                const smoothedLandmarks = smootherRef.current.smooth(rawFlat);
-                if (shouldUpdateUi) {
-                  setLandmarkData(smoothedLandmarks);
-                }
-                const now = Date.now();
-                if (props.onLandmarks && (now - lastCallRef.current) >= props.throttleMs) {
-                  lastCallRef.current = now;
-                  const handednessStr = nHands >= 2 ? 'Both Hands' : (separation.leftHand ? 'Left' : 'Right');
-                  try {
-                    props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
-                      poseLandmarks: pose,
-                      bodyAnchors: anchors,
-                      captureTime: frameCaptureTimeRef.current,
-                    });
-                  } catch (cbErr) {
-                    console.error('Holistic onLandmarks callback error:', cbErr);
-                  }
-                }
-              } else {
-                if (shouldUpdateUi) {
-                  setLandmarkData(null);
-                }
-                smootherRef.current.reset();
-                if (props.onLandmarks && (!pose || pose.length === 0)) {
-                  try {
-                    props.onLandmarks(null, 0, null, null);
-                  } catch (cbErr) {
-                    console.error('Holistic empty onLandmarks callback error:', cbErr);
-                  }
-                }
-              }
+              processDetectionFrame({ separation, pose, anchors, uiIntervalMs: 40 });
             });
 
             trackerRef.current = holistic;
@@ -402,69 +438,10 @@ export function useHandDetection({
           hands.setOptions(HANDS_OPTIONS);
 
           hands.onResults((results) => {
-            const props = latestProps.current;
-            if (!props.enabled) {
-              setIsDetecting(false);
-              setLandmarkData(null);
-              setPoseData(null);
-              setBodyAnchors(null);
-              return;
-            }
-
             const rawHands = results.multiHandLandmarks || [];
             const rawHandedness = results.multiHandedness || [];
-
             const separation = trackAndSeparateHands(rawHands, rawHandedness, prevHandsRef.current);
-            const nHands = separation.count;
-            const hasDetection = nHands > 0;
-
-            const t = performance.now();
-            const shouldUpdateUi = (t - lastUiRef.current > 33);
-            if (shouldUpdateUi) {
-              lastUiRef.current = t;
-              setHandCount(nHands);
-              setIsDetecting(hasDetection);
-              setPoseData(null);
-              setBodyAnchors(null);
-            }
-
-            if (nHands > 0) {
-              const rawFlat = flattenHands(separation.leftHand, separation.rightHand);
-              // Write raw landmarks to ref every frame for zero-lag overlay
-              rawLandmarksRef.current = { landmarks: rawFlat, poseLandmarks: null, bodyAnchors: null };
-              const smoothedLandmarks = smootherRef.current.smooth(rawFlat);
-
-              if (shouldUpdateUi) {
-                setLandmarkData(smoothedLandmarks);
-              }
-
-              const now = Date.now();
-              if (props.onLandmarks && (now - lastCallRef.current) >= props.throttleMs) {
-                lastCallRef.current = now;
-                const handednessStr = nHands >= 2 ? 'Both Hands' : (separation.leftHand ? 'Left' : 'Right');
-                try {
-                  props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
-                    poseLandmarks: null,
-                    bodyAnchors: null,
-                    captureTime: frameCaptureTimeRef.current,
-                  });
-                } catch (cbErr) {
-                  console.error('Hands onLandmarks callback error:', cbErr);
-                }
-              }
-            } else {
-              if (shouldUpdateUi) {
-                setLandmarkData(null);
-              }
-              smootherRef.current.reset();
-              if (props.onLandmarks) {
-                try {
-                  props.onLandmarks(null, 0, null, null);
-                } catch (cbErr) {
-                  console.error('Hands empty onLandmarks callback error:', cbErr);
-                }
-              }
-            }
+            processDetectionFrame({ separation, uiIntervalMs: 33 });
           });
 
           trackerRef.current = hands;
@@ -493,8 +470,11 @@ export function useHandDetection({
       }
       setIsLoaded(false);
       prevHandsRef.current = { left: null, right: null, lostL: 0, lostR: 0 };
+      lastValidHandsRef.current = { landmarks: null, poseLandmarks: null, bodyAnchors: null, missingFrames: 0 };
+      rawLandmarksRef.current = { landmarks: null, poseLandmarks: null, bodyAnchors: null };
+      smoother.reset();
     };
-  }, [enabled, loadScript]);
+  }, [enabled, loadScript, pipelineMode, processDetectionFrame]);
 
   // Camera Frame Loop: requestVideoFrameCallback (zero-latency hardware camera sync) with rAF fallback
   useEffect(() => {

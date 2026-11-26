@@ -18,7 +18,6 @@ test('SplashScreen calls onFinish after the active animation duration', async ()
   };
 
   // Simulate timeout sequence
-  const duration = SPLASH_CONFIG.REDUCED_MOTION_MS;
   await new Promise(resolve => setTimeout(resolve, 50));
   assert.equal(finished, false, 'Should not finish prematurely');
 

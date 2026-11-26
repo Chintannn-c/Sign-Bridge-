@@ -1,4 +1,17 @@
 import React, { useRef, useEffect, useCallback } from 'react';
+import {
+  HAND_CONNECTIONS,
+  POSE_CONNECTIONS,
+  UPPER_BODY_JOINTS,
+  FINGERTIPS,
+  PALM_CENTER_INDICES,
+  isPresent,
+  calculateBackingStore,
+  resolveActiveLandmarks,
+  getHandColorInfo,
+  updateFingertipTrails,
+  computeRippleStep,
+} from './overlayEngine.js';
 
 /**
  * HandTrackingOverlay — Canvas overlay for rendering MediaPipe Holistic landmarks
@@ -7,36 +20,23 @@ import React, { useRef, useEffect, useCallback } from 'react';
  * Renders:
  *   1. Full upper-body skeleton (shoulders, torso, elbows, wrists, and head)
  *   2. Dual-hand skeletons with glowing fingertips and palm center
- *   3. Kinematic arm-to-wrist continuity lines
+ *   3. Kinematic arm-to-wrist continuity lines and motion trails
+ *
+ * Hand index mapping:
+ *   hand === 0 (landmarks 0..62): Subject's Left Hand (vivid emerald green)
+ *   hand === 1 (landmarks 63..125): Subject's Right Hand (vivid golden amber)
+ *   Matches backend canonical Slot 0 (Left) and Slot 1 (Right).
+ *
+ * Expected bodyAnchors shape for overlay:
+ *   {
+ *     chest: { x: number, y: number, z?: number },
+ *     nose:  { x: number, y: number, z?: number }
+ *   }
+ * Also tolerates backend's scalar-key shape ({ l_hand_to_mouth, r_hand_to_chest, ... })
+ * without errors by verifying chest/nose coordinates existence and finiteness.
  */
 
-// MediaPipe Hands skeleton connections (21 joints per hand)
-const HAND_CONNECTIONS = [
-  [0, 1], [1, 2], [2, 3], [3, 4],       // Thumb
-  [0, 5], [5, 6], [6, 7], [7, 8],       // Index
-  [0, 9], [9, 10], [10, 11], [11, 12],  // Middle
-  [0, 13], [13, 14], [14, 15], [15, 16],// Ring
-  [0, 17], [17, 18], [18, 19], [19, 20],// Pinky
-  [5, 9], [9, 13], [13, 17],          // Palm
-];
-
-// Upper-Body Pose connections (33-point MediaPipe Pose topology)
-const POSE_CONNECTIONS = [
-  [11, 12],          // Shoulder girdle
-  [11, 23], [12, 24],// Torso lateral borders
-  [23, 24],          // Pelvic line
-  [11, 13], [13, 15],// Left arm (Shoulder -> Elbow -> Wrist)
-  [12, 14], [14, 16],// Right arm (Shoulder -> Elbow -> Wrist)
-  [9, 10],           // Mouth
-  [1, 2], [2, 3],    // Left eye
-  [4, 5], [5, 6],    // Right eye
-];
-
-const UPPER_BODY_JOINTS = [0, 11, 12, 13, 14, 15, 16, 23, 24];
-const FINGERTIPS = [4, 8, 12, 16, 20];
-const PALM_CENTER_INDICES = [0, 5, 9, 13, 17];
-
-export const HandTrackingOverlay = React.memo(({
+const HandTrackingOverlayComponent = ({
   landmarks,
   poseLandmarks = null,
   bodyAnchors = null,
@@ -50,7 +50,9 @@ export const HandTrackingOverlay = React.memo(({
   const ripplesRef = useRef([]);
   const lastPalmsRef = useRef([]);
   const trailsRef = useRef([{}, {}]);
+  const wasActiveRef = useRef(false);
 
+  // Synchronize props directly during render without 1-frame effect lag
   const propsRef = useRef({
     landmarks,
     poseLandmarks,
@@ -59,29 +61,29 @@ export const HandTrackingOverlay = React.memo(({
     height,
     activeSign,
   });
-
-  useEffect(() => {
-    propsRef.current = {
-      landmarks,
-      poseLandmarks,
-      bodyAnchors,
-      width,
-      height,
-      activeSign,
-    };
-  }, [landmarks, poseLandmarks, bodyAnchors, width, height, activeSign]);
+  propsRef.current = {
+    landmarks,
+    poseLandmarks,
+    bodyAnchors,
+    width,
+    height,
+    activeSign,
+  };
 
   // Trigger electric shockwave ripple whenever a sign is committed/active
   useEffect(() => {
     if (activeSign && activeSign !== '?' && lastPalmsRef.current.length > 0) {
+      const now = performance.now();
       for (const palm of lastPalmsRef.current) {
         ripplesRef.current.push({
           x: palm.x,
           y: palm.y,
           radius: 8,
           maxRadius: 60,
+          duration: 400,
           color: palm.color || 'rgba(16, 185, 129, 0.95)',
-          birth: performance.now(),
+          baseColor: palm.baseColor || (palm.color?.includes('251') ? '251, 191, 36' : '16, 185, 129'),
+          birth: now,
         });
       }
     }
@@ -93,16 +95,39 @@ export const HandTrackingOverlay = React.memo(({
     const ctx = canvas.getContext('2d');
 
     const { width, height } = propsRef.current;
-    // Read RAW landmarks from ref for zero-lag display (bypasses React state)
-    const raw = rawLandmarksRef?.current;
-    const landmarks = raw?.landmarks ?? propsRef.current.landmarks;
-    const poseLandmarks = raw?.poseLandmarks ?? propsRef.current.poseLandmarks;
-    const bodyAnchors = raw?.bodyAnchors ?? propsRef.current.bodyAnchors;
 
-    if (canvas.width !== width || canvas.height !== height) {
-      canvas.width = width;
-      canvas.height = height;
+    // Zero-lag read: use raw ref as-is when present without fallback to lagging React state
+    const resolved = resolveActiveLandmarks(rawLandmarksRef, propsRef.current);
+    const { landmarks, poseLandmarks, bodyAnchors } = resolved;
+
+    const hasHands = Boolean(landmarks && landmarks.length >= 126);
+    const hasPose = Boolean(poseLandmarks && poseLandmarks.length >= 25);
+    const hasRipples = ripplesRef.current.length > 0;
+    const isActive = hasHands || hasPose || hasRipples;
+
+    // Reset last palms array every frame before drawing so no hands = empty palms
+    lastPalmsRef.current = [];
+
+    // HiDPI backing store scaling
+    const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+    const { pixelWidth, pixelHeight } = calculateBackingStore(width, height, dpr);
+
+    if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+      canvas.width = pixelWidth;
+      canvas.height = pixelHeight;
     }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // Skip drawing if idle and already cleared
+    if (!isActive) {
+      if (wasActiveRef.current) {
+        ctx.clearRect(0, 0, width, height);
+        wasActiveRef.current = false;
+      }
+      trailsRef.current = [{}, {}];
+      return;
+    }
+    wasActiveRef.current = true;
     ctx.clearRect(0, 0, width, height);
 
     const now = performance.now();
@@ -110,28 +135,28 @@ export const HandTrackingOverlay = React.memo(({
     // ─────────────────────────────────────────────────────────────────────────
     // 1. RENDER UPPER-BODY SKELETON (MediaPipe Pose)
     // ─────────────────────────────────────────────────────────────────────────
-    if (poseLandmarks && poseLandmarks.length >= 25) {
-      const posePoints = poseLandmarks.map((p) => ({
-        x: (p.x || 0) * width,
-        y: (p.y || 0) * height,
-        visibility: p.visibility !== undefined ? p.visibility : 1.0,
-      }));
+    if (hasPose) {
+      const getPosePoint = (idx) => {
+        const p = poseLandmarks[idx];
+        if (!p) return null;
+        const vis = p.visibility !== undefined ? p.visibility : 1.0;
+        if (vis < 0.4) return null;
+        const x = (p.x || 0) * width;
+        const y = (p.y || 0) * height;
+        if (!isPresent(x, y)) return null;
+        return { x, y };
+      };
 
-      // Pose lines style: subtle electric cyan with pulse
       const posePulseAlpha = Math.sin(now / 350) * 0.15 + 0.65;
       ctx.strokeStyle = `rgba(56, 189, 248, ${posePulseAlpha})`;
       ctx.lineWidth = 2.0;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
-      // Draw Pose bone connections
       for (const [a, b] of POSE_CONNECTIONS) {
-        const pA = posePoints[a];
-        const pB = posePoints[b];
+        const pA = getPosePoint(a);
+        const pB = getPosePoint(b);
         if (!pA || !pB) continue;
-        if (pA.visibility < 0.4 || pB.visibility < 0.4) continue;
-        if (pA.x === 0 && pA.y === 0) continue;
-        if (pB.x === 0 && pB.y === 0) continue;
 
         ctx.beginPath();
         ctx.moveTo(pA.x, pA.y);
@@ -139,8 +164,15 @@ export const HandTrackingOverlay = React.memo(({
         ctx.stroke();
       }
 
-      // Draw Chest Centroid & Sternum Neck Link if available
-      if (bodyAnchors && bodyAnchors.chest && bodyAnchors.nose) {
+      // Draw Chest Centroid & Sternum Link when finite numeric x/y exist
+      if (
+        bodyAnchors &&
+        typeof bodyAnchors === 'object' &&
+        bodyAnchors.chest &&
+        bodyAnchors.nose &&
+        isPresent(bodyAnchors.chest.x, bodyAnchors.chest.y) &&
+        isPresent(bodyAnchors.nose.x, bodyAnchors.nose.y)
+      ) {
         const cX = bodyAnchors.chest.x * width;
         const cY = bodyAnchors.chest.y * height;
         const nX = bodyAnchors.nose.x * width;
@@ -154,7 +186,6 @@ export const HandTrackingOverlay = React.memo(({
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Chest anchor pulsing ring
         const chestPulse = Math.sin(now / 200) * 2 + 7;
         ctx.beginPath();
         ctx.arc(cX, cY, chestPulse, 0, Math.PI * 2);
@@ -163,18 +194,16 @@ export const HandTrackingOverlay = React.memo(({
         ctx.stroke();
       }
 
-      // Draw Upper Body Keypoints (Shoulders, Elbows, Wrists, Hips, Head)
+      // Draw Upper Body Keypoints
       for (const jIdx of UPPER_BODY_JOINTS) {
-        const p = posePoints[jIdx];
-        if (!p || p.visibility < 0.4 || (p.x === 0 && p.y === 0)) continue;
+        const p = getPosePoint(jIdx);
+        if (!p) continue;
 
-        // Outer glow
         ctx.beginPath();
         ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
         ctx.fill();
 
-        // Core dot
         ctx.beginPath();
         ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
@@ -189,9 +218,8 @@ export const HandTrackingOverlay = React.memo(({
     // 2. RENDER DUAL HANDS (MediaPipe Hands / Holistic Hands)
     // ─────────────────────────────────────────────────────────────────────────
     const currentPalms = [];
-    if (landmarks && landmarks.length >= 126) {
-      // Dynamic pulsating metrics for living electric halos
-      const fingertipPulse = Math.sin(now / 160) * 3 + 12; // 9px to 15px pulse
+    if (hasHands) {
+      const fingertipPulse = Math.sin(now / 160) * 3 + 12;
 
       for (let hand = 0; hand < 2; hand++) {
         const offset = hand * 21;
@@ -200,22 +228,23 @@ export const HandTrackingOverlay = React.memo(({
 
         for (let i = 0; i < 21; i++) {
           const idx = (offset + i) * 3;
-          const x = landmarks[idx] * width;
-          const y = landmarks[idx + 1] * height;
+          const rawX = landmarks[idx];
+          const rawY = landmarks[idx + 1];
           const z = landmarks[idx + 2];
+          const x = rawX * width;
+          const y = rawY * height;
           points.push({ x, y, z });
-          if (landmarks[idx] > 0 || landmarks[idx + 1] > 0) hasData = true;
+          if (isPresent(rawX, rawY)) hasData = true;
         }
 
-        if (!hasData) continue;
+        if (!hasData) {
+          // Clear trails for this absent hand
+          trailsRef.current[hand] = {};
+          continue;
+        }
 
-        const color = hand === 0
-          ? 'rgba(52, 211, 153, 0.95)' // Left hand — vivid emerald green
-          : 'rgba(251, 191, 36, 0.95)'; // Right hand — vivid golden amber
+        const { color, baseColor } = getHandColorInfo(hand);
 
-        const baseColor = hand === 0 ? '52, 211, 153' : '251, 191, 36';
-
-        // Draw skeleton connections
         ctx.strokeStyle = color;
         ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
@@ -224,8 +253,7 @@ export const HandTrackingOverlay = React.memo(({
         for (const [a, b] of HAND_CONNECTIONS) {
           const pA = points[a];
           const pB = points[b];
-          if (pA.x === 0 && pA.y === 0) continue;
-          if (pB.x === 0 && pB.y === 0) continue;
+          if (!isPresent(pA.x, pA.y) || !isPresent(pB.x, pB.y)) continue;
 
           ctx.beginPath();
           ctx.moveTo(pA.x, pA.y);
@@ -233,19 +261,15 @@ export const HandTrackingOverlay = React.memo(({
           ctx.stroke();
         }
 
-        // Draw motion comet trails behind fingertips
+        // Motion trails limited by elapsed age (~90ms)
         const handTrails = trailsRef.current[hand] || {};
         trailsRef.current[hand] = handTrails;
 
-        for (const tip of FINGERTIPS) {
-          const p = points[tip];
-          if (!p || (p.x === 0 && p.y === 0)) continue;
-          if (!handTrails[tip]) handTrails[tip] = [];
-          const history = handTrails[tip];
-          history.push({ x: p.x, y: p.y });
-          if (history.length > 5) history.shift();
+        updateFingertipTrails(handTrails, points, FINGERTIPS, now, 90);
 
-          if (history.length > 1) {
+        for (const tip of FINGERTIPS) {
+          const history = handTrails[tip];
+          if (history && history.length > 1) {
             ctx.beginPath();
             ctx.moveTo(history[0].x, history[0].y);
             for (let h = 1; h < history.length; h++) {
@@ -257,7 +281,6 @@ export const HandTrackingOverlay = React.memo(({
             ctx.lineJoin = 'round';
             ctx.stroke();
 
-            // Ghost particle at the tail of the trail
             const tail = history[0];
             ctx.beginPath();
             ctx.arc(tail.x, tail.y, 2.2, 0, Math.PI * 2);
@@ -266,27 +289,25 @@ export const HandTrackingOverlay = React.memo(({
           }
         }
 
-        // Draw joint points with living halo animation
+        // Draw joint points with fingertip living halos
         for (let i = 0; i < 21; i++) {
           const p = points[i];
-          if (p.x === 0 && p.y === 0) continue;
+          if (!isPresent(p.x, p.y)) continue;
 
-          const isFingertip = FINGERTIPS.includes(i);
+          const isFingertip = FINGERTIPS.has(i);
           const radius = isFingertip ? 5.5 : 3.5;
 
-          // Living glowing halo for fingertips
           if (isFingertip) {
-            const grad = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, fingertipPulse);
-            grad.addColorStop(0, `rgba(${baseColor}, 0.85)`);
-            grad.addColorStop(0.5, `rgba(${baseColor}, 0.35)`);
-            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            ctx.fillStyle = grad;
+            ctx.fillStyle = `rgba(${baseColor}, 0.25)`;
             ctx.beginPath();
             ctx.arc(p.x, p.y, fingertipPulse, 0, Math.PI * 2);
             ctx.fill();
+            ctx.fillStyle = `rgba(${baseColor}, 0.45)`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, fingertipPulse * 0.55, 0, Math.PI * 2);
+            ctx.fill();
           }
 
-          // Joint core dot
           ctx.beginPath();
           ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
           ctx.fillStyle = isFingertip ? '#ffffff' : color;
@@ -296,14 +317,14 @@ export const HandTrackingOverlay = React.memo(({
           ctx.stroke();
         }
 
-        // Draw animated rotating palm center target reticle
-        const palmX = PALM_CENTER_INDICES.reduce((s, i) => s + points[i].x, 0) / PALM_CENTER_INDICES.length;
-        const palmY = PALM_CENTER_INDICES.reduce((s, i) => s + points[i].y, 0) / PALM_CENTER_INDICES.length;
+        // Palm center target reticle
+        const validPalmPts = PALM_CENTER_INDICES.map(idx => points[idx]).filter(pt => isPresent(pt.x, pt.y));
+        if (validPalmPts.length === PALM_CENTER_INDICES.length) {
+          const palmX = validPalmPts.reduce((s, pt) => s + pt.x, 0) / validPalmPts.length;
+          const palmY = validPalmPts.reduce((s, pt) => s + pt.y, 0) / validPalmPts.length;
 
-        if (palmX > 0 && palmY > 0) {
-          currentPalms.push({ x: palmX, y: palmY, color });
+          currentPalms.push({ x: palmX, y: palmY, color, baseColor });
 
-          // Rotating sci-fi orbital brackets
           const angle = (now / 1100) % (Math.PI * 2);
           ctx.save();
           ctx.translate(palmX, palmY);
@@ -319,7 +340,6 @@ export const HandTrackingOverlay = React.memo(({
           }
           ctx.restore();
 
-          // Palm core dot
           ctx.beginPath();
           ctx.arc(palmX, palmY, 3.5, 0, Math.PI * 2);
           ctx.fillStyle = '#ffffff';
@@ -333,28 +353,25 @@ export const HandTrackingOverlay = React.memo(({
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 3. RENDER EXPANDING SHOCKWAVE RIPPLES (Gesture Locks / Commits)
+    // 3. RENDER EXPANDING SHOCKWAVE RIPPLES (Refresh-rate independent)
     // ─────────────────────────────────────────────────────────────────────────
     if (ripplesRef.current.length > 0) {
       const activeRipples = [];
       for (const rip of ripplesRef.current) {
-        rip.radius += 2.4;
-        const alpha = Math.max(0, 1 - (rip.radius / rip.maxRadius));
-
-        if (alpha > 0.02 && rip.radius < rip.maxRadius) {
+        const step = computeRippleStep(rip, now);
+        if (step) {
           ctx.save();
           ctx.beginPath();
-          ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(16, 185, 129, ${alpha * 0.9})`;
-          ctx.lineWidth = 2.5 * alpha;
+          ctx.arc(step.x, step.y, step.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = step.mainStroke;
+          ctx.lineWidth = 2.5 * step.alpha;
           ctx.stroke();
 
-          // Secondary subtle trailing echo ring
-          if (rip.radius > 12) {
+          if (step.hasEcho) {
             ctx.beginPath();
-            ctx.arc(rip.x, rip.y, rip.radius * 0.7, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(52, 211, 153, ${alpha * 0.45})`;
-            ctx.lineWidth = 1.5 * alpha;
+            ctx.arc(step.x, step.y, step.echoRadius, 0, Math.PI * 2);
+            ctx.strokeStyle = step.echoStroke;
+            ctx.lineWidth = 1.5 * step.alpha;
             ctx.stroke();
           }
           ctx.restore();
@@ -363,12 +380,16 @@ export const HandTrackingOverlay = React.memo(({
       }
       ripplesRef.current = activeRipples;
     }
-  }, []);
+  }, [rawLandmarksRef]);
 
-  // Silky 60fps continuous requestAnimationFrame loop for breathing micro-animations
+  // RequestAnimationFrame loop — paused when document is hidden
   useEffect(() => {
     let animId;
     const render = () => {
+      if (typeof document !== 'undefined' && document.hidden) {
+        animId = requestAnimationFrame(render);
+        return;
+      }
       draw();
       animId = requestAnimationFrame(render);
     };
@@ -379,10 +400,39 @@ export const HandTrackingOverlay = React.memo(({
   return (
     <canvas
       ref={canvasRef}
-      className={`sla-camera-canvas ${isMirrored ? 'is-mirrored' : ''}`}
-      style={{ transform: isMirrored ? 'scaleX(-1)' : 'none' }}
-      width={width}
-      height={height}
+      className="sla-camera-canvas"
+      style={{
+        transform: isMirrored ? 'scaleX(-1)' : 'none',
+        pointerEvents: 'none',
+      }}
+      aria-hidden="true"
     />
   );
-});
+};
+
+export const HandTrackingOverlay = React.memo(
+  HandTrackingOverlayComponent,
+  (prevProps, nextProps) => {
+    // If rawLandmarksRef is provided and active, landmark prop churn does not trigger re-render
+    if (nextProps.rawLandmarksRef && nextProps.rawLandmarksRef.current) {
+      return (
+        prevProps.width === nextProps.width &&
+        prevProps.height === nextProps.height &&
+        prevProps.isMirrored === nextProps.isMirrored &&
+        prevProps.activeSign === nextProps.activeSign &&
+        prevProps.rawLandmarksRef === nextProps.rawLandmarksRef
+      );
+    }
+    return (
+      prevProps.landmarks === nextProps.landmarks &&
+      prevProps.poseLandmarks === nextProps.poseLandmarks &&
+      prevProps.bodyAnchors === nextProps.bodyAnchors &&
+      prevProps.width === nextProps.width &&
+      prevProps.height === nextProps.height &&
+      prevProps.isMirrored === nextProps.isMirrored &&
+      prevProps.activeSign === nextProps.activeSign
+    );
+  }
+);
+
+HandTrackingOverlay.displayName = 'HandTrackingOverlay';

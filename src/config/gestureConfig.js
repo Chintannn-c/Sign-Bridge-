@@ -10,7 +10,7 @@ export const GESTURE_CONFIG = {
   NEUTRAL_HOLD_FRAMES: 4,            // Frames (~0.13s) of 'two open palms' to arm (was 10)
   STABILITY_FRAMES_K: 3,             // Consecutive identical valid predictions (~0.1s) to commit (was 5)
   INSTANT_COMMIT_CONFIDENCE: 0.92,   // A single frame at/above this (and passing margin + centroid checks) commits immediately
-  MAX_MISS_FRAMES: 1,                // Invalid/dropped frames tolerated mid-streak before the streak resets
+  MAX_MISS_FRAMES: 3,                // Invalid/dropped frames tolerated mid-streak before the streak resets
 
   // 2. Lock, then hold steady (replaces the old fixed COOLDOWN_MS = 1000)
   MIN_LOCK_MS: 250,                  // Minimum time the locked sign stays visible
@@ -25,15 +25,15 @@ export const GESTURE_CONFIG = {
 
   // 4. Confidence & Ambiguity Thresholds (unchanged: these protect accuracy)
   CONFIDENCE_THRESHOLD_LETTER: 0.75, // Top-class probability threshold for static letters
-  CONFIDENCE_THRESHOLD_WORD: 0.50,   // Probability threshold for 57-class whole-word sequences
+  CONFIDENCE_THRESHOLD_WORD: 0.40,   // Probability threshold for 57-class whole-word sequences
   MARGIN_THRESHOLD: 0.10,            // Minimum gap between top-1 and top-2 probabilities for letters
-  MARGIN_THRESHOLD_WORD: 0.06,       // Minimum gap for words
-  MIN_MOTION_VELOCITY: 0.025,        // Minimum wrist-relative joint displacement velocity for word gating
-  MAX_WORD_ENTROPY: 2.20,            // Maximum distribution entropy tolerated before rejection
+  MARGIN_THRESHOLD_WORD: 0.04,       // Minimum gap for words
+  MIN_MOTION_VELOCITY: 0.008,        // Minimum wrist-relative joint displacement velocity for word gating
+  MAX_WORD_ENTROPY: 2.75,            // Maximum distribution entropy tolerated before rejection
   MAX_CENTROID_DISTANCE: 11.5,       // Maximum Euclidean distance to class centroid
 
   // 5. Resting / Idle Hand Detection
-  IDLE_WRIST_Y_THRESHOLD: 0.88,      // Wrist below 88% of camera frame treated as resting on desk
+  IDLE_WRIST_Y_THRESHOLD: 0.91,      // Wrist below 91% of camera frame treated as resting on desk
   MIN_HAND_SPAN: 0.035,              // Minimum bounding box dimension for an intentional gesture
 
   // 6. Debug & Developer Tools

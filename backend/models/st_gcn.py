@@ -109,3 +109,87 @@ class STGCNHandClassifier(nn.Module):
         out = self.dropout(out)
         logits = self.fc2(out)
         return logits
+
+
+class STGCN_BiLSTM_WordClassifier(nn.Module):
+    """
+    Spatial-Temporal Hybrid Classifier for Whole-Word ISL Gestures:
+      1. Spatial Graph Convolutions (ST-GCN) over the 42 physical hand joints per frame.
+      2. Temporal 1D Convolution for inter-frame landmark smoothing.
+      3. Bidirectional LSTM across the 30-frame temporal trajectory.
+      4. Temporal Self-Attention pooling across stroke keyframes.
+    Input: (Batch, Sequence_Length=30, In_Dim=252) or (Batch, 30, In_Dim=126)
+    Output: (Batch, Num_Classes)
+    """
+    def __init__(
+        self,
+        in_dim: int = 252,
+        num_classes: int = 57,
+        gcn_channels: int = 64,
+        lstm_hidden: int = 128,
+        num_layers: int = 2,
+        dropout: float = 0.3
+    ):
+        super().__init__()
+        self.in_dim = in_dim
+        self.node_channels = in_dim // 42  # 6 if in_dim=252, 3 if in_dim=126
+        A = build_dual_hand_adjacency()
+
+        # 1. Spatial Graph Convolutions per frame
+        self.gconv1 = SpatialGraphConv(self.node_channels, gcn_channels, A)
+        self.gconv2 = SpatialGraphConv(gcn_channels, gcn_channels * 2, A)
+
+        # 2. Temporal 1D Convolution along the sequence
+        self.temporal_cnn = nn.Sequential(
+            nn.Conv1d(gcn_channels * 2, gcn_channels * 2, kernel_size=3, padding=1),
+            nn.BatchNorm1d(gcn_channels * 2),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.2),
+        )
+
+        # 3. Bidirectional LSTM across sequence frames
+        self.lstm = nn.LSTM(
+            input_size=gcn_channels * 2,
+            hidden_size=lstm_hidden,
+            num_layers=num_layers,
+            batch_first=True,
+            bidirectional=True,
+            dropout=dropout if num_layers > 1 else 0.0
+        )
+
+        # 4. Temporal Self-Attention
+        self.attn = nn.Sequential(
+            nn.Linear(lstm_hidden * 2, 64),
+            nn.Tanh(),
+            nn.Linear(64, 1),
+        )
+
+        # 5. Classification Head
+        self.classifier = nn.Sequential(
+            nn.BatchNorm1d(lstm_hidden * 2),
+            nn.Linear(lstm_hidden * 2, 64),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(64, num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x shape: (Batch, Sequence_Length=30, 252)
+        B, T, _ = x.shape
+        x_nodes = x.view(B * T, 42, self.node_channels)
+
+        # Frame-level spatial graph convolution
+        g1 = self.gconv1(x_nodes)
+        g2 = self.gconv2(g1)
+        frame_feat = torch.mean(g2, dim=1)  # (B * T, gcn_channels * 2)
+
+        # Temporal sequence modeling
+        seq_feat = frame_feat.view(B, T, -1).permute(0, 2, 1)  # (B, C, T)
+        cnn_out = self.temporal_cnn(seq_feat)                  # (B, C, T)
+        lstm_in = cnn_out.permute(0, 2, 1)                     # (B, T, C)
+
+        lstm_out, _ = self.lstm(lstm_in)                       # (B, T, 2 * lstm_hidden)
+        attn_w = torch.softmax(self.attn(lstm_out), dim=1)     # (B, T, 1)
+        pooled = torch.sum(lstm_out * attn_w, dim=1)           # (B, 2 * lstm_hidden)
+
+        return self.classifier(pooled)

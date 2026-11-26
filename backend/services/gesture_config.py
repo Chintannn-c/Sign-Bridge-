@@ -9,7 +9,7 @@ Speed comes from removing waiting, not from loosening the accuracy checks.
 NEUTRAL_HOLD_FRAMES = 4            # ~0.13s of two open palms to arm (was 10)
 STABILITY_FRAMES_K = 3             # 3 consecutive identical valid predictions (~0.1s) to commit (was 5)
 INSTANT_COMMIT_CONFIDENCE = 0.92   # one frame at/above this (passing margin + centroid checks) commits immediately
-MAX_MISS_FRAMES = 1                # invalid/dropped frames tolerated mid-streak before the streak resets
+MAX_MISS_FRAMES = 3                # invalid/dropped frames tolerated mid-streak before the streak resets
 
 # --- Lock, then hold steady (replaces COOLDOWN_FRAMES / COOLDOWN_MS) ---------
 MIN_LOCK_MS = 250                  # minimum time the locked sign stays visible
@@ -23,14 +23,15 @@ HAND_LOST_FRAMES = 3               # frames without an active hand = "left the f
 RELEASE_FRAMES = 4                 # frames of no/other sign after a lock before the same sign may repeat
 
 CONFIDENCE_THRESHOLD = 0.75        # top-class probability threshold for static letters (reject unknowns)
-CONFIDENCE_THRESHOLD_WORD = 0.50   # probability threshold for 57-class temporal word sequences
+# ponytail: calibrated word thresholds for fast, responsive live detection
+CONFIDENCE_THRESHOLD_WORD = 0.40   # probability threshold for 57-class temporal word sequences (was 0.50)
 MARGIN_THRESHOLD = 0.10            # margin between top-1 and top-2 probabilities for letters
-MARGIN_THRESHOLD_WORD = 0.06       # margin between top-1 and top-2 for words
+MARGIN_THRESHOLD_WORD = 0.04       # margin between top-1 and top-2 for words (was 0.06)
 DEFAULT_MAX_CENTROID_DISTANCE = 11.5  # fallback maximum Euclidean distance to class centroid
 
 # --- Hand tracking & idle thresholds -----------------------------------------
 MIN_HAND_SPAN = 0.04               # minimum bounding box span for active hand
-IDLE_WRIST_Y_THRESHOLD = 0.88      # wrist below 88% of frame = resting/idle hand
+IDLE_WRIST_Y_THRESHOLD = 0.91      # wrist below 91% of frame = resting/idle hand
 TRACKING_CONFIDENCE_MIN = 0.35     # minimum confidence for landmark validity
 
 # --- Debug --------------------------------------------------------------------

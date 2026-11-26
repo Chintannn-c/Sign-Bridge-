@@ -40,17 +40,17 @@ class GroqErrorType(Enum):
     UNKNOWN_ERROR = "UNKNOWN_ERROR"
 
 
-# Master priority candidate lists (sorted from verified active models down to fallback candidates)
+# Master priority candidate lists (fast non-reasoning models first for low-latency kiosk replies)
 PREFERRED_GROQ_MODELS = [
-    "qwen/qwen3.8-27b",
-    "openai/gpt-oss-120b",
-    "openai/gpt-oss-20b",
-    "allam-2-7b",
     "llama-3.3-70b-versatile",
-    "llama-3.1-70b-versatile",
     "llama-3.1-8b-instant",
+    "llama-3.1-70b-versatile",
     "gemma2-9b-it",
     "mixtral-8x7b-32768",
+    "openai/gpt-oss-20b",
+    "openai/gpt-oss-120b",
+    "qwen/qwen3.8-27b",
+    "allam-2-7b",
 ]
 
 
@@ -335,16 +335,25 @@ class GroqManager:
 
         total_retries = 0
         overall_errors: List[str] = []
+        deadline_ts = (time.monotonic() + timeout) if timeout is not None else None
 
         for model_idx, model_name in enumerate(candidate_models):
+            if deadline_ts is not None and time.monotonic() >= deadline_ts:
+                break
             active_keys = self.key_manager.get_available_keys()
             if not active_keys:
                 break
 
             for key_info in active_keys:
+                if deadline_ts is not None and time.monotonic() >= deadline_ts:
+                    break
                 logger.info(f"[Groq] Attempting request | Model: {model_name} | Key: {key_info.key_id}")
 
                 for attempt in range(1, self.max_retries + 1):
+                    remaining = (deadline_ts - time.monotonic()) if deadline_ts is not None else None
+                    if remaining is not None and remaining <= 0:
+                        break
+                    call_timeout = max(0.5, remaining) if remaining is not None else None
                     try:
                         text_output = self._call_sdk(
                             key_info=key_info,
@@ -353,7 +362,7 @@ class GroqManager:
                             system_instruction=system_instruction,
                             temperature=temperature,
                             max_tokens=max_tokens,
-                            timeout=timeout
+                            timeout=call_timeout
                         )
 
                         if text_output and text_output.strip():
@@ -390,6 +399,8 @@ class GroqManager:
                         if error_type in (GroqErrorType.SERVER_ERROR, GroqErrorType.TIMEOUT, GroqErrorType.NETWORK_ERROR):
                             if attempt < self.max_retries:
                                 backoff = min(6.0, 1.0 * (2 ** (attempt - 1)))
+                                if deadline_ts is not None and (time.monotonic() + backoff) >= deadline_ts:
+                                    break
                                 logger.info(f"[Groq] Transient error on {key_info.key_id}. Retrying in {backoff:.1f}s (Attempt {attempt}/{self.max_retries})...")
                                 time.sleep(backoff)
                             else:

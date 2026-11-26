@@ -179,7 +179,7 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
   }, [isLive, isActive, isCameraOn]);
 
   const isWordMode = recognition.recognitionMode === 'word';
-  const activeSign = (recognition.handInfo && recognition.confidence >= (isWordMode ? 0.50 : 0.60)) ? (recognition.detectedWord || recognition.detectedLetter) : null;
+  const activeSign = (recognition.handInfo && recognition.confidence >= (isWordMode ? 0.40 : 0.60)) ? (recognition.detectedWord || recognition.detectedLetter) : null;
 
   return (
     <div
@@ -325,19 +325,17 @@ export const CameraView = ({ isActive, onRecognitionUpdate, onSendMessage }) => 
               </div>
             )}
 
-            {/* Real-time Tracking Overlay */}
-            {detection.isDetecting && (detection.landmarkData || detection.poseData) && (
-              <HandTrackingOverlay 
-                landmarks={detection.landmarkData}
-                poseLandmarks={detection.poseData}
-                bodyAnchors={detection.bodyAnchors}
-                rawLandmarksRef={detection.rawLandmarksRef}
-                width={videoElement?.videoWidth || 640}
-                height={videoElement?.videoHeight || 480}
-                isMirrored={isMirrored}
-                activeSign={activeSign}
-              />
-            )}
+            {/* Real-time Tracking Overlay — kept mounted while camera is live so trails/ripples survive brief flickers */}
+            <HandTrackingOverlay
+              landmarks={detection.landmarkData}
+              poseLandmarks={detection.poseData}
+              bodyAnchors={detection.bodyAnchors}
+              rawLandmarksRef={detection.rawLandmarksRef}
+              width={videoElement?.videoWidth || 640}
+              height={videoElement?.videoHeight || 480}
+              isMirrored={isMirrored}
+              activeSign={activeSign}
+            />
 
             {/* Detected Sign Badge: restyled with soft sage pop on lock */}
             <AnimatePresence mode="wait">

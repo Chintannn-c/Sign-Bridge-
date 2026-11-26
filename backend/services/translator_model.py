@@ -267,46 +267,8 @@ class TranslatorModel:
             logger.info("Sign-Bridge Alphabet Engine initialized in XGBoost mode.")
             return
 
-        # Fallback to Keras model
-        if os.path.exists(MODEL_PATH):
-            try:
-                import tensorflow as tf
-                if os.path.exists(META_PATH):
-                    with open(META_PATH, 'r', encoding='utf-8') as f:
-                        self.metadata = json.load(f)
-                self.model = tf.keras.models.load_model(MODEL_PATH)
-                self.mode = 'deep_learning'
-                logger.info(f"Loaded trained Keras model from {MODEL_PATH}")
-                return
-            except Exception as e:
-                logger.warning(f"Failed to load Keras model: {e}. Falling back to heuristic mode.")
-
-        # Fallback to Heuristic
-        self.mode = 'heuristic'
-        self._load_mendeley_ref()
-        logger.info("Running in HEURISTIC mode (no trained model found).")
-
-    def _load_mendeley_ref(self):
-        """Parse the Mendeley CSV into a lookup dictionary."""
-        if not os.path.exists(MENDELEY_CSV):
-            logger.warning(f"Mendeley CSV not found at {MENDELEY_CSV}")
-            return
-
-        try:
-            with open(MENDELEY_CSV, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    letter = row.get('letter', '').strip().upper()
-                    if letter:
-                        self.mendeley_ref[letter] = {
-                            'hand_system': row.get('hand_system', ''),
-                            'left_hand_posture': row.get('left_hand_posture', ''),
-                            'right_hand_posture': row.get('right_hand_posture', ''),
-                            'landmark_points': int(row.get('landmark_points', 42)),
-                        }
-            logger.info(f"Loaded {len(self.mendeley_ref)} Mendeley ISL letter references.")
-        except Exception as e:
-            logger.error(f"Error loading Mendeley CSV: {e}")
+        logger.warning("No trained alphabet models found. Alphabet translation disabled.")
+        self.mode = 'disabled'
 
     def predict(self, landmarks, body_anchors=None):
         """
@@ -318,10 +280,8 @@ class TranslatorModel:
             res = self._predict_stgcn(landmarks)
         elif self.mode == 'xgboost' and self.model is not None:
             res = self._predict_xgb(landmarks)
-        elif self.mode == 'deep_learning' and self.model is not None:
-            res = self._predict_dl(landmarks)
         else:
-            res = self._predict_heuristic(landmarks)
+            res = self._invalid_input_result(self.mode or 'disabled')
 
         if body_anchors and isinstance(res, dict):
             res['holistic_anchored'] = True
@@ -527,7 +487,7 @@ class TranslatorModel:
         """Run inference through the trained XGBoost model."""
         model = self.xgb_model or self.model
         if model is None or not hasattr(model, 'predict_proba'):
-            return self._predict_heuristic(landmarks)
+            return self._invalid_input_result('stgcn')
 
         try:
             arr = validate_landmark_array(landmarks)
@@ -625,83 +585,7 @@ class TranslatorModel:
             return self._invalid_input_result('xgboost')
         except Exception as e:
             logger.error(f"XGBoost prediction failed: {e}")
-            return self._predict_heuristic(landmarks)
-
-    def _predict_dl(self, landmarks):
-        """Run inference through the trained Keras model."""
-        if self.model is None:
-            return self._predict_heuristic(landmarks)
-
-        model = self.model
-
-        try:
-            arr = validate_landmark_array(landmarks)
-
-            if not np.any(arr != 0):
-                return self._invalid_input_result('deep_learning')
-
-            if self.metadata.get('preprocessing') == 'wrist_center_scale_v1':
-                normalized = [normalize_landmarks(row) for row in arr]
-                if any(row is None for row in normalized):
-                    return self._invalid_input_result('deep_learning')
-                arr = np.asarray(normalized, dtype=np.float32)
-
-            labels = self.metadata.get('labels', ISL_LABELS)
-
-            # Predict
-            predictions = model.predict(arr, verbose=0)
-            probs = predictions[0]
-            temperature = float(self.metadata.get('confidence_temperature', 1.0))
-            if temperature != 1.0:
-                logits = np.log(np.clip(probs, 1e-7, 1.0)) / temperature
-                logits -= logits.max()
-                probs = np.exp(logits)
-                probs /= probs.sum()
-
-            sorted_indices = np.argsort(probs)[::-1]
-            top_idx = int(sorted_indices[0])
-            confidence = float(probs[top_idx])
-            second_conf = float(probs[sorted_indices[1]]) if len(sorted_indices) > 1 else 0.0
-            margin = float(confidence - second_conf)
-            letter = labels[top_idx] if top_idx < len(labels) else '?'
-
-            # Top 5 scores
-            top_scores = {
-                labels[i]: round(float(probs[i]), 4)
-                for i in sorted_indices[:5] if i < len(labels)
-            }
-
-            norm_first = arr[0] if arr.ndim > 1 else arr
-            val_ok, dist, dist_thresh, r_reason = self.centroid_validator.validate(norm_first, letter)
-
-            is_rejected = bool(confidence < CONFIDENCE_THRESHOLD or margin < MARGIN_THRESHOLD or not val_ok or letter == '?')
-            rejection_reason = None
-            if is_rejected:
-                if confidence < CONFIDENCE_THRESHOLD:
-                    rejection_reason = 'low_confidence'
-                elif margin < MARGIN_THRESHOLD:
-                    rejection_reason = 'low_margin'
-                elif not val_ok:
-                    rejection_reason = r_reason
-                else:
-                    rejection_reason = 'unknown_gesture'
-
-            return {
-                'letter': '?' if is_rejected else letter,
-                'confidence': round(confidence, 4),
-                'margin': round(margin, 4),
-                'centroid_distance': round(dist, 4),
-                'mode': 'deep_learning',
-                'rejected': is_rejected,
-                'rejection_reason': rejection_reason,
-                'all_scores': top_scores
-            }
-        except LandmarkValidationError as e:
-            logger.warning(f"Keras prediction skipped — bad input: {e}")
-            return self._invalid_input_result('deep_learning')
-        except Exception as e:
-            logger.error(f"DL prediction failed: {e}")
-            return self._predict_heuristic(landmarks)
+            return self._invalid_input_result('stgcn')
 
     @staticmethod
     def _invalid_input_result(mode):
@@ -715,244 +599,6 @@ class TranslatorModel:
             'rejection_reason': 'invalid_input',
             'all_scores': {}
         }
-
-    def _predict_heuristic(self, landmarks):
-        """
-        Rule-based heuristic prediction using geometric features
-        extracted from 42 hand landmarks (21 per hand).
-        """
-        try:
-            # Convert input to structured format
-            points = self._parse_landmarks(landmarks)
-            if points is None or len(points) < 42 or all(p.get('x', 0) == 0 and p.get('y', 0) == 0 and p.get('z', 0) == 0 for p in points):
-                return {
-                    'letter': '?',
-                    'confidence': 0.0,
-                    'mode': 'heuristic',
-                    'rejected': True,
-                    'all_scores': {}
-                }
-
-            if not self.mendeley_ref:
-                return {
-                    'letter': '?',
-                    'confidence': 0.0,
-                    'margin': 0.0,
-                    'centroid_distance': 0.0,
-                    'mode': 'heuristic',
-                    'rejected': True,
-                    'rejection_reason': 'no_reference_rules',
-                    'all_scores': {}
-                }
-
-            # Extract geometric features
-            features = self._extract_features(points)
-
-            # Score each letter against the features
-            scores = {}
-            for letter in ISL_LABELS:
-                scores[letter] = self._score_letter(letter, features)
-
-            # Find best match
-            sorted_letters = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-            best_letter = sorted_letters[0][0] if sorted_letters else '?'
-            best_score = sorted_letters[0][1] if sorted_letters else 0.0
-            second_score = sorted_letters[1][1] if len(sorted_letters) > 1 else 0.0
-
-            # Normalize confidence
-            total = sum(scores.values()) or 1.0
-            confidence = best_score / total
-            second_conf = second_score / total
-            margin = float(confidence - second_conf)
-
-            # Top 5
-            top_scores = {l: round(s / total, 4) for l, s in sorted_letters[:5]}
-
-            is_rejected = bool(confidence < CONFIDENCE_THRESHOLD or margin < MARGIN_THRESHOLD or best_letter == '?')
-            rejection_reason = None
-            if is_rejected:
-                if confidence < CONFIDENCE_THRESHOLD:
-                    rejection_reason = 'low_confidence'
-                elif margin < MARGIN_THRESHOLD:
-                    rejection_reason = 'low_margin'
-                else:
-                    rejection_reason = 'unknown_gesture'
-
-            return {
-                'letter': '?' if is_rejected else best_letter,
-                'confidence': round(confidence, 4),
-                'margin': round(margin, 4),
-                'centroid_distance': 0.0,
-                'mode': 'heuristic',
-                'rejected': is_rejected,
-                'rejection_reason': rejection_reason,
-                'all_scores': top_scores
-            }
-        except Exception as e:
-            logger.error(f"Heuristic prediction failed: {e}")
-            return {
-                'letter': '?',
-                'confidence': 0.0,
-                'mode': 'heuristic',
-                'all_scores': {}
-            }
-
-    def _parse_landmarks(self, landmarks):
-        """
-        Parse landmarks into a list of 42 {x, y, z} dicts.
-        Handles both flat arrays and structured input.
-        """
-        if isinstance(landmarks, list):
-            if len(landmarks) == 42 and isinstance(landmarks[0], dict):
-                return landmarks
-            if len(landmarks) == 126:
-                # Flat array: reshape to 42 x 3
-                return [
-                    {'x': landmarks[i*3], 'y': landmarks[i*3+1], 'z': landmarks[i*3+2]}
-                    for i in range(42)
-                ]
-            if len(landmarks) >= 42:
-                # Could be nested arrays [[x,y,z], ...]
-                try:
-                    return [
-                        {'x': float(p[0]), 'y': float(p[1]), 'z': float(p[2])}
-                        for p in landmarks[:42]
-                    ]
-                except (TypeError, IndexError):
-                    pass
-        return None
-
-    def _extract_features(self, points):
-        """
-        Extract geometric features from 42 landmark points.
-        Points 0-20: Left hand, Points 21-41: Right hand.
-
-        MediaPipe landmark indices per hand:
-          0: Wrist
-          4: Thumb tip
-          8: Index tip
-          12: Middle tip
-          16: Ring tip
-          20: Pinky tip
-        """
-        def dist(a, b):
-            return np.sqrt(
-                (a['x'] - b['x'])**2 +
-                (a['y'] - b['y'])**2 +
-                (a['z'] - b['z'])**2
-            )
-
-        def finger_extended(wrist, mcp, tip):
-            """Check if a finger is extended (tip further from wrist than MCP)."""
-            return dist(wrist, tip) > dist(wrist, mcp) * 1.1
-
-        # Left hand landmarks (indices 0-20)
-        lh = points[:21]
-        # Right hand landmarks (indices 21-41)
-        rh = points[21:42]
-
-        # Reference scale per hand (wrist-to-middle-MCP), used to make the
-        # touch and inter-hand checks scale-invariant instead of raw camera pixels.
-        l_scale = dist(lh[0], lh[9]) or 1.0
-        r_scale = dist(rh[0], rh[9]) or 1.0
-        pair_scale = (l_scale + r_scale) / 2.0 if (l_scale > 0.01 and r_scale > 0.01) else max(l_scale, r_scale, 1.0)
-
-        features = {
-            # Left hand finger extensions
-            'l_thumb_ext': finger_extended(lh[0], lh[2], lh[4]),
-            'l_index_ext': finger_extended(lh[0], lh[5], lh[8]),
-            'l_middle_ext': finger_extended(lh[0], lh[9], lh[12]),
-            'l_ring_ext': finger_extended(lh[0], lh[13], lh[16]),
-            'l_pinky_ext': finger_extended(lh[0], lh[17], lh[20]),
-
-            # Right hand finger extensions
-            'r_thumb_ext': finger_extended(rh[0], rh[2], rh[4]),
-            'r_index_ext': finger_extended(rh[0], rh[5], rh[8]),
-            'r_middle_ext': finger_extended(rh[0], rh[9], rh[12]),
-            'r_ring_ext': finger_extended(rh[0], rh[13], rh[16]),
-            'r_pinky_ext': finger_extended(rh[0], rh[17], rh[20]),
-
-            # Inter-hand scale-normalized spatial relations
-            'hands_dist': dist(lh[0], rh[0]) / pair_scale,  # Scale-invariant wrist-to-wrist
-            'index_touch': dist(lh[8], rh[8]) / pair_scale,  # Scale-invariant index-to-index
-            'thumb_touch': dist(lh[4], rh[4]) / pair_scale,  # Scale-invariant thumb-to-thumb
-            'l_index_to_r_palm': dist(lh[8], rh[0]) / pair_scale,
-            'r_index_to_l_palm': dist(rh[8], lh[0]) / pair_scale,
-
-            # Same-hand thumb-to-index distance (scale-normalized)
-            'l_index_thumb_touch': dist(lh[4], lh[8]) / l_scale,
-            'r_index_thumb_touch': dist(rh[4], rh[8]) / r_scale,
-
-            # Hand openness (average finger extension)
-            'l_openness': sum([
-                finger_extended(lh[0], lh[2], lh[4]),
-                finger_extended(lh[0], lh[5], lh[8]),
-                finger_extended(lh[0], lh[9], lh[12]),
-                finger_extended(lh[0], lh[13], lh[16]),
-                finger_extended(lh[0], lh[17], lh[20]),
-            ]) / 5.0,
-            'r_openness': sum([
-                finger_extended(rh[0], rh[2], rh[4]),
-                finger_extended(rh[0], rh[5], rh[8]),
-                finger_extended(rh[0], rh[9], rh[12]),
-                finger_extended(rh[0], rh[13], rh[16]),
-                finger_extended(rh[0], rh[17], rh[20]),
-            ]) / 5.0,
-        }
-
-        return features
-
-    def _score_letter(self, letter, features):
-        """
-        Score how well the extracted features match a given ISL letter.
-        Higher score = better match.
-        """
-        score = 0.0
-
-        # Digits have no Mendeley heuristic reference — return zero score
-        if letter.isdigit():
-            return 0.0
-
-        ref = self.mendeley_ref.get(letter, {})
-        lh_posture = ref.get('left_hand_posture', '').lower()
-        rh_posture = ref.get('right_hand_posture', '').lower()
-
-        # Match left hand posture keywords
-        if 'flat palm' in lh_posture:
-            score += features['l_openness'] * 2.0
-        elif 'fist' in lh_posture:
-            score += (1.0 - features['l_openness']) * 2.0
-        elif 'thumb up' in lh_posture:
-            score += (1.0 if features['l_thumb_ext'] else 0.0) * 2.0
-            score += (1.0 if not features['l_index_ext'] else 0.0)
-        elif 'index up' in lh_posture:
-            score += (1.0 if features['l_index_ext'] else 0.0) * 2.0
-            score += (1.0 if not features['l_middle_ext'] else 0.0)
-        elif 'l-shape' in lh_posture:
-            score += (1.0 if features['l_thumb_ext'] and features['l_index_ext'] else 0.0) * 2.0
-        elif 'cross' in lh_posture:
-            is_isl_f = features['l_index_thumb_touch'] < THUMB_INDEX_TOUCH_THRESHOLD and features['l_middle_ext']
-            score += 10.0 if is_isl_f else ((1.0 if features['l_index_ext'] or features['l_middle_ext'] else 0.0) * 2.0)
-
-        # Match right hand posture keywords
-        if 'touch index' in rh_posture:
-            score += (2.0 if features['index_touch'] < 0.35 else 0.0)
-        elif 'flat palm' in rh_posture or 'sweep palm' in rh_posture or 'base palm' in rh_posture:
-            score += features['r_openness'] * 2.0
-        elif 'fist' in rh_posture:
-            score += (1.0 - features['r_openness']) * 2.0
-        elif 'v-shape' in rh_posture:
-            score += (1.0 if features['r_index_ext'] and features['r_middle_ext'] else 0.0) * 2.0
-        elif 'w-peaks' in rh_posture:
-            score += (1.0 if features['r_index_ext'] and features['r_middle_ext'] and features['r_ring_ext'] else 0.0) * 2.0
-        elif 'cross' in rh_posture:
-            # Was comparing the inter-hand index_touch distance here, which
-            # measures left-index-to-right-index — not this hand's own
-            # thumb-to-index touch. Fixed to use the same-hand feature.
-            is_isl_f = features['r_index_thumb_touch'] < THUMB_INDEX_TOUCH_THRESHOLD and features['r_middle_ext']
-            score += 10.0 if is_isl_f else ((1.0 if features['r_index_ext'] or features['r_middle_ext'] else 0.0) * 2.0)
-
-        return score
 
     def get_info(self):
         """Return truthful model metadata derived directly from active configuration."""

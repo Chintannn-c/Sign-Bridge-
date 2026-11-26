@@ -208,7 +208,7 @@ def start_websocket_server(translator, word_recognizer, host='127.0.0.1', port=5
                 port,
                 ping_interval=20,
                 ping_timeout=20,
-                max_size=64 * 1024,
+                max_size=1024 * 1024,  # ponytail: 1 MB permits 30-frame (~84 KB) word sequence payloads
             ):
                 logger.info(f"WebSocket real-time prediction service running on ws://{host}:{port}")
                 await asyncio.Future()

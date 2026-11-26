@@ -110,6 +110,18 @@ def get_recent_history(limit=50):
         return []
 
 
+def clear_conversation_history():
+    """Clears conversation_history so old kiosk sessions don't leak into new LLM prompts."""
+    try:
+        with closing(get_db_connection()) as conn:
+            conn.execute("DELETE FROM conversation_history")
+            conn.commit()
+            return True
+    except Exception as e:
+        logger.error(f"Failed to clear conversation history: {e}")
+        return False
+
+
 def log_dataset_session(letter, session_id, signer_id=None, frame_count=0, file_path=None):
     """Inserts or updates a dataset session record into SQLite."""
     try:

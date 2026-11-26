@@ -26,11 +26,7 @@ export function useISLTranslation() {
 
   const [isAutoDemo, setIsAutoDemo] = useState(false);
 
-  // ─── Live Translation State ─────────────────────────────────────────────
-  const [isLiveMode, setIsLiveMode] = useState(false);
-  const [lastPrediction, setLastPrediction] = useState(null);
-  const [apiStatus, setApiStatus] = useState('disconnected'); // 'connected' | 'disconnected' | 'error'
-  const [liveBuffer, setLiveBuffer] = useState('');           // Accumulates recognized letters
+  const [apiStatus, setApiStatus] = useState('disconnected');
 
   const scenarioIdxRef = useRef(0);
   const exchangeIdxRef = useRef(0);
@@ -130,40 +126,6 @@ export function useISLTranslation() {
     }
   }, [addMessage]);
 
-
-  // ─── LIVE MODE: Send Landmarks to Flask API ─────────────────────────────
-  const translateLandmarks = useCallback(async (landmarks) => {
-    if (apiStatus !== 'connected') return null;
-
-    try {
-      const res = await fetch(`${API_BASE}/translate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ landmarks })
-      });
-
-      if (res.ok) {
-        const prediction = await res.json();
-        setLastPrediction(prediction);
-
-        // Accumulate high-confidence letters into buffer
-        if (prediction.confidence > 0.6) {
-          setLiveBuffer(prev => prev + prediction.letter);
-          // Update the human display text
-          setHumanText(prev => {
-            const newText = prev + prediction.letter;
-            setHumanStreamText(newText);
-            return newText;
-          });
-        }
-
-        return prediction;
-      }
-    } catch (e) {
-      console.warn('Translation API error:', e);
-    }
-    return null;
-  }, [apiStatus]);
 
   // ─── Send Text to Arduino Robotic Hands (Hardware actuation only) ───────
   const sendToRobot = useCallback(async (text) => {
@@ -269,30 +231,6 @@ export function useISLTranslation() {
     return "Got it! How can I help with that?";
   }, []);
 
-  // ─── LIVE MODE: Commit Buffer as a Message ──────────────────────────────
-  const commitLiveBuffer = useCallback(async () => {
-    if (liveBuffer.trim()) {
-      const rawBuf = liveBuffer.trim();
-      setLiveBuffer('');
-      setHumanStreamText('');
-
-      // 1. Refine ISL raw letters to fluent sentence
-      let queryText = rawBuf;
-      const refined = await refineWithLLM(rawBuf);
-      if (refined && refined.refined_sentence) {
-        queryText = refined.refined_sentence;
-      }
-
-      addMessage('human', queryText);
-
-      // 2. Fetch specific AI answer
-      const aiAnswer = await fetchAIAnswer(queryText);
-      streamText('robot', aiAnswer, () => {
-        sendToRobot(aiAnswer);
-      });
-    }
-  }, [liveBuffer, addMessage, refineWithLLM, fetchAIAnswer, streamText, sendToRobot]);
-
 
   // ─── DEMO MODE: Simulated Conversation ──────────────────────────────────
   const triggerNextHuman = useCallback(() => {
@@ -327,19 +265,17 @@ export function useISLTranslation() {
       setIsStreamingRobot(false);
 
       (async () => {
-        if (apiStatus === 'connected') {
-          const simplified = await simplifyWithLLM(cleanText);
-          const rawKeywords = simplified?.robot_keywords || cleanText;
-          const textToSign = rawKeywords.toUpperCase().replace(/_/g, ' ').replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-          if (textToSign) {
-            sendToRobot(textToSign);
-          }
+        const simplified = await simplifyWithLLM(cleanText);
+        const rawKeywords = simplified?.robot_keywords || cleanText;
+        const textToSign = rawKeywords.toUpperCase().replace(/_/g, ' ').replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (textToSign) {
+          sendToRobot(textToSign);
         }
       })();
       return;
     }
 
-    // Path 1: Deaf user signed input -> AI response -> robot fingerspelling
+    // Path 1: Deaf user signed input -> AI response -> robot fingerspelling (parallel with typewriter)
     addMessage('human', cleanText);
     setHumanText(cleanText);
     setHumanStreamText('');
@@ -349,19 +285,17 @@ export function useISLTranslation() {
     (async () => {
       const fetchedAnswer = await fetchAIAnswer(cleanText);
       const aiAnswer = fetchedAnswer || "Got it! How can I help with that?";
-      
-      streamText('robot', aiAnswer, async () => {
-        if (apiStatus === 'connected') {
-          const simplified = await simplifyWithLLM(aiAnswer);
-          const rawKeywords = simplified?.robot_keywords || aiAnswer;
-          const textToSign = rawKeywords.toUpperCase().replace(/_/g, ' ').replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-          if (textToSign) {
-            sendToRobot(textToSign);
-          }
-        }
-      });
+
+      streamText('robot', aiAnswer);
+
+      const simplified = await simplifyWithLLM(aiAnswer);
+      const rawKeywords = simplified?.robot_keywords || aiAnswer;
+      const textToSign = rawKeywords.toUpperCase().replace(/_/g, ' ').replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+      if (textToSign) {
+        sendToRobot(textToSign);
+      }
     })();
-  }, [addMessage, fetchAIAnswer, streamText, apiStatus, simplifyWithLLM, sendToRobot]);
+  }, [addMessage, fetchAIAnswer, streamText, simplifyWithLLM, sendToRobot]);
 
 
   const clearAll = useCallback(() => {
@@ -375,8 +309,7 @@ export function useISLTranslation() {
     setIsStreamingHuman(false);
     setIsStreamingRobot(false);
     setMessages([]);
-    setLiveBuffer('');
-    setLastPrediction(null);
+    fetch(`${API_BASE}/history/clear`, { method: 'POST' }).catch(() => {});
   }, []);
 
   const [demoStep, setDemoStep] = useState(0);
@@ -434,13 +367,6 @@ export function useISLTranslation() {
     triggerNextRobot,
     clearAll,
 
-    // NEW: Live translation API
-    isLiveMode,
-    setIsLiveMode,
-    translateLandmarks,
-    commitLiveBuffer,
-    lastPrediction,
-    liveBuffer,
     apiStatus,
     checkApiHealth,
     sendToRobot,

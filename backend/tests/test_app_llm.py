@@ -260,3 +260,66 @@ def test_translate_word_validates_frame_shapes(client):
 def test_model_reload_rejects_get(client):
     res = client.get('/api/model/reload')
     assert res.status_code == 405
+
+
+def test_smart_fallback_handles_underscores_and_core_vocab():
+    assert "happy to help" in get_smart_fallback_response("THANK_YOU").lower()
+    assert "good morning" in get_smart_fallback_response("GOOD_MORNING").lower()
+    assert "doctor" in get_smart_fallback_response("DOCTOR").lower()
+
+
+def test_answer_allows_single_digits_and_skips_duplicate_human_turn(client, monkeypatch):
+    import app as app_module
+
+    captured = {}
+
+    def fake_generate(prompt, system_instruction="", **kwargs):
+        captured["prompt"] = prompt
+        captured["system_instruction"] = system_instruction
+        return {"text": "Two items coming up.", "provider": "mock", "fallback_used": False}
+
+    monkeypatch.setattr(app_module, "generate_llm_response", fake_generate)
+    monkeypatch.setattr(
+        app_module,
+        "get_recent_history",
+        lambda limit=5: [
+            {"speaker": "human", "refined_sentence": "2", "raw_text": "2"},
+            {"speaker": "robot", "refined_sentence": "How many do you need?", "raw_text": "how many"},
+        ],
+    )
+
+    res = client.post('/api/llm/answer', json={'text': '2'})
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data['llm_provider'] == 'mock'
+    assert "Human: 2" not in captured["prompt"]
+    assert "Robot: How many do you need?" in captured["prompt"]
+
+
+def test_simplify_includes_supported_vocab_in_prompt(client, monkeypatch):
+    import app as app_module
+
+    captured = {}
+    monkeypatch.setattr(app_module, "get_word_vocabulary", lambda: ["WATER", "DOCTOR", "THANK_YOU"])
+
+    def fake_generate(prompt, system_instruction="", **kwargs):
+        captured["system_instruction"] = system_instruction
+        return {"text": "WATER", "provider": "mock", "fallback_used": False}
+
+    monkeypatch.setattr(app_module, "generate_llm_response", fake_generate)
+
+    res = client.post('/api/llm/simplify', json={'text': 'Can I have water?'})
+    assert res.status_code == 200
+    assert "WATER, DOCTOR, THANK_YOU" in captured["system_instruction"]
+
+
+def test_history_clear_endpoint(client, monkeypatch):
+    import app as app_module
+
+    called = {"cleared": False}
+    monkeypatch.setattr(app_module, "clear_conversation_history", lambda: called.__setitem__("cleared", True) or True)
+
+    res = client.post('/api/history/clear')
+    assert res.status_code == 200
+    assert res.get_json()["cleared"] is True
+    assert called["cleared"] is True

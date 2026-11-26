@@ -52,15 +52,6 @@ const STATES = {
   STABLE: 'stable',
 };
 
-const STATUS_LABELS = {
-  idle: 'Ready',
-  searching: 'Searching for hands...',
-  detected: 'Hands Detected',
-  tracking: 'Tracking Keypoints...',
-  recognising: 'Recognising Sign...',
-  stable: 'Sign Locked',
-};
-
 const WORD_SEQUENCE_LENGTH = 30;
 
 export function isSingleFingerExtended(pts, tipIdx, pipIdx, mcpIdx) {
@@ -91,12 +82,12 @@ export function isThumbExtended(pts) {
 }
 
 export function isPalmFacingCamera(pts) {
-  const wx = pts[0], wy = pts[1], wz = pts[2] || 0;
-  const ix = pts[5 * 3], iy = pts[5 * 3 + 1], iz = pts[5 * 3 + 2] || 0;
-  const px = pts[17 * 3], py = pts[17 * 3 + 1], pz = pts[17 * 3 + 2] || 0;
+  const wx = pts[0], wy = pts[1];
+  const ix = pts[5 * 3], iy = pts[5 * 3 + 1];
+  const px = pts[17 * 3], py = pts[17 * 3 + 1];
 
-  const v1x = ix - wx, v1y = iy - wy, v1z = iz - wz;
-  const v2x = px - wx, v2y = py - wy, v2z = pz - wz;
+  const v1x = ix - wx, v1y = iy - wy;
+  const v2x = px - wx, v2y = py - wy;
 
   const crossZ = v1x * v2y - v1y * v2x;
   const palmWidth = Math.hypot(ix - px, iy - py);
@@ -388,6 +379,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
   // Debug Overlay Metrics
   const [debugOverlay, setDebugOverlay] = useState(GESTURE_CONFIG.DEBUG_OVERLAY_ENABLED);
+  const debugOverlayRef = useRef(debugOverlay);
+  debugOverlayRef.current = debugOverlay;
   const [debugInfo, setDebugInfo] = useState({
     state: 'neutral',
     confidence: 0,
@@ -771,9 +764,10 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         releaseFramesRef.current = GESTURE_CONFIG.RELEASE_FRAMES;
       }
 
-      // Grace period: allow up to 12 dropped tracking frames (~400ms) without clearing the word buffer
-      if (handsMissingCountRef.current < 12 && frameBufferRef.current.length > 0) {
-        return null; // Retain buffer during momentary tracking flicker
+      // Grace period: retain state/buffer during momentary tracking flicker in both Letter and Word modes
+      const missingGraceFrames = recognitionMode === 'word' ? 12 : GESTURE_CONFIG.HAND_LOST_FRAMES;
+      if (handsMissingCountRef.current < missingGraceFrames) {
+        return null;
       }
       setHandInfo(null);
       setStatus(prev => (prev === STATES.SEARCHING ? prev : STATES.SEARCHING));
@@ -904,7 +898,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           const isDifferentWord = (lastCommittedItemRef.current !== pending.word);
           const canRepeat = (nowTime - lastCommitRef.current > 1800);
 
-          if (nowTime - lastCommitRef.current > 900 && (isDifferentWord || canRepeat)) {
+          if (nowTime - lastCommitRef.current > 350 && (isDifferentWord || canRepeat)) {
             setStatus(STATES.STABLE);
             lockedSignRef.current = pending.word;
             setLockedSign(pending.word);
@@ -919,8 +913,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           }
         }
 
-        gestureStateRef.current = GESTURE_STATES.NEUTRAL;
-        setGestureState(GESTURE_STATES.NEUTRAL);
+        const nextState = GESTURE_CONFIG.REQUIRE_NEUTRAL_BETWEEN_SIGNS ? GESTURE_STATES.NEUTRAL : GESTURE_STATES.ARMED;
+        gestureStateRef.current = nextState;
+        setGestureState(nextState);
         neutralHoldCountRef.current = 1;
         currentCandidateRef.current = null;
         candidateStreakRef.current = 0;
@@ -929,14 +924,16 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       }
     }
 
-    setDebugInfo(prev => ({
-      ...prev,
-      state: gestureStateRef.current,
-      neutralStreak: neutralHoldCountRef.current,
-      candidateStreak: candidateStreakRef.current,
-      isNeutral,
-      isIdle
-    }));
+    if (debugOverlayRef.current) {
+      setDebugInfo(prev => ({
+        ...prev,
+        state: gestureStateRef.current,
+        neutralStreak: neutralHoldCountRef.current,
+        candidateStreak: candidateStreakRef.current,
+        isNeutral,
+        isIdle
+      }));
+    }
 
     // Adaptive Guidance for Single-Hand vs Dual-Hand Gestures
     if (handCount === 1) {
@@ -999,8 +996,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       // Start inference only while CAPTURING state is active and sequence has viable length (>= 10 frames)
       const now = Date.now();
       const isCapturing = (gestureStateRef.current === GESTURE_STATES.CAPTURING);
-      const hasViableSequence = isCapturing && (frameBufferRef.current.length >= 10);
-      const isCooldownOver = (now - wordInferenceCooldownRef.current >= 200); // ponytail: 200ms halves round-trips; lower when model inference < 50ms
+      const hasViableSequence = isCapturing && (frameBufferRef.current.length >= 6);
+      const isCooldownOver = (now - wordInferenceCooldownRef.current >= 80); // ponytail: 80ms for instant live responsiveness
 
       if (hasViableSequence && isCooldownOver && !isWordRequestPendingRef.current) {
         wordInferenceCooldownRef.current = now;
@@ -1031,7 +1028,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           // Handle confidence rejection from backend
           if (prediction.rejected || !prediction.word || prediction.word === '?' || prediction.confidence < GESTURE_CONFIG.CONFIDENCE_THRESHOLD_WORD) {
             setStatus(prev => (prev === STATES.TRACKING ? prev : STATES.TRACKING));
-            setDetectedWord(null);
+            // ponytail: retain last detectedWord during active stroke so HUD doesn't flicker off on single-frame dip
             setDetectedLetter(null);
             setConfidence(prev => (Math.abs(prev - (prediction.confidence || 0)) < 0.02 ? prev : (prediction.confidence || 0)));
             setGuidance(prev => (prev === 'Low confidence — adjust your hand position.' ? prev : 'Low confidence — adjust your hand position.'));
@@ -1085,12 +1082,12 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
             // Commit word when gesture decelerates (stroke completion) or has strong confidence / stability
             const isStrokeComplete = strokeEnergy < 0.080 || prediction.confidence >= 0.70 || consecutiveWordRef.current.count >= 2;
 
-            if (isStrokeComplete && (consecutiveWordRef.current.count >= 2 || prediction.confidence >= 0.75)) {
+            if (isStrokeComplete && (consecutiveWordRef.current.count >= 2 || prediction.confidence >= 0.65)) {
               const formattedWord = formatWordForSentence(prediction.word);
               const isDifferentWord = (lastCommittedItemRef.current !== prediction.word);
               const canRepeatSameWord = (now - lastCommitRef.current > 1800);
 
-              if (now - lastCommitRef.current > 1100 && (isDifferentWord || canRepeatSameWord)) {
+              if (now - lastCommitRef.current > 400 && (isDifferentWord || canRepeatSameWord)) {
                 setStatus(STATES.STABLE);
                 lockedSignRef.current = prediction.word;
                 setLockedSign(prediction.word);
@@ -1166,16 +1163,18 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       const dist = prediction.centroid_distance || 0;
       const decisionStart = performance.now();
 
-      setDebugInfo({
-        state: gestureStateRef.current,
-        confidence: conf,
-        margin: margin,
-        distance: dist,
-        neutralStreak: neutralHoldCountRef.current,
-        candidateStreak: candidateStreakRef.current,
-        isNeutral,
-        isIdle
-      });
+      if (debugOverlayRef.current) {
+        setDebugInfo({
+          state: gestureStateRef.current,
+          confidence: conf,
+          margin: margin,
+          distance: dist,
+          neutralStreak: neutralHoldCountRef.current,
+          candidateStreak: candidateStreakRef.current,
+          isNeutral,
+          isIdle
+        });
+      }
 
       // Handle confidence rejection, margin rejection, or out-of-dataset centroid rejection
       const isVal = Boolean(
@@ -1221,15 +1220,6 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
           const votes = recentLetterVotesRef.current;
           votes.push({ label, conf, time: now });
           if (votes.length > 5) votes.shift();
-
-          // Temporary debug log of top-3 predictions per frame for H
-          if (label === 'H' || (prediction.all_scores && 'H' in prediction.all_scores)) {
-            const sortedTop3 = Object.entries(prediction.all_scores || {})
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 3)
-              .map(([letter, score]) => `${letter}:${score.toFixed(3)}`);
-            console.debug(`[Letter H Debug] Top-1: ${label} (${conf.toFixed(3)}) | Top-3: [${sortedTop3.join(', ')}]`);
-          }
 
           // Rule 1: Instant commit on single high-confidence frame
           if (conf >= GESTURE_CONFIG.INSTANT_COMMIT_CONFIDENCE) {

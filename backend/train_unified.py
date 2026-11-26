@@ -591,12 +591,24 @@ def train_word_model():
                     shift = _rng.uniform(-0.025, 0.025, size=(1, aug_sample.shape[1])).astype(np.float32)
                     aug_sample = aug_sample + shift
 
+                # Random 2D/3D camera & wrist rotation (roll/yaw +/- 10 degrees)
+                if _rng.random() < 0.4:
+                    theta = float(_rng.uniform(-0.174, 0.174))
+                    cos_t, sin_t = np.cos(theta), np.sin(theta)
+                    pts_3d = aug_sample.reshape(SEQUENCE_LENGTH, 42, 3).copy()
+                    x_rot = pts_3d[..., 0] * cos_t - pts_3d[..., 1] * sin_t
+                    y_rot = pts_3d[..., 0] * sin_t + pts_3d[..., 1] * cos_t
+                    pts_3d[..., 0] = x_rot
+                    pts_3d[..., 1] = y_rot
+                    aug_sample = pts_3d.reshape(SEQUENCE_LENGTH, NUM_FEATURES)
+
                 # Random time warp / speed variation
                 if _rng.random() < 0.4:
                     speed = _rng.uniform(0.85, 1.15)
                     indices = np.linspace(0, SEQUENCE_LENGTH - 1, int(SEQUENCE_LENGTH * speed))
                     resampled = np.array([aug_sample[int(round(min(max(0, idx), SEQUENCE_LENGTH - 1)))] for idx in indices])
                     final_indices = np.linspace(0, len(resampled) - 1, SEQUENCE_LENGTH)
+                    # pyrefly: ignore[unnecessary-type-conversion]
                     aug_sample = np.array([resampled[int(round(idx))] for idx in final_indices])
 
                 # Random frame dropout (simulate occlusion)
@@ -635,44 +647,10 @@ def train_word_model():
     train_loader = DataLoader(SeqDataset(X_train_kinetic, y_train_aug), batch_size=32, shuffle=True)
     val_loader = DataLoader(SeqDataset(X_val_kinetic, y_val), batch_size=32, shuffle=False)
 
-    # --- Model Architecture ---
-    class CNNBiLSTMWordClassifier(nn.Module):
-        def __init__(self, in_dim=252, cnn_channels=128, hidden_dim=128,
-                     num_classes=17, num_layers=2, dropout=0.3):
-            super().__init__()
-            self.cnn = nn.Sequential(
-                nn.Conv1d(in_dim, 64, kernel_size=3, padding=1),
-                nn.BatchNorm1d(64),
-                nn.ReLU(),
-                nn.Conv1d(64, cnn_channels, kernel_size=3, padding=1),
-                nn.BatchNorm1d(cnn_channels),
-                nn.ReLU(),
-                nn.Dropout(0.2),
-            )
-            self.lstm = nn.LSTM(
-                input_size=cnn_channels, hidden_size=hidden_dim,
-                num_layers=num_layers, batch_first=True, bidirectional=True,
-                dropout=dropout if num_layers > 1 else 0.0
-            )
-            self.attn = nn.Sequential(
-                nn.Linear(hidden_dim * 2, 64),
-                nn.Tanh(),
-                nn.Linear(64, 1),
-            )
-            self.classifier = nn.Sequential(
-                nn.BatchNorm1d(hidden_dim * 2),
-                nn.Linear(hidden_dim * 2, 64), nn.ReLU(), nn.Dropout(dropout),
-                nn.Linear(64, num_classes),
-            )
+    # --- Model Architecture: ST-GCN + CNN-BiLSTM with Attention ---
+    from models.st_gcn import STGCN_BiLSTM_WordClassifier
 
-        def forward(self, x):
-            x_cnn = self.cnn(x.permute(0, 2, 1))
-            lstm_out, _ = self.lstm(x_cnn.permute(0, 2, 1))
-            w = torch.softmax(self.attn(lstm_out), dim=1)
-            pooled = torch.sum(lstm_out * w, dim=1)
-            return self.classifier(pooled)
-
-    model = CNNBiLSTMWordClassifier(in_dim=252, num_classes=len(word_labels))
+    model = STGCN_BiLSTM_WordClassifier(in_dim=252, num_classes=len(word_labels))
     criterion = nn.CrossEntropyLoss(label_smoothing=0.05)
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
@@ -783,11 +761,11 @@ def train_word_model():
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     model_path = MODEL_DIR / 'isl_cnn_lstm_word_model.pt'
     torch.save({
-        'model_type': 'cnn_bilstm',
+        'model_type': 'stgcn_bilstm',
         'model_state_dict': model.state_dict(),
         'input_dim': 252,
         'has_attention': True,
-        'cnn_channels': 128,
+        'gcn_channels': 64,
         'hidden_dim': 128,
         'sequence_length': SEQUENCE_LENGTH,
         'num_classes': len(word_labels),

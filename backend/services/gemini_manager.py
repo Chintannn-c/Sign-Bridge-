@@ -382,18 +382,27 @@ class GeminiManager:
 
         total_retries = 0
         overall_errors: List[str] = []
+        deadline_ts = (time.monotonic() + timeout) if timeout is not None else None
 
         for model_idx, model_name in enumerate(candidate_models):
+            if deadline_ts is not None and time.monotonic() >= deadline_ts:
+                break
             # Refresh available keys in case cooldowns expired
             active_keys = self.key_manager.get_available_keys()
             if not active_keys:
                 break
 
             for key_info in active_keys:
+                if deadline_ts is not None and time.monotonic() >= deadline_ts:
+                    break
                 logger.info(f"[Gemini] Attempting request | Model: {model_name} | Key: {key_info.key_id}")
                 
                 # Attempt request with exponential backoff on transient errors
                 for attempt in range(1, self.max_retries + 1):
+                    remaining = (deadline_ts - time.monotonic()) if deadline_ts is not None else None
+                    if remaining is not None and remaining <= 0:
+                        break
+                    call_timeout = max(0.5, remaining) if remaining is not None else None
                     try:
                         text_output = self._call_sdk(
                             key_info=key_info,
@@ -402,7 +411,7 @@ class GeminiManager:
                             system_instruction=system_instruction,
                             temperature=temperature,
                             max_output_tokens=max_output_tokens,
-                            timeout=timeout
+                            timeout=call_timeout
                         )
 
                         if text_output and text_output.strip():
@@ -444,6 +453,8 @@ class GeminiManager:
                         if error_type in (GeminiErrorType.SERVER_ERROR, GeminiErrorType.TIMEOUT, GeminiErrorType.NETWORK_ERROR):
                             if attempt < self.max_retries:
                                 backoff = min(8.0, 1.0 * (2 ** (attempt - 1)))
+                                if deadline_ts is not None and (time.monotonic() + backoff) >= deadline_ts:
+                                    break
                                 logger.info(f"[Gemini] Transient error on {key_info.key_id}. Retrying in {backoff:.1f}s (Attempt {attempt}/{self.max_retries})...")
                                 time.sleep(backoff)
                             else:
@@ -470,24 +481,39 @@ class GeminiManager:
         if not client:
             raise RuntimeError(f"SDK client not initialized for {key_info.key_id}")
 
-        full_prompt = f"{system_instruction}\n\nUser Input: {prompt}" if system_instruction else prompt
-
         if key_info.sdk_mode == "genai" and hasattr(client, "models"):
-            # Modern google-genai SDK
-            response = client.models.generate_content(
-                model=model_name,
-                contents=full_prompt,
-            )
+            # Modern google-genai SDK: apply system_instruction, temperature, token limit, and HTTP timeout
+            call_kwargs: Dict[str, Any] = {"model": model_name, "contents": prompt}
+            try:
+                from google.genai import types as genai_types
+                cfg_kwargs: Dict[str, Any] = {
+                    "temperature": temperature,
+                    "max_output_tokens": max_output_tokens,
+                }
+                if system_instruction:
+                    cfg_kwargs["system_instruction"] = system_instruction
+                effective_timeout = timeout if timeout is not None else self.timeout_sec
+                if effective_timeout:
+                    cfg_kwargs["http_options"] = genai_types.HttpOptions(timeout=int(max(1000, effective_timeout * 1000)))
+                call_kwargs["config"] = genai_types.GenerateContentConfig(**cfg_kwargs)
+            except Exception:
+                call_kwargs["contents"] = f"{system_instruction}\n\nUser Input: {prompt}" if system_instruction else prompt
+
+            response = client.models.generate_content(**call_kwargs)
             raw_text = getattr(response, "text", None)
             if raw_text is not None:
                 return str(raw_text)
 
         elif key_info.sdk_mode == "legacy" and hasattr(client, "GenerativeModel"):
             # Legacy google.generativeai SDK
-            # Reconfigure legacy module globally with current key
             client.configure(api_key=key_info.api_key)
-            model_obj = client.GenerativeModel(model_name)
-            response = model_obj.generate_content(full_prompt)
+            model_obj = client.GenerativeModel(
+                model_name,
+                system_instruction=system_instruction or None,
+            )
+            gen_cfg = {"temperature": temperature, "max_output_tokens": max_output_tokens}
+            req_opts = {"timeout": timeout if timeout is not None else self.timeout_sec}
+            response = model_obj.generate_content(prompt, generation_config=gen_cfg, request_options=req_opts)
             raw_text = getattr(response, "text", None)
             if raw_text is not None:
                 return str(raw_text)

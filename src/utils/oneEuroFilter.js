@@ -80,7 +80,9 @@ export class OneEuroFilter {
  * Smoothing filter array for 42 hand landmarks (126 floats: 2 hands x 21 joints x 3 coordinates)
  */
 export class LandmarkSmoother {
-  constructor(numPoints = 42, minCutoff = 1.2, beta = 0.005) {
+  constructor(numPoints = 42, minCutoff = 1.2, beta = 0.005, resetAfterFrames = 4) {
+    this.resetAfterFrames = resetAfterFrames;
+    this.missingCount = [0, 0];
     this.filters = [];
     for (let i = 0; i < numPoints * 3; i++) {
       this.filters.push(new OneEuroFilter(minCutoff, beta));
@@ -89,14 +91,14 @@ export class LandmarkSmoother {
 
   /**
    * Smooth flat landmark array of shape [x1, y1, z1, x2, y2, z2, ...]
-   * Points at (0, 0, 0) immediately reset their filters so that when the hand
-   * reappears or moves, it snaps to true position without dragging across the screen.
+   * Defers resetting a hand's filters across brief 1..resetAfterFrames drops
+   * so momentary tracking flickers don't cause cold-start snapping.
    */
-  smooth(landmarks, timestamp = Date.now()) {
+  smooth(landmarks, timestamp = performance.now()) {
     if (!landmarks || landmarks.length === 0) return landmarks;
 
-    // Detect slot swap / large sudden jump per hand (e.g. wrist jumping > 0.18 across the screen)
-    // and reset that hand's filters so it snaps immediately without dragging ghost points across the frame.
+    // Detect slot swap / large sudden jump per hand (e.g. wrist jumping > ~26% of frame)
+    // and reset that hand's filters so it snaps immediately without dragging ghost points.
     for (let h = 0; h < 2; h++) {
       const wIdx = h * 63;
       if (wIdx < landmarks.length && (landmarks[wIdx] !== 0 || landmarks[wIdx + 1] !== 0)) {
@@ -105,7 +107,7 @@ export class LandmarkSmoother {
         if (fX && fY && fX.initialized && fY.initialized) {
           const dx = landmarks[wIdx] - fX.y;
           const dy = landmarks[wIdx + 1] - fY.y;
-          if (dx * dx + dy * dy > 0.035) {
+          if (dx * dx + dy * dy > 0.07) {
             this.resetHand(h);
           }
         }
@@ -113,26 +115,50 @@ export class LandmarkSmoother {
     }
 
     const result = new Array(landmarks.length);
-    for (let i = 0; i < landmarks.length; i += 3) {
-      const isMissing = landmarks[i] === 0 && landmarks[i + 1] === 0 && landmarks[i + 2] === 0;
-      if (isMissing) {
-        result[i] = 0;
-        result[i + 1] = 0;
-        result[i + 2] = 0;
-        if (i + 2 < this.filters.length) {
-          this.filters[i].reset();
-          this.filters[i + 1].reset();
-          this.filters[i + 2].reset();
+    for (let h = 0; h < 2; h++) {
+      const start = h * 63;
+      const end = Math.min(start + 63, landmarks.length);
+      if (start >= end) continue;
+
+      let handPresent = false;
+      for (let i = start; i < end; i += 3) {
+        if (landmarks[i] !== 0 || landmarks[i + 1] !== 0 || landmarks[i + 2] !== 0) {
+          handPresent = true;
+          break;
         }
+      }
+
+      if (!handPresent) {
+        this.missingCount[h] += 1;
+        if (this.missingCount[h] > this.resetAfterFrames) {
+          this.resetHand(h);
+        }
+        result.fill(0, start, end);
         continue;
       }
 
-      for (let k = 0; k < 3; k++) {
-        const idx = i + k;
-        if (idx < this.filters.length) {
-          result[idx] = this.filters[idx].filter(landmarks[idx], timestamp);
-        } else {
-          result[idx] = landmarks[idx];
+      this.missingCount[h] = 0;
+      for (let i = start; i < end; i += 3) {
+        const isMissing = landmarks[i] === 0 && landmarks[i + 1] === 0 && landmarks[i + 2] === 0;
+        if (isMissing) {
+          result[i] = 0;
+          result[i + 1] = 0;
+          result[i + 2] = 0;
+          if (i + 2 < this.filters.length) {
+            this.filters[i].reset();
+            this.filters[i + 1].reset();
+            this.filters[i + 2].reset();
+          }
+          continue;
+        }
+
+        for (let k = 0; k < 3; k++) {
+          const idx = i + k;
+          if (idx < this.filters.length) {
+            result[idx] = this.filters[idx].filter(landmarks[idx], timestamp);
+          } else {
+            result[idx] = landmarks[idx];
+          }
         }
       }
     }
@@ -140,6 +166,7 @@ export class LandmarkSmoother {
   }
 
   resetHand(handIdx = 0) {
+    this.missingCount[handIdx] = 0;
     const start = handIdx * 63;
     const end = start + 63;
     for (let i = start; i < end && i < this.filters.length; i++) {
@@ -148,6 +175,7 @@ export class LandmarkSmoother {
   }
 
   reset() {
+    this.missingCount = [0, 0];
     for (const filter of this.filters) {
       filter.reset();
     }

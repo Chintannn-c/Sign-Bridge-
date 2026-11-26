@@ -1,20 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Keyboard, Send, X, Trash2, Sparkles } from 'lucide-react';
+import { Keyboard, Send, X, Trash2 } from 'lucide-react';
 import { CameraView } from './CameraView';
 import { SentenceBuilder } from './SignLanguageAssistant/SentenceBuilder';
-
-/**
- * Dynamically scale font size down as message length grows so full text stays completely visible.
- */
-function getDynamicFontSize(textLength) {
-  if (textLength > 65) return 'clamp(0.85rem, 1.0vw, 1.05rem)';
-  if (textLength > 45) return 'clamp(0.95rem, 1.2vw, 1.2rem)';
-  if (textLength > 28) return 'clamp(1.1rem, 1.5vw, 1.4rem)';
-  if (textLength > 16) return 'clamp(1.3rem, 1.9vw, 1.75rem)';
-  if (textLength > 8) return 'clamp(1.55rem, 2.3vw, 2.1rem)';
-  return 'clamp(1.8rem, 2.8vw, 2.5rem)';
-}
 
 /**
  * HumanPanel Component - Left Panel Card ("YOU")
@@ -38,9 +26,6 @@ export const HumanPanel = React.memo(({
   const rawBuffer = recognitionState?.sentenceBuffer || '';
   const sentenceBuffer = isCameraOn ? rawBuffer : (fullText || '');
   const hasLiveSentence = Boolean(sentenceBuffer && sentenceBuffer.trim().length > 0);
-  const isAutoSending = Boolean(recognitionState?.isAutoSending);
-  const inactivityCountdown = recognitionState?.inactivityCountdown;
-  const detectedSign = recognitionState?.detectedSign || recognitionState?.detectedLetter || recognitionState?.detectedWord;
   const displayText = isStreaming
     ? streamingText
     : (hasLiveSentence
