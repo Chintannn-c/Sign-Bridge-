@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LandmarkSmoother } from '../utils/oneEuroFilter';
+import { computeHandOverlap } from '../components/SignLanguageAssistant/overlayEngine';
 
 /**
  * Custom React Hook for MediaPipe Holistic integration.
@@ -186,7 +187,7 @@ export function useHandDetection({
   enabled = false,
   onLandmarks = null,
   throttleMs = 35,
-  preferredPipeline = 'hands',
+  preferredPipeline = 'holistic',
 }) {
   const [pipelineMode, setPipelineMode] = useState(preferredPipeline); // 'hands' | 'holistic'
   const [isLoaded, setIsLoaded] = useState(false);
@@ -261,10 +262,12 @@ export function useHandDetection({
       if (props.onLandmarks && (now - lastCallRef.current) >= props.throttleMs) {
         lastCallRef.current = now;
         const handednessStr = nHands >= 2 ? 'Both Hands' : (separation.leftHand ? 'Left' : 'Right');
+        const handOverlap = computeHandOverlap(smoothedLandmarks);
         try {
           props.onLandmarks(smoothedLandmarks, nHands, handednessStr, {
             poseLandmarks: pose,
             bodyAnchors: anchors,
+            handOverlap,
             captureTime: captureTs,
           });
         } catch (cbErr) {
@@ -345,7 +348,11 @@ export function useHandDetection({
         await loadScript(MEDIAPIPE_CAMERA);
 
         if (pipelineMode === 'holistic') {
-          await loadScript(MEDIAPIPE_HOLISTIC_CDN);
+          try {
+            await loadScript(MEDIAPIPE_HOLISTIC_CDN);
+          } catch (holisticErr) {
+            console.warn('Holistic CDN unavailable, falling back to MediaPipe Hands:', holisticErr);
+          }
           if (cancelled) return;
 
           if (typeof window.Holistic !== 'undefined') {
@@ -415,6 +422,13 @@ export function useHandDetection({
                   r_hand_to_chest: getHandDist(separation.rightHand, chest),
                   l_elevation: separation.leftHand ? (leftShoulder.y - separation.leftHand[0].y) / shoulderDist : 0,
                   r_elevation: separation.rightHand ? (rightShoulder.y - separation.rightHand[0].y) / shoulderDist : 0,
+                  pose_points: [
+                    nose?.x || 0, nose?.y || 0, nose?.z || 0,
+                    leftShoulder?.x || 0, leftShoulder?.y || 0, leftShoulder?.z || 0,
+                    rightShoulder?.x || 0, rightShoulder?.y || 0, rightShoulder?.z || 0,
+                    leftElbow?.x || 0, leftElbow?.y || 0, leftElbow?.z || 0,
+                    rightElbow?.x || 0, rightElbow?.y || 0, rightElbow?.z || 0,
+                  ],
                 };
               }
 

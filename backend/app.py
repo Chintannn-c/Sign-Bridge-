@@ -455,12 +455,37 @@ def llm_refine():
     )
 
     try:
+        payload = request.get_json(silent=True) or {}
+        raw_alts = payload.get('alternatives') if isinstance(payload, dict) else None
+        alt_hints: list[str] = []
+        if isinstance(raw_alts, list):
+            for entry in raw_alts[:6]:
+                if not isinstance(entry, dict):
+                    continue
+                sign_name = re.sub(r'[^A-Za-z0-9_ ]', '', str(entry.get('sign', '')))[:24]
+                cands = entry.get('candidates')
+                if sign_name and isinstance(cands, list):
+                    cand_strs = []
+                    for c in cands[:3]:
+                        if isinstance(c, dict) and c.get('label'):
+                            lbl = re.sub(r'[^A-Za-z0-9_]', '', str(c['label']))[:24]
+                            prob = safe_float(c.get('prob'), 0.0)
+                            if lbl:
+                                cand_strs.append(f"{lbl}({prob:.2f})")
+                    if cand_strs:
+                        alt_hints.append(f"{sign_name} -> [{', '.join(cand_strs)}]")
+
+        prompt_text = text
+        if alt_hints:
+            prompt_text = f"{text}\n\nUncertain sign alternatives (disambiguate using context if needed): {'; '.join(alt_hints)}"
+
         res = generate_llm_response(
-            text,
+            prompt_text,
             system_instruction=system_instruction,
             temperature=0.3,
             max_tokens=80,
-            local_fallback=fallback_refine
+            local_fallback=fallback_refine,
+            user_query=text
         )
         cleaned_text = limit_sentences(clean_llm_text(res['text']))
         provider = res['provider']
@@ -813,8 +838,7 @@ def translate():
 
     try:
         body_anchors = data.get('body_anchors')
-        with model_reload_lock:
-            result = translator.predict(landmarks, body_anchors=body_anchors)
+        result = translator.predict(landmarks, body_anchors=body_anchors)
 
         conf_raw = result.get('confidence', 0.0)
         confidence = safe_float(conf_raw, 0.0)
@@ -860,8 +884,7 @@ def translate_batch():
 
     for frame_landmarks in frames:
         try:
-            with model_reload_lock:
-                result = translator.predict(frame_landmarks)
+            result = translator.predict(frame_landmarks)
             results.append(result)
             conf_raw = result.get('confidence', 0.0)
             conf_val = safe_float(conf_raw, 0.0)
@@ -928,8 +951,7 @@ def translate_word():
 
     try:
         body_anchors = data.get('body_anchors')
-        with model_reload_lock:
-            result = word_recognizer.predict(frames, body_anchors=body_anchors)
+        result = word_recognizer.predict(frames, body_anchors=body_anchors)
         if result is None:
             return jsonify({'error': 'Word prediction failed or input invalid.'}), 400
 

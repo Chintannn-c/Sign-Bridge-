@@ -154,3 +154,63 @@ export function computeRippleStep(rip, now) {
   };
 }
 
+function getHandBBox(landmarks, offset) {
+  let xMin = Infinity, yMin = Infinity, xMax = -Infinity, yMax = -Infinity;
+  let valid = 0;
+  for (let i = 0; i < 21; i++) {
+    const x = landmarks[offset + i * 3];
+    const y = landmarks[offset + i * 3 + 1];
+    if (isPresent(x, y)) {
+      if (x < xMin) xMin = x;
+      if (y < yMin) yMin = y;
+      if (x > xMax) xMax = x;
+      if (y > yMax) yMax = y;
+      valid++;
+    }
+  }
+  return valid > 0 ? { xMin, yMin, xMax, yMax } : null;
+}
+
+/**
+ * Computes per-hand bounding boxes and overlap IoU from 126-float landmarks
+ * to detect interlocking/occluding hands for confidence-gated disambiguation.
+ */
+export function computeHandOverlap(landmarks, iouThreshold = 0.15) {
+  if (!landmarks || landmarks.length < 126) {
+    return { hasLeft: false, hasRight: false, iou: 0, isOverlapping: false, box: null };
+  }
+  const leftBox = getHandBBox(landmarks, 0);
+  const rightBox = getHandBBox(landmarks, 63);
+  const hasLeft = Boolean(leftBox);
+  const hasRight = Boolean(rightBox);
+
+  let unionBox = leftBox || rightBox;
+  let iou = 0;
+
+  if (leftBox && rightBox) {
+    const ixMin = Math.max(leftBox.xMin, rightBox.xMin);
+    const iyMin = Math.max(leftBox.yMin, rightBox.yMin);
+    const ixMax = Math.min(leftBox.xMax, rightBox.xMax);
+    const iyMax = Math.min(leftBox.yMax, rightBox.yMax);
+    const interArea = Math.max(0, ixMax - ixMin) * Math.max(0, iyMax - iyMin);
+    const areaL = Math.max(0, leftBox.xMax - leftBox.xMin) * Math.max(0, leftBox.yMax - leftBox.yMin);
+    const areaR = Math.max(0, rightBox.xMax - rightBox.xMin) * Math.max(0, rightBox.yMax - rightBox.yMin);
+    const unionArea = areaL + areaR - interArea;
+    iou = unionArea > 1e-6 ? interArea / unionArea : 0;
+    unionBox = {
+      xMin: Math.min(leftBox.xMin, rightBox.xMin),
+      yMin: Math.min(leftBox.yMin, rightBox.yMin),
+      xMax: Math.max(leftBox.xMax, rightBox.xMax),
+      yMax: Math.max(leftBox.yMax, rightBox.yMax),
+    };
+  }
+
+  return {
+    hasLeft,
+    hasRight,
+    iou,
+    isOverlapping: Boolean(hasLeft && hasRight && iou > iouThreshold),
+    box: unionBox,
+  };
+}
+

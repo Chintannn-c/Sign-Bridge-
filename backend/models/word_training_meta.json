@@ -1,9 +1,9 @@
 {
   "model_type": "random_forest_sequence",
-  "train_samples": 14258,
-  "val_samples": 1347,
-  "validation_accuracy_evaluable": 0.29398663697104677,
-  "num_classes": 57,
+  "train_samples": 14500,
+  "val_samples": 1348,
+  "validation_accuracy_evaluable": 0.2314540059347181,
+  "num_classes": 58,
   "labels": [
     "AGAIN",
     "BAD",
@@ -39,6 +39,7 @@
     "MY_NAME_IS",
     "NAMASTE",
     "NO",
+    "NONE",
     "NO_FEAR",
     "PEACE",
     "PLEASE",

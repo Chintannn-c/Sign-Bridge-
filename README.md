@@ -1,151 +1,110 @@
-# SignBridge: Dual-Communication Indian Sign Language (ISL) Kiosk & Robotic Actuation System
+# SignBridge: Two-Way Indian Sign Language (ISL) Kiosk & Robotic Actuation System
 
-[![React](https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![React](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8.1-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=flat-square&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![XGBoost](https://img.shields.io/badge/XGBoost-Tree_Classifier-EB5424?style=flat-square)](https://xgboost.readthedocs.io/)
-[![MediaPipe](https://img.shields.io/badge/MediaPipe-Dual_Hand_Tracking-00897B?style=flat-square)](https://developers.google.com/mediapipe)
-[![Waitress](https://img.shields.io/badge/Waitress-3.0-4B8BBE?style=flat-square)](https://docs.pylonsproject.org/projects/waitress/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![MediaPipe](https://img.shields.io/badge/MediaPipe-Holistic_+_Hands-00897B?style=flat-square)](https://developers.google.com/mediapipe)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](docker-compose.yml)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Manifests-326CE5?style=flat-square&logo=kubernetes&logoColor=white)](k8s/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
-> **A production-hardened, bidirectional assistive communication kiosk bridging Indian Sign Language (ISL) and spoken English through real-time dual-hand tracking, multi-tier AI inference, and physical dual-robotic hand actuation.**
+> **A real-time, bidirectional Indian Sign Language (ISL) communication kiosk combining browser MediaPipe Holistic tracking, calibrated PyTorch + XGBoost recognition over WebSockets, Top-K LLM sentence refinement, and 10-servo physical robotic hand actuation.**
 
 ---
 
 ## Table of Contents
 
-- [Project Overview](#-project-overview)
-- [Key Features](#-key-features)
-- [Tech Stack](#-tech-stack)
-- [System Architecture](#-system-architecture)
-- [Project Workflow](#-project-workflow)
-- [Project Structure](#-project-structure)
-- [Installation & Setup](#-installation--setup)
-- [Environment Variables](#-environment-variables)
-- [Keyboard Shortcuts & Kiosk Controls](#-keyboard-shortcuts--kiosk-controls)
-- [API Documentation](#-api-documentation)
-- [AI/ML Models & Benchmarks](#-aiml-models--benchmarks)
-- [Robotics & Hardware Actuation Layer](#-robotics--hardware-actuation-layer)
-- [Testing & Quality Verification](#-testing--quality-verification)
-- [Security & Resource Hardening](#-security--resource-hardening)
-- [Limitations & Future Roadmap](#-limitations--future-roadmap)
-- [License & Acknowledgements](#-license--acknowledgements)
+- [Project Overview](#project-overview)
+- [Key Upgrades & Features](#key-upgrades--features)
+- [Tech Stack](#tech-stack)
+- [System Architecture](#system-architecture)
+- [Project Structure](#project-structure)
+- [Local Setup & Usage](#local-setup--usage)
+- [Docker Deployment](#docker-deployment)
+- [Kubernetes Deployment](#kubernetes-deployment)
+- [Environment Variables](#environment-variables)
+- [API & WebSocket Reference](#api--websocket-reference)
+- [AI/ML Models & Verified Benchmarks](#aiml-models--verified-benchmarks)
+- [Robotics & Hardware Actuation Layer](#robotics--hardware-actuation-layer)
+- [Verification & Testing](#verification--testing)
+- [Security & Hardening](#security--hardening)
+- [License & Acknowledgements](#license--acknowledgements)
 
 ---
 
 ## Project Overview
 
-Communication barriers between the Deaf and Hard-of-Hearing (DHH) community and hearing individuals create critical friction in healthcare, transport desks, banking counters, and public administration. Unlike American Sign Language (ASL), Indian Sign Language (ISL) is predominantly **two-handed**, rendering conventional single-hand sign translation tools ineffective.
+Indian Sign Language (ISL) is predominantly **two-handed** and relies on both handshapes and body-relative signing space. **SignBridge** provides two synchronized communication paths on a split-screen kiosk:
 
-**SignBridge** is an edge kiosk platform featuring a two-way pipeline:
-1. **Perception Engine (Deaf $\rightarrow$ Hearing)**: Tracks 42 3D skeletal landmarks across both hands (126 coordinates) at 30 FPS in browser WebAssembly. Dual ML models recognize static fingerspelling ($A-Z$) and 57 dynamic ISL vocabulary words (at 5.75 ms latency). An LLM engine refines recognized sign tokens into natural, grammatically correct English and speaks it aloud.
-2. **Actuation Engine (Hearing $\rightarrow$ Deaf)**: Captures spoken audio from hearing staff, simplifies it into core ISL grammar tokens via LLM gloss extraction, and commands **dual 5-finger physical robotic hands** (10x SG90 servos driven by Arduino Mega / ROS2 middleware) to physically perform the sign gestures.
+1. **Perception Engine (Deaf → Hearing):** Tracks `42` 3D hand landmarks (`126` floats) plus `5` upper-body pose anchors (`15` floats: nose, shoulders, elbows) in the browser using MediaPipe Holistic (with automatic Hands fallback), smooths coordinates with a **One-Euro filter** (`LandmarkSmoother`) and `4`-frame occlusion coasting at `30–60 FPS`, and streams frames over WebSockets (`:5001`) or REST (`:5000`). A calibrated **XGBoost + Anatomical ST-GCN ensemble** classifies `26` letters (`A–Z`) and a **Two-Stream Temporal Conformer** classifies `58` dynamic words (including `NONE` idle/transition filtering). Uncertain signs attach `top_k` candidates so a multi-key **Groq → Gemini** pipeline reconstructs natural English sentences and speaks them via Web Speech TTS.
+2. **Actuation Engine (Hearing → Deaf):** Converts spoken/typed responses into ISL keywords in parallel with UI rendering and commands dual 5-finger robotic hands (`10× SG90` micro-servos via Arduino USB serial @ `9600` baud, or an extensible `ROS2ActuatorStub`).
 
 ---
 
-## Key Features
+## Key Upgrades & Features
 
-- **Dual-Hand Real-Time Tracking**: MediaPipe HandLandmarker extracts 42 3D keypoints ($21 \times 2$ hands = 126 coordinates) at 30 FPS with sub-33ms frame latency and zero WebAssembly memory leaks.
-- **Multi-Tier AI Recognition Pipeline**:
-  - **Static Alphabet Classifier (XGBoost & ST-GCN)**: 26 manual ISL alphabet signs ($A–Z$) classified in $<0.5\text{ ms}$ on single-frame invariant geometric features.
-  - **Temporal Word Recognizer (1D-CNN + BiLSTM)**: 57 dynamic ISL vocabulary words and conversational phrases classified over a 30-frame temporal window with **93.3% test accuracy** and **5.75 ms inference latency**.
-- **Optimised Inference Hot-Path**:
-  - Vectorised landmark normalisation (`normalize_landmarks_batch`) processes all 30 frames in a single NumPy broadcast — replacing a 30-iteration Python loop for a **3–8× speedup** on the pre-processing step.
-  - O(1) fixed-capacity ring buffer (`RingBuffer`) for the sliding frame window eliminates `Array.shift()` memory moves at 30 fps.
-  - Word-inference HTTP round-trips halved (200 ms cooldown) with zero per-frame float-allocation overhead.
-- **Dual-Provider LLM Linguistic Refinement**:
-  - Automatically reconstructs raw gloss buffers into natural sentences using Groq LPU (`llama-3.3-70b-versatile`) with seamless fallback to Google Gemini (`gemini-1.5-flash`).
-  - Simplifies spoken responses into sequential ISL keywords for physical robotic execution.
-- **Physical Dual Robotic Hand Actuation**:
-  - Custom PySerial hardware driver communicates with an Arduino Mega over USB at 9600 baud, controlling 10 SG90 micro-servos across dual hands.
-  - Extensible ROS2 adapter stub (`BaseRobotActuator`, `ROS2ActuatorStub`) ready for industrial multi-axis robotic arms.
-- **Production WSGI Server**: Served by **Waitress 3.0** (pure-Python, Windows-native) in production mode; falls back to Werkzeug automatically when `FLASK_DEBUG=true`.
-- **Kiosk User Interface & Fullscreen HUD**:
-  - High-visibility dual-panel layout (Human Deaf Panel vs. Robot Assistant Panel) with live landmark overlays, soundwave indicators, and keyboard shortcuts (`F` for fullscreen HUD).
-- **Dual Live & Demo Modes**:
-  - Instant toggle between live camera/hardware inference and simulated typewriter feeds for exhibitions and offline testing.
+- **Stabilized Dual-Hand + Body Tracking ([useHandDetection.js](src/hooks/useHandDetection.js), [oneEuroFilter.js](src/utils/oneEuroFilter.js)):**
+  - MediaPipe Holistic default pipeline (`pose_points` + `42` hand joints + `computeHandOverlap`) with transparent fallback to `@mediapipe/hands`.
+  - Velocity-adaptive One-Euro smoothing with jump-reset threshold (`0.07`) and `4`-frame coasting (`COAST_MAX_FRAMES = 4`) across transient tracking drops.
+  - `60 FPS` ideal / `30 FPS` minimum camera constraints ([useWebcam.js](src/hooks/useWebcam.js)) and `O(1)` `RingBuffer` frame windowing.
+- **Calibrated Hybrid Alphabet Engine ([translator_model.py](backend/services/translator_model.py), [st_gcn.py](backend/models/st_gcn.py)):**
+  - Blends **XGBoost (`geometric_invariants_208d`)** and **Anatomical ST-GCN (`pooling='anatomical'`)** using validation-tuned ensemble weights (`0.90 * XGB + 0.10 * ST-GCN, T=0.45`).
+  - Returns `top_k` candidate hypotheses and `needs_crop` flags for ambiguity resolution, gated by confidence (`0.75`), margin (`0.10`), and per-class centroid distance validation.
+- **Two-Stream Temporal Word Recognizer ([temporal_conformer.py](backend/models/temporal_conformer.py), [word_recognizer.py](backend/services/word_recognizer.py)):**
+  - Separates clip-anchored body-space trajectories (`Stream A`) from wrist-centered finger handshapes (`Stream B`) into a `252`-D temporal tensor over `30` frames.
+  - `58` word classes (including explicit `NONE` idle/transition rejection) via `TemporalConformerWordClassifier` (`Depthwise Conv1D` + 2-layer Transformer + Attention Pooling), with `RandomForest` `.pkl` fallback.
+- **Top-K LLM Disambiguation & Parallel Actuation ([app.py](backend/app.py), [groq_manager.py](backend/services/groq_manager.py), [gemini_manager.py](backend/services/gemini_manager.py)):**
+  - Passes ambiguous sign alternatives (`alternatives`) into `/api/llm/refine`.
+  - Prioritizes fast Groq models (`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`) with caller-enforced timeouts, dual-key rotation, automatic failover to Google Gemini (`google-genai` / `google.generativeai`), and offline keyword fallback.
+  - Parallelizes `/api/llm/simplify` + `/api/robot/sign` when generating kiosk replies ([useISLTranslation.js](src/hooks/useISLTranslation.js)).
 
 ---
 
 ## Tech Stack
 
-| Category | Technology | Purpose |
+| Layer | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Frontend** | React 19, Vite 8 | Reactive kiosk presentation interface and desktop display |
-| **Styling & UI** | Vanilla CSS, Glassmorphic Tokens | Clean, high-contrast dark theme with HUD overlay |
-| **Icons & Transitions** | Lucide React | Production status badges, soundwaves, and control icons |
-| **Computer Vision** | Google MediaPipe (`@mediapipe/tasks-vision`) | In-browser WebAssembly 42-point 3D dual hand landmark extraction |
-| **Backend Framework** | Python 3.10+, Flask 3.0, Flask-CORS | Edge REST API server and inference dispatcher |
-| **Machine Learning** | XGBoost, Scikit-Learn | High-speed gradient-boosted decision tree for static alphabets |
-| **Deep Learning** | PyTorch 2.0+ (`torch`) | 1D-CNN + BiLSTM sequence network and ST-GCN hand graph model |
-| **LLM Inference** | Groq SDK, Google GenAI SDK | Sub-100ms Llama-3.3-70B and Gemini 1.5 Flash sentence refiner |
-| **Embedded / Hardware** | PySerial, Arduino (C++) | USB serial protocol driving 10x SG90 servos across two hands |
-| **Robotics Middleware** | Python `BaseRobotActuator`, ROS2 Stub | Topic publishing adapter for dual robotic arm middleware |
-| **Database** | SQLite 3 (`signbridge.db`) | Embedded persistence for session logs and collected data |
-| **Testing & Quality** | Pytest, Oxlint, Graphify | Automated test suite (20/20 passed), zero-lint JS, AST graph |
-| **Production WSGI** | Waitress 3.0 | Pure-Python, Windows-native production server; replaces Werkzeug in non-debug mode |
+| **Frontend** | React 19, Vite 8, Framer Motion, Lucide | Split-screen kiosk UI, HUD overlays, Web Speech synthesis |
+| **Vision & Smoothing** | MediaPipe Holistic & Hands, One-Euro Filter | In-browser `42` hand + `5` upper-body landmarks (`30–60 FPS`) |
+| **Transport & Server** | Flask 3.0, Waitress 3.0, `websockets` | REST API (`:5000`), live prediction WebSocket (`:5001`), rate limits |
+| **ML / Deep Learning** | XGBoost, PyTorch, Scikit-Learn, NumPy | Calibrated Hybrid Letter Ensemble & Two-Stream Word Conformer |
+| **LLM Providers** | Groq SDK, Google GenAI SDK | Gloss refinement, conversational Q&A, ISL simplification |
+| **Storage & Hardware** | SQLite 3, PySerial, Arduino (C++), ROS2 Stub | Dialogue persistence (`/data/signbridge.db`) & `10`-servo control |
+| **Containers & Orchestration** | Docker, Docker Compose, Nginx, Kubernetes | Multi-stage builds, reverse proxy, PVC storage, Ingress routing |
 
 ---
 
 ## System Architecture
 
-```
-                            ┌──────────────────────────────────────────────┐
-                            │          KIOSK PRESENTATION LAYER            │
-                            │     React 19 + Vite (SignBridgeKiosk)        │
-                            └──────┬────────────────────────────────┬──────┘
-                                   │                                │
-             126 Landmark Floats   │                                │ Spoken / Typed Text
-             (Left + Right Hand)   │                                │
-                                   ▼                                ▼
-┌──────────────────────────────────────────┐    ┌──────────────────────────────────────────┐
-│      PERCEPTION ENGINE (Path 1)          │    │       ACTUATION ENGINE (Path 2)          │
-│       Python 3 + Flask REST API          │    │       LLM Simplifier + Hardware Driver   │
-│                                          │    │                                          │
-│ 1. XGBoost (Alphabet: A-Z)               │    │ 1. LLM Keyword Simplification            │
-│ 2. CNN-BiLSTM (Temporal: 57 ISL Words)   │    │    (Groq Llama 3.3 -> Gemini 1.5)        │
-│ 3. LLM Refinement (Groq -> Gemini)       │    │ 2. PySerial USB Driver (Arduino Mega)    │
-│ 4. Web Speech API (Audio TTS Output)     │    │ 3. Dual Robotic Hands (10x SG90 Servos)  │
-│                                          │    │ 4. ROS2 Middleware Adapter Stub          │
-└──────────────────────────────────────────┘    └──────────────────────────────────────────┘
-```
-
-Detailed architectural specifications and class boundaries are documented in [ARCHITECTURE.md](file:///c:/React/SignBridge/ARCHITECTURE.md).
-
----
-
-## Project Workflow
-
 ```mermaid
 flowchart TD
-    subgraph Kiosk_Frontend["Kiosk Presentation (React 19 + WebAssembly)"]
-        Camera[Webcam 30 FPS] --> MP[MediaPipe Dual-Hand Tracker]
-        MP -->|42 3D Points = 126 Floats| FE_Buffer[Temporal Smoothing Buffer]
-        FE_Buffer -->|HTTP REST / WebSocket| Backend
-        HUD[Fullscreen Kiosk HUD] <--> FE_Buffer
+    subgraph Frontend["Kiosk Frontend (React 19 + Vite / Nginx)"]
+        Cam["Webcam (30–60 FPS)"] --> MP["MediaPipe Holistic / Hands"]
+        MP --> Filter["One-Euro Smoother + 4-Frame Coasting"]
+        Filter -->|"/ws (:5001) or /api (:5000)"| Router
+        HUD["Kiosk HUD & Canvas Overlay"] <--> Filter
     end
 
-    subgraph Perception_Engine["Perception Engine (Python Flask Backend)"]
-        Backend{Payload Type}
-        Backend -->|Single Frame 126-D| XGB[XGBoost Alphabet Classifier A-Z]
-        Backend -->|30 Frames x 126-D| CNN_LSTM[CNN-BiLSTM Word Classifier: 57 Classes]
-        XGB --> Raw_Gloss[Raw Sign Token Buffer]
-        CNN_LSTM --> Raw_Gloss
-        Raw_Gloss --> LLM_Refine[Groq / Gemini Sentence Refiner]
-        LLM_Refine --> TTS[Web Speech Audio TTS Output]
+    subgraph Backend["Inference & LLM Backend (Waitress + Flask + WebSockets)"]
+        Router{"Payload"} -->|1 Frame 126-D| Hybrid["0.90 XGBoost (208-D) + 0.10 Anatomical ST-GCN"]
+        Router -->|30 Frames Two-Stream 252-D| Conformer["Temporal Conformer (58 Classes incl. NONE)"]
+        Hybrid --> Lattice["Token Buffer + Top-K Ambiguity Hints"]
+        Conformer --> Lattice
+        Lattice -->|/api/llm/refine| LLM["Groq -> Gemini -> Local Fallback"]
+        LLM --> TTS["Speech / Kiosk Answer"]
     end
 
-    subgraph Actuation_Engine["Actuation Engine (Robotics & Hardware)"]
-        Speech_In[Hearing Staff Voice Input] --> LLM_Simplify[LLM ISL Keyword Simplifier]
-        LLM_Simplify --> Motor_Map[10-Servo Angle Mapping Matrix]
-        Motor_Map --> Serial[PySerial USB Driver @ 9600 Baud]
-        Motor_Map -.-> ROS2[ROS2 Actuator Stub Topic]
-        Serial --> Arduino[Arduino Mega Microcontroller]
-        Arduino --> Servos[10x SG90 Micro Servos - Dual Robotic Hands]
+    subgraph Actuation["Robotic Actuation"]
+        Reply["Assistant / Staff Reply"] -->|/api/llm/simplify| Gloss["ISL Keyword Sequence"]
+        Gloss -->|/api/robot/sign| Serial["PySerial (9600 baud) / ROS2 Stub"]
+        Serial --> Servos["10x SG90 Servos (Dual Hands)"]
     end
 ```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for component boundaries and data contracts.
 
 ---
 
@@ -153,291 +112,251 @@ flowchart TD
 
 ```text
 SignBridge/
-├── ARCHITECTURE.md                 # Master system architecture & component specification
-├── package.json                    # Frontend dependencies (signbridge-kiosk v1.0.0)
-├── vite.config.js                  # Vite bundler & backend API reverse proxy
+├── Dockerfile.backend              # Python 3.11 slim image (Waitress :5000 + WebSockets :5001, non-root appuser)
+├── Dockerfile.frontend             # Node 20 builder -> Nginx Alpine static server + proxy
+├── docker-compose.yml              # Local multi-container stack + persistent sqlite_data:/data volume
+├── nginx.conf                      # SPA fallback + /api/ (:5000) & /ws (:5001) WebSocket proxy
+├── .dockerignore                   # Excludes datasets, venv, .env, local caches, *_backup model weights
+├── k8s/
+│   ├── configmap.yaml              # PORT=5000, HOST=0.0.0.0, WS_PORT=5001, WS_HOST=0.0.0.0
+│   ├── secret.yaml                 # GROQ_API_KEY, GOOGLE_API_KEY, SIGNBRIDGE_API_KEY placeholders
+│   ├── backend-deployment.yaml     # Backend Deployment (fsGroup: 1000) + 1Gi PVC + ClusterIP Service
+│   ├── frontend-deployment.yaml    # Frontend Deployment (2 replicas) + LoadBalancer Service (:80)
+│   └── ingress.yaml                # ingressClassName: nginx routing /, /api -> :5000, /ws -> :5001
 ├── backend/
-│   ├── app.py                      # Main Flask REST server & inference dispatcher
-│   ├── requirements.txt            # Python dependencies (torch, xgboost, flask, groq, etc.)
-│   ├── train_unified.py            # Unified training pipeline with anti-bias loss & augmentations
-│   ├── extract_video_landmarks.py  # MediaPipe video landmark extraction pipeline
-│   ├── ingest_dataset_2.py         # Ground-truth dataset normalizer and validator
-│   ├── test_word_model.py          # Standalone 57-class word model verification script
-│   ├── database/
-│   │   ├── schema.py               # SQLite schema definition and query helpers
-│   │   └── signbridge.db           # SQLite database file
+│   ├── app.py                      # Flask REST API, rate limiting, Waitress WSGI & WS launcher
+│   ├── requirements.txt            # Pinned/bounded backend dependencies
+│   ├── train_unified.py            # Training pipeline (--letters-only, --stgcn-only, --words-only)
+│   ├── benchmark_alphabet_models.py# Validation calibration + held-out test suite comparison
+│   ├── database/schema.py          # SQLite schema & parameterized conversation/dataset queries
 │   ├── models/
-│   │   ├── hand_landmarker.task    # MediaPipe HandLandmarker binary task model
-│   │   ├── isl_xgboost_model.pkl   # Trained XGBoost ISL alphabet classifier
-│   │   ├── isl_stgcn_model.pt      # PyTorch Spatial-Temporal Graph Convolution model
-│   │   ├── isl_cnn_lstm_word_model.pt # Trained CNN-BiLSTM 57-word classifier (93.3% acc)
-│   │   ├── cnn_lstm_training_meta.json # Training metadata and validation logs
-│   │   └── word_training_meta.json # Class labels & vocabulary index mapping
+│   │   ├── st_gcn.py               # STGCNHandClassifier (anatomical/mean pooling) & legacy STGCN_BiLSTM
+│   │   ├── temporal_conformer.py   # TemporalConformerWordClassifier (Two-Stream Conformer)
+│   │   ├── isl_xgboost_model.pkl   # Active XGBoost alphabet model (geometric_invariants_208d)
+│   │   ├── isl_stgcn_model.pt      # Active ST-GCN model (pooling=anatomical)
+│   │   ├── isl_cnn_lstm_word_model.pt # Active 58-class Temporal Conformer word checkpoint
+│   │   ├── isl_word_classifier.pkl # Compact Random Forest word backup
+│   │   └── *_training_meta.json    # Measured training & held-out benchmark metadata
 │   ├── services/
-│   │   ├── translator_model.py     # Alphabet recognition pipeline + vectorised normalize_landmarks_batch
-│   │   ├── word_recognizer.py      # CNN-BiLSTM 30-frame temporal word recognizer (vectorised pre-processing)
-│   │   ├── feature_extractor.py    # Scale/rotation-invariant geometric feature extractor
-│   │   ├── groq_manager.py         # Primary LLM manager with rotation & health checks
-│   │   ├── gemini_manager.py       # Fallback LLM manager with automatic failover
-│   │   ├── arduino_serial.py       # PySerial hardware driver for 10x SG90 servos
-│   │   └── robot_actuator.py       # Extensible BaseRobotActuator & ROS2 middleware stub
-│   └── tests/
-│       ├── test_groq_manager.py    # Unit tests for Groq rate-limiting and failover
-│       └── test_gemini_manager.py  # Unit tests for Gemini failover and error recovery
-├── src/
-│   ├── App.jsx                     # Root application container
-│   ├── main.jsx                    # React DOM entrypoint
-│   ├── index.css                   # Kiosk styling tokens, animations, and HUD layouts
-│   ├── components/
-│   │   ├── SignBridgeKiosk.jsx     # Main kiosk split-screen interface
-│   │   ├── HumanPanel.jsx          # Deaf signer camera feed, live text buffer, and TTS
-│   │   ├── RobotPanel.jsx          # Hearing user response panel and robotic hand HUD
-│   │   ├── CameraView.jsx          # Live video view, landmark canvas, and fullscreen HUD
-│   │   └── GestureReferenceSheet.jsx # 26-letter interactive ISL reference drawer
-│   └── hooks/
-│       ├── useHandDetection.js     # MediaPipe hook with WebAssembly lifecycle management
-│       ├── useGestureRecognition.js# State machine with O(1) RingBuffer, temporal gating & dual-mode prediction
-│       ├── useISLTranslation.js    # Translation orchestration and API sync
-│       └── useWebcam.js            # Video acquisition, resolution config, and device cleanup
-└── graphify-out/                   # Compiled codebase knowledge graph (769 nodes, 58 communities)
+│   │   ├── feature_extractor.py    # 208-D invariants, palm-frame alignment, Two-Stream 252-D features
+│   │   ├── translator_model.py     # Hybrid ensemble inference, Top-K output, CentroidValidator
+│   │   ├── word_recognizer.py      # Conformer/BiLSTM word sequence recognizer + motion gate
+│   │   ├── websocket_server.py     # Async WebSocket prediction server (port 5001)
+│   │   ├── groq_manager.py         # Multi-key Groq LPU pool + health tracking
+│   │   ├── gemini_manager.py       # Multi-key Gemini fallback manager
+│   │   └── arduino_serial.py       # 10-servo Arduino serial driver + robot_actuator.py ROS2 stub
+│   └── tests/                      # 10 Pytest suites (89 tests)
+└── src/                            # React 19 UI, hooks, One-Euro filter, canvas overlay, & Node tests
 ```
 
 ---
 
-## Installation & Setup
+## Local Setup & Usage
 
 ### Prerequisites
-- **Node.js**: `v18.0.0` or higher
-- **Python**: `v3.10` or higher
-- **Git**
-- *(Optional for Hardware)*: Arduino Mega/Uno with 10x SG90 micro-servos connected over USB
+- **Node.js** `>= 18`, **Python** `>= 3.10` (`3.11`/`3.12` recommended)
+- Optional hardware: **Arduino Mega/Uno** with `10× SG90` servos over USB serial
 
----
-
-### 1. Clone the Repository
+### 1. Install Dependencies
 ```bash
 git clone https://github.com/Chintannn-c/Sign-Bridge-.git
 cd Sign-Bridge-
-```
 
----
-
-### 2. Backend Setup
-```bash
-# Navigate to backend directory
-cd backend
-
-# Create and activate a virtual environment
-# Windows (PowerShell):
+# Backend virtual environment
 python -m venv .venv
-.venv\Scripts\Activate.ps1
-# macOS/Linux:
-# python3 -m venv .venv && source .venv/bin/activate
+# Windows (PowerShell): .\.venv\Scripts\Activate.ps1
+# macOS/Linux:          source .venv/bin/activate
+pip install -r backend/requirements.txt
 
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Configure environment variables
-copy .env.example .env   # On Linux/macOS: cp .env.example .env
-```
-
----
-
-### 3. Frontend Setup
-```bash
-# Return to root directory
-cd ..
-
-# Install frontend dependencies
+# Frontend dependencies
 npm install
 ```
 
----
-
-### 4. Running the Kiosk Locally
-
-Open two terminal windows:
-
-**Terminal 1 (Backend API Server):**
+### 2. Configure & Run
 ```bash
+# Terminal 1 — Backend (Waitress :5000 + WebSockets :5001)
 cd backend
 python app.py
-```
-*Backend runs on `http://localhost:5000` via **Waitress** (production WSGI). Set `FLASK_DEBUG=true` to use Werkzeug with hot-reload.*
 
-**Terminal 2 (Frontend Kiosk Interface):**
-```bash
+# Terminal 2 — Frontend (Vite dev server :5173 with /api and /ws proxies)
 npm run dev
 ```
-*Frontend runs on `http://localhost:5173`.*
+Set `FLASK_DEBUG=true` for local reloader-disabled Flask debugging on `127.0.0.1:5000`.
+
+### Kiosk Keyboard Shortcuts
+| Key | Action |
+| :---: | :--- |
+| `Space` | Toggle Demo / Live mode |
+| `F` | Toggle Fullscreen Camera HUD |
+| `1` / `H` | Commit Human Turn |
+| `2` / `R` | Trigger Robot Response + TTS |
+| `C` | Clear Buffer & History |
+
+---
+
+## Docker Deployment
+
+The repository provides a two-container production stack via [docker-compose.yml](docker-compose.yml):
+
+- **[Dockerfile.backend](Dockerfile.backend):** `python:3.11-slim` with OpenCV/MediaPipe system libraries (`libgl1`, `libglib2.0-0`, `libsm6`, `libxext6`), non-root user `appuser` (`uid 1000`), pre-owned `/data` SQLite directory, health check on `http://localhost:5000/api/health`, Waitress WSGI on `:5000`, and automatic background WebSocket listener on `:5001` (`HOST=0.0.0.0`).
+- **[Dockerfile.frontend](Dockerfile.frontend) & [nginx.conf](nginx.conf):** Multi-stage `node:20-alpine` Vite build served by `nginx:alpine` on port `80` (`5173:80` on host), gzip compression, security headers, SPA fallback, and reverse proxies from `/api/` → `backend:5000` and `/ws` → `backend:5001` (`86400s` WS timeout).
+- **[.dockerignore](.dockerignore):** Keeps datasets, `.env` files, virtualenvs, logs, and `*_backup.pt` / `*_backup.pkl` weights out of build contexts.
+
+```bash
+# Optional: create backend/.env first (container boots safely even without backend/.env)
+docker compose up --build -d
+# Open http://localhost:5173
+```
+
+---
+
+## Kubernetes Deployment
+
+Production manifests live under [k8s/](k8s/):
+
+| Manifest | Purpose | Key Details |
+| :--- | :--- | :--- |
+| [k8s/configmap.yaml](k8s/configmap.yaml) | Non-secret runtime config | `PORT=5000`, `HOST=0.0.0.0`, `WS_PORT=5001`, `WS_HOST=0.0.0.0`, `LOG_LEVEL=INFO` |
+| [k8s/secret.yaml](k8s/secret.yaml) | API credentials template | Replace `GROQ_API_KEY`, `GOOGLE_API_KEY`, `SIGNBRIDGE_API_KEY` before applying |
+| [k8s/backend-deployment.yaml](k8s/backend-deployment.yaml) | Backend Pod + PVC + Service | `1` replica (`DB_PATH=/data/signbridge.db`), `fsGroup: 1000` for non-root PVC write access, `1Gi` `ReadWriteOnce` PVC, `/api/health` liveness/readiness probes, `ClusterIP` on `:5000` & `:5001` |
+| [k8s/frontend-deployment.yaml](k8s/frontend-deployment.yaml) | Frontend Pods + Service | `2` Nginx replicas, HTTP `/` probes, `LoadBalancer` Service on port `80` |
+| [k8s/ingress.yaml](k8s/ingress.yaml) | Unified Nginx Ingress | Uses `ingressClassName: nginx`, routes `/` → `signbridge-frontend-service:80`, `/api` → `signbridge-backend-service:5000`, and `/ws` → `signbridge-backend-service:5001` with `3600s` WebSocket timeouts |
+
+> **Routing Note:** Expose Kubernetes traffic through [k8s/ingress.yaml](k8s/ingress.yaml) so `/api` and `/ws` resolve directly to `signbridge-backend-service`. Accessing `signbridge-frontend-service` directly via its `LoadBalancer` bypasses Ingress and expects Compose's `backend` hostname in `nginx.conf`.
+
+```bash
+# 1. Build images (or push to your registry and update image tags)
+docker build -f Dockerfile.backend -t signbridge-backend:latest .
+docker build -f Dockerfile.frontend -t signbridge-frontend:latest .
+
+# 2. Update k8s/secret.yaml with real keys, then apply
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/backend-deployment.yaml
+kubectl apply -f k8s/frontend-deployment.yaml
+kubectl apply -f k8s/ingress.yaml
+```
 
 ---
 
 ## Environment Variables
 
-Configure `backend/.env` with your API credentials:
+Configure `backend/.env` (or `k8s/secret.yaml` in Kubernetes):
 
 ```env
-# Primary LLM Provider (Groq LPU - sub-100ms)
-GROQ_API_KEY_1=gsk_your_primary_groq_api_key_here
-GROQ_API_KEY_2=gsk_your_backup_groq_api_key_here
+# Primary LLM Provider (Groq LPU — dual-key pool supported)
+GROQ_API_KEY_1=gsk_your_primary_groq_key
+GROQ_API_KEY_2=gsk_your_backup_groq_key
 
-# Fallback LLM Provider (Google Gemini)
-GEMINI_API_KEY_1=AIzaSy_your_primary_gemini_key_here
-GEMINI_API_KEY_2=AIzaSy_your_backup_gemini_key_here
+# Fallback LLM Provider (Google Gemini — dual-key pool + GOOGLE_API_KEY fallback)
+GEMINI_API_KEY_1=AIzaSy_your_primary_gemini_key
+GEMINI_API_KEY_2=AIzaSy_your_backup_gemini_key
 
-# Server Settings
+# API Auth (enforced automatically on non-local requests when set)
+SIGNBRIDGE_API_KEY=your_shared_secret
+
+# Server / WebSocket / Database
+HOST=127.0.0.1
 PORT=5000
-FLASK_ENV=development
+WS_HOST=127.0.0.1
+WS_PORT=5001
+CORS_ORIGINS=http://localhost:5173
 ```
 
-> **Note**: If no external API keys are configured, the system automatically falls back to local heuristic keyword cleaning and rule-based parsing with zero downtime.
+If external API keys are absent or rate-limited, all LLM routes automatically degrade to deterministic local keyword responses (`get_smart_fallback_response`).
 
 ---
 
-## Keyboard Shortcuts & Kiosk Controls
+## API & WebSocket Reference
 
-| Shortcut | Action | Description |
-| :---: | :--- | :--- |
-| `Space` | **Toggle Demo Mode** | Switches between live camera tracking and simulated automated dialogue |
-| `F` | **Toggle Fullscreen HUD** | Enters high-immersion fullscreen camera mode with active HUD overlays |
-| `1` or `H` | **Human Turn** | Focuses human signer buffer and commits pending letters |
-| `2` or `R` | **Robot Turn** | Triggers assistant sentence generation and TTS audio playback |
-| `C` | **Clear Buffer** | Clears current word buffer and resets prediction history |
+### WebSocket Channel (`ws://<host>:5001` / `/ws`)
+Bidirectional JSON frames for low-latency live predictions:
+- `{ "type": "letter", "landmarks": [126 floats], "body_anchors": ... }` → letter prediction, confidence, `top_k`, `needs_crop`
+- `{ "type": "word", "frames": [[126 floats], ...], "body_anchors": ... }` → `30`-frame word prediction & `top_k`
+
+### HTTP REST Endpoints (`:5000` / `/api`)
+| Method | Endpoint | Purpose |
+| :--- | :--- | :--- |
+| `GET` | `/api/health` | Service status, active model modes, Groq/Gemini key health, Arduino status |
+| `GET` | `/api/llm/status` | Live health state of Groq, Gemini, and local fallback tiers |
+| `GET` | `/api/model/info` | Alphabet model metadata, tuned weights, and held-out metrics |
+| `GET` | `/api/words/info` | Word recognizer metadata (`58` classes) and input contract |
+| `POST` | `/api/model/reload` | Reload model checkpoints from disk (`X-API-Key` protected) |
+| `POST` | `/api/translate` | Classify single-frame `126`-D hand landmarks into an ISL letter |
+| `POST` | `/api/translate/batch` | Batch single-frame letter inference |
+| `POST` | `/api/translate/word` | Classify `30×126` sequence frames into an ISL word (`58` classes incl. `NONE`) |
+| `GET` | `/api/gesture/config` | Active frontend/backend confidence & state-machine thresholds |
+| `POST` | `/api/llm/refine` | Refine raw glosses + `alternatives` (`top_k`) into natural English |
+| `POST` | `/api/llm/simplify` | Extract uppercase ISL vocabulary sequence from spoken English |
+| `POST` | `/api/llm/answer` | Generate direct conversational assistant reply (`KIOSK_CONTEXT` + history) |
+| `GET` | `/api/history` | Fetch recent persisted turns from SQLite |
+| `POST` | `/api/history/clear` | Clear persisted conversation history (`X-API-Key` protected) |
+| `POST` | `/api/collect_data` | Save annotated landmark frames cleanly (`X-API-Key` protected) |
+| `GET` | `/api/robot/status` | Serial connection & robotic servo status |
+| `POST` | `/api/robot/connect` | Connect Arduino serial (`X-API-Key` protected) |
+| `POST` | `/api/robot/disconnect` | Disconnect Arduino serial (`X-API-Key` protected) |
+| `POST` | `/api/robot/sign` | Dispatch text glosses to dual robotic hands (`X-API-Key` protected) |
+| `POST` | `/api/robot/sign-letter` | Sign a single A–Z / 0–9 glyph on hardware (`X-API-Key` protected) |
 
 ---
 
-## API Documentation
+## AI/ML Models & Verified Benchmarks
 
-| Method | Endpoint | Description | Request Payload |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/health` | Service health, model status, and serial connectivity | None |
-| `GET` | `/api/model/info` | Metadata and metrics for the active alphabet classifier | None |
-| `GET` | `/api/words/info` | List of 57 supported dynamic ISL word classes | None |
-| `POST` | `/api/translate` | Classifies single-frame 42 hand landmarks into an ISL letter | `{ "landmarks": [126 floats] }` |
-| `POST` | `/api/translate/word` | Classifies a 30-frame sequence into an ISL word | `{ "frames": [[126 floats], ...] }` (30 frames) |
-| `POST` | `/api/llm/refine` | Converts raw ISL sign tokens into fluent English | `{ "text": "I DEAF HELP NEED" }` |
-| `POST` | `/api/llm/simplify` | Simplifies spoken English into uppercase ISL keywords | `{ "text": "Could you please help me find the doctor?" }` |
-| `POST` | `/api/llm/answer` | Generates a direct assistant conversational response | `{ "text": "Where is the consultation room?" }` |
-| `GET` | `/api/history` | Retrieves recent dialogue history from SQLite | `?limit=50` |
-| `POST` | `/api/robot/sign` | Dispatches sign text to physical Arduino robotic hands | `{ "text": "HELLO" }` |
-| `GET` | `/api/robot/status` | Current USB serial connection and hardware state | None |
+All metrics below are measured directly on the repository's partitioned datasets (`backend/train_unified.py` & `backend/benchmark_alphabet_models.py`):
 
----
+### 1. Alphabet Classification (`26` classes, `A–Z`)
+- **Dataset Split:** `16,854` Train (`89,120` augmented for ST-GCN, `67,416` for XGBoost) · `3,488` Cross-Signer Validation · `4,902` Held-Out Test (`1,264` duplicates skipped).
 
-## AI/ML Models & Benchmarks
+| Model | Val Acc | Raw Test Acc | Benchmark Acc (`CONF=0.75, MARG=0.10`) | Benchmark Macro F1 | Abstain Rate | Median Latency |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **XGBoost (`geometric_invariants_208d`)** | `69.61%` | **`87.43%`** (`0.8724` F1) | **`83.27%`** | `87.06%` | `9.7%` | `11.69 ms` |
+| **ST-GCN (`pooling='anatomical'`)** | `66.60%` | `82.46%` (`0.8228` F1) | `75.07%` | `82.96%` | `21.3%` | `2.66 ms` |
+| **Calibrated Hybrid (`0.90*XGB + 0.10*ST-GCN, T=0.45`)** | `62.44%` *(thresh.)* | — | **`83.03%`** | **`87.12%`** | `10.5%` | **`14.77 ms`** |
 
-```
-┌───────────────────────────────────────────────────────────────────────────────────────┐
-│                           SignBridge Multi-Tier AI Pipeline                           │
-├───────────────────┬───────────────────────────┬───────────────┬───────────────────────┤
-│ Tier              │ Model Architecture        │ Input         │ Output                │
-├───────────────────┼───────────────────────────┼───────────────┼───────────────────────┤
-│ 1. Alphabet       │ XGBoost Tree Classifier   │ 1 Frame       │ A–Z Letter            │
-│    (Static Poses) │ + PyTorch ST-GCN          │ (126 coords)  │ (26 classes, <0.5 ms) │
-├───────────────────┼───────────────────────────┼───────────────┼───────────────────────┤
-│ 2. Words          │ 1D-CNN + 2-Layer BiLSTM   │ 30 Frames     │ 57 ISL Words          │
-│    (Temporal)     │ (PyTorch .pt)             │ (30 × 126)    │ (93.3% acc, 5.75 ms)  │
-├───────────────────┼───────────────────────────┼───────────────┼───────────────────────┤
-│ 3. Sentences      │ Groq Llama-3.3-70B        │ Raw Tokens    │ Fluent Conversational │
-│    (Refinement)   │ → Gemini 1.5 Flash        │ (e.g. Gloss)  │ English (<100 ms)     │
-└───────────────────┴───────────────────────────┴───────────────┴───────────────────────┘
-```
+*(An experimental `palm_aligned_208d` XGBoost variant improved occlusion-heavy letters such as `X` and `E`, but scored lower overall at `86.09%` raw / `81.78%` hybrid gated accuracy; `geometric_invariants_208d` remains default while `--palm-aligned` is available via CLI).*
 
-### 1. Static Alphabet Recognition (Tier 1)
-- **Model**: Gradient-Boosted Decision Trees (XGBoost) trained on 176-D scale- and rotation-invariant geometric features with ST-GCN graph neural network fallback.
-- **Inference Latency**: **$<0.5\text{ ms}$** per frame on standard CPU.
-- **Accuracy**: **83.2%** test accuracy across 26 classes, with $>95\%$ precision on distinct hand shapes (`A`, `D`, `F`, `L`, `V`).
-
-### 2. Dynamic Temporal Word Recognition (Tier 2)
-- **Model**: `1D-CNN (126 -> 64 -> 128) + 2-layer BiLSTM (128 hidden units) + Linear(256 -> 64 -> 57)`.
-- **Vocabulary**: **57 distinct ISL words and phrases** including:
-  `AGAIN`, `BAD`, `BOY`, `BYE_BYE`, `CHILD`, `CORRECT`, `DAY`, `DEAF`, `DIFFICULT`, `DOCTOR`, `EASY`, `FEAR`, `FOOD`, `GIRL`, `GOOD`, `GOOD_AFTERNOON`, `GOOD_EVENING`, `GOOD_MORNING`, `GOOD_NIGHT`, `HE`, `HEARING`, `HELLO`, `HELP`, `HOW_ARE_YOU`, `IM_FINE`, `INDIA`, `I_DONT_UNDERSTAND`, `LANGUAGE`, `MAN`, `ME`, `MORNING`, `MY_NAME_IS`, `NAMASTE`, `NO`, `NO_FEAR`, `PEACE`, `PLEASE`, `PRACTICE`, `REMEMBER`, `SHE`, `SIGN`, `SORRY`, `STRONG`, `TEACHER`, `THANK_YOU`, `THANK_YOU_VERY_MUCH`, `THIN`, `UNDERSTAND`, `WASHROOM`, `WATER`, `WEAK`, `WELCOME`, `WHERE`, `WOMAN`, `WRONG`, `YES`, `YOU`.
-- **Empirical Validation**:
-  - **Inference Latency**: **5.75 ms** per 30-frame sequence.
-  - **Test Accuracy**: **93.3%** on held-out test data (470/504 sequences correctly predicted).
-  - **Class Coverage**: **57/57 classes operational**.
+### 2. Dynamic Word Classification (`58` classes including `NONE`)
+- **Architecture:** `TemporalConformerWordClassifier` (`Two-Stream 252-D` features: clip-anchored body-space trajectory + wrist-centered handshape → Depthwise Conv1D → 2-layer Transformer Encoder `d_model=128, nhead=4` → Attention Pool).
+- **Measured Performance (`14,500` balanced train sequences, `1,348` validation sequences):**
+  - **Train Accuracy:** `99.9%` (early stopping at epoch `29/35`)
+  - **Validation Accuracy:** **`51.11%`** across `58` classes (`NONE` idle/transition class at `1.000` F1; unseen single-video signer shift on `10` classes currently accounts for the validation ceiling until more multi-signer clips are collected).
+  - **Fallback (`isl_word_classifier.pkl`):** Random Forest sequence backup (`23.15%` val accuracy).
 
 ---
 
 ## Robotics & Hardware Actuation Layer
 
-SignBridge includes dual-arm hardware actuation enabling public kiosks to physically sign responses back to Deaf visitors.
-
-### 1. Hardware Specifications
-- **Microcontroller**: Arduino Mega 2560 (or Uno).
-- **Actuators**: 10x TowerPro SG90 micro-servos (5 per hand).
-- **Baud Rate**: 9600 baud over USB Serial.
-- **Servo Protocol**: Sends 10-element JSON angle matrices:
-  `[L_thumb, L_index, L_middle, L_ring, L_pinky, R_thumb, R_index, R_middle, R_ring, R_pinky]`
-- **Mechanical Bounds**: Calibrated between $0^\circ$ (fully open/extended) and $180^\circ$ (flexed/closed).
-
-### 2. Software Architecture (`robot_actuator.py`)
-- **`BaseRobotActuator`**: Standardized abstract interface declaring `connect()`, `disconnect()`, `send_angles()`, and `sign_letter()`.
-- **`ROS2ActuatorStub`**: Middleware adapter publishing joint angle arrays to ROS2 topics (e.g., `/signbridge/servo_angles`), allowing drop-in replacement with industrial robot arms (e.g., UR5, Baxter).
+- **Microcontroller & Servos:** Arduino Mega/Uno controlling `10× TowerPro SG90` micro-servos (`5` fingers × `2` hands) at `9600` baud over USB serial ([arduino_serial.py](backend/services/arduino_serial.py)).
+- **Protocol:** `10`-element servo angle vectors `[L_thumb..L_pinky, R_thumb..R_pinky]` calibrated to `[0°, 180°]`.
+- **Middleware Adapter ([robot_actuator.py](backend/services/robot_actuator.py)):** Abstract `BaseRobotActuator` + `ROS2ActuatorStub` for topic-based industrial arm integration.
 
 ---
 
-## Testing & Quality Verification
+## Verification & Testing
 
-SignBridge enforces rigorous validation across both backend machine learning pipelines and the frontend interface:
-
-### 1. Running Backend Unit Tests
-```bash
-python -m pytest backend/tests
-```
-*Result: **20/20 passed** (100% coverage on Groq & Gemini managers, failover logic, and rate limiting).*
-
-### 2. Verifying Word Model Inference
-```bash
-python backend/test_word_model.py
-```
-*Result: Loads `isl_cnn_lstm_word_model.pt`, validates all 57 classes, benchmarks latency (**5.75 ms**), and validates test accuracy (**93.3%**).*
-
-### 3. Frontend Code Quality & Linting
-```bash
-npm run lint
-```
-*Result: `oxlint` checks 24 files across 92 rules $\to$ **0 errors, 0 warnings**.*
-
-### 4. Production Bundle Build
-```bash
-npm run build
-```
-*Result: Vite production bundle built successfully in **~1.2s**.*
-
-### 5. Updating the Codebase Knowledge Graph
-```bash
-python -m graphify update .
-```
-*Result: Incremental AST update synchronizing 769 nodes and 58 communities in `graphify-out/`.*
+| Check | Command | Result |
+| :--- | :--- | :--- |
+| **Frontend Lint** | `npm run lint` | **`0` errors** (`2` pre-existing `exhaustive-deps` warnings in `useGestureRecognition.js`) |
+| **Frontend Tests** | `npm run test` | **`11/11` passed** (`handTrackingOverlay`, `oneEuroFilter`, `splash`) |
+| **Backend Pytest** | `python -m pytest backend/tests` | **`89/89` passed** across `10` test modules (models, WS, LLM failover, state machine, schema) |
+| **Alphabet Benchmark** | `python backend/benchmark_alphabet_models.py` | **`83.03%` acc / `87.12%` Macro F1 / `14.77 ms` latency** on `4,902` test samples |
+| **Docker Compose** | `docker compose config --quiet` | Validated compose syntax (`backend` + `frontend` + `sqlite_data` volume) |
 
 ---
 
-## Security & Resource Hardening
+## Security & Hardening
 
-- **Production WSGI**: Served by **Waitress 3.0** — pure-Python, Windows-native production server with 4 worker threads. Werkzeug is used only when `FLASK_DEBUG=true`, eliminating the development-server warning in production.
-- **Memory Leak Protection**: Explicit disposal in `useHandDetection.js` (`trackerRef.current.close()`) prevents WebAssembly memory growth during component unmounts; `useWebcam.js` terminates video tracks on camera toggling.
-- **Input Sanitization**: Backend `validate_landmark_array` verifies tensor shapes and strips `NaN` / infinite coordinates before model forward passes.
-- **Credential Safety**: Dual API key pools are loaded from `backend/.env` with strictly typed fallback mechanisms and zero secret leakage in logs or client bundles.
-- **SQL Parameterization**: All SQLite operations in `database/schema.py` use parameterized queries, preventing SQL injection.
-
----
-
-## Limitations & Future Roadmap
-
-- **Facial & Upper-Body Cues**: Currently focused on dual-hand 3D kinematics; expanding to full MediaPipe Holistic (54 body/face landmarks) will enhance body-relative signs (`DEAF`, `SORRY`).
-- **Continuous Sign Language Recognition (CSLR)**: Transitioning from sliding-window BiLSTM to Conformer architectures with Connectionist Temporal Classification (CTC Loss) for continuous multi-sentence discourse.
-- **Physical Soft-Tissue Dynamics**: SG90 servo tendons provide discrete finger flexion; integrating compliant soft-robotics hands will enable realistic human-like hand gestures.
+- **API Authentication (`SIGNBRIDGE_API_KEY`):** Mutating/hardware endpoints (`/api/model/reload`, `/api/history/clear`, `/api/collect_data`, `/api/robot/*`) validate constant-time `X-API-Key` (`hmac.compare_digest`); non-local requests fail closed when unset.
+- **Rate Limiting & Payload Caps:** `Flask-Limiter` guards `/api/translate*`, `/api/llm/*`, and `/api/robot/*`; `MAX_CONTENT_LENGTH` capped at `20 MB`.
+- **Input & DB Safety:** `validate_landmark_array` rejects malformed shapes/`NaN`/`Inf` before PyTorch/XGBoost calls; all SQLite queries are parameterized.
+- **Container Hardening:** Non-root `appuser` (`uid 1000`), Waitress production WSGI server, Werkzeug debug RCE guard on non-localhost hosts, explicit MediaPipe/canvas cleanup preventing WebAssembly memory leaks.
 
 ---
 
 ## License & Acknowledgements
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+Licensed under the **MIT License** — see [LICENSE](LICENSE).
 
-### Acknowledgements
-- **Google MediaPipe**: Fast, in-browser dual-hand skeletal landmark tracking.
-- **RealSign Dataset**: Indian Sign Language research benchmark dataset.
-- **Groq & Google GenAI**: Ultra-low-latency LPU and Gemini models powering real-time sentence refinement.
-- **Graphify**: Codebase knowledge graph maintaining structural integrity and community detection.
+- **Google MediaPipe** (`holistic` & `hands`) for browser skeletal tracking
+- **RealSign ISL Dataset** for partitioned benchmark evaluation
+- **Groq & Google GenAI** for low-latency LLM failover

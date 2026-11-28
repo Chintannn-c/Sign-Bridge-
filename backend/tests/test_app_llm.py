@@ -323,3 +323,25 @@ def test_history_clear_endpoint(client, monkeypatch):
     assert res.status_code == 200
     assert res.get_json()["cleared"] is True
     assert called["cleared"] is True
+
+
+def test_refine_forwards_ambiguous_alternatives_hint(client, monkeypatch):
+    import app as app_module
+
+    captured = {}
+
+    def fake_generate(prompt, **kwargs):
+        captured["prompt"] = prompt
+        captured["user_query"] = kwargs.get("user_query")
+        return {"text": "Order one coffee.", "provider": "mock", "fallback_used": False}
+
+    monkeypatch.setattr(app_module, "generate_llm_response", fake_generate)
+
+    res = client.post('/api/llm/refine', json={
+        'text': 'QNE COFFEE',
+        'alternatives': [{'sign': 'Q', 'candidates': [{'label': 'Q', 'prob': 0.72}, {'label': 'O', 'prob': 0.21}]}],
+    })
+    assert res.status_code == 200
+    assert "Q(0.72)" in captured["prompt"]
+    assert "O(0.21)" in captured["prompt"]
+    assert captured["user_query"] == "QNE COFFEE"

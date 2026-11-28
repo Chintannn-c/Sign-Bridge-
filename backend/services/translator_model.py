@@ -25,11 +25,21 @@ import pickle
 import numpy as np
 
 try:
-    from .feature_extractor import extract_features, NUM_EXTRACTED_FEATURES, NUM_RAW_FEATURES
+    from .feature_extractor import (
+        extract_features,
+        extract_palm_aligned_features,
+        NUM_EXTRACTED_FEATURES,
+        NUM_RAW_FEATURES,
+    )
     from .gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
     from .gesture_pipeline import CentroidValidator
 except ImportError:
-    from services.feature_extractor import extract_features, NUM_EXTRACTED_FEATURES, NUM_RAW_FEATURES
+    from services.feature_extractor import (
+        extract_features,
+        extract_palm_aligned_features,
+        NUM_EXTRACTED_FEATURES,
+        NUM_RAW_FEATURES,
+    )
     from services.gesture_config import CONFIDENCE_THRESHOLD, MARGIN_THRESHOLD
     from services.gesture_pipeline import CentroidValidator
 
@@ -180,6 +190,9 @@ class TranslatorModel:
         self.xgb_model = None
         self.model = None
         self.mode = 'heuristic'  # 'hybrid_ensemble' | 'stgcn' | 'xgboost' | 'deep_learning' | 'heuristic'
+        self.hybrid_xgb_weight = self.HYBRID_XGB_WEIGHT
+        self.hybrid_stgcn_weight = self.HYBRID_STGCN_WEIGHT
+        self.hybrid_temperature = self.HYBRID_TEMPERATURE
         self.mendeley_ref = {}
         self.metadata = {}
         self.centroid_validator = CentroidValidator()
@@ -200,6 +213,10 @@ class TranslatorModel:
         self.xgb_model = None
         self.model = None
         self.mode = 'heuristic'
+        self.xgb_feature_mode = 'geometric_invariants_208d'
+        self.hybrid_xgb_weight = self.HYBRID_XGB_WEIGHT
+        self.hybrid_stgcn_weight = self.HYBRID_STGCN_WEIGHT
+        self.hybrid_temperature = self.HYBRID_TEMPERATURE
         self.metadata = {}
         self.mendeley_ref = {}
 
@@ -213,16 +230,17 @@ class TranslatorModel:
                     with open(STGCN_META_PATH, 'r', encoding='utf-8') as f:
                         self.metadata = json.load(f)
 
-                labels = self.metadata.get('labels', [c for c in ISL_LABELS if c.isalpha()])
-                st_model = STGCNHandClassifier(num_classes=len(labels))
                 checkpoint = torch.load(STGCN_MODEL_PATH, map_location='cpu', weights_only=True)
+                labels = (checkpoint.get('labels') if isinstance(checkpoint, dict) else None) or self.metadata.get('labels', [c for c in ISL_LABELS if c.isalpha()])
+                pooling = checkpoint.get('pooling', 'mean') if isinstance(checkpoint, dict) else 'mean'
+                st_model = STGCNHandClassifier(num_classes=len(labels), pooling=pooling)
                 if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
                     st_model.load_state_dict(checkpoint['model_state_dict'])
                 else:
                     st_model.load_state_dict(checkpoint)
                 st_model.eval()
                 self.stgcn_model = st_model
-                logger.info(f"Loaded ST-GCN Kinematic Graph model from {STGCN_MODEL_PATH}")
+                logger.info(f"Loaded ST-GCN Kinematic Graph model from {STGCN_MODEL_PATH} (pooling={pooling})")
             except Exception as e:
                 logger.warning(f"Failed to load ST-GCN model: {e}")
 
@@ -231,10 +249,13 @@ class TranslatorModel:
             try:
                 with open(XGB_MODEL_PATH, 'rb') as f:
                     self.xgb_model = pickle.load(f)
-                if not self.metadata and os.path.exists(XGB_META_PATH):
+                if os.path.exists(XGB_META_PATH):
                     with open(XGB_META_PATH, 'r', encoding='utf-8') as f:
-                        self.metadata = json.load(f)
-                logger.info(f"Loaded XGBoost model from {XGB_MODEL_PATH}")
+                        xgb_meta = json.load(f)
+                    self.xgb_feature_mode = xgb_meta.get('feature_name', 'geometric_invariants_208d')
+                    if not self.metadata:
+                        self.metadata = xgb_meta
+                logger.info(f"Loaded XGBoost model from {XGB_MODEL_PATH} (features={self.xgb_feature_mode})")
             except Exception as e:
                 logger.warning(f"Failed to load XGBoost model: {e}")
 
@@ -245,6 +266,11 @@ class TranslatorModel:
             if os.path.exists(HYBRID_META_PATH):
                 with open(HYBRID_META_PATH, 'r', encoding='utf-8') as f:
                     self.metadata = json.load(f)
+                weights = self.metadata.get('weights', {}) if isinstance(self.metadata, dict) else {}
+                if isinstance(weights, dict):
+                    self.hybrid_xgb_weight = float(weights.get('xgb', self.HYBRID_XGB_WEIGHT))
+                    self.hybrid_stgcn_weight = float(weights.get('stgcn', self.HYBRID_STGCN_WEIGHT))
+                    self.hybrid_temperature = float(weights.get('temperature', self.HYBRID_TEMPERATURE))
             elif os.path.exists(XGB_META_PATH):
                 with open(XGB_META_PATH, 'r', encoding='utf-8') as f:
                     self.metadata = json.load(f)
@@ -310,16 +336,18 @@ class TranslatorModel:
             right_active = np.any(arr_norm[:, 63:] != 0)
             is_single_hand = (left_active and not right_active) or (right_active and not left_active)
 
+            feat_fn = extract_palm_aligned_features if self.xgb_feature_mode == 'palm_aligned_208d' else extract_features
+
             # 1. Primary orientation pass (both models evaluated on original input)
-            feat_primary = extract_features(arr_norm)
+            feat_primary = feat_fn(arr_norm)
             probs_xgb = self.xgb_model.predict_proba(feat_primary)[0]
 
             tensor_in = torch.tensor(arr_norm, dtype=torch.float32)
             with torch.no_grad():
                 logits = self.stgcn_model(tensor_in)
-                probs_stgcn = torch.softmax(logits / self.HYBRID_TEMPERATURE, dim=1).numpy()[0]
+                probs_stgcn = torch.softmax(logits / self.hybrid_temperature, dim=1).numpy()[0]
 
-            probs_primary = (self.HYBRID_XGB_WEIGHT * probs_xgb) + (self.HYBRID_STGCN_WEIGHT * probs_stgcn)
+            probs_primary = (self.hybrid_xgb_weight * probs_xgb) + (self.hybrid_stgcn_weight * probs_stgcn)
             conf_primary = float(np.max(probs_primary))
 
             # 2. Only evaluate swapped pass if primary confidence is uncertain (< 0.55, or < 0.65 for single-hand)
@@ -328,15 +356,15 @@ class TranslatorModel:
                 swapped = np.zeros_like(arr_norm)
                 swapped[:, :63] = arr_norm[:, 63:]
                 swapped[:, 63:] = arr_norm[:, :63]
-                feat_swapped = extract_features(swapped)
+                feat_swapped = feat_fn(swapped)
                 probs_xgb_swapped = self.xgb_model.predict_proba(feat_swapped)[0]
 
                 tensor_swapped = torch.tensor(swapped, dtype=torch.float32)
                 with torch.no_grad():
                     logits_swapped = self.stgcn_model(tensor_swapped)
-                    probs_stgcn_swapped = torch.softmax(logits_swapped / self.HYBRID_TEMPERATURE, dim=1).numpy()[0]
+                    probs_stgcn_swapped = torch.softmax(logits_swapped / self.hybrid_temperature, dim=1).numpy()[0]
 
-                probs_swapped = (self.HYBRID_XGB_WEIGHT * probs_xgb_swapped) + (self.HYBRID_STGCN_WEIGHT * probs_stgcn_swapped)
+                probs_swapped = (self.hybrid_xgb_weight * probs_xgb_swapped) + (self.hybrid_stgcn_weight * probs_stgcn_swapped)
                 conf_swapped = float(np.max(probs_swapped))
 
                 # Choose ONE consistent orientation for the entire ensemble
@@ -354,11 +382,15 @@ class TranslatorModel:
             margin = float(confidence - second_conf)
             letter = labels[top_idx] if top_idx < len(labels) else '?'
 
-            # Top 5 scores
+            # Top 5 scores & Top-3 candidate list for LLM disambiguation
             top_scores = {
                 labels[i]: round(float(probs[i]), 4)
                 for i in sorted_indices[:5] if i < len(labels)
             }
+            top_k = [
+                {'label': labels[i], 'prob': round(float(probs[i]), 4)}
+                for i in sorted_indices[:3] if i < len(labels)
+            ]
 
             # Out of dataset / centroid distance check
             norm_first = arr_norm[0] if arr_norm.ndim > 1 else arr_norm
@@ -384,7 +416,9 @@ class TranslatorModel:
                 'mode': 'hybrid_ensemble',
                 'rejected': is_rejected,
                 'rejection_reason': rejection_reason,
-                'all_scores': top_scores
+                'all_scores': top_scores,
+                'top_k': top_k,
+                'needs_crop': bool(is_rejected or confidence < 0.85 or margin < 0.15),
             }
         except LandmarkValidationError as e:
             logger.warning(f"Ensemble prediction skipped — bad input: {e}")
@@ -509,8 +543,10 @@ class TranslatorModel:
             right_active = np.any(arr[:, 63:] != 0)
             is_single_hand = (left_active and not right_active) or (right_active and not left_active)
 
-            # Predict probabilities for primary placement using 176-D geometric features
-            feat_primary = extract_features(arr)
+            feat_fn = extract_palm_aligned_features if self.xgb_feature_mode == 'palm_aligned_208d' else extract_features
+
+            # Predict probabilities for primary placement using 208-D geometric features
+            feat_primary = feat_fn(arr)
             probs = model.predict_proba(feat_primary)[0]
 
             conf_primary = float(np.max(probs))
@@ -520,7 +556,7 @@ class TranslatorModel:
                 swapped = np.zeros_like(arr)
                 swapped[:, :63] = arr[:, 63:]
                 swapped[:, 63:] = arr[:, :63]
-                feat_swapped = extract_features(swapped)
+                feat_swapped = feat_fn(swapped)
                 probs_swapped = model.predict_proba(feat_swapped)[0]
                 if np.max(probs_swapped) > np.max(probs):
                     probs = probs_swapped
@@ -529,14 +565,14 @@ class TranslatorModel:
             if left_active and right_active and np.max(probs) < 0.50:
                 h_left_single = np.zeros_like(arr)
                 h_left_single[:, :63] = arr[:, :63]
-                f_l = extract_features(h_left_single)
+                f_l = feat_fn(h_left_single)
                 p_l = model.predict_proba(f_l)[0]
                 if np.max(p_l) > np.max(probs):
                     probs = p_l
 
                 h_right_single = np.zeros_like(arr)
                 h_right_single[:, 63:] = arr[:, 63:]
-                f_r = extract_features(h_right_single)
+                f_r = feat_fn(h_right_single)
                 p_r = model.predict_proba(f_r)[0]
                 if np.max(p_r) > np.max(probs):
                     probs = p_r
@@ -548,11 +584,15 @@ class TranslatorModel:
             margin = float(confidence - second_conf)
             letter = labels[top_idx] if top_idx < len(labels) else '?'
 
-            # Top 5 scores
+            # Top 5 scores & Top-3 candidates
             top_scores = {
                 labels[i]: round(float(probs[i]), 4)
                 for i in sorted_indices[:5] if i < len(labels)
             }
+            top_k = [
+                {'label': labels[i], 'prob': round(float(probs[i]), 4)}
+                for i in sorted_indices[:3] if i < len(labels)
+            ]
 
             # Out of dataset / centroid distance check
             norm_first = arr[0] if arr.ndim > 1 else arr
@@ -578,7 +618,9 @@ class TranslatorModel:
                 'mode': 'xgboost',
                 'rejected': is_rejected,
                 'rejection_reason': rejection_reason,
-                'all_scores': top_scores
+                'all_scores': top_scores,
+                'top_k': top_k,
+                'needs_crop': bool(is_rejected or confidence < 0.85 or margin < 0.15),
             }
         except LandmarkValidationError as e:
             logger.warning(f"XGBoost prediction skipped — bad input: {e}")

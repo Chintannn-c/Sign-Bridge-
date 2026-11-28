@@ -373,6 +373,8 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
   const isWordRequestPendingRef = useRef(false);
   const handsMissingCountRef = useRef(0);
   const bodyAnchorsRef = useRef(null);
+  const handOverlapRef = useRef(null);
+  const ambiguousSignsRef = useRef([]);
   const wsRef = useRef(null);
   const pendingWsRequestsRef = useRef(new Map());
   const pendingReqIdRef = useRef(0);
@@ -428,6 +430,23 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     }
   }, [autoSendEnabled, cancelInactivityCountdown]);
 
+  const requestRefinedSentence = useCallback(async (rawText) => {
+    const alternatives = ambiguousSignsRef.current.slice(-6);
+    const bodyPayload = alternatives.length > 0 ? { text: rawText, alternatives } : { text: rawText };
+    const res = await fetch(`${API_BASE}/llm/refine`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyPayload),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const cleaned = (data.refined_sentence || '')
+      .replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '')
+      .replace(/^(?:Here'?s (?:a )?thinking process:?|Thinking Process:?)[\s\S]*?(?=\n\n|\n|$)/gi, '')
+      .trim();
+    return cleaned ? { ...data, refined_sentence: cleaned } : null;
+  }, []);
+
   const triggerAutoSend = useCallback(async () => {
     const rawText = sentenceBufferRef.current.trim();
     if (!rawText || isAutoSendingRef.current) {
@@ -441,28 +460,15 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
     try {
       let speechText = rawText;
-      // 1. Refine with LLM (Groq / Gemini)
       try {
-        const res = await fetch(`${API_BASE}/llm/refine`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: rawText })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.refined_sentence && data.refined_sentence.trim()) {
-            speechText = data.refined_sentence.trim();
-          }
+        const data = await requestRefinedSentence(rawText);
+        if (data?.refined_sentence) {
+          speechText = data.refined_sentence;
         }
       } catch (refineErr) {
         console.debug('Auto-send LLM refine notice:', refineErr);
       }
-
-      // Sanitize text from any residual thinking tokens
-      speechText = speechText
-        .replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '')
-        .replace(/^(?:Here'?s (?:a )?thinking process:?|Thinking Process:?)[\s\S]*?(?=\n\n|\n|$)/gi, '')
-        .trim() || rawText;
+      ambiguousSignsRef.current = [];
 
       // 2. Speak aloud via Web Speech TTS
       if (speechText && 'speechSynthesis' in window) {
@@ -492,7 +498,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       setIsAutoSending(false);
       cancelInactivityCountdown();
     }
-  }, [cancelInactivityCountdown, setSentenceBufferSync]);
+  }, [cancelInactivityCountdown, setSentenceBufferSync, requestRefinedSentence]);
 
   /**
    * Start or maintain the 5-second countdown timer when no gesture is detected.
@@ -725,6 +731,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
 
     if (holisticData && holisticData.bodyAnchors) {
       bodyAnchorsRef.current = holisticData.bodyAnchors;
+    }
+    if (holisticData && holisticData.handOverlap) {
+      handOverlapRef.current = holisticData.handOverlap;
     }
 
     const frameStart = performance.now();
@@ -1099,6 +1108,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
                 });
                 lastCommitRef.current = now;
                 lastCommittedItemRef.current = prediction.word;
+                if (prediction.confidence < 0.85 && Array.isArray(prediction.top_k) && prediction.top_k.length > 1) {
+                  ambiguousSignsRef.current.push({ sign: prediction.word, candidates: prediction.top_k.slice(0, 3) });
+                }
                 consecutiveWordRef.current = { word: null, count: 0 };
                 frameBufferRef.current.clear(); // Clear buffer after successful word lock
                 setWordBufferCount(0);
@@ -1151,6 +1163,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
         type: 'letter',
         landmarks: roundedLandmarks,
         body_anchors: bodyAnchorsRef.current,
+        hand_overlap: Boolean(handOverlapRef.current?.isOverlapping),
       }, '/translate');
 
       if (!prediction) {
@@ -1283,6 +1296,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
             setStatus(STATES.STABLE);
             clearAutoSpaceTimer();
             setSentenceBufferSync(prevBuf => prevBuf + label);
+            if (conf < 0.90 && Array.isArray(prediction.top_k) && prediction.top_k.length > 1) {
+              ambiguousSignsRef.current.push({ sign: label, candidates: prediction.top_k.slice(0, 3) });
+            }
             lastCommitRef.current = now;
             playLockFeedback();
             startOrResetInactivityTimer(true);
@@ -1353,6 +1369,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     clearAutoSpaceTimer();
     cancelInactivityCountdown();
     setSentenceBufferSync('');
+    ambiguousSignsRef.current = [];
     consecutiveLetterRef.current = { letter: null, count: 0 };
     consecutiveWordRef.current = { word: null, count: 0 };
     lastCommittedItemRef.current = null;
@@ -1377,29 +1394,24 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     const rawText = sentenceBufferRef.current.trim();
     if (!rawText) return null;
     try {
-      const res = await fetch(`${API_BASE}/llm/refine`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: rawText })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.refined_sentence) {
-          setSentenceBufferSync(data.refined_sentence);
-          startOrResetInactivityTimer(true);
-          return data;
-        }
+      const data = await requestRefinedSentence(rawText);
+      if (data?.refined_sentence) {
+        setSentenceBufferSync(data.refined_sentence);
+        ambiguousSignsRef.current = [];
+        startOrResetInactivityTimer(true);
+        return data;
       }
     } catch (e) {
       console.warn('Refine LLM error:', e);
     }
     return null;
-  }, [setSentenceBufferSync, startOrResetInactivityTimer]);
+  }, [setSentenceBufferSync, startOrResetInactivityTimer, requestRefinedSentence]);
 
   const commitSentence = useCallback(() => {
     const text = sentenceBufferRef.current.trim();
     cancelInactivityCountdown();
     setSentenceBufferSync('');
+    ambiguousSignsRef.current = [];
     return text;
   }, [cancelInactivityCountdown, setSentenceBufferSync]);
 
@@ -1412,16 +1424,9 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
     setIsAutoSending(true);
     let textToSend = rawText;
     try {
-      const res = await fetch(`${API_BASE}/llm/refine`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: rawText })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.refined_sentence && data.refined_sentence.trim()) {
-          textToSend = data.refined_sentence.trim();
-        }
+      const data = await requestRefinedSentence(rawText);
+      if (data?.refined_sentence) {
+        textToSend = data.refined_sentence;
       }
     } catch (e) {
       console.warn('Manual send refine notice:', e);
@@ -1429,7 +1434,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       isAutoSendingRef.current = false;
       setIsAutoSending(false);
     }
-    textToSend = textToSend.replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '').trim() || rawText;
+    ambiguousSignsRef.current = [];
     if (onSendMessage) {
       onSendMessage(textToSend, 'human');
     }
@@ -1440,7 +1445,7 @@ export function useGestureRecognition({ enabled = false, initialMode = 'letter',
       }
       return '';
     });
-  }, [cancelInactivityCountdown, clearAutoSpaceTimer, onSendMessage, setSentenceBufferSync]);
+  }, [cancelInactivityCountdown, clearAutoSpaceTimer, onSendMessage, setSentenceBufferSync, requestRefinedSentence]);
 
   return {
     // Gesture State Machine & Diagnostics

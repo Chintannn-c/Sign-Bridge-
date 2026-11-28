@@ -26,20 +26,23 @@ except ImportError:
     from services.translator_model import normalize_landmarks_batch
 
 try:
-    from .feature_extractor import transform_to_kinetic_invariants
+    from .feature_extractor import transform_to_kinetic_invariants, extract_word_two_stream_features
 except ImportError:
-    from services.feature_extractor import transform_to_kinetic_invariants
+    from services.feature_extractor import transform_to_kinetic_invariants, extract_word_two_stream_features
 
 try:
     from ..models.st_gcn import STGCN_BiLSTM_WordClassifier
     from ..models.cnn_bilstm import CNNBiLSTMWordClassifier
+    from ..models.temporal_conformer import TemporalConformerWordClassifier
 except (ImportError, ValueError):
     try:
         from models.st_gcn import STGCN_BiLSTM_WordClassifier
         from models.cnn_bilstm import CNNBiLSTMWordClassifier
+        from models.temporal_conformer import TemporalConformerWordClassifier
     except (ImportError, ValueError):
         STGCN_BiLSTM_WordClassifier = None
         CNNBiLSTMWordClassifier = None
+        TemporalConformerWordClassifier = None
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +114,8 @@ class WordRecognizer:
         self._lock = threading.Lock()
         self.min_motion_velocity = min_motion_velocity
         self.model = None
-        self.mode = None  # 'sklearn' | 'cnn_lstm' | 'stgcn_bilstm'
+        self.mode = None  # 'sklearn' | 'cnn_lstm' | 'stgcn_bilstm' | 'temporal_conformer'
+        self.feature_mode = 'kinetic_252d'
         self.metadata = {}
         self.labels = []
         self.input_dim = NUM_FEATURES
@@ -144,19 +148,20 @@ class WordRecognizer:
         with self._lock:
             loaded_model = None
             loaded_mode = None
+            loaded_feature_mode = 'kinetic_252d'
             loaded_metadata = {}
             loaded_labels = []
             loaded_input_dim = NUM_FEATURES
             loaded_available = False
 
-            # 1. Try PyTorch hybrid model (.pt) — highest priority
+            # 1. Try PyTorch temporal model (.pt) — highest priority
             if os.path.exists(CNN_LSTM_MODEL_PATH):
                 try:
                     import torch
                     checkpoint = torch.load(CNN_LSTM_MODEL_PATH, map_location='cpu', weights_only=True)
                     m_type = checkpoint.get('model_type', 'cnn_bilstm')
 
-                    if m_type in ('stgcn_bilstm', 'cnn_bilstm'):
+                    if m_type in ('temporal_conformer', 'stgcn_bilstm', 'cnn_bilstm'):
                         if os.path.exists(CNN_LSTM_META_PATH):
                             with open(CNN_LSTM_META_PATH, 'r', encoding='utf-8') as f:
                                 loaded_metadata = json.load(f)
@@ -177,7 +182,30 @@ class WordRecognizer:
                         nl = checkpoint.get('num_layers', 2)
                         dp = checkpoint.get('dropout', 0.3)
 
-                        if m_type == 'stgcn_bilstm':
+                        if m_type == 'temporal_conformer':
+                            if TemporalConformerWordClassifier is None:
+                                raise ImportError("TemporalConformerWordClassifier could not be imported")
+                            d_model = checkpoint.get('d_model', 128)
+                            nhead = checkpoint.get('nhead', 4)
+                            model = TemporalConformerWordClassifier(
+                                in_dim=input_dim,
+                                num_classes=num_classes,
+                                d_model=d_model,
+                                nhead=nhead,
+                                num_layers=nl,
+                                dropout=dp,
+                            )
+                            model.load_state_dict(state_dict)
+                            model.eval()
+                            loaded_model = model
+                            loaded_mode = 'temporal_conformer'
+                            loaded_feature_mode = checkpoint.get('feature_mode', 'two_stream_252d')
+                            loaded_input_dim = input_dim
+                            loaded_available = True
+                            logger.info("Loaded Two-Stream Temporal Conformer word model from %s (%d classes, in_dim=%d)",
+                                        CNN_LSTM_MODEL_PATH, num_classes, input_dim)
+
+                        elif m_type == 'stgcn_bilstm':
                             if STGCN_BiLSTM_WordClassifier is None:
                                 raise ImportError("STGCN_BiLSTM_WordClassifier could not be imported")
                             gcn_ch = checkpoint.get('gcn_channels', 64)
@@ -248,6 +276,7 @@ class WordRecognizer:
             if loaded_available:
                 self.model = loaded_model
                 self.mode = loaded_mode
+                self.feature_mode = loaded_feature_mode
                 self.metadata = loaded_metadata
                 self.labels = loaded_labels
                 self.input_dim = loaded_input_dim
@@ -255,6 +284,7 @@ class WordRecognizer:
             else:
                 self.model = None
                 self.mode = None
+                self.feature_mode = 'kinetic_252d'
                 self.metadata = {}
                 self.labels = []
                 self.input_dim = NUM_FEATURES
@@ -303,17 +333,17 @@ class WordRecognizer:
             # Apply consistent _pad_or_trim across all sequence lengths (including 30 frames)
             arr = self._pad_or_trim(arr)
 
-            norm_arr = normalize_landmarks_batch(arr)
-            if norm_arr is None:
-                return self._make_rejected_result("normalization_failed", motion_velocity=motion_velocity)
-
             with self._lock:
                 model = self.model
                 mode = self.mode
+                feature_mode = getattr(self, 'feature_mode', 'kinetic_252d')
                 labels = list(self.labels)
                 input_dim = getattr(self, 'input_dim', NUM_FEATURES)
 
             if mode == 'sklearn':
+                norm_arr = normalize_landmarks_batch(arr)
+                if norm_arr is None:
+                    return self._make_rejected_result("normalization_failed", motion_velocity=motion_velocity)
                 flat_in = norm_arr.flatten().reshape(1, -1)
                 raw_model_probs = model.predict_proba(flat_in)[0]
 
@@ -334,19 +364,25 @@ class WordRecognizer:
                     logger.error("Probability length %d does not match label count %d", len(raw_probs), len(labels))
                     return self._make_rejected_result("label_length_mismatch", motion_velocity=motion_velocity)
 
-            elif mode in ('cnn_lstm', 'stgcn_bilstm'):
+            elif mode in ('temporal_conformer', 'cnn_lstm', 'stgcn_bilstm'):
                 import torch
-                if input_dim == 252:
-                    kinetic_seq = transform_to_kinetic_invariants(norm_arr)
-                    input_data = kinetic_seq.reshape(1, SEQUENCE_LENGTH, 252)
+                if mode == 'temporal_conformer' or (feature_mode == 'two_stream_252d' and input_dim == 252):
+                    two_stream = extract_word_two_stream_features(arr)
+                    input_data = two_stream.reshape(1, SEQUENCE_LENGTH, 252)
                 else:
-                    input_data = norm_arr.reshape(1, SEQUENCE_LENGTH, NUM_FEATURES)
+                    norm_arr = normalize_landmarks_batch(arr)
+                    if norm_arr is None:
+                        return self._make_rejected_result("normalization_failed", motion_velocity=motion_velocity)
+                    if input_dim == 252:
+                        kinetic_seq = transform_to_kinetic_invariants(norm_arr)
+                        input_data = kinetic_seq.reshape(1, SEQUENCE_LENGTH, 252)
+                    else:
+                        input_data = norm_arr.reshape(1, SEQUENCE_LENGTH, NUM_FEATURES)
 
                 tensor_in = torch.tensor(input_data, dtype=torch.float32)
-                with self._lock:
-                    with torch.no_grad():
-                        logits = model(tensor_in)
-                        raw_probs = torch.softmax(logits, dim=1).numpy()[0]
+                with torch.no_grad():
+                    logits = model(tensor_in)
+                    raw_probs = torch.softmax(logits, dim=1).numpy()[0]
             else:
                 logger.error("Unsupported model mode: %s", mode)
                 return self._make_rejected_result("unsupported_model_mode", motion_velocity=motion_velocity)
@@ -488,6 +524,10 @@ class WordRecognizer:
                 labels[i]: round(float(final_probs[i]), 4)
                 for i in sorted_indices if i < len(labels)
             }
+            top_k = [
+                {'label': labels[i], 'prob': round(float(final_probs[i]), 4)}
+                for i in sorted_indices[:3] if i < len(labels)
+            ]
 
             return {
                 'word': '?' if is_rejected else final_word,
@@ -499,6 +539,7 @@ class WordRecognizer:
                 'rejection_reason': rejection_reason,
                 'motion_velocity': round(motion_velocity, 5),
                 'all_scores': top_scores,
+                'top_k': top_k,
             }
 
         except Exception as e:

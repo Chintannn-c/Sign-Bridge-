@@ -34,7 +34,7 @@ def _safe_float(val, default: float = 0.0) -> float:
         return default
 
 
-def handle_letter_prediction(translator, data, model_lock=None):
+def handle_letter_prediction(translator, data):
     landmarks = data.get('landmarks')
     if not landmarks:
         return {
@@ -78,11 +78,8 @@ def handle_letter_prediction(translator, data, model_lock=None):
         }
 
     body_anchors = data.get('body_anchors')
-    if model_lock:
-        with model_lock:
-            result = translator.predict(landmarks, body_anchors=body_anchors)
-    else:
-        result = translator.predict(landmarks, body_anchors=body_anchors)
+    # ponytail: lock-free inference; reload swaps references atomically without serializing frames
+    result = translator.predict(landmarks, body_anchors=body_anchors)
 
     conf = _safe_float(result.get('confidence', 0.0))
     is_rej = bool(result.get('rejected', False)) or (conf < CONFIDENCE_THRESHOLD) or (str(result.get('letter', '')) == '?')
@@ -95,7 +92,7 @@ def handle_letter_prediction(translator, data, model_lock=None):
     return result
 
 
-def handle_word_prediction(word_recognizer, data, model_lock=None):
+def handle_word_prediction(word_recognizer, data):
     if not word_recognizer or not getattr(word_recognizer, 'is_available', False):
         return {
             'type': 'word',
@@ -139,11 +136,7 @@ def handle_word_prediction(word_recognizer, data, model_lock=None):
         }
 
     body_anchors = data.get('body_anchors')
-    if model_lock:
-        with model_lock:
-            result = word_recognizer.predict(frames, body_anchors=body_anchors)
-    else:
-        result = word_recognizer.predict(frames, body_anchors=body_anchors)
+    result = word_recognizer.predict(frames, body_anchors=body_anchors)
 
     if not result:
         return {
@@ -175,9 +168,9 @@ async def ws_handler(websocket, translator, word_recognizer, model_lock=None):
                 req_id = data.get('req_id')
 
                 if msg_type == 'word':
-                    res = await asyncio.to_thread(handle_word_prediction, word_recognizer, data, model_lock)
+                    res = await asyncio.to_thread(handle_word_prediction, word_recognizer, data)
                 else:
-                    res = await asyncio.to_thread(handle_letter_prediction, translator, data, model_lock)
+                    res = await asyncio.to_thread(handle_letter_prediction, translator, data)
 
                 if req_id is not None:
                     res['req_id'] = req_id

@@ -17,6 +17,8 @@ spec:
         app: signbridge
         component: backend
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: backend
           image: signbridge-backend:latest

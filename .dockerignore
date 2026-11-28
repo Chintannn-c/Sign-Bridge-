@@ -30,6 +30,8 @@ Dataset_Words/
 dataset_collected/
 backend/dataset_collected/
 backend/dataset_words/
+backend/models/*_backup.pt
+backend/models/*_backup.pkl
 qa_analysis/
 graphify-out/
 .agents/

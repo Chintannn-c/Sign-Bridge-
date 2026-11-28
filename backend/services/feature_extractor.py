@@ -247,3 +247,130 @@ def transform_to_kinetic_invariants(sequences):
     out = np.concatenate([normed_flat, velocities], axis=-1).astype(np.float32)
     return out[0] if single else out
 
+
+def align_landmarks_to_palm_frame(raw_landmarks):
+    """
+    Aligns each active hand into its canonical palm-local orthonormal basis:
+      origin = wrist, +Y = wrist -> middle-MCP, +Z = palm normal, +X = cross(+Y, +Z).
+    Eliminates camera-tilt / wrist-roll variance while keeping shape intact.
+    """
+    raw = np.asarray(raw_landmarks, dtype=np.float32)
+    single = (raw.ndim == 1)
+    if single:
+        raw = raw[None, :]
+
+    pts = raw.reshape(len(raw), 2, 21, 3).copy()
+    out = np.zeros_like(pts)
+
+    for i in range(len(pts)):
+        for h in range(2):
+            hp = pts[i, h]
+            if not np.any(hp != 0):
+                continue
+            wrist = hp[0]
+            rel = hp - wrist
+            scale = float(np.linalg.norm(hp[12] - wrist))
+            if not np.isfinite(scale) or scale < 1e-4:
+                scale = float(np.linalg.norm(hp[9] - wrist))
+            if not np.isfinite(scale) or scale < 1e-4:
+                scale = 1.0
+            rel = rel / scale
+
+            uy = hp[9] - wrist
+            ny = float(np.linalg.norm(uy))
+            if ny < 1e-6:
+                out[i, h] = rel
+                continue
+            uy = uy / ny
+
+            v_idx = hp[5] - wrist
+            v_pnk = hp[17] - wrist
+            uz = np.cross(v_idx, v_pnk)
+            nz = float(np.linalg.norm(uz))
+            if nz < 1e-6:
+                out[i, h] = rel
+                continue
+            uz = uz / nz
+
+            ux = np.cross(uy, uz)
+            nx = float(np.linalg.norm(ux))
+            ux = (ux / nx) if nx > 1e-6 else np.array([1.0, 0.0, 0.0], dtype=np.float32)
+            # Re-orthogonalize uz so basis is strictly orthonormal
+            uz = np.cross(ux, uy)
+            R = np.stack([ux, uy, uz], axis=1)  # (3, 3)
+            out[i, h] = rel @ R
+
+    flat = out.reshape(len(raw), 126).astype(np.float32)
+    return flat[0] if single else flat
+
+
+def extract_palm_aligned_features(raw_landmarks):
+    """
+    208-D invariant descriptor: 126 palm-frame rotation-aligned coordinates +
+    82 scale/position-invariant distances, angles, palm normals, and cross-hand contacts.
+    """
+    raw = np.asarray(raw_landmarks, dtype=np.float32)
+    single = (raw.ndim == 1)
+    if single:
+        raw = raw[None, :]
+    geo_feats = extract_features(raw)
+    palm_coords = align_landmarks_to_palm_frame(raw)
+    out = np.concatenate([palm_coords, geo_feats[:, 126:]], axis=1).astype(np.float32)
+    return out[0] if single else out
+
+
+def extract_word_two_stream_features(sequences):
+    """
+    Two-Stream 252-D sequence features for whole-word ISL recognition:
+      - Stream A (:126) = Clip-anchored signing-space trajectory (centered on clip-mean
+        active wrist and scaled by clip-median palm size), preserving 3D arcs and height.
+      - Stream B (126:) = Per-frame wrist-centered handshape coordinates, preserving
+        finger curl and relative hand posture.
+    """
+    arr = np.asarray(sequences, dtype=np.float32)
+    single = (arr.ndim == 2)
+    if single:
+        arr = arr[None, ...]
+
+    N, T, _ = arr.shape
+    pts = arr.reshape(N, T, 2, 21, 3)
+    traj_pts = np.zeros_like(pts)
+    shape_pts = np.zeros_like(pts)
+
+    for i in range(N):
+        seq = pts[i]  # (T, 2, 21, 3)
+        present = np.any(seq != 0, axis=(2, 3))  # (T, 2)
+        if not present.any():
+            continue
+
+        # Clip-level anchor and scale preserve global motion trajectory across frames
+        active_wrists = seq[:, :, 0, :][present]
+        clip_anchor = np.mean(active_wrists, axis=0)
+        palm_spans = np.linalg.norm(seq[:, :, 9, :] - seq[:, :, 0, :], axis=-1)[present]
+        valid_spans = palm_spans[palm_spans > 1e-4]
+        clip_scale = float(np.median(valid_spans)) if valid_spans.size > 0 else 1.0
+        if not np.isfinite(clip_scale) or clip_scale < 1e-4:
+            clip_scale = 1.0
+
+        traj_i = (seq - clip_anchor) / clip_scale
+        traj_i[~present] = 0.0
+        traj_pts[i] = traj_i
+
+        # Per-frame wrist-centered handshape stream
+        for t in range(T):
+            p_t = present[t]
+            if not p_t.any():
+                continue
+            wrists_t = seq[t, p_t, 0, :]
+            anchor_t = np.mean(wrists_t, axis=0)
+            spans_t = np.linalg.norm(seq[t, p_t, 9, :] - seq[t, p_t, 0, :], axis=-1)
+            scale_t = float(np.mean(spans_t))
+            if not np.isfinite(scale_t) or scale_t < 1e-4:
+                scale_t = clip_scale
+            for h in range(2):
+                if p_t[h]:
+                    shape_pts[i, t, h] = (seq[t, h] - anchor_t) / scale_t
+
+    out = np.concatenate([traj_pts.reshape(N, T, 126), shape_pts.reshape(N, T, 126)], axis=-1).astype(np.float32)
+    return out[0] if single else out
+

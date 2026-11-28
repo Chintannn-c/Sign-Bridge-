@@ -84,27 +84,37 @@ class STGCNHandClassifier(nn.Module):
     Input: (Batch, 42, 3) or (Batch, 126)
     Output: (Batch, Num_Classes)
     """
-    def __init__(self, num_classes=26, in_channels=3, hidden_dim=64):
+    ANATOMICAL_GROUPS = (
+        (0,), (1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, 16), (17, 18, 19, 20),
+        (21,), (22, 23, 24, 25), (26, 27, 28, 29), (30, 31, 32, 33), (34, 35, 36, 37), (38, 39, 40, 41),
+    )
+
+    def __init__(self, num_classes=26, in_channels=3, hidden_dim=64, pooling='mean'):
         super().__init__()
+        self.pooling = pooling
         A = build_dual_hand_adjacency()
         self.gconv1 = SpatialGraphConv(in_channels, hidden_dim, A)
         self.gconv2 = SpatialGraphConv(hidden_dim, hidden_dim * 2, A)
         self.gconv3 = SpatialGraphConv(hidden_dim * 2, hidden_dim * 2, A)
-        
-        self.fc1 = nn.Linear(hidden_dim * 2, 128)
+
+        fc_in = (hidden_dim * 2 * len(self.ANATOMICAL_GROUPS)) if pooling == 'anatomical' else (hidden_dim * 2)
+        self.fc1 = nn.Linear(fc_in, 128)
         self.dropout = nn.Dropout(0.3)
         self.fc2 = nn.Linear(128, num_classes)
 
     def forward(self, x):
         if x.ndim == 2:
             x = x.view(-1, 42, 3)
-        
+
         h = self.gconv1(x)
         h = self.gconv2(h)
         h = self.gconv3(h)
-        
-        # Global graph pooling (mean across 42 joint nodes)
-        pooled = torch.mean(h, dim=1)
+
+        if self.pooling == 'anatomical':
+            pooled = torch.cat([torch.mean(h[:, grp, :], dim=1) for grp in self.ANATOMICAL_GROUPS], dim=1)
+        else:
+            # Global graph pooling (mean across 42 joint nodes) for legacy checkpoints
+            pooled = torch.mean(h, dim=1)
         out = F.relu(self.fc1(pooled))
         out = self.dropout(out)
         logits = self.fc2(out)

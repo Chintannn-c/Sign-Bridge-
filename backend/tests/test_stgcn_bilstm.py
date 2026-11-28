@@ -10,7 +10,9 @@ Verifies:
 import numpy as np
 import pytest
 import torch
-from models.st_gcn import STGCN_BiLSTM_WordClassifier
+from models.st_gcn import STGCN_BiLSTM_WordClassifier, STGCNHandClassifier
+from models.temporal_conformer import TemporalConformerWordClassifier
+from services.feature_extractor import extract_word_two_stream_features, align_landmarks_to_palm_frame
 from services.word_recognizer import WordRecognizer
 
 
@@ -145,4 +147,53 @@ def test_word_recognizer_stroke_segmentation():
     trimmed = wr._pad_or_trim(frames)
     assert trimmed.shape == (30, 126)
     assert not np.isnan(trimmed).any()
+
+
+def test_temporal_conformer_two_stream_and_palm_invariance():
+    """Two-Stream Conformer preserves clip trajectory, palm frame is rotation-invariant, and anatomical ST-GCN matches shape."""
+    # 1. Stream A preserves wrist movement across frames (unlike per-frame wrist centering)
+    moving_seq = np.zeros((30, 126), dtype=np.float32)
+    for t in range(30):
+        moving_seq[t, 0] = 0.2 + t * 0.02  # wrist x moves across screen
+        moving_seq[t, 1] = 0.5
+        moving_seq[t, 9 * 3] = moving_seq[t, 0]
+        moving_seq[t, 9 * 3 + 1] = 0.4
+    two_stream = extract_word_two_stream_features(moving_seq)
+    assert two_stream.shape == (30, 252)
+    assert two_stream[-1, 0] > two_stream[0, 0] + 0.5
+
+    # 2. TemporalConformerWordClassifier integrates cleanly into WordRecognizer
+    model = TemporalConformerWordClassifier(in_dim=252, num_classes=3, d_model=64, nhead=4, num_layers=1)
+    model.classifier[-1].bias.data[1] = 10.0
+    model.eval()
+    wr = WordRecognizer()
+    wr.model = model
+    wr.mode = 'temporal_conformer'
+    wr.feature_mode = 'two_stream_252d'
+    wr.input_dim = 252
+    wr.labels = ['HELLO', 'THANK_YOU', 'NAMASTE']
+    wr.is_available = True
+    res = wr.predict(moving_seq)
+    assert res is not None
+    assert res['word'] == 'THANK_YOU'
+    assert len(res['top_k']) == 3
+
+    # 3. Palm frame alignment is invariant to 2D rotation around Z
+    hand = np.zeros(126, dtype=np.float32)
+    hand[0:3] = [0.5, 0.7, 0.0]
+    hand[5 * 3:5 * 3 + 3] = [0.45, 0.55, 0.0]
+    hand[9 * 3:9 * 3 + 3] = [0.50, 0.50, 0.0]
+    hand[12 * 3:12 * 3 + 3] = [0.50, 0.35, 0.0]
+    hand[17 * 3:17 * 3 + 3] = [0.58, 0.58, 0.0]
+    theta = 0.6
+    c, s = np.cos(theta), np.sin(theta)
+    rot = hand.reshape(42, 3).copy()
+    x, y = rot[:, 0].copy(), rot[:, 1].copy()
+    rot[:, 0] = x * c - y * s
+    rot[:, 1] = x * s + y * c
+    assert np.allclose(align_landmarks_to_palm_frame(hand), align_landmarks_to_palm_frame(rot.reshape(126)), atol=1e-4)
+
+    # 4. Anatomical ST-GCN output shape
+    stgcn = STGCNHandClassifier(num_classes=26, pooling='anatomical')
+    assert stgcn(torch.randn(2, 126)).shape == (2, 26)
 

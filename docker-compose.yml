@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -13,7 +11,8 @@ services:
     environment:
       - DB_PATH=/data/signbridge.db
     env_file:
-      - backend/.env
+      - path: backend/.env
+        required: false
     volumes:
       - sqlite_data:/data
     networks:

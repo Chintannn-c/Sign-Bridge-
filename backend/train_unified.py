@@ -137,14 +137,18 @@ def augment_training_partition(X, y, seed=42):
     return X_aug, y_aug
 
 
-def train_letter_model():
+def train_letter_model(palm_aligned: bool = False):
     """Train XGBoost letter classifier with all combined data."""
     from services.data_loader import load_dataset_partitioned, ALPHABET_LABELS
-    from services.feature_extractor import extract_features, NUM_EXTRACTED_FEATURES
+    from services.feature_extractor import (
+        extract_features,
+        extract_palm_aligned_features,
+        NUM_EXTRACTED_FEATURES,
+    )
     from xgboost import XGBClassifier
 
     logger.info("=" * 70)
-    logger.info("PHASE 2: Training XGBoost Letter Classifier")
+    logger.info(f"PHASE 2: Training XGBoost Letter Classifier (palm_aligned={palm_aligned})")
     logger.info("=" * 70)
 
     # Load data from all sources
@@ -163,11 +167,14 @@ def train_letter_model():
     X_train_aug, y_train_aug = augment_training_partition(partitions['X_train'], partitions['y_train'])
     logger.info(f"Augmented training: {X_train_aug.shape[0]} samples")
 
+    feat_fn = extract_palm_aligned_features if palm_aligned else extract_features
+    feat_name = 'palm_aligned_208d' if palm_aligned else f'geometric_invariants_{NUM_EXTRACTED_FEATURES}d'
+
     # Extract geometric features
-    logger.info(f"Extracting {NUM_EXTRACTED_FEATURES}-D geometric features...")
-    X_train_feat = extract_features(X_train_aug)
-    X_val_feat = extract_features(partitions['X_val'])
-    X_test_feat = extract_features(partitions['X_test'])
+    logger.info(f"Extracting {NUM_EXTRACTED_FEATURES}-D features ({feat_name})...")
+    X_train_feat = feat_fn(X_train_aug)
+    X_val_feat = feat_fn(partitions['X_val'])
+    X_test_feat = feat_fn(partitions['X_test'])
 
     logger.info(f"Feature matrices: Train={X_train_feat.shape}, Val={X_val_feat.shape}, Test={X_test_feat.shape}")
 
@@ -259,8 +266,8 @@ def train_letter_model():
         'model_type': 'xgboost',
         'raw_input_landmarks': 126,
         'estimator_features': NUM_EXTRACTED_FEATURES,
-        'feature_name': f'geometric_invariants_{NUM_EXTRACTED_FEATURES}d',
-        'preprocessing': 'wrist_center_scale_v1',
+        'feature_name': feat_name,
+        'preprocessing': 'palm_frame_v2' if palm_aligned else 'wrist_center_scale_v1',
         'num_classes': len(ALPHABET_LABELS),
         'labels': ALPHABET_LABELS,
         'data_summary': {
@@ -296,7 +303,7 @@ def train_letter_model():
 # PHASE 2B: Letter Model Training (ST-GCN Kinematic Graph)
 # ═══════════════════════════════════════════════════════════════════════════
 
-def train_stgcn_model(epochs=35, batch_size=64, lr=0.003):
+def train_stgcn_model(epochs=30, batch_size=256, lr=0.004):
     """Train PyTorch ST-GCN kinematic hand graph classifier."""
     import torch
     import torch.nn as nn
@@ -327,7 +334,7 @@ def train_stgcn_model(epochs=35, batch_size=64, lr=0.003):
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False)
 
-    model = STGCNHandClassifier(num_classes=len(ALPHABET_LABELS), in_channels=3, hidden_dim=64).to(device)
+    model = STGCNHandClassifier(num_classes=len(ALPHABET_LABELS), in_channels=3, hidden_dim=64, pooling='anatomical').to(device)
     criterion = nn.CrossEntropyLoss(label_smoothing=0.05)
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-5)
@@ -414,6 +421,7 @@ def train_stgcn_model(epochs=35, batch_size=64, lr=0.003):
     model_path = MODEL_DIR / 'isl_stgcn_model.pt'
     torch.save({
         'model_type': 'st_gcn',
+        'pooling': 'anatomical',
         'model_state_dict': model.state_dict(),
         'num_classes': len(ALPHABET_LABELS),
         'labels': ALPHABET_LABELS,
@@ -447,8 +455,8 @@ def train_stgcn_model(epochs=35, batch_size=64, lr=0.003):
 # PHASE 3: Word Model Training (CNN-BiLSTM)
 # ═══════════════════════════════════════════════════════════════════════════
 
-def train_word_model():
-    """Train CNN-BiLSTM word classifier with augmented video data."""
+def train_word_model(use_conformer: bool = True, epochs: int = 35):
+    """Train Two-Stream Temporal Conformer (or legacy ST-GCN-BiLSTM) word classifier."""
     import torch
     import torch.nn as nn
     import torch.optim as optim
@@ -461,7 +469,7 @@ def train_word_model():
     SEQUENCE_LENGTH = 30
 
     logger.info("=" * 70)
-    logger.info("PHASE 3: Training CNN-BiLSTM Word Classifier")
+    logger.info(f"PHASE 3: Training {'Two-Stream Conformer' if use_conformer else 'ST-GCN BiLSTM'} Word Classifier")
     logger.info("=" * 70)
 
     # --- Load word sequences ---
@@ -499,16 +507,18 @@ def train_word_model():
                     if arr.shape != (SEQUENCE_LENGTH, NUM_FEATURES):
                         continue
 
-                    # Normalize each frame
-                    norm_seq = []
-                    for frame in arr:
-                        norm = normalize_landmarks(frame)
-                        norm_seq.append(
-                            norm if norm is not None
-                            else np.zeros(NUM_FEATURES, dtype=np.float32)
-                        )
-
-                    sequences.append(np.array(norm_seq, dtype=np.float32))
+                    if use_conformer:
+                        # Keep raw clip coordinates so Stream A preserves signing-space trajectory
+                        sequences.append(arr)
+                    else:
+                        norm_seq = []
+                        for frame in arr:
+                            norm = normalize_landmarks(frame)
+                            norm_seq.append(
+                                norm if norm is not None
+                                else np.zeros(NUM_FEATURES, dtype=np.float32)
+                            )
+                        sequences.append(np.array(norm_seq, dtype=np.float32))
                     labels.append(label_to_idx[word])
                     sources.append(json_path.stem)
             except Exception as e:
@@ -577,45 +587,58 @@ def train_word_model():
             needed = target_per_class - n_samples
             for k in range(needed):
                 base_sample = cls_samples[k % n_samples].copy()
-                # Apply multi-strategy kinematic augmentations
+                pts_base = base_sample.reshape(SEQUENCE_LENGTH, 2, 21, 3)
+                hand_present = np.any(pts_base != 0, axis=(2, 3), keepdims=True)  # (T, 2, 1, 1)
+
+                # Apply multi-strategy kinematic augmentations only to active hands
                 noise_scale = _rng.uniform(0.003, 0.010)
-                aug_sample = base_sample + _rng.normal(0, noise_scale, size=base_sample.shape).astype(np.float32)
+                pts_aug = pts_base + _rng.normal(0, noise_scale, size=pts_base.shape).astype(np.float32)
 
                 # Random spatial scaling (simulate camera distance/hand size variations)
                 if _rng.random() < 0.4:
-                    scale = _rng.uniform(0.92, 1.08)
-                    aug_sample = aug_sample * scale
+                    scale = _rng.uniform(0.90, 1.10)
+                    pts_aug = pts_aug * scale
 
-                # Random spatial translation shift
+                # Random uniform spatial translation shift (keep hand geometry intact)
                 if _rng.random() < 0.4:
-                    shift = _rng.uniform(-0.025, 0.025, size=(1, aug_sample.shape[1])).astype(np.float32)
-                    aug_sample = aug_sample + shift
+                    shift = _rng.uniform(-0.04, 0.04, size=(1, 1, 1, 3)).astype(np.float32)
+                    pts_aug = pts_aug + shift
 
-                # Random 2D/3D camera & wrist rotation (roll/yaw +/- 10 degrees)
+                # Random 2D/3D camera & wrist rotation (roll/yaw +/- 12 degrees)
                 if _rng.random() < 0.4:
-                    theta = float(_rng.uniform(-0.174, 0.174))
+                    theta = float(_rng.uniform(-0.21, 0.21))
                     cos_t, sin_t = np.cos(theta), np.sin(theta)
-                    pts_3d = aug_sample.reshape(SEQUENCE_LENGTH, 42, 3).copy()
-                    x_rot = pts_3d[..., 0] * cos_t - pts_3d[..., 1] * sin_t
-                    y_rot = pts_3d[..., 0] * sin_t + pts_3d[..., 1] * cos_t
-                    pts_3d[..., 0] = x_rot
-                    pts_3d[..., 1] = y_rot
-                    aug_sample = pts_3d.reshape(SEQUENCE_LENGTH, NUM_FEATURES)
+                    x_rot = pts_aug[..., 0] * cos_t - pts_aug[..., 1] * sin_t
+                    y_rot = pts_aug[..., 0] * sin_t + pts_aug[..., 1] * cos_t
+                    pts_aug[..., 0] = x_rot
+                    pts_aug[..., 1] = y_rot
 
-                # Random time warp / speed variation
-                if _rng.random() < 0.4:
-                    speed = _rng.uniform(0.85, 1.15)
-                    indices = np.linspace(0, SEQUENCE_LENGTH - 1, int(SEQUENCE_LENGTH * speed))
+                # Re-zero absent hand slots so noise/shift never creates phantom hands
+                pts_aug = np.where(hand_present, pts_aug, 0.0)
+                aug_sample = pts_aug.reshape(SEQUENCE_LENGTH, NUM_FEATURES).astype(np.float32)
+
+                # Random time warp / speed variation (0.75x - 1.35x)
+                if _rng.random() < 0.5:
+                    speed = _rng.uniform(0.75, 1.35)
+                    indices = np.linspace(0, SEQUENCE_LENGTH - 1, max(4, int(SEQUENCE_LENGTH * speed)))
                     resampled = np.array([aug_sample[int(round(min(max(0, idx), SEQUENCE_LENGTH - 1)))] for idx in indices])
                     final_indices = np.linspace(0, len(resampled) - 1, SEQUENCE_LENGTH)
                     # pyrefly: ignore[unnecessary-type-conversion]
                     aug_sample = np.array([resampled[int(round(idx))] for idx in final_indices])
 
-                # Random frame dropout (simulate occlusion)
+                # Random frame dropout or single-hand dropout (simulates occlusion)
                 if _rng.random() < 0.3:
                     n_drop = _rng.integers(1, 4)
                     drop_idx = _rng.choice(SEQUENCE_LENGTH, size=n_drop, replace=False)
                     aug_sample[drop_idx] = 0.0
+                if _rng.random() < 0.15:
+                    # Drop one hand briefly across 4-8 frames
+                    h_drop = int(_rng.integers(0, 2))
+                    start_d = int(_rng.integers(0, SEQUENCE_LENGTH - 5))
+                    if h_drop == 0:
+                        aug_sample[start_d:start_d + 5, :63] = 0.0
+                    else:
+                        aug_sample[start_d:start_d + 5, 63:] = 0.0
 
                 aug_X.append(aug_sample)
                 aug_y.append(cls)
@@ -625,11 +648,16 @@ def train_word_model():
     X_train_aug, y_train_aug = balance_and_augment_sequences(X_train, y_train, target_per_class=250)
     logger.info(f"Class-balanced training: {len(X_train_aug)} sequences ({dict(Counter(y_train_aug))})")
 
-    from services.feature_extractor import transform_to_kinetic_invariants
-    logger.info("Extracting kinetic invariant features (wrist-centering + palm scale + velocities)...")
-    X_train_kinetic = transform_to_kinetic_invariants(X_train_aug)
-    X_val_kinetic = transform_to_kinetic_invariants(X_val)
-    logger.info(f"Transformed kinetic shapes: train={X_train_kinetic.shape}, val={X_val_kinetic.shape}")
+    from services.feature_extractor import transform_to_kinetic_invariants, extract_word_two_stream_features
+    if use_conformer:
+        logger.info("Extracting Two-Stream 252-D features (clip-anchored trajectory + wrist-centered handshape)...")
+        X_train_kinetic = extract_word_two_stream_features(X_train_aug)
+        X_val_kinetic = extract_word_two_stream_features(X_val)
+    else:
+        logger.info("Extracting kinetic invariant features (wrist-centering + palm scale + velocities)...")
+        X_train_kinetic = transform_to_kinetic_invariants(X_train_aug)
+        X_val_kinetic = transform_to_kinetic_invariants(X_val)
+    logger.info(f"Transformed feature shapes: train={X_train_kinetic.shape}, val={X_val_kinetic.shape}")
 
     # ponytail: y_train_aug is already balanced to target_per_class (250).
     # Double-balancing with raw inv_weights caused class collapse (14 classes had F1=0).
@@ -644,23 +672,27 @@ def train_word_model():
         def __getitem__(self, index):
             return self.X[index], self.y[index]
 
-    train_loader = DataLoader(SeqDataset(X_train_kinetic, y_train_aug), batch_size=32, shuffle=True)
-    val_loader = DataLoader(SeqDataset(X_val_kinetic, y_val), batch_size=32, shuffle=False)
+    train_loader = DataLoader(SeqDataset(X_train_kinetic, y_train_aug), batch_size=64, shuffle=True)
+    val_loader = DataLoader(SeqDataset(X_val_kinetic, y_val), batch_size=64, shuffle=False)
 
-    # --- Model Architecture: ST-GCN + CNN-BiLSTM with Attention ---
-    from models.st_gcn import STGCN_BiLSTM_WordClassifier
-
-    model = STGCN_BiLSTM_WordClassifier(in_dim=252, num_classes=len(word_labels))
+    # --- Model Architecture ---
+    if use_conformer:
+        from models.temporal_conformer import TemporalConformerWordClassifier
+        model = TemporalConformerWordClassifier(in_dim=252, num_classes=len(word_labels), d_model=128, nhead=4, num_layers=2, dropout=0.25)
+        optimizer = optim.AdamW(model.parameters(), lr=0.0015, weight_decay=1e-3)
+        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-5)
+    else:
+        from models.st_gcn import STGCN_BiLSTM_WordClassifier
+        model = STGCN_BiLSTM_WordClassifier(in_dim=252, num_classes=len(word_labels))
+        optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
     criterion = nn.CrossEntropyLoss(label_smoothing=0.05)
-    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
 
     # --- Training loop ---
     best_acc = 0.0
     best_state = None
     patience_counter = 0
     max_patience = 15
-    epochs = 80
 
     t0 = time.time()
     for epoch in range(1, epochs + 1):
@@ -690,7 +722,10 @@ def train_word_model():
                 val_total += len(val_y)
 
         val_acc = val_correct / val_total if val_total > 0 else 0.0
-        scheduler.step(val_acc)
+        if use_conformer:
+            scheduler.step()
+        else:
+            scheduler.step(val_acc)
 
         if val_acc > best_acc:
             best_acc = val_acc
@@ -760,17 +795,33 @@ def train_word_model():
     # Save model
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     model_path = MODEL_DIR / 'isl_cnn_lstm_word_model.pt'
-    torch.save({
-        'model_type': 'stgcn_bilstm',
-        'model_state_dict': model.state_dict(),
-        'input_dim': 252,
-        'has_attention': True,
-        'gcn_channels': 64,
-        'hidden_dim': 128,
-        'sequence_length': SEQUENCE_LENGTH,
-        'num_classes': len(word_labels),
-        'word_labels': word_labels,
-    }, str(model_path))
+    if use_conformer:
+        torch.save({
+            'model_type': 'temporal_conformer',
+            'feature_mode': 'two_stream_252d',
+            'model_state_dict': model.state_dict(),
+            'input_dim': 252,
+            'd_model': 128,
+            'nhead': 4,
+            'num_layers': 2,
+            'dropout': 0.25,
+            'sequence_length': SEQUENCE_LENGTH,
+            'num_classes': len(word_labels),
+            'word_labels': word_labels,
+        }, str(model_path))
+    else:
+        torch.save({
+            'model_type': 'stgcn_bilstm',
+            'feature_mode': 'kinetic_252d',
+            'model_state_dict': model.state_dict(),
+            'input_dim': 252,
+            'has_attention': True,
+            'gcn_channels': 64,
+            'hidden_dim': 128,
+            'sequence_length': SEQUENCE_LENGTH,
+            'num_classes': len(word_labels),
+            'word_labels': word_labels,
+        }, str(model_path))
 
     # Optional compact Random Forest word classifier as lightweight backup (max_depth=12, n_estimators=60)
     logger.info("\nTraining Compact Random Forest word classifier (lightweight backup)...")
@@ -812,9 +863,9 @@ def train_word_model():
     except Exception as e:
         logger.warning(f"Random Forest training failed: {e}")
 
-    # Save CNN-BiLSTM metadata
+    # Save word model metadata
     meta = {
-        'model_type': 'cnn_bilstm',
+        'model_type': 'temporal_conformer' if use_conformer else 'cnn_bilstm',
         'train_samples': int(len(X_train_kinetic)),
         'val_samples': int(len(X_val_kinetic)),
         'val_accuracy': best_acc,
@@ -824,8 +875,8 @@ def train_word_model():
         'input_features': 252,
         'epochs_trained': epoch,
         'training_time_seconds': round(train_time, 2),
-        'architecture': '1D-CNN(252->64->128) + BiLSTM(128, 2-layers) + TemporalAttention + FC(256->64->N)',
-        'features_type': 'kinetic_invariants_252d',
+        'architecture': 'TwoStream(126-D Trajectory + 126-D Handshape) -> DepthwiseConv1d + 2L ConformerTransformer(d=128, h=4) + AttnPool' if use_conformer else '1D-CNN(252->64->128) + BiLSTM(128, 2-layers) + TemporalAttention + FC(256->64->N)',
+        'features_type': 'two_stream_252d' if use_conformer else 'kinetic_invariants_252d',
         'per_class': per_class,
         'trained_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
     }
@@ -851,6 +902,10 @@ def main():
                         help='Train only ST-GCN Kinematic Graph letter model')
     parser.add_argument('--words-only', action='store_true',
                         help='Train only word model')
+    parser.add_argument('--palm-aligned', action='store_true',
+                        help='Use palm-frame aligned 208-D features for XGBoost instead of geometric_invariants_208d')
+    parser.add_argument('--legacy-features', action='store_true',
+                        help='Use legacy wrist-centered features instead of two-stream Conformer for words')
     args = parser.parse_args()
 
     start = time.time()
@@ -870,7 +925,7 @@ def main():
     # Phase 2A: XGBoost Letter model
     if not args.words_only and not args.stgcn_only:
         try:
-            results['letter'] = train_letter_model()
+            results['letter'] = train_letter_model(palm_aligned=args.palm_aligned and not args.legacy_features)
         except Exception as e:
             logger.error(f"Letter model training failed: {e}", exc_info=True)
 
@@ -884,7 +939,7 @@ def main():
     # Phase 3: Word model
     if not args.letters_only and not args.stgcn_only:
         try:
-            results['word'] = train_word_model()
+            results['word'] = train_word_model(use_conformer=not args.legacy_features)
         except Exception as e:
             logger.error(f"Word model training failed: {e}", exc_info=True)
 

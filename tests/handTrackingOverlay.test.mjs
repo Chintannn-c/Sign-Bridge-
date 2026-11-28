@@ -7,6 +7,7 @@ import {
   getHandColorInfo,
   updateFingertipTrails,
   computeRippleStep,
+  computeHandOverlap,
 } from '../src/components/SignLanguageAssistant/overlayEngine.js';
 
 test('Presence checks reject only all-zero sentinel or non-finite coordinates', () => {
@@ -174,4 +175,28 @@ test('Ripples: expansion duration and radii are identical at 60 fps and 120 fps'
 
   // At t >= birth + duration, both must naturally expire (return null)
   assert.equal(computeRippleStep(rip, birth + duration + 1), null);
+});
+
+test('Hand overlap detector flags interlocking hands and stays false when separated', () => {
+  const separated = new Array(126).fill(0);
+  const overlapping = new Array(126).fill(0);
+  for (let i = 0; i < 21; i++) {
+    separated[i * 3] = 0.1 + (i % 5) * 0.02;
+    separated[i * 3 + 1] = 0.4 + Math.floor(i / 5) * 0.02;
+    separated[63 + i * 3] = 0.7 + (i % 5) * 0.02;
+    separated[63 + i * 3 + 1] = 0.4 + Math.floor(i / 5) * 0.02;
+
+    overlapping[i * 3] = 0.45 + (i % 5) * 0.02;
+    overlapping[i * 3 + 1] = 0.45 + Math.floor(i / 5) * 0.02;
+    overlapping[63 + i * 3] = 0.46 + (i % 5) * 0.02;
+    overlapping[63 + i * 3 + 1] = 0.46 + Math.floor(i / 5) * 0.02;
+  }
+
+  const sepRes = computeHandOverlap(separated);
+  assert.equal(sepRes.isOverlapping, false);
+  assert.equal(sepRes.iou, 0);
+
+  const ovRes = computeHandOverlap(overlapping);
+  assert.equal(ovRes.isOverlapping, true);
+  assert.ok(ovRes.iou > 0.15);
 });
